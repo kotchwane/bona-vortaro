@@ -68,7 +68,11 @@ public class SearchActivity extends AppCompatActivity
     dbHelper = new LanguageDatabaseHelper (this);
 
     updateSearchLanguages ();
-    useLanguage ();
+
+    /* Only count the language once, not every time the activity is
+     * recreated, for example when the screen is rotated */
+    if (savedInstanceState == null)
+      useLanguage ();
 
     TextView tv = (TextView) findViewById (R.id.search_edit);
     tv.addTextChangedListener (this);
