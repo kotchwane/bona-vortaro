@@ -53,6 +53,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
@@ -64,7 +65,7 @@ import androidx.compose.ui.unit.dp
 class PreferenceActivity : AppCompatActivity() {
 
     private var theme by mutableStateOf(Theme.SYSTEM)
-    private var textSize by mutableStateOf(PrevoSettings.DEFAULT_TEXT_SIZE)
+    private var textSize by mutableIntStateOf(PrevoSettings.DEFAULT_TEXT_SIZE)
     private var myLanguages by mutableStateOf(emptyList<Language>())
     private var translations by mutableStateOf(emptySet<String>())
 

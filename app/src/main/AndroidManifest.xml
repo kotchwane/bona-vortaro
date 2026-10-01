@@ -20,13 +20,14 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
           android:installLocation="auto">
 
+  <!-- Every screen draws its own top bar with Compose, and follows the
+       light/dark setting of the phone or of the app -->
   <application android:name=".PrevoApplication"
                android:label="@string/app_name"
-               android:icon="@drawable/ic_launcher"
+               android:icon="@mipmap/ic_launcher"
                android:hardwareAccelerated="true"
-               android:theme="@style/Theme.AppCompat">
+               android:theme="@style/Theme.AppCompat.DayNight.NoActionBar">
     <activity android:name="LanguagesActivity"
-              android:label="@string/app_name"
               android:exported="true">
       <intent-filter>
         <action android:name="android.intent.action.MAIN" />
@@ -35,22 +36,14 @@
     </activity>
     <activity android:name="SearchActivity"
               android:label="@string/search"
-              android:theme="@style/Theme.AppCompat.DayNight.NoActionBar"
-              android:exported="false">
-    </activity>
+              android:exported="false" />
     <activity android:name="ArticleActivity"
-              android:theme="@style/Theme.AppCompat.DayNight.NoActionBar"
-              android:exported="false">
-    </activity>
+              android:exported="false" />
     <activity android:name="SelectLanguageActivity"
-              android:label="@string/app_name"
-              android:theme="@style/Theme.AppCompat.DayNight.NoActionBar"
-              android:exported="false">
-    </activity>
+              android:label="@string/select_language"
+              android:exported="false" />
     <activity android:name="PreferenceActivity"
-              android:label="@string/app_name"
-              android:theme="@style/Theme.AppCompat.DayNight.NoActionBar"
-              android:exported="false">
-    </activity>
+              android:label="@string/preferences"
+              android:exported="false" />
   </application>
 </manifest>

@@ -57,6 +57,7 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -90,7 +91,7 @@ class ArticleActivity : AppCompatActivity() {
 
     private var articleNumber = -1
     private var article by mutableStateOf<Article?>(null)
-    private var textSize by mutableStateOf(PrevoSettings.DEFAULT_TEXT_SIZE)
+    private var textSize by mutableIntStateOf(PrevoSettings.DEFAULT_TEXT_SIZE)
     private var showNoFlashcard by mutableStateOf(false)
 
     /* The translations that were shown when the article was loaded, to
