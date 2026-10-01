@@ -234,8 +234,16 @@ public class SearchActivity extends AppCompatActivity
         intent.getComponent () != null &&
         intent.getComponent ().equals (getComponentName ()))
       {
-            TextView tv = (TextView) findViewById (R.id.search_edit);
-            intent.putExtra (EXTRA_SEARCH_TERM, tv.getText ().toString ());
+        TextView tv = (TextView) findViewById (R.id.search_edit);
+        intent.putExtra (EXTRA_SEARCH_TERM, tv.getText ().toString ());
+
+        /* Replace this search instead of stacking a new one on top of
+         * it, so that the back button doesn't go through every
+         * language that was tried */
+        intent.addFlags (Intent.FLAG_ACTIVITY_NO_ANIMATION);
+        startActivity (intent);
+        finish ();
+        return true;
       }
 
     if (MenuHelper.onOptionsItemSelected (this, item))
