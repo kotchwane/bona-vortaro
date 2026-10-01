@@ -1,13 +1,14 @@
 apply plugin: 'com.android.application'
+apply plugin: 'org.jetbrains.kotlin.plugin.compose'
 
 android {
     namespace = "uk.co.busydoingnothing.prevo"
 
-    compileSdk = 34
+    compileSdk = 37
 
     defaultConfig {
         applicationId = "uk.co.busydoingnothing.prevo"
-        minSdk = 16
+        minSdk = 23
         targetSdk = 34
         versionCode = 27
         versionName = "0.27"
@@ -22,6 +23,10 @@ android {
         }
     }
 
+    buildFeatures {
+        compose = true
+    }
+
     buildTypes {
         release {
             signingConfig = signingConfigs.release
@@ -32,7 +37,14 @@ android {
 }
 
 dependencies {
-    implementation 'androidx.appcompat:appcompat:1.6.1'
+    implementation 'androidx.appcompat:appcompat:1.8.0'
+    implementation 'androidx.activity:activity-compose:1.13.0'
+
+    implementation platform('androidx.compose:compose-bom:2026.09.00')
+    implementation 'androidx.compose.material3:material3'
+    implementation 'androidx.compose.material:material-icons-core'
+    implementation 'androidx.compose.ui:ui-tooling-preview'
+    debugImplementation 'androidx.compose.ui:ui-tooling'
 }
 
 def buildDictionary = tasks.register('buildDictionary', Exec) {
