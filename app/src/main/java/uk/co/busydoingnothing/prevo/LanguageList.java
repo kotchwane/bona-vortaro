@@ -108,6 +108,16 @@ public class LanguageList
     return languagesByName;
   }
 
+  public boolean hasLanguage (String languageCode)
+  {
+    if (languageCode.equals ("eo"))
+      return true;
+
+    return Arrays.binarySearch (languagesByCode,
+                                new Language ("", languageCode),
+                                codeComparator) >= 0;
+  }
+
   public String getLanguageName (String languageCode,
                                  boolean withArticle)
   {

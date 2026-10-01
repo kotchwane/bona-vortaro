@@ -163,6 +163,12 @@ public class MenuHelper
       context.getSharedPreferences (PREVO_PREFERENCES,
                                     Context.MODE_PRIVATE);
     String defaultLanguage = prefs.getString (PREF_LAST_LANGUAGE, "eo");
+
+    /* The language may have disappeared in an update of the
+     * dictionary data */
+    if (!LanguageList.getDefault (context).hasLanguage (defaultLanguage))
+      defaultLanguage = "eo";
+
     Intent intent = new Intent (context, SearchActivity.class);
     intent.putExtra (SearchActivity.EXTRA_LANGUAGE, defaultLanguage);
 

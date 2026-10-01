@@ -22,6 +22,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
+import java.util.Vector;
 
 public class LanguageDatabaseHelper extends SQLiteOpenHelper
 {
@@ -69,20 +70,28 @@ public class LanguageDatabaseHelper extends SQLiteOpenHelper
                               null, /* selection args */
                               null, /* group by */
                               null, /* having */
-                              "`usage_count` desc", /* order by */
-                              Integer.toString (MAX_RESULTS));
+                              "`usage_count` desc"); /* order by */
 
-    String[] results = new String[cursor.getCount ()];
-    int i = 0;
+    LanguageList languageList = LanguageList.getDefault (context);
+    Vector<String> results = new Vector<String> ();
 
-    for (cursor.moveToFirst (); !cursor.isAfterLast (); cursor.moveToNext ())
-      results[i++] = cursor.getString (0);
+    /* Skip languages that have disappeared in an update of the
+     * dictionary data */
+    for (cursor.moveToFirst ();
+         !cursor.isAfterLast () && results.size () < MAX_RESULTS;
+         cursor.moveToNext ())
+      {
+        String code = cursor.getString (0);
+
+        if (languageList.hasLanguage (code))
+          results.add (code);
+      }
 
     cursor.close ();
 
     db.close ();
 
-    return results;
+    return results.toArray (new String[results.size ()]);
   }
 
   public void useLanguage (String code)

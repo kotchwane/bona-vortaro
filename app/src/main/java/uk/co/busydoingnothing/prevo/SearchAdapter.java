@@ -19,6 +19,7 @@ package uk.co.busydoingnothing.prevo;
 
 import android.content.Context;
 import android.content.res.Resources;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -39,6 +40,7 @@ public class SearchAdapter extends BaseAdapter
   implements Filterable
 {
   static private final int MAX_RESULTS = 128;
+  static private final String TAG = "prevosearch";
 
   private Context context;
   private SearchFilter filter;
@@ -90,31 +92,36 @@ public class SearchAdapter extends BaseAdapter
 
     resultData.results = new SearchResult[MAX_RESULTS];
 
-    try
+    for (int i = 0; i < languages.length; i++)
       {
-        for (int i = 0; i < languages.length; i++)
-          {
-            String language = languages[i];
-            Trie trie = TrieCache.getTrie (context, language);
-            int numResults = trie.search (filterString, resultData.results);
+        String language = languages[i];
+        Trie trie;
 
-            if (numResults > 0)
-              {
-                resultData.count = numResults;
-                resultData.languageNum = i;
-                return resultData;
-              }
+        try
+          {
+            trie = TrieCache.getTrie (context, language);
+          }
+        catch (java.io.IOException e)
+          {
+            /* Skip the language instead of crashing, in case it has
+             * disappeared in an update of the dictionary data */
+            Log.w (TAG, "Failed to load the index for " + language);
+            continue;
           }
 
-        resultData.languageNum = 0;
-        resultData.count = 0;
-        return resultData;
+        int numResults = trie.search (filterString, resultData.results);
+
+        if (numResults > 0)
+          {
+            resultData.count = numResults;
+            resultData.languageNum = i;
+            return resultData;
+          }
       }
-    catch (java.io.IOException e)
-      {
-        throw new IllegalStateException ("Error while loading " +
-                                         "an asset");
-      }
+
+    resultData.languageNum = 0;
+    resultData.count = 0;
+    return resultData;
   }
 
   @Override
