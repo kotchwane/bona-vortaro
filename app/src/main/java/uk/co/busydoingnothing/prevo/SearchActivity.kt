@@ -18,7 +18,6 @@
 
 package uk.co.busydoingnothing.prevo
 
-import android.app.Dialog
 import android.content.Intent
 import android.os.Bundle
 import androidx.activity.compose.setContent
@@ -119,6 +118,8 @@ class SearchActivity : AppCompatActivity() {
 
         setContent {
             PrevoTheme {
+                var showAbout by remember { mutableStateOf(false) }
+
                 SearchScreen(
                     languages = searchLanguages,
                     selected = selected,
@@ -127,8 +128,11 @@ class SearchActivity : AppCompatActivity() {
                     onResultClick = ::openArticle,
                     onChooseLanguage = { MenuHelper.goChooseLanguage(this) },
                     onPreferences = { MenuHelper.goPreferences(this) },
-                    onAbout = { MenuHelper.showAbout(this) },
+                    onAbout = { showAbout = true },
                 )
+
+                if (showAbout)
+                    AboutDialog(onDismiss = { showAbout = false })
             }
         }
     }
@@ -143,9 +147,6 @@ class SearchActivity : AppCompatActivity() {
         outState.putString(STATE_SELECTED, selected)
     }
 
-    @Deprecated("The about dialog still uses the old dialog API")
-    override fun onCreateDialog(id: Int): Dialog? =
-        MenuHelper.onCreateDialog(this, id)
 
     private fun getSearchLanguages(mainLanguage: String): List<String> {
         val myLanguages = MyLanguages.get(this)

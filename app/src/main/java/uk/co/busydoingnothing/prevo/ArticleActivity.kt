@@ -18,7 +18,6 @@
 
 package uk.co.busydoingnothing.prevo
 
-import android.app.Dialog
 import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.net.Uri
@@ -111,6 +110,8 @@ class ArticleActivity : AppCompatActivity() {
 
         setContent {
             PrevoTheme {
+                var showAbout by remember { mutableStateOf(false) }
+
                 ArticleScreen(
                     article = article,
                     textSize = textSize,
@@ -120,7 +121,7 @@ class ArticleActivity : AppCompatActivity() {
                     onSearch = { MenuHelper.goSearch(this) },
                     onChooseLanguage = { MenuHelper.goChooseLanguage(this) },
                     onPreferences = { MenuHelper.goPreferences(this) },
-                    onAbout = { MenuHelper.showAbout(this) },
+                    onAbout = { showAbout = true },
                     onTextSizeChange = {
                         textSize = it
                         PrevoSettings.setTextSize(this, it)
@@ -130,6 +131,9 @@ class ArticleActivity : AppCompatActivity() {
                     onLookUpInPiv = ::lookUpInPiv,
                     onShare = ::share,
                 )
+
+                if (showAbout)
+                    AboutDialog(onDismiss = { showAbout = false })
 
                 if (showNoFlashcard) {
                     AlertDialog(
@@ -146,8 +150,6 @@ class ArticleActivity : AppCompatActivity() {
         }
     }
 
-    @Deprecated("The about dialog still uses the old dialog API")
-    override fun onCreateDialog(id: Int): Dialog? = MenuHelper.onCreateDialog(this, id)
 
     override fun onStart() {
         super.onStart()

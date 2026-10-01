@@ -18,7 +18,6 @@
 
 package uk.co.busydoingnothing.prevo
 
-import android.app.Dialog
 import android.content.Intent
 import android.os.Bundle
 import androidx.activity.compose.setContent
@@ -73,6 +72,8 @@ class SelectLanguageActivity : AppCompatActivity() {
 
         setContent {
             PrevoTheme {
+                var showAbout by remember { mutableStateOf(false) }
+
                 LanguageChooser(
                     mainLanguages = mainLanguages,
                     myLanguages = myLanguages,
@@ -80,8 +81,11 @@ class SelectLanguageActivity : AppCompatActivity() {
                     onLanguageClick = ::chooseLanguage,
                     onToggleMine = ::toggleMine,
                     onPreferences = { MenuHelper.goPreferences(this) },
-                    onAbout = { MenuHelper.showAbout(this) },
+                    onAbout = { showAbout = true },
                 )
+
+                if (showAbout)
+                    AboutDialog(onDismiss = { showAbout = false })
             }
         }
     }
@@ -103,9 +107,6 @@ class SelectLanguageActivity : AppCompatActivity() {
         myLanguages = toLanguages(MyLanguages.toggle(this, language.code))
     }
 
-    @Deprecated("The about dialog still uses the old dialog API")
-    override fun onCreateDialog(id: Int): Dialog? =
-        MenuHelper.onCreateDialog(this, id)
 
     /** All of the languages except Esperanto, which is always the first
      * main language. */
