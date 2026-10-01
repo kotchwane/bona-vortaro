@@ -34,12 +34,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.MoreVert
-import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -49,8 +45,6 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
-import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -62,9 +56,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.unit.dp
-import java.util.Locale
 
 class SelectLanguageActivity : AppCompatActivity() {
 
@@ -131,15 +123,6 @@ class SelectLanguageActivity : AppCompatActivity() {
     }
 }
 
-/** Whether the language matches what was typed: the start of any word
- * of its name, or its exact code. Case-insensitive, x-system accepted. */
-private fun Language.matches(filter: String): Boolean {
-    if (code == filter)
-        return true
-
-    return name.split(' ', '(', ')', '-').any { it.startsWith(filter) }
-}
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun LanguageChooser(
@@ -152,7 +135,7 @@ private fun LanguageChooser(
     onAbout: () -> Unit,
 ) {
     var query by rememberSaveable { mutableStateOf("") }
-    val filter = Hats.removeHats(query.trim()).lowercase(Locale.ROOT)
+    val filter = normaliseQuery(query)
     val myCodes = myLanguages.map { it.code }.toSet()
     val row = LanguageRow(myCodes, onLanguageClick, onToggleMine)
 
@@ -215,14 +198,7 @@ private fun LazyListScope.languageSection(
     languages: List<Language>,
     row: LanguageRow,
 ) {
-    item {
-        Text(
-            stringResource(title),
-            style = MaterialTheme.typography.labelLarge,
-            color = MaterialTheme.colorScheme.primary,
-            modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 4.dp),
-        )
-    }
+    item { SectionTitle(stringResource(title)) }
 
     items(languages) { language ->
         val mine = language.code in row.myCodes
@@ -256,33 +232,11 @@ private fun LazyListScope.languageSection(
 
 @Composable
 private fun LanguageSearchField(query: String, onQueryChange: (String) -> Unit) {
-    TextField(
-        value = query,
-        onValueChange = onQueryChange,
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 8.dp),
-        placeholder = { Text(stringResource(R.string.search_language)) },
-        leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
-        trailingIcon = {
-            if (query.isNotEmpty()) {
-                IconButton(onClick = { onQueryChange("") }) {
-                    Icon(Icons.Default.Clear, contentDescription = null)
-                }
-            }
-        },
-        singleLine = true,
-        shape = RoundedCornerShape(28.dp),
-        colors = TextFieldDefaults.colors(
-            focusedIndicatorColor = MaterialTheme.colorScheme.surfaceContainerHigh,
-            unfocusedIndicatorColor = MaterialTheme.colorScheme.surfaceContainerHigh,
-            focusedContainerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
-            unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
-        ),
-        keyboardOptions = KeyboardOptions(
-            capitalization = KeyboardCapitalization.None,
-            autoCorrectEnabled = false,
-        ),
+    RoundedSearchField(
+        query = query,
+        onQueryChange = onQueryChange,
+        placeholder = stringResource(R.string.search_language),
+        modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
     )
 }
 
@@ -291,7 +245,7 @@ private fun OverflowMenu(onPreferences: () -> Unit, onAbout: () -> Unit) {
     var open by remember { mutableStateOf(false) }
 
     IconButton(onClick = { open = true }) {
-        Icon(Icons.Default.MoreVert, contentDescription = null)
+        Icon(Icons.Default.MoreVert, contentDescription = stringResource(R.string.more_options))
     }
     DropdownMenu(expanded = open, onDismissRequest = { open = false }) {
         DropdownMenuItem(

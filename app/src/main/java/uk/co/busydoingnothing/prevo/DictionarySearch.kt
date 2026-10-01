@@ -21,7 +21,6 @@ package uk.co.busydoingnothing.prevo
 import android.content.Context
 import android.util.Log
 import java.io.IOException
-import java.util.Locale
 
 /** The result of a search: the matching words, and the index of the
  * language (in the list that was searched) where they were found. */
@@ -35,7 +34,7 @@ object DictionarySearch {
      * first one that has any. Typing the x-system is accepted (cx → ĉ).
      * This does disk access, so it shouldn't run on the main thread. */
     fun search(context: Context, languages: List<String>, query: String): SearchOutcome {
-        val filter = Hats.removeHats(query.trim()).lowercase(Locale.ROOT)
+        val filter = normaliseQuery(query)
 
         for ((index, language) in languages.withIndex()) {
             val trie = try {
