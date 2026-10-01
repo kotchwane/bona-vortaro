@@ -37,7 +37,7 @@ public class LanguagesAdapter extends BaseAdapter
   };
 
   private LanguageList languageList;
-  private Language[] selectedLanguages;
+  private Language[] languages;
 
   private Context context;
   private LanguagesFilter filter;
@@ -51,31 +51,30 @@ public class LanguagesAdapter extends BaseAdapter
   {
     this.context = context;
     this.languageList = LanguageList.getDefault (context);
-    this.selectedLanguages = getSelectedLanguages ();
+    this.languages = getLanguages ();
   }
 
-  private Language[] getSelectedLanguages ()
+  private Language[] getLanguages ()
   {
-    SelectedLanguages selectedLanguages = new SelectedLanguages (context);
+    /* All of the languages except Esperanto, which is always the first
+     * main language. This doesn't depend on which translations are
+     * shown in the articles, otherwise hiding the translations of a
+     * language would also make it impossible to search in it. */
     Language[] allLanguages = languageList.getAllLanguages ();
-
-    if (selectedLanguages.containsAll ())
-      return allLanguages;
-
-    Vector<Language> languages = new Vector<Language> ();
+    Vector<Language> result = new Vector<Language> ();
 
     for (int i = 0; i < allLanguages.length; i++)
-      if (selectedLanguages.contains (allLanguages[i].getCode ()))
-        languages.add (allLanguages[i]);
+      if (!allLanguages[i].getCode ().equals ("eo"))
+        result.add (allLanguages[i]);
 
-    return languages.toArray (new Language[languages.size ()]);
+    return result.toArray (new Language[result.size ()]);
   }
 
   @Override
   public int getCount ()
   {
     if (filteredLanguages == null)
-      return mainLanguages.length + selectedLanguages.length + 2;
+      return mainLanguages.length + languages.length + 2;
     else
       return filteredLanguages.length + 1;
   }
@@ -98,7 +97,7 @@ public class LanguagesAdapter extends BaseAdapter
         if (position == 0)
           return context.getString (R.string.all_languages);
 
-        return selectedLanguages[position - 1];
+        return languages[position - 1];
       }
     else if (position == 0)
       return context.getString (R.string.all_languages);
@@ -198,7 +197,7 @@ public class LanguagesAdapter extends BaseAdapter
   public LanguagesFilter getFilter ()
   {
     if (filter == null)
-      filter = new LanguagesFilter (selectedLanguages);
+      filter = new LanguagesFilter (languages);
 
     return filter;
   }
@@ -221,21 +220,15 @@ public class LanguagesAdapter extends BaseAdapter
     notifyDataSetChanged ();
   }
 
-  public void reload ()
-  {
-    this.selectedLanguages = getSelectedLanguages ();
-    notifyDataSetChanged ();
-  }
-
   private class LanguagesFilter extends Filter
   {
-    private Language[] selectedLanguages;
+    private Language[] languages;
 
-    public LanguagesFilter (Language[] selectedLanguages)
+    public LanguagesFilter (Language[] languages)
     {
-      /* We keep a copy of the languages array so that we don't have
-       * to worry about it being replaced in the main thread */
-      this.selectedLanguages = selectedLanguages;
+      /* The list of languages never changes so it is safe to use it
+       * from the filtering thread */
+      this.languages = languages;
     }
 
     @Override
@@ -253,9 +246,9 @@ public class LanguagesAdapter extends BaseAdapter
           String filterString = Hats.removeHats (filter);
           Vector<Language> result = new Vector<Language> ();
 
-          for (int i = 0; i < selectedLanguages.length; i++)
+          for (int i = 0; i < languages.length; i++)
             {
-              Language language = selectedLanguages[i];
+              Language language = languages[i];
 
               if (language.getName ().startsWith (filterString))
                 result.add (language);

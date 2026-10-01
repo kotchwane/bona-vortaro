@@ -17,10 +17,8 @@
 
 package uk.co.busydoingnothing.prevo;
 
-import android.app.Activity;
 import android.app.Dialog;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.os.Bundle;
 import androidx.appcompat.app.AppCompatActivity;
@@ -35,13 +33,9 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 public class SelectLanguageActivity extends AppCompatActivity
-  implements SharedPreferences.OnSharedPreferenceChangeListener
 {
   private LanguageDatabaseHelper dbHelper;
   private LanguagesAdapter adapter;
-
-  private boolean stopped;
-  private boolean reloadQueued;
 
   @Override
   public void onCreate (Bundle savedInstanceState)
@@ -56,9 +50,6 @@ public class SelectLanguageActivity extends AppCompatActivity
     lv.setAdapter (adapter);
 
     dbHelper = new LanguageDatabaseHelper (this);
-
-    stopped = true;
-    reloadQueued = true;
 
     lv.setTextFilterEnabled (true);
 
@@ -84,11 +75,6 @@ public class SelectLanguageActivity extends AppCompatActivity
             }
         }
       });
-
-    SharedPreferences prefs =
-      getSharedPreferences (MenuHelper.PREVO_PREFERENCES,
-                            Activity.MODE_PRIVATE);
-    prefs.registerOnSharedPreferenceChangeListener (this);
   }
 
   @Override
@@ -96,35 +82,7 @@ public class SelectLanguageActivity extends AppCompatActivity
   {
     super.onStart ();
 
-    stopped = false;
-
     adapter.setMainLanguages (dbHelper.getLanguages ());
-
-    if (reloadQueued)
-      {
-        adapter.reload ();
-        reloadQueued = false;
-      }
-  }
-
-  @Override
-  public void onStop ()
-  {
-    stopped = true;
-
-    super.onStop ();
-  }
-
-  @Override
-  public void onDestroy ()
-  {
-    SharedPreferences prefs =
-      getSharedPreferences (MenuHelper.PREVO_PREFERENCES,
-                            Activity.MODE_PRIVATE);
-
-    prefs.unregisterOnSharedPreferenceChangeListener (this);
-
-    super.onDestroy ();
   }
 
   @Override
@@ -150,22 +108,5 @@ public class SelectLanguageActivity extends AppCompatActivity
   protected Dialog onCreateDialog (int id)
   {
     return MenuHelper.onCreateDialog (this, id);
-  }
-
-  @Override
-  public void onSharedPreferenceChanged (SharedPreferences prefs,
-                                         String key)
-  {
-    if (key.equals (SelectedLanguages.PREF))
-      {
-        if (stopped)
-          /* Queue the reload for the next time the activity is started */
-          reloadQueued = true;
-        else
-          {
-            adapter.reload ();
-            reloadQueued = false;
-          }
-      }
   }
 }
