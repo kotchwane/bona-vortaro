@@ -27,6 +27,8 @@
   <string name="type_to_filter">Tajpi ion por serĉi</string>
   <string name="main_languages">Ĉefaj lingvoj</string>
   <string name="all_languages">Ĉiuj lingvoj</string>
+  <string name="search_language">Serĉi lingvon</string>
+  <string name="no_language_found">Neniu lingvo troviĝis</string>
   <string name="menu_choose_language">Elekti lingvon</string>
   <string name="menu_search">Serĉi</string>
   <string name="menu_about">Pri</string>
