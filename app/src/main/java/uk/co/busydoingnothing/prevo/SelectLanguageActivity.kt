@@ -32,8 +32,11 @@ import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.DropdownMenu
@@ -80,6 +83,10 @@ class SelectLanguageActivity : AppCompatActivity() {
                     allLanguages = allLanguages,
                     onLanguageClick = ::chooseLanguage,
                     onToggleMine = ::toggleMine,
+                    onMoveMine = ::moveMine,
+                    /* Nothing to go back to on the very first start,
+                     * when this is the first screen of the app */
+                    onBack = if (isTaskRoot) null else ::finish,
                     onPreferences = { MenuHelper.goPreferences(this) },
                     onAbout = { showAbout = true },
                 )
@@ -107,6 +114,10 @@ class SelectLanguageActivity : AppCompatActivity() {
         myLanguages = toLanguages(MyLanguages.toggle(this, language.code))
     }
 
+    private fun moveMine(language: Language, delta: Int) {
+        myLanguages = toLanguages(MyLanguages.move(this, language.code, delta))
+    }
+
 
     /** All of the languages except Esperanto, which is always the first
      * main language. */
@@ -132,18 +143,27 @@ private fun LanguageChooser(
     allLanguages: List<Language>,
     onLanguageClick: (Language) -> Unit,
     onToggleMine: (Language) -> Unit,
+    onMoveMine: (Language, Int) -> Unit,
+    onBack: (() -> Unit)?,
     onPreferences: () -> Unit,
     onAbout: () -> Unit,
 ) {
     var query by rememberSaveable { mutableStateOf("") }
     val filter = normaliseQuery(query)
     val myCodes = myLanguages.map { it.code }.toSet()
-    val row = LanguageRow(myCodes, onLanguageClick, onToggleMine)
+    val row = LanguageRow(myCodes, onLanguageClick, onToggleMine, onMoveMine)
 
     Scaffold(
         topBar = {
             TopAppBar(
                 title = { Text(stringResource(R.string.select_language)) },
+                navigationIcon = {
+                    if (onBack != null) {
+                        IconButton(onClick = onBack) {
+                            Icon(Icons.AutoMirrored.Filled.ArrowBack, stringResource(R.string.back))
+                        }
+                    }
+                },
                 actions = { OverflowMenu(onPreferences, onAbout) },
             )
         },
@@ -159,7 +179,7 @@ private fun LanguageChooser(
             if (filter.isEmpty()) {
                 /* The user's own languages replace the automatic ones */
                 if (myLanguages.isNotEmpty())
-                    languageSection(R.string.my_languages, myLanguages, row)
+                    languageSection(R.string.my_languages, myLanguages, row, reorderable = true)
                 else
                     languageSection(R.string.main_languages, mainLanguages, row)
 
@@ -192,16 +212,18 @@ private class LanguageRow(
     val myCodes: Set<String>,
     val onClick: (Language) -> Unit,
     val onToggleMine: (Language) -> Unit,
+    val onMove: (Language, Int) -> Unit,
 )
 
 private fun LazyListScope.languageSection(
     title: Int,
     languages: List<Language>,
     row: LanguageRow,
+    reorderable: Boolean = false,
 ) {
     item { SectionTitle(stringResource(title)) }
 
-    items(languages) { language ->
+    itemsIndexed(languages) { index, language ->
         val mine = language.code in row.myCodes
 
         Row(
@@ -216,6 +238,16 @@ private fun LazyListScope.languageSection(
                 style = MaterialTheme.typography.bodyLarge,
                 modifier = Modifier.weight(1f).padding(vertical = 14.dp),
             )
+            /* The order of the user's languages is the order of the chips
+             * and of the search */
+            if (reorderable) {
+                IconButton(onClick = { row.onMove(language, -1) }, enabled = index > 0) {
+                    Icon(Icons.Default.KeyboardArrowUp, stringResource(R.string.move_up))
+                }
+                IconButton(onClick = { row.onMove(language, 1) }, enabled = index < languages.size - 1) {
+                    Icon(Icons.Default.KeyboardArrowDown, stringResource(R.string.move_down))
+                }
+            }
             IconButton(onClick = { row.onToggleMine(language) }) {
                 Icon(
                     Icons.Default.Star,

@@ -31,7 +31,6 @@
   <string name="my_languages">Miaj lingvoj</string>
   <string name="add_to_my_languages">Aldoni al miaj lingvoj</string>
   <string name="remove_from_my_languages">Forigi el miaj lingvoj</string>
-  <string name="my_languages_empty">Neniu. La serĉlingvoj estas elektataj aŭtomate laŭ via uzado. Aldonu lingvojn per la stelo en «Elekti lingvon».</string>
   <string name="move_up">Movi supren</string>
   <string name="move_down">Movi malsupren</string>
   <string name="back">Reen</string>
@@ -44,6 +43,12 @@
   <string name="theme_light">Hela</string>
   <string name="theme_dark">Malhela</string>
   <string name="text_size">Grandeco de la teksto</string>
+  <string name="text_size_help">En la artikoloj kaj en la listo de serĉrezultoj.</string>
+  <string name="translations_title">Tradukoj en la artikoloj</string>
+  <string name="translations_help">La artikoloj montras tradukojn nur en la lingvoj elektitaj ĉi tie. Tio ne ŝanĝas la lingvojn, en kiuj vi povas serĉi.</string>
+  <string name="translations_count">%1$d el %2$d lingvoj elektitaj</string>
+  <string name="select_all">Elekti ĉiujn</string>
+  <string name="select_none">Malelekti ĉiujn</string>
   <string name="text_size_sample">Ekzemplo: mi estas timida kun virinoj.</string>
   <string name="no_language_found">Neniu lingvo troviĝis</string>
   <string name="menu_choose_language">Elekti lingvon</string>
@@ -57,9 +62,6 @@
   <string name="no_flashcard">Mankas aplikaĵo kiu povas krei fulmkarton. Eble vi volos instali “Anki”; almenaŭ version 2.0.</string>
   <string name="definition_label">Difino</string>
   <string name="close">Fermi</string>
-  <string name="show_translations">Montrataj tradukoj</string>
-  <string name="show_all_translations">Montri ĉiujn tradukojn</string>
-  <string name="show_no_translations">Montri neniun tradukon</string>
   <string name="about_message">
 <b>PReVo @VERSION@</b>\n
 \nCopyright © 2012, 2013, 2016, 2017, 2018, 2019, 2020 Neil Roberts\n

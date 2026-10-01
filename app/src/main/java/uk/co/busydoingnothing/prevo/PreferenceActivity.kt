@@ -32,13 +32,9 @@ import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
-import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.KeyboardArrowDown
-import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -49,7 +45,7 @@ import androidx.compose.material3.SegmentedButton
 import androidx.compose.material3.SegmentedButtonDefaults
 import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -66,7 +62,6 @@ class PreferenceActivity : AppCompatActivity() {
 
     private var theme by mutableStateOf(Theme.SYSTEM)
     private var textSize by mutableIntStateOf(PrevoSettings.DEFAULT_TEXT_SIZE)
-    private var myLanguages by mutableStateOf(emptyList<Language>())
     private var translations by mutableStateOf(emptySet<String>())
 
     /** Every language that can be a translation, i.e. all but Esperanto */
@@ -92,13 +87,6 @@ class PreferenceActivity : AppCompatActivity() {
                         textSize = it
                         PrevoSettings.setTextSize(this, it)
                     },
-                    myLanguages = myLanguages,
-                    onMoveLanguage = { language, delta ->
-                        myLanguages = toLanguages(MyLanguages.move(this, language.code, delta))
-                    },
-                    onRemoveLanguage = {
-                        myLanguages = toLanguages(MyLanguages.toggle(this, it.code))
-                    },
                     translationLanguages = translationLanguages,
                     translations = translations,
                     onTranslationsChange = {
@@ -116,14 +104,9 @@ class PreferenceActivity : AppCompatActivity() {
 
         theme = PrevoSettings.getTheme(this)
         textSize = PrevoSettings.getTextSize(this)
-        myLanguages = toLanguages(MyLanguages.get(this))
         translations = PrevoSettings.getTranslationLanguages(this, translationLanguages)
     }
 
-    private fun toLanguages(codes: List<String>): List<Language> {
-        val languageList = LanguageList.getDefault(this)
-        return codes.map { Language(languageList.getLanguageName(it), it) }
-    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -133,9 +116,6 @@ private fun SettingsScreen(
     onThemeChange: (Theme) -> Unit,
     textSize: Int,
     onTextSizeChange: (Int) -> Unit,
-    myLanguages: List<Language>,
-    onMoveLanguage: (Language, Int) -> Unit,
-    onRemoveLanguage: (Language) -> Unit,
     translationLanguages: List<Language>,
     translations: Set<String>,
     onTranslationsChange: (Set<String>) -> Unit,
@@ -169,24 +149,14 @@ private fun SettingsScreen(
             item { ThemeSetting(theme, onThemeChange) }
             item { TextSizeSetting(textSize, onTextSizeChange) }
 
-            sectionTitle(R.string.my_languages)
-            myLanguagesSetting(myLanguages, onMoveLanguage, onRemoveLanguage)
-
-            sectionTitle(R.string.show_translations)
+            sectionTitle(R.string.translations_title)
             item {
-                Row(
-                    Modifier.fillMaxWidth().padding(horizontal = 8.dp),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                ) {
-                    TextButton(onClick = {
-                        onTranslationsChange(translationLanguages.map { it.code }.toSet())
-                    }) {
-                        Text(stringResource(R.string.show_all_translations))
-                    }
-                    TextButton(onClick = { onTranslationsChange(emptySet()) }) {
-                        Text(stringResource(R.string.show_no_translations))
-                    }
-                }
+                TranslationsIntro(
+                    selected = translations.size,
+                    total = translationLanguages.size,
+                    onAll = { onTranslationsChange(translationLanguages.map { it.code }.toSet()) },
+                    onNone = { onTranslationsChange(emptySet()) },
+                )
             }
             item { FilterField(query, onQueryChange = { query = it }) }
 
@@ -256,41 +226,30 @@ private fun ThemeSetting(theme: Theme, onThemeChange: (Theme) -> Unit) {
     }
 }
 
-private fun LazyListScope.myLanguagesSetting(
-    languages: List<Language>,
-    onMove: (Language, Int) -> Unit,
-    onRemove: (Language) -> Unit,
-) {
-    if (languages.isEmpty()) {
-        item {
-            Text(
-                stringResource(R.string.my_languages_empty),
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.padding(horizontal = 16.dp),
-            )
-        }
-        return
-    }
-
-    itemsIndexed(languages, key = { _, language -> "mine-" + language.code }) { index, language ->
+/** What the translations setting is for, how many languages are
+ * selected, and buttons to select all or none of them. */
+@Composable
+private fun TranslationsIntro(selected: Int, total: Int, onAll: () -> Unit, onNone: () -> Unit) {
+    Column(Modifier.padding(horizontal = 16.dp)) {
+        Text(
+            stringResource(R.string.translations_help),
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+        Text(
+            stringResource(R.string.translations_count, selected, total),
+            style = MaterialTheme.typography.bodyMedium,
+            modifier = Modifier.padding(top = 8.dp),
+        )
         Row(
-            Modifier.fillMaxWidth().padding(start = 16.dp, end = 8.dp),
-            verticalAlignment = Alignment.CenterVertically,
+            Modifier.padding(top = 8.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
         ) {
-            Text(
-                language.name,
-                style = MaterialTheme.typography.bodyLarge,
-                modifier = Modifier.weight(1f),
-            )
-            IconButton(onClick = { onMove(language, -1) }, enabled = index > 0) {
-                Icon(Icons.Default.KeyboardArrowUp, stringResource(R.string.move_up))
+            OutlinedButton(onClick = onAll, enabled = selected < total) {
+                Text(stringResource(R.string.select_all))
             }
-            IconButton(onClick = { onMove(language, 1) }, enabled = index < languages.size - 1) {
-                Icon(Icons.Default.KeyboardArrowDown, stringResource(R.string.move_down))
-            }
-            IconButton(onClick = { onRemove(language) }) {
-                Icon(Icons.Default.Close, stringResource(R.string.remove_from_my_languages))
+            OutlinedButton(onClick = onNone, enabled = selected > 0) {
+                Text(stringResource(R.string.select_none))
             }
         }
     }

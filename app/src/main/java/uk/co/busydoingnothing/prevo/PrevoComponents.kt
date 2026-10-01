@@ -127,6 +127,12 @@ fun TextSizeSetting(textSize: Int, onTextSizeChange: (Int) -> Unit) {
             style = body,
             modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 16.dp),
         )
+        Text(
+            stringResource(R.string.text_size_help),
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.padding(horizontal = 16.dp),
+        )
         Slider(
             value = textSize.toFloat(),
             onValueChange = { onTextSizeChange(it.roundToInt()) },

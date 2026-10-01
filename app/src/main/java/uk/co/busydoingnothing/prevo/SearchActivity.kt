@@ -55,6 +55,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
@@ -98,6 +99,9 @@ class SearchActivity : AppCompatActivity() {
     private var selected by mutableStateOf("eo")
     private var searchLanguages by mutableStateOf(listOf("eo"))
 
+    /* Re-read when coming back, in case it was changed in the settings */
+    private var textSize by mutableIntStateOf(PrevoSettings.DEFAULT_TEXT_SIZE)
+
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
@@ -123,6 +127,7 @@ class SearchActivity : AppCompatActivity() {
                 SearchScreen(
                     languages = searchLanguages,
                     selected = selected,
+                    textSize = textSize,
                     initialQuery = initialQuery,
                     onLanguageChosen = ::chooseLanguage,
                     onResultClick = ::openArticle,
@@ -135,6 +140,11 @@ class SearchActivity : AppCompatActivity() {
                     AboutDialog(onDismiss = { showAbout = false })
             }
         }
+    }
+
+    override fun onStart() {
+        super.onStart()
+        textSize = PrevoSettings.getTextSize(this)
     }
 
     override fun onRestart() {
@@ -207,6 +217,7 @@ class SearchActivity : AppCompatActivity() {
 private fun SearchScreen(
     languages: List<String>,
     selected: String,
+    textSize: Int,
     initialQuery: String,
     onLanguageChosen: (String) -> Unit,
     onResultClick: (SearchResult) -> Unit,
@@ -264,6 +275,7 @@ private fun SearchScreen(
             ResultList(
                 outcome = current,
                 searchOrder = searchOrder,
+                textSize = textSize,
                 onResultClick = onResultClick,
                 modifier = Modifier.padding(padding).imePadding(),
             )
@@ -358,10 +370,14 @@ private fun LanguageChips(
 private fun ResultList(
     outcome: SearchOutcome,
     searchOrder: List<String>,
+    textSize: Int,
     onResultClick: (SearchResult) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val context = LocalContext.current
+    val scale = PrevoSettings.textScale(textSize)
+    val body = MaterialTheme.typography.bodyLarge
+    val wordStyle = body.copy(fontSize = body.fontSize * scale, lineHeight = body.lineHeight * scale)
 
     LazyColumn(modifier.fillMaxSize()) {
         /* Explain when the words come from another language than the
@@ -385,7 +401,7 @@ private fun ResultList(
         items(outcome.results) { result ->
             Text(
                 result.word,
-                style = MaterialTheme.typography.bodyLarge,
+                style = wordStyle,
                 modifier = Modifier
                     .fillMaxWidth()
                     .clickable { onResultClick(result) }
