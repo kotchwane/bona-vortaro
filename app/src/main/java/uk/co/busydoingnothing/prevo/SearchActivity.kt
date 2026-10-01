@@ -89,12 +89,22 @@ class SearchActivity : AppCompatActivity() {
         const val EXTRA_SEARCH_TERM = "uk.co.busydoingnothing.prevo.SearchTerm"
         const val EXTRA_USE_LANGUAGE = "uk.co.busydoingnothing.prevo.UseLanguage"
 
-        /** Maximum number of languages offered as chips: the chosen one,
-         * Esperanto and the main languages. */
+        /** Maximum number of languages offered as chips when they are
+         * chosen automatically: the opened one, Esperanto and the main
+         * languages. The user's own languages have no limit. */
         private const val MAX_SEARCH_LANGUAGES = 3
+
+        private const val STATE_SELECTED = "selected"
     }
 
     private lateinit var dbHelper: LanguageDatabaseHelper
+
+    /* The language whose chip is selected, and the languages of all the
+     * chips. The chips keep their order while the screen is shown, even
+     * though choosing one counts as a use, and are recomputed when coming
+     * back to it, in case the user's languages were changed meanwhile. */
+    private var selected by mutableStateOf("eo")
+    private var searchLanguages by mutableStateOf(listOf("eo"))
 
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge()
@@ -102,15 +112,15 @@ class SearchActivity : AppCompatActivity() {
 
         dbHelper = LanguageDatabaseHelper(this)
 
-        /* Computed once, so that the chips keep their order while the
-         * screen is open, even though choosing one counts as a use */
-        val searchLanguages = getSearchLanguages()
+        selected = savedInstanceState?.getString(STATE_SELECTED)
+            ?: intent.getStringExtra(EXTRA_LANGUAGE) ?: "eo"
+        searchLanguages = getSearchLanguages(selected)
 
         /* Only count the language once, not every time the activity is
          * recreated, for example when the screen is rotated */
         if (savedInstanceState == null &&
             intent.getBooleanExtra(EXTRA_USE_LANGUAGE, false))
-            useLanguage(searchLanguages[0])
+            useLanguage(selected)
 
         val initialQuery = intent.getStringExtra(EXTRA_SEARCH_TERM) ?: ""
 
@@ -118,8 +128,9 @@ class SearchActivity : AppCompatActivity() {
             PrevoTheme {
                 SearchScreen(
                     languages = searchLanguages,
+                    selected = selected,
                     initialQuery = initialQuery,
-                    onLanguageChosen = ::useLanguage,
+                    onLanguageChosen = ::chooseLanguage,
                     onResultClick = ::openArticle,
                     onChooseLanguage = { MenuHelper.goChooseLanguage(this) },
                     onPreferences = { MenuHelper.goPreferences(this) },
@@ -129,13 +140,33 @@ class SearchActivity : AppCompatActivity() {
         }
     }
 
+    override fun onRestart() {
+        super.onRestart()
+        searchLanguages = getSearchLanguages(selected)
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putString(STATE_SELECTED, selected)
+    }
+
     @Deprecated("The about dialog still uses the old dialog API")
     override fun onCreateDialog(id: Int): Dialog? =
         MenuHelper.onCreateDialog(this, id)
 
-    private fun getSearchLanguages(): List<String> {
+    private fun getSearchLanguages(mainLanguage: String): List<String> {
+        val myLanguages = MyLanguages.get(this)
+
+        /* The user's own languages, in their order and as many as they
+         * want. The language that was opened is added if it isn't one of
+         * them, so that it can still be selected. */
+        if (myLanguages.isNotEmpty())
+            return if (mainLanguage in myLanguages) myLanguages
+                   else listOf(mainLanguage) + myLanguages
+
+        /* Otherwise, as in the original app: the chosen language,
+         * Esperanto and the main languages from the usage counts */
         val languages = mutableListOf<String>()
-        val mainLanguage = intent.getStringExtra(EXTRA_LANGUAGE) ?: "eo"
 
         languages.add(mainLanguage)
 
@@ -150,6 +181,13 @@ class SearchActivity : AppCompatActivity() {
         }
 
         return languages
+    }
+
+    private fun chooseLanguage(language: String) {
+        if (language != selected) {
+            selected = language
+            useLanguage(language)
+        }
     }
 
     /** Remembers the language as explicitly chosen: it counts towards the
@@ -174,6 +212,7 @@ class SearchActivity : AppCompatActivity() {
 @Composable
 private fun SearchScreen(
     languages: List<String>,
+    selected: String,
     initialQuery: String,
     onLanguageChosen: (String) -> Unit,
     onResultClick: (SearchResult) -> Unit,
@@ -183,7 +222,6 @@ private fun SearchScreen(
 ) {
     val context = LocalContext.current
     var query by rememberSaveable { mutableStateOf(initialQuery) }
-    var selected by rememberSaveable { mutableStateOf(languages[0]) }
 
     /* The selected language is searched first, then the others in the
      * order of the chips */
@@ -191,7 +229,7 @@ private fun SearchScreen(
 
     /* null until the first search is done, so that "no results" isn't
      * shown while the index is still loading */
-    val outcome by produceState<SearchOutcome?>(null, query, selected) {
+    val outcome by produceState<SearchOutcome?>(null, query, selected, languages) {
         value = withContext(Dispatchers.Default) {
             DictionarySearch.search(context, searchOrder, query)
         }
@@ -210,12 +248,7 @@ private fun SearchScreen(
                 LanguageChips(
                     languages = languages,
                     selected = selected,
-                    onSelect = {
-                        if (it != selected) {
-                            selected = it
-                            onLanguageChosen(it)
-                        }
-                    },
+                    onSelect = onLanguageChosen,
                     onMore = onChooseLanguage,
                 )
             }

@@ -26,6 +26,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.imePadding
@@ -39,6 +40,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -69,6 +71,7 @@ class SelectLanguageActivity : AppCompatActivity() {
     /* Reloaded every time the screen is shown, because choosing a
      * language changes them */
     private var mainLanguages by mutableStateOf(emptyList<Language>())
+    private var myLanguages by mutableStateOf(emptyList<Language>())
 
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge()
@@ -80,8 +83,10 @@ class SelectLanguageActivity : AppCompatActivity() {
             PrevoTheme {
                 LanguageChooser(
                     mainLanguages = mainLanguages,
+                    myLanguages = myLanguages,
                     allLanguages = allLanguages,
                     onLanguageClick = ::chooseLanguage,
+                    onToggleMine = ::toggleMine,
                     onPreferences = { MenuHelper.goPreferences(this) },
                     onAbout = { MenuHelper.showAbout(this) },
                 )
@@ -92,13 +97,18 @@ class SelectLanguageActivity : AppCompatActivity() {
     override fun onStart() {
         super.onStart()
 
-        val languageList = LanguageList.getDefault(this)
-
         /* Esperanto is always the first main language */
-        mainLanguages = listOf(Language(languageList.getLanguageName("eo"), "eo")) +
-            LanguageDatabaseHelper(this).languages.map {
-                Language(languageList.getLanguageName(it), it)
-            }
+        mainLanguages = toLanguages(listOf("eo") + LanguageDatabaseHelper(this).languages)
+        myLanguages = toLanguages(MyLanguages.get(this))
+    }
+
+    private fun toLanguages(codes: List<String>): List<Language> {
+        val languageList = LanguageList.getDefault(this)
+        return codes.map { Language(languageList.getLanguageName(it), it) }
+    }
+
+    private fun toggleMine(language: Language) {
+        myLanguages = toLanguages(MyLanguages.toggle(this, language.code))
     }
 
     @Deprecated("The about dialog still uses the old dialog API")
@@ -134,13 +144,17 @@ private fun Language.matches(filter: String): Boolean {
 @Composable
 private fun LanguageChooser(
     mainLanguages: List<Language>,
+    myLanguages: List<Language>,
     allLanguages: List<Language>,
     onLanguageClick: (Language) -> Unit,
+    onToggleMine: (Language) -> Unit,
     onPreferences: () -> Unit,
     onAbout: () -> Unit,
 ) {
     var query by rememberSaveable { mutableStateOf("") }
     val filter = Hats.removeHats(query.trim()).lowercase(Locale.ROOT)
+    val myCodes = myLanguages.map { it.code }.toSet()
+    val row = LanguageRow(myCodes, onLanguageClick, onToggleMine)
 
     Scaffold(
         topBar = {
@@ -159,8 +173,13 @@ private fun LanguageChooser(
             item { LanguageSearchField(query, onQueryChange = { query = it }) }
 
             if (filter.isEmpty()) {
-                languageSection(R.string.main_languages, mainLanguages, onLanguageClick)
-                languageSection(R.string.all_languages, allLanguages, onLanguageClick)
+                /* The user's own languages replace the automatic ones */
+                if (myLanguages.isNotEmpty())
+                    languageSection(R.string.my_languages, myLanguages, row)
+                else
+                    languageSection(R.string.main_languages, mainLanguages, row)
+
+                languageSection(R.string.all_languages, allLanguages, row)
             } else {
                 val matching = allLanguages.filter { it.matches(filter) }
 
@@ -177,17 +196,24 @@ private fun LanguageChooser(
                         }
                     }
                 } else {
-                    languageSection(R.string.all_languages, matching, onLanguageClick)
+                    languageSection(R.string.all_languages, matching, row)
                 }
             }
         }
     }
 }
 
+/** What a row of the list needs to know and do. */
+private class LanguageRow(
+    val myCodes: Set<String>,
+    val onClick: (Language) -> Unit,
+    val onToggleMine: (Language) -> Unit,
+)
+
 private fun LazyListScope.languageSection(
     title: Int,
     languages: List<Language>,
-    onLanguageClick: (Language) -> Unit,
+    row: LanguageRow,
 ) {
     item {
         Text(
@@ -199,14 +225,32 @@ private fun LazyListScope.languageSection(
     }
 
     items(languages) { language ->
-        Text(
-            language.name,
-            style = MaterialTheme.typography.bodyLarge,
-            modifier = Modifier
+        val mine = language.code in row.myCodes
+
+        Row(
+            Modifier
                 .fillMaxWidth()
-                .clickable { onLanguageClick(language) }
-                .padding(horizontal = 16.dp, vertical = 14.dp),
-        )
+                .clickable { row.onClick(language) }
+                .padding(start = 16.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Text(
+                language.name,
+                style = MaterialTheme.typography.bodyLarge,
+                modifier = Modifier.weight(1f).padding(vertical = 14.dp),
+            )
+            IconButton(onClick = { row.onToggleMine(language) }) {
+                Icon(
+                    Icons.Default.Star,
+                    contentDescription = stringResource(
+                        if (mine) R.string.remove_from_my_languages
+                        else R.string.add_to_my_languages
+                    ),
+                    tint = if (mine) MaterialTheme.colorScheme.primary
+                           else MaterialTheme.colorScheme.outlineVariant,
+                )
+            }
+        }
     }
 }
 

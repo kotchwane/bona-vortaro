@@ -28,6 +28,9 @@
   <string name="main_languages">Ĉefaj lingvoj</string>
   <string name="all_languages">Ĉiuj lingvoj</string>
   <string name="search_language">Serĉi lingvon</string>
+  <string name="my_languages">Miaj lingvoj</string>
+  <string name="add_to_my_languages">Aldoni al miaj lingvoj</string>
+  <string name="remove_from_my_languages">Forigi el miaj lingvoj</string>
   <string name="no_language_found">Neniu lingvo troviĝis</string>
   <string name="menu_choose_language">Elekti lingvon</string>
   <string name="menu_search">Serĉi</string>
