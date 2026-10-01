@@ -34,6 +34,7 @@
     </activity>
     <activity android:name="SearchActivity"
               android:label="@string/search"
+              android:theme="@style/Theme.AppCompat.DayNight.NoActionBar"
               android:exported="false">
     </activity>
     <activity android:name="ArticleActivity"
