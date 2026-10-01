@@ -48,7 +48,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SegmentedButton
 import androidx.compose.material3.SegmentedButtonDefaults
 import androidx.compose.material3.SingleChoiceSegmentedButtonRow
-import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
@@ -61,7 +60,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import kotlin.math.roundToInt
 
 class PreferenceActivity : AppCompatActivity() {
 
@@ -254,33 +252,6 @@ private fun ThemeSetting(theme: Theme, onThemeChange: (Theme) -> Unit) {
                 }
             }
         }
-    }
-}
-
-@Composable
-private fun TextSizeSetting(textSize: Int, onTextSizeChange: (Int) -> Unit) {
-    val scale = PrevoSettings.textScale(textSize)
-    val body = MaterialTheme.typography.bodyLarge
-
-    Column {
-        Text(
-            stringResource(R.string.text_size),
-            style = body,
-            modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 16.dp),
-        )
-        Slider(
-            value = textSize.toFloat(),
-            onValueChange = { onTextSizeChange(it.roundToInt()) },
-            valueRange = 0f..(PrevoSettings.TEXT_SIZE_COUNT - 1).toFloat(),
-            steps = PrevoSettings.TEXT_SIZE_COUNT - 2,
-            modifier = Modifier.padding(horizontal = 16.dp),
-        )
-        /* A preview at the size the articles will use */
-        Text(
-            stringResource(R.string.text_size_sample),
-            style = body.copy(fontSize = body.fontSize * scale, lineHeight = body.lineHeight * scale),
-            modifier = Modifier.padding(horizontal = 16.dp),
-        )
     }
 }
 

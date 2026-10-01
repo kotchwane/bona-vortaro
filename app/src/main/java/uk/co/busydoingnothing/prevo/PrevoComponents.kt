@@ -17,6 +17,7 @@
 
 package uk.co.busydoingnothing.prevo
 
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -29,6 +30,7 @@ import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
@@ -39,6 +41,7 @@ import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import java.util.Locale
+import kotlin.math.roundToInt
 
 /** Normalises what was typed in a search field: trimmed, lowercase, and
  * x-system converted (cx → ĉ). */
@@ -110,4 +113,32 @@ fun SectionTitle(title: String, modifier: Modifier = Modifier) {
         color = MaterialTheme.colorScheme.primary,
         modifier = modifier.padding(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 4.dp),
     )
+}
+
+/** The text size of the articles, with a slider and a preview. */
+@Composable
+fun TextSizeSetting(textSize: Int, onTextSizeChange: (Int) -> Unit) {
+    val scale = PrevoSettings.textScale(textSize)
+    val body = MaterialTheme.typography.bodyLarge
+
+    Column {
+        Text(
+            stringResource(R.string.text_size),
+            style = body,
+            modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 16.dp),
+        )
+        Slider(
+            value = textSize.toFloat(),
+            onValueChange = { onTextSizeChange(it.roundToInt()) },
+            valueRange = 0f..(PrevoSettings.TEXT_SIZE_COUNT - 1).toFloat(),
+            steps = PrevoSettings.TEXT_SIZE_COUNT - 2,
+            modifier = Modifier.padding(horizontal = 16.dp),
+        )
+        /* A preview at the size the articles will use */
+        Text(
+            stringResource(R.string.text_size_sample),
+            style = body.copy(fontSize = body.fontSize * scale, lineHeight = body.lineHeight * scale),
+            modifier = Modifier.padding(horizontal = 16.dp),
+        )
+    }
 }

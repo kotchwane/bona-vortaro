@@ -32,9 +32,6 @@ import android.text.SpannableStringBuilder;
 import android.text.Spanned;
 import android.text.style.URLSpan;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 
@@ -190,36 +187,5 @@ public class MenuHelper
   {
     Intent intent = new Intent (context, PreferenceActivity.class);
     context.startActivity (intent);
-  }
-
-  public static boolean onOptionsItemSelected (Activity activity,
-                                               MenuItem item)
-  {
-    /* Resource IDs aren't constants any more, so they can't be used
-     * in a switch statement */
-    int itemId = item.getItemId ();
-
-    if (itemId == R.id.menu_choose_language)
-      {
-        goChooseLanguage (activity);
-        return true;
-      }
-    else if (itemId == R.id.menu_search)
-      {
-        goSearch (activity);
-        return true;
-      }
-    else if (itemId == R.id.menu_preferences)
-      {
-        goPreferences (activity);
-        return true;
-      }
-    else if (itemId == R.id.menu_about)
-      {
-        showAbout (activity);
-        return true;
-      }
-
-    return false;
   }
 }
