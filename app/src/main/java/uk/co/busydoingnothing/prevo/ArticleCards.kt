@@ -27,6 +27,7 @@ import android.widget.TextView
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
@@ -340,10 +341,12 @@ private fun TranslationsBox(translations: List<Translation>, scale: Float) {
     val shown = if (expanded) translations else translations.take(SHOWN_TRANSLATIONS)
     val body = MaterialTheme.typography.bodyMedium.scaled(scale)
 
+    /* Outlined, to be told apart from the filled box of the remarks */
     Surface(
         modifier = Modifier.fillMaxWidth().padding(top = 10.dp),
         shape = RoundedCornerShape(10.dp),
-        color = MaterialTheme.colorScheme.surfaceContainer,
+        color = MaterialTheme.colorScheme.surface,
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
     ) {
         Column(Modifier.padding(start = 10.dp, end = 10.dp, top = 8.dp)) {
             Text(
@@ -352,15 +355,21 @@ private fun TranslationsBox(translations: List<Translation>, scale: Float) {
                 color = MaterialTheme.colorScheme.primary,
             )
             for (translation in shown) {
-                Row(Modifier.padding(vertical = 2.dp)) {
-                    Text(
-                        translation.language.uppercase(),
-                        style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold),
-                        color = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier
-                            .width(32.dp)
-                            .padding(top = 3.dp),
-                    )
+                Row(Modifier.padding(vertical = 3.dp)) {
+                    /* The code of the language in a small pill */
+                    Box(Modifier.width(38.dp).padding(top = 2.dp)) {
+                        Surface(
+                            shape = RoundedCornerShape(50),
+                            color = MaterialTheme.colorScheme.secondaryContainer,
+                            contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
+                        ) {
+                            Text(
+                                translation.language.uppercase(),
+                                style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold),
+                                modifier = Modifier.padding(horizontal = 6.dp, vertical = 1.dp),
+                            )
+                        }
+                    }
                     Text(
                         translation.text,
                         style = body,
