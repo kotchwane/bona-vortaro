@@ -206,12 +206,21 @@ private fun LanguageChooser(
 
             if (filter.isEmpty()) {
                 /* The user's own languages replace the automatic ones */
+                val top = myLanguages.ifEmpty { mainLanguages }
+
                 if (myLanguages.isNotEmpty())
                     languageSection(R.string.my_languages, myLanguages, row, reorderable = true)
                 else
                     languageSection(R.string.main_languages, mainLanguages, row)
 
-                languageSection(R.string.all_languages, allLanguages, row)
+                /* Each language is listed once: the ones at the top
+                 * aren't repeated below */
+                val topCodes = top.map { it.code }.toSet()
+                languageSection(
+                    R.string.other_languages,
+                    allLanguages.filter { it.code !in topCodes },
+                    row,
+                )
             } else {
                 val matching = allLanguages.filter { it.matches(filter) }
 
@@ -251,7 +260,9 @@ private fun LazyListScope.languageSection(
 ) {
     item { SectionTitle(stringResource(title)) }
 
-    itemsIndexed(languages) { index, language ->
+    /* The keys keep the rows in place when a language moves between
+     * the sections */
+    itemsIndexed(languages, key = { _, language -> language.code }) { index, language ->
         val mine = language.code in row.myCodes
 
         Row(
