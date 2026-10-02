@@ -6,4 +6,4 @@
 	url = https://github.com/revuloj/revo-fonto.git
 [submodule "extern/prevodb"]
 	path = extern/prevodb
-	url = https://github.com/bpeel/prevodb
+	url = https://github.com/kotchwane/prevodb.git
