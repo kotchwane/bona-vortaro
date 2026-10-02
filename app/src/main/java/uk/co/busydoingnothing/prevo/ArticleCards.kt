@@ -17,10 +17,16 @@
 
 package uk.co.busydoingnothing.prevo
 
+import android.graphics.Canvas
+import android.graphics.Paint
+import android.graphics.RectF
 import android.text.method.LinkMovementMethod
+import android.text.style.ReplacementSpan
 import android.util.TypedValue
 import android.widget.TextView
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
@@ -52,6 +58,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
+import kotlin.math.roundToInt
 
 /** How many languages of translations a card shows before "+ n lingvoj". */
 private const val SHOWN_TRANSLATIONS = 4
@@ -86,27 +93,177 @@ fun WordCard(entry: WordEntry, textSize: Int, onLongPress: () -> Unit, modifier:
                     color = primary,
                     modifier = Modifier.align(Alignment.CenterVertically),
                 )
-                entry.official?.let {
-                    OfficialBadge(it, Modifier.align(Alignment.CenterVertically))
-                }
+                for (official in entry.official)
+                    OfficialBadge(official, Modifier.align(Alignment.CenterVertically))
+                for (label in entry.labels)
+                    LabelChip(label, Modifier.align(Alignment.CenterVertically))
             }
 
-            for (block in entry.blocks) {
-                when (block) {
-                    is ContentBlock.Text -> SpannedText(
-                        block.text,
-                        style = MaterialTheme.typography.bodyLarge.scaled(scale),
-                        color = MaterialTheme.colorScheme.onSurface,
-                        onLongPress = onLongPress,
-                        modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
-                    )
-                    is ContentBlock.Note -> NoteBox(block.text, scale, onLongPress)
+            for ((index, group) in groupExamples(entry.blocks).withIndex()) {
+                when (group) {
+                    is BlockGroup.Single -> when (val block = group.block) {
+                        is ContentBlock.Text -> SpannedText(
+                            block.text,
+                            style = MaterialTheme.typography.bodyLarge.scaled(scale),
+                            color = MaterialTheme.colorScheme.onSurface,
+                            onLongPress = onLongPress,
+                            modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
+                        )
+                        is ContentBlock.Example -> ExampleLine(block.text, scale, onLongPress)
+                        is ContentBlock.Note -> NoteBox(block.text, scale, onLongPress)
+                    }
+                    is BlockGroup.Examples ->
+                        FoldedExamples(group.examples, scale, onLongPress, key = "${entry.section}-$index")
                 }
             }
 
             if (entry.translations.isNotEmpty())
                 TranslationsBox(entry.translations, scale)
         }
+    }
+}
+
+/** The blocks of a word, with the runs of several examples together. */
+private sealed class BlockGroup {
+    class Single(val block: ContentBlock) : BlockGroup()
+    class Examples(val examples: List<ContentBlock.Example>) : BlockGroup()
+}
+
+private fun groupExamples(blocks: List<ContentBlock>): List<BlockGroup> {
+    val groups = mutableListOf<BlockGroup>()
+    var run = mutableListOf<ContentBlock.Example>()
+
+    fun endRun() {
+        when (run.size) {
+            0 -> {}
+            /* A single example is short enough to be shown as it is */
+            1 -> groups.add(BlockGroup.Single(run[0]))
+            else -> groups.add(BlockGroup.Examples(run))
+        }
+        run = mutableListOf()
+    }
+
+    for (block in blocks) {
+        if (block is ContentBlock.Example) {
+            run.add(block)
+        } else {
+            endRun()
+            groups.add(BlockGroup.Single(block))
+        }
+    }
+    endRun()
+
+    return groups
+}
+
+/** An example on its own line, with a bar on its left. */
+@Composable
+private fun ExampleLine(text: CharSequence, scale: Float, onLongPress: () -> Unit) {
+    val bar = MaterialTheme.colorScheme.outlineVariant
+
+    SpannedText(
+        text,
+        style = MaterialTheme.typography.bodyMedium.scaled(scale),
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
+        onLongPress = onLongPress,
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(top = 6.dp)
+            .drawBehind { drawRect(bar, size = Size(2.dp.toPx(), size.height)) }
+            .padding(start = 10.dp),
+    )
+}
+
+/** Several examples, folded behind "Ekzemploj (n) ▾". */
+@Composable
+private fun FoldedExamples(
+    examples: List<ContentBlock.Example>,
+    scale: Float,
+    onLongPress: () -> Unit,
+    key: String,
+) {
+    var expanded by rememberSaveable(key) { mutableStateOf(false) }
+
+    TextButton(
+        onClick = { expanded = !expanded },
+        contentPadding = PaddingValues(horizontal = 0.dp, vertical = 0.dp),
+    ) {
+        Text(
+            stringResource(
+                if (expanded) R.string.examples_shown else R.string.examples_folded,
+                examples.size,
+            ),
+            style = MaterialTheme.typography.labelLarge,
+        )
+    }
+
+    if (expanded) {
+        for (example in examples)
+            ExampleLine(example.text, scale, onLongPress)
+    }
+}
+
+/** A label of the whole word: its field, or its kind. */
+@Composable
+private fun LabelChip(label: Label, modifier: Modifier = Modifier) {
+    val colors = MaterialTheme.colorScheme
+
+    Surface(
+        modifier = modifier,
+        shape = RoundedCornerShape(8.dp),
+        color = if (label.isField) colors.secondaryContainer else colors.surface,
+        contentColor = if (label.isField) colors.onSecondaryContainer else colors.onSurfaceVariant,
+        border = if (label.isField) null else BorderStroke(1.dp, colors.outlineVariant),
+    ) {
+        Text(
+            label.text,
+            style = MaterialTheme.typography.labelMedium,
+            modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp),
+        )
+    }
+}
+
+/** Draws a field or a kind of word left within the text, eg. at the
+ * start of a sense, as a small label with a tinted background. */
+class InlineLabelSpan(
+    private val background: Int,
+    private val foreground: Int,
+    private val radius: Float,
+    private val padding: Float,
+) : ReplacementSpan() {
+
+    private fun labelPaint(paint: Paint) = Paint(paint).apply { textSize = paint.textSize * 0.85f }
+
+    override fun getSize(
+        paint: Paint,
+        text: CharSequence,
+        start: Int,
+        end: Int,
+        fm: Paint.FontMetricsInt?,
+    ): Int {
+        /* Keep the height of the line of the surrounding text */
+        fm?.let { paint.getFontMetricsInt(it) }
+        return (labelPaint(paint).measureText(text, start, end) + 2 * padding).roundToInt()
+    }
+
+    override fun draw(
+        canvas: Canvas,
+        text: CharSequence,
+        start: Int,
+        end: Int,
+        x: Float,
+        top: Int,
+        y: Int,
+        bottom: Int,
+        paint: Paint,
+    ) {
+        val label = labelPaint(paint)
+        val width = label.measureText(text, start, end) + 2 * padding
+        val rect = RectF(x, y + label.ascent() - padding / 2, x + width, y + label.descent() + padding / 2)
+
+        canvas.drawRoundRect(rect, radius, radius, Paint(paint).apply { color = background })
+        label.color = foreground
+        canvas.drawText(text, start, end, x + padding, y.toFloat(), label)
     }
 }
 

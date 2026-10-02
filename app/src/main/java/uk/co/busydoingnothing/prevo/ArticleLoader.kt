@@ -39,6 +39,13 @@ class ArticleSection(
 
 class Article(val title: SpannableString, val sections: List<ArticleSection>)
 
+/* Marks for the parts of the text that the article screen shows in its
+ * own way: the kind of word ("transitiva"), its field ("matematiko") and
+ * the examples. They don't change how the text is drawn by themselves. */
+class GrammarSpan
+class FieldSpan
+class ExampleSpan
+
 /** A link to another section of the same article. The translations use
  * them to point back to the word they translate. */
 class SectionLinkSpan(val section: Int, private val onShowSection: (Int) -> Unit) : ClickableSpan() {
@@ -59,6 +66,11 @@ object ArticleLoader {
     private const val SPAN_ITALIC = 2
     private const val SPAN_QUOTE = 3
     private const val SPAN_BOLD = 4
+    /* Added to prevodb in the fork; prevodb without them doesn't write
+     * them, and older readers ignore them */
+    private const val SPAN_GRAMMAR = 5
+    private const val SPAN_FIELD = 6
+    private const val SPAN_EXAMPLE = 7
 
     /**
      * Loads an article, keeping only the sections of the languages shown
@@ -179,6 +191,9 @@ object ArticleLoader {
                 SPAN_ITALIC -> listOf(StyleSpan(Typeface.ITALIC))
                 SPAN_QUOTE -> listOf(QuoteSpan(quoteColor))
                 SPAN_BOLD -> listOf(StyleSpan(Typeface.BOLD))
+                SPAN_GRAMMAR -> listOf(GrammarSpan())
+                SPAN_FIELD -> listOf(FieldSpan())
+                SPAN_EXAMPLE -> listOf(ExampleSpan())
                 else -> emptyList()
             }
     }

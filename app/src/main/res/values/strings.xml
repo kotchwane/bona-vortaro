@@ -38,6 +38,8 @@
   <string name="clear">Forviŝi</string>
   <string name="share">Kunhavigi</string>
   <string name="remark">RIMARKO</string>
+  <string name="examples_folded">Ekzemploj (%1$d) ▾</string>
+  <string name="examples_shown">Ekzemploj (%1$d) ▴</string>
   <string name="translations">TRADUKOJ</string>
   <string name="more_languages">+ %1$d lingvoj</string>
   <string name="fewer_languages">Malpli da lingvoj</string>

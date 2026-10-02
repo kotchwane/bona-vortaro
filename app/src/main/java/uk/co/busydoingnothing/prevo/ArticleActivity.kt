@@ -69,6 +69,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -282,8 +283,19 @@ private fun ArticleScreen(
     var showTextSize by remember { mutableStateOf(false) }
 
     /* One card per word, with its translations */
-    val layout = remember(article, preferredLanguages) {
-        article?.let { layoutArticle(it, preferredLanguages) }
+    val colors = MaterialTheme.colorScheme
+    val density = LocalDensity.current.density
+    val layout = remember(article, preferredLanguages, colors) {
+        article?.let {
+            layoutArticle(it, preferredLanguages) {
+                InlineLabelSpan(
+                    background = colors.secondaryContainer.toArgb(),
+                    foreground = colors.onSecondaryContainer.toArgb(),
+                    radius = 6 * density,
+                    padding = 4 * density,
+                )
+            }
+        }
     }
 
     /* Where the card of each section is in the list */
