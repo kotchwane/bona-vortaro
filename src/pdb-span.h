@@ -22,6 +22,9 @@
 
 #include "pdb-list.h"
 
+/* The values of these types are stored in the files, so new types
+ * must be added at the end, before PDB_SPAN_NONE, which is never
+ * stored. Readers ignore the types that they don't know. */
 typedef enum
 {
   PDB_SPAN_REFERENCE,
@@ -29,6 +32,8 @@ typedef enum
   PDB_SPAN_ITALIC,
   PDB_SPAN_NOTE,
   PDB_SPAN_BOLD,
+  /* The kind of word, eg. "transitiva" for a verb */
+  PDB_SPAN_GRAMMAR,
   PDB_SPAN_NONE
 } PdbSpanType;
 

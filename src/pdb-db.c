@@ -236,6 +236,17 @@ pdb_db_ref_types[] =
     { "ekz", "●" }
   };
 
+/* The kinds of verbs, from cfg/mallongigoj.xml of voko-grundo. The
+ * other kinds of words, such as "prefikso", are already written in
+ * full. */
+static const PdbDbReplacement
+pdb_db_verb_types[] =
+  {
+    { "tr", "transitiva" },
+    { "ntr", "netransitiva" },
+    { "x", "transitiva kaj netransitiva" }
+  };
+
 static const PdbDbReplacement
 pdb_db_styles[] =
   {
@@ -1755,6 +1766,22 @@ pdb_db_handle_uzo (PdbDb *db,
   return TRUE;
 }
 
+static gboolean
+pdb_db_handle_vspec (PdbDb *db,
+                     PdbDbParseState *state,
+                     PdbDocElementNode *element,
+                     PdbSpan *span,
+                     GError **error)
+{
+  state->skip_children =
+    pdb_db_add_replacement_contents (state,
+                                     element,
+                                     pdb_db_verb_types,
+                                     G_N_ELEMENTS (pdb_db_verb_types));
+
+  return TRUE;
+}
+
 static PdbDbElementSpan
 pdb_db_element_spans[] =
   {
@@ -1797,6 +1824,11 @@ pdb_db_element_spans[] =
     { .name = "em", .type = PDB_SPAN_BOLD, },
     { .name = "aut", .type = PDB_SPAN_NONE, .handler = pdb_db_handle_aut },
     { .name = "uzo", .type = PDB_SPAN_NONE, .handler = pdb_db_handle_uzo },
+    {
+      .name = "vspec",
+      .type = PDB_SPAN_GRAMMAR,
+      .handler = pdb_db_handle_vspec
+    },
     { .name = "trd", .type = PDB_SPAN_ITALIC, },
   };
 
