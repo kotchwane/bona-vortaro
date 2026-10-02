@@ -209,6 +209,10 @@ struct _PdbDb
    * "matematiko", from cfg/fakoj.xml */
   GHashTable *fields;
 
+  /* The titles of the works of the bibliography, indexed by their
+   * abbreviation, eg. "BL", from cfg/bibliogr.xml */
+  GHashTable *works;
+
   /* This is a list of links. Each link contains a reference to a
    * section (either directly a pointer or a mark name) and and a
    * pointer to the span. The data in the span will be replaced by an
@@ -1743,6 +1747,81 @@ pdb_db_handle_subsnc (PdbDb *db,
   return TRUE;
 }
 
+/* Appends the text of an element, in a span of the given type */
+static void
+pdb_db_append_element_in_span (PdbDbParseState *state,
+                               PdbDocElementNode *element,
+                               PdbSpanType type,
+                               GHashTable *names)
+{
+  GString *text = g_string_new (NULL);
+  const char *name;
+  PdbSpan *span = g_slice_new0 (PdbSpan);
+
+  pdb_doc_append_element_text (element, text);
+  pdb_trim_buf (text);
+
+  /* Write the name of the code if it is known */
+  name = names ? g_hash_table_lookup (names, text->str) : NULL;
+
+  pdb_db_start_text (state);
+
+  span->type = type;
+  span->span_start = state->buf->len;
+  g_string_append (state->buf, name ? name : text->str);
+  span->span_length = state->buf->len - span->span_start;
+  pdb_list_insert (state->spans.prev, &span->link);
+
+  g_string_free (text, TRUE);
+}
+
+static gboolean
+pdb_db_handle_fnt (PdbDb *db,
+                   PdbDbParseState *state,
+                   PdbDocElementNode *element,
+                   PdbSpan *span,
+                   GError **error)
+{
+  /* The sources are only kept in the remarks, whose text usually
+   * refers to them, eg. "Laŭ <fnt><bib>BL</bib></fnt>: …". The work is
+   * written with its title from the bibliography if it has an
+   * abbreviation, otherwise as "author, title". Its other details, such
+   * as the page, are left out. */
+  PdbDocElementNode *bib, *aut, *vrk;
+
+  bib = pdb_doc_get_child_element (&element->node, "bib");
+  aut = pdb_doc_get_child_element (&element->node, "aut");
+  vrk = pdb_doc_get_child_element (&element->node, "vrk");
+
+  if (bib)
+    {
+      pdb_db_append_element_in_span (state, bib, PDB_SPAN_ITALIC, db->works);
+    }
+  else
+    {
+      if (aut)
+        {
+          GString *text = g_string_new (NULL);
+
+          pdb_doc_append_element_text (aut, text);
+          pdb_trim_buf (text);
+          pdb_db_start_text (state);
+          g_string_append (state->buf, text->str);
+          g_string_free (text, TRUE);
+
+          if (vrk)
+            g_string_append (state->buf, ", ");
+        }
+
+      if (vrk)
+        pdb_db_append_element_in_span (state, vrk, PDB_SPAN_ITALIC, NULL);
+    }
+
+  state->skip_children = TRUE;
+
+  return TRUE;
+}
+
 /* Writes the name of a field instead of its code, eg. "matematiko"
  * instead of "MAT", in a span so that applications can show it
  * differently */
@@ -1871,6 +1950,7 @@ pdb_db_element_spans[] =
     { .name = "em", .type = PDB_SPAN_BOLD, },
     { .name = "aut", .type = PDB_SPAN_NONE, .handler = pdb_db_handle_aut },
     { .name = "uzo", .type = PDB_SPAN_NONE, .handler = pdb_db_handle_uzo },
+    { .name = "fnt", .type = PDB_SPAN_NONE, .handler = pdb_db_handle_fnt },
     {
       .name = "vspec",
       .type = PDB_SPAN_GRAMMAR,
@@ -1882,9 +1962,19 @@ pdb_db_element_spans[] =
 static gboolean
 pdb_db_should_ignore_spannable_tag (PdbDocElementNode *element)
 {
-  /* Skip citations, adm tags and pictures */
-  if (!strcmp (element->name, "fnt") ||
-      !strcmp (element->name, "adm") ||
+  /* Skip the sources, except in the remarks, whose text usually refers
+   * to them */
+  if (!strcmp (element->name, "fnt"))
+    {
+      PdbDocElementNode *parent;
+
+      parent = (PdbDocElementNode *) element->node.parent;
+
+      return parent == NULL || strcmp (parent->name, "rim");
+    }
+
+  /* Skip adm tags and pictures */
+  if (!strcmp (element->name, "adm") ||
       !strcmp (element->name, "bld") ||
       /* Ignore translation groups. They are handled separately */
       !strcmp (element->name, "trdgrp"))
@@ -2745,13 +2835,15 @@ compare_string_pointer (const void *pa,
 
 /* Loads a list of codes from a configuration file of ReVo: each
  * element called element_name maps the value of its attribute
- * attribute_name to its text. The file is optional: if it can't be
+ * attribute_name to its text, or to the text of its child called
+ * text_name if it isn't NULL. The file is optional: if it can't be
  * loaded, the table is empty and the codes are written as they are. */
 static GHashTable *
 pdb_db_load_codes (PdbRevo *revo,
                    const char *filename,
                    const char *element_name,
-                   const char *attribute_name)
+                   const char *attribute_name,
+                   const char *text_name)
 {
   GHashTable *codes = g_hash_table_new_full (g_str_hash,
                                              g_str_equal,
@@ -2785,6 +2877,10 @@ pdb_db_load_codes (PdbRevo *revo,
       code = pdb_doc_get_attribute (element, attribute_name);
 
       if (code == NULL)
+        continue;
+
+      if (text_name &&
+          (element = pdb_doc_get_child_element (node, text_name)) == NULL)
         continue;
 
       text = g_string_new (NULL);
@@ -2841,7 +2937,16 @@ pdb_db_new (PdbRevo *revo,
                                              g_free,
                                              g_free);
 
-  db->fields = pdb_db_load_codes (revo, "cfg/fakoj.xml", "fako", "kodo");
+  db->fields = pdb_db_load_codes (revo,
+                                  "cfg/fakoj.xml",
+                                  "fako",
+                                  "kodo",
+                                  NULL /* text_name */);
+  db->works = pdb_db_load_codes (revo,
+                                 "cfg/bibliogr.xml",
+                                 "vrk",
+                                 "mll",
+                                 "tit");
 
   files = pdb_revo_list_files (revo, "revo/*.xml", error);
 
@@ -2970,6 +3075,7 @@ pdb_db_free (PdbDb *db)
   g_hash_table_destroy (db->translations);
   g_hash_table_destroy (db->root_variants);
   g_hash_table_destroy (db->fields);
+  g_hash_table_destroy (db->works);
 
   g_slice_free (PdbDb, db);
 }
