@@ -46,6 +46,10 @@ class GrammarSpan
 class FieldSpan
 class ExampleSpan
 
+/** The symbol of the type of a link, eg. "↘", with its type as numbered by
+ * prevodb (see LinkType). */
+class LinkTypeSpan(val type: Int)
+
 /** A link to another section of the same article. The translations use
  * them to point back to the word they translate. */
 class SectionLinkSpan(val section: Int, private val onShowSection: (Int) -> Unit) : ClickableSpan() {
@@ -71,6 +75,7 @@ object ArticleLoader {
     private const val SPAN_GRAMMAR = 5
     private const val SPAN_FIELD = 6
     private const val SPAN_EXAMPLE = 7
+    private const val SPAN_LINK_TYPE = 8
 
     /**
      * Loads an article, keeping only the sections of the languages shown
@@ -194,6 +199,7 @@ object ArticleLoader {
                 SPAN_GRAMMAR -> listOf(GrammarSpan())
                 SPAN_FIELD -> listOf(FieldSpan())
                 SPAN_EXAMPLE -> listOf(ExampleSpan())
+                SPAN_LINK_TYPE -> listOf(LinkTypeSpan(data1))
                 else -> emptyList()
             }
     }

@@ -19,6 +19,7 @@ package uk.co.busydoingnothing.prevo
 
 import android.text.SpannableStringBuilder
 import android.text.Spanned
+import android.text.style.ClickableSpan
 import android.text.style.QuoteSpan
 import android.text.style.SuperscriptSpan
 
@@ -74,15 +75,37 @@ class ArticleLayout(val words: List<WordEntry>, val otherTranslations: List<Arti
 /** Translation sections are those of a language other than Esperanto. */
 private fun ArticleSection.isWord() = language == "eo"
 
+/** The types of links, in the order of prevodb, with the words of ReVo
+ * for them (from its website, xsl/inc/revo_ref.xsl of voko-grundo), for one
+ * link and for several. */
+enum class LinkType(val one: String, val several: String, val family: LinkFamily) {
+    SEE("vidu", "vidu", LinkFamily.OTHER),
+    HOMONYM("homonimo", "homonimoj", LinkFamily.OTHER),
+    DEFINITION("difino ĉe", "difino ĉe", LinkFamily.OTHER),
+    SYNONYM("sinonimo", "sinonimoj", LinkFamily.EQUIVALENCE),
+    ANTONYM("antonimo", "antonimoj", LinkFamily.EQUIVALENCE),
+    BROADER("supernocio", "supernocioj", LinkFamily.HIERARCHY),
+    NARROWER("subnocio", "subnocioj", LinkFamily.HIERARCHY),
+    PARTS("parto", "partoj", LinkFamily.PARTS),
+    PART_OF("parto de", "parto de", LinkFamily.PARTS),
+    EXAMPLE("ekzemplo", "ekzemploj", LinkFamily.OTHER),
+}
+
+/** Families of types of links, shown with different colours. */
+enum class LinkFamily { HIERARCHY, PARTS, EQUIVALENCE, OTHER }
+
 /**
  * @param markLabel called for each field or kind of word left within the
  *   text (eg. at the start of a sense, "a) muziko …"), to return the span
  *   that shows it as a label
+ * @param markLinkType called for each symbol of the type of a link, with
+ *   the word to show instead, to return the span that shows it
  */
 fun layoutArticle(
     article: Article,
     preferredLanguages: List<String>,
     markLabel: () -> Any,
+    markLinkType: (LinkType, String) -> Any,
 ): ArticleLayout {
     /* For each word and language, the translations with their sense */
     val translations = mutableMapOf<Int, MutableMap<String, MutableList<Pair<String, String>>>>()
@@ -118,7 +141,7 @@ fun layoutArticle(
             official = official,
             title = title,
             labels = labels,
-            blocks = splitBlocks(markInlineLabels(content, markLabel)),
+            blocks = splitBlocks(markLinkTypes(markInlineLabels(content, markLabel), markLinkType)),
             translations = byLanguage.entries
                 /* The user's languages first, in their order, then the
                  * others in the order of the article */
@@ -397,4 +420,36 @@ fun previewOf(article: Article, mark: Int): WordPreview? {
         ?: ""
 
     return WordPreview(title.toString(), definition)
+}
+
+/** Shows the symbols of the types of links as words: the plural when it
+ * is followed by several links, up to the end of the group (";", ".") or
+ * of the line. */
+private fun markLinkTypes(content: Spanned, markLinkType: (LinkType, String) -> Any): Spanned {
+    val spans = content.getSpans(0, content.length, LinkTypeSpan::class.java)
+    if (spans.isEmpty())
+        return content
+
+    val marked = SpannableStringBuilder(content)
+    val text = content.toString()
+
+    for (span in spans) {
+        val type = LinkType.entries.getOrNull(span.type) ?: continue
+        val start = content.getSpanStart(span)
+        val end = content.getSpanEnd(span)
+
+        var groupEnd = end
+        while (groupEnd < text.length && text[groupEnd] !in ";.\n")
+            groupEnd++
+        val links = content.getSpans(end, groupEnd, ClickableSpan::class.java).size
+
+        marked.setSpan(
+            markLinkType(type, if (links > 1) type.several else type.one),
+            start,
+            end,
+            Spanned.SPAN_EXCLUSIVE_EXCLUSIVE,
+        )
+    }
+
+    return marked
 }

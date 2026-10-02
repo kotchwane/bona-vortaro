@@ -279,14 +279,35 @@ private fun ArticleScreen(
     val density = LocalDensity.current.density
     val layout = remember(article, preferredLanguages, colors) {
         article?.let {
-            layoutArticle(it, preferredLanguages) {
-                InlineLabelSpan(
-                    background = colors.secondaryContainer.toArgb(),
-                    foreground = colors.onSecondaryContainer.toArgb(),
-                    radius = 6 * density,
-                    padding = 4 * density,
-                )
-            }
+            layoutArticle(
+                it,
+                preferredLanguages,
+                markLabel = {
+                    InlineLabelSpan(
+                        background = colors.secondaryContainer.toArgb(),
+                        foreground = colors.onSecondaryContainer.toArgb(),
+                        radius = 6 * density,
+                        padding = 4 * density,
+                    )
+                },
+                markLinkType = { type, label ->
+                    LinkTypeLabelSpan(
+                        label = label,
+                        /* Only primary and tertiary are strong colours
+                         * with the wallpaper's colours, secondary is
+                         * almost grey like outline. The words tell the
+                         * hierarchy and the parts apart. */
+                        color = when (type.family) {
+                            LinkFamily.HIERARCHY, LinkFamily.PARTS -> colors.primary
+                            LinkFamily.EQUIVALENCE -> colors.tertiary
+                            LinkFamily.OTHER -> colors.outline
+                        }.toArgb(),
+                        radius = 50 * density,
+                        padding = 5 * density,
+                        stroke = 1 * density,
+                    )
+                },
+            )
         }
     }
 

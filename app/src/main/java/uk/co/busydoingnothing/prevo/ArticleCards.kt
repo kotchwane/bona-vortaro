@@ -285,6 +285,60 @@ class InlineLabelSpan(
     }
 }
 
+/** Draws the symbol of the type of a link as a word in a rounded pill,
+ * eg. "subnocioj" instead of "↘", in the colour of its family. */
+class LinkTypeLabelSpan(
+    private val label: String,
+    private val color: Int,
+    private val radius: Float,
+    private val padding: Float,
+    private val stroke: Float,
+) : ReplacementSpan() {
+
+    private fun labelPaint(paint: Paint) = Paint(paint).apply {
+        textSize = paint.textSize * 0.78f
+        isFakeBoldText = true
+        color = this@LinkTypeLabelSpan.color
+    }
+
+    override fun getSize(paint: Paint, text: CharSequence, start: Int, end: Int, fm: Paint.FontMetricsInt?): Int {
+        fm?.let { paint.getFontMetricsInt(it) }
+        /* The width of the pill and a space after it */
+        return (labelPaint(paint).measureText(label) + 2 * padding + padding).roundToInt()
+    }
+
+    override fun draw(
+        canvas: Canvas,
+        text: CharSequence,
+        start: Int,
+        end: Int,
+        x: Float,
+        top: Int,
+        y: Int,
+        bottom: Int,
+        paint: Paint,
+    ) {
+        val label = labelPaint(paint)
+        val width = label.measureText(this.label) + 2 * padding
+        val rect = RectF(x, y + label.ascent() - padding / 2, x + width, y + label.descent() + padding / 2)
+
+        /* A light tint of the colour, and an outline */
+        val fill = Paint(paint).apply {
+            color = this@LinkTypeLabelSpan.color
+            alpha = 0x1f
+            style = Paint.Style.FILL
+        }
+        val outline = Paint(paint).apply {
+            color = this@LinkTypeLabelSpan.color
+            style = Paint.Style.STROKE
+            strokeWidth = stroke
+        }
+        canvas.drawRoundRect(rect, radius, radius, fill)
+        canvas.drawRoundRect(rect, radius, radius, outline)
+        canvas.drawText(this.label, x + padding, y.toFloat(), label)
+    }
+}
+
 /** "Fundamento" for "*", "n-a Oficiala Aldono" for a number. */
 @Composable
 private fun OfficialBadge(official: String, modifier: Modifier = Modifier) {
