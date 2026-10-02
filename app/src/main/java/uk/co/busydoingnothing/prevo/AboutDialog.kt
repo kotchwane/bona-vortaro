@@ -40,6 +40,7 @@ import androidx.compose.ui.text.style.TextDecoration
 private const val LICENSE_URL = "https://www.gnu.org/licenses/old-licenses/gpl-2.0-standalone.html"
 private const val RETA_VORTARO_URL = "https://reta-vortaro.de/revo/"
 private const val PRIVACY_POLICY_URL = "https://busydoingnothing.co.uk/prevo/privacy-policy.html"
+private const val FORK_URL = "https://github.com/kotchwane/prevo"
 
 /** The "Pri" dialog: version, copyright, data source and licence. */
 @Composable
@@ -92,6 +93,7 @@ private fun aboutMessage(context: Context, linkColor: Color): AnnotatedString {
         for ((label, url) in listOf(
             "Reta Vortaro" to RETA_VORTARO_URL,
             "Politiko de privateco" to PRIVACY_POLICY_URL,
+            "github.com/kotchwane/prevo" to FORK_URL,
         )) {
             val start = text.indexOf(label)
             link(start, start + label.length, url)
