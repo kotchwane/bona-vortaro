@@ -1802,6 +1802,11 @@ pdb_db_handle_sncref (PdbDb *db,
       return FALSE;
     }
 
+  /* The number goes right after the word, even when the source has a
+   * space before the tag, eg. “<tld/>i <sncref …/> brutojn” */
+  if (state->queued_space == PDB_DB_QUEUED_SPACE_TYPE_SPACE)
+    state->queued_space = PDB_DB_QUEUED_SPACE_TYPE_NONE;
+
   pdb_db_start_text (state);
   pdb_db_add_reference_span (db, state, PDB_SPAN_SUPERSCRIPT, ref);
 
