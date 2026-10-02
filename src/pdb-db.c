@@ -1465,6 +1465,9 @@ typedef struct
    * it and everything after them are skipped */
   gboolean copying;
   gboolean skip_copy;
+  /* Whether a space was pending before a skipped element, eg. before
+   * the source at the end of an example */
+  gboolean space_before_skipped;
 } PdbDbParseState;
 
 static PdbDbParseStackEntry *
@@ -2291,6 +2294,8 @@ pdb_db_parse_node (PdbDb *db,
         else if (pdb_db_should_ignore_spannable_tag (element))
           {
             /* skip */
+            if (state->queued_space == PDB_DB_QUEUED_SPACE_TYPE_SPACE)
+              state->space_before_skipped = TRUE;
           }
         else if (element->node.first_child)
           {
@@ -2367,6 +2372,15 @@ pdb_db_parse_node (PdbDb *db,
               }
             else
               {
+                /* Don't leave the space that was before a skipped
+                 * element in front of a punctuation mark, eg. in
+                 * “neĝo <fnt>…</fnt>.” */
+                if (state->space_before_skipped &&
+                    state->queued_space == PDB_DB_QUEUED_SPACE_TYPE_SPACE &&
+                    strchr (".,;:!?", *p))
+                  state->queued_space = PDB_DB_QUEUED_SPACE_TYPE_NONE;
+                state->space_before_skipped = FALSE;
+
                 pdb_db_start_text (state);
                 g_string_append_c (state->buf, *p);
               }
@@ -2393,6 +2407,7 @@ pdb_db_parse_spannable_string_upto (PdbDb *db,
   state.string = string;
   state.copying = FALSE;
   state.skip_copy = FALSE;
+  state.space_before_skipped = FALSE;
 
   pdb_list_init (&state.spans);
 
