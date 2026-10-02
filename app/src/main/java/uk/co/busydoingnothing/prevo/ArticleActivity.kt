@@ -45,8 +45,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -67,7 +65,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
-import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalDensity
@@ -127,8 +125,6 @@ class ArticleActivity : AppCompatActivity() {
 
         setContent {
             PrevoTheme {
-                var showAbout by remember { mutableStateOf(false) }
-
                 ArticleScreen(
                     article = article,
                     textSize = textSize,
@@ -137,21 +133,12 @@ class ArticleActivity : AppCompatActivity() {
                     sectionRequests = sectionRequests,
                     onBack = ::finish,
                     onSearch = { MenuHelper.goSearch(this) },
-                    onChooseLanguage = { MenuHelper.goChooseLanguage(this) },
                     onPreferences = { MenuHelper.goPreferences(this) },
-                    onAbout = { showAbout = true },
-                    onTextSizeChange = {
-                        textSize = it
-                        PrevoSettings.setTextSize(this, it)
-                    },
                     onCopy = ::copyDefinition,
                     onFlashcard = ::createFlashcard,
                     onLookUpInPiv = ::lookUpInPiv,
                     onShare = ::share,
                 )
-
-                if (showAbout)
-                    AboutDialog(onDismiss = { showAbout = false })
 
                 if (showNoFlashcard) {
                     AlertDialog(
@@ -277,10 +264,7 @@ private fun ArticleScreen(
     sectionRequests: MutableSharedFlow<Int>,
     onBack: () -> Unit,
     onSearch: () -> Unit,
-    onChooseLanguage: () -> Unit,
     onPreferences: () -> Unit,
-    onAbout: () -> Unit,
-    onTextSizeChange: (Int) -> Unit,
     onCopy: (ArticleSection) -> Unit,
     onFlashcard: (CharSequence, CharSequence) -> Unit,
     onLookUpInPiv: (CharSequence) -> Unit,
@@ -289,7 +273,6 @@ private fun ArticleScreen(
     val listState = rememberLazyListState()
     val scope = rememberCoroutineScope()
     var actionsFor by remember { mutableStateOf<ArticleSection?>(null) }
-    var showTextSize by remember { mutableStateOf(false) }
 
     /* One card per word, with its translations */
     val colors = MaterialTheme.colorScheme
@@ -351,12 +334,9 @@ private fun ArticleScreen(
                     IconButton(onClick = onSearch) {
                         Icon(Icons.Default.Search, stringResource(R.string.menu_search))
                     }
-                    ArticleMenu(
-                        onChooseLanguage = onChooseLanguage,
-                        onTextSize = { showTextSize = true },
-                        onPreferences = onPreferences,
-                        onAbout = onAbout,
-                    )
+                    IconButton(onClick = onPreferences) {
+                        Icon(Icons.Default.Settings, stringResource(R.string.preferences))
+                    }
                 },
             )
         },
@@ -395,47 +375,8 @@ private fun ArticleScreen(
             onShare = { onShare(section) },
         )
     }
-
-    if (showTextSize) {
-        ModalBottomSheet(onDismissRequest = { showTextSize = false }) {
-            Column(Modifier.padding(bottom = 32.dp)) {
-                TextSizeSetting(textSize, onTextSizeChange)
-            }
-        }
-    }
 }
 
-@Composable
-private fun ArticleMenu(
-    onChooseLanguage: () -> Unit,
-    onTextSize: () -> Unit,
-    onPreferences: () -> Unit,
-    onAbout: () -> Unit,
-) {
-    var open by remember { mutableStateOf(false) }
-
-    IconButton(onClick = { open = true }) {
-        Icon(Icons.Default.MoreVert, stringResource(R.string.more_options))
-    }
-    DropdownMenu(expanded = open, onDismissRequest = { open = false }) {
-        DropdownMenuItem(
-            text = { Text(stringResource(R.string.menu_choose_language)) },
-            onClick = { open = false; onChooseLanguage() },
-        )
-        DropdownMenuItem(
-            text = { Text(stringResource(R.string.text_size)) },
-            onClick = { open = false; onTextSize() },
-        )
-        DropdownMenuItem(
-            text = { Text(stringResource(R.string.menu_preferences)) },
-            onClick = { open = false; onPreferences() },
-        )
-        DropdownMenuItem(
-            text = { Text(stringResource(R.string.menu_about)) },
-            onClick = { open = false; onAbout() },
-        )
-    }
-}
 
 /** A section: its header, then its content. The texts are drawn by
  * TextViews, which already handle the spans of the articles (links,

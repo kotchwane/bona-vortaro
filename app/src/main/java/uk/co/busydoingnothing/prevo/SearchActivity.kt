@@ -43,10 +43,8 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.AssistChip
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -133,8 +131,6 @@ class SearchActivity : AppCompatActivity() {
 
         setContent {
             PrevoTheme {
-                var showAbout by remember { mutableStateOf(false) }
-
                 SearchScreen(
                     languages = searchLanguages,
                     selected = selected,
@@ -144,11 +140,7 @@ class SearchActivity : AppCompatActivity() {
                     onResultClick = ::openArticle,
                     onChooseLanguage = { MenuHelper.goChooseLanguage(this) },
                     onPreferences = { MenuHelper.goPreferences(this) },
-                    onAbout = { showAbout = true },
                 )
-
-                if (showAbout)
-                    AboutDialog(onDismiss = { showAbout = false })
             }
         }
     }
@@ -234,7 +226,6 @@ private fun SearchScreen(
     onResultClick: (SearchResult) -> Unit,
     onChooseLanguage: () -> Unit,
     onPreferences: () -> Unit,
-    onAbout: () -> Unit,
 ) {
     val context = LocalContext.current
     var query by rememberSaveable { mutableStateOf(initialQuery) }
@@ -257,9 +248,7 @@ private fun SearchScreen(
                 SearchField(
                     query = query,
                     onQueryChange = { query = it },
-                    onChooseLanguage = onChooseLanguage,
                     onPreferences = onPreferences,
-                    onAbout = onAbout,
                 )
                 LanguageChips(
                     languages = languages,
@@ -298,13 +287,10 @@ private fun SearchScreen(
 private fun SearchField(
     query: String,
     onQueryChange: (String) -> Unit,
-    onChooseLanguage: () -> Unit,
     onPreferences: () -> Unit,
-    onAbout: () -> Unit,
 ) {
     val focusRequester = remember { FocusRequester() }
     val keyboard = LocalSoftwareKeyboardController.current
-    var menuOpen by remember { mutableStateOf(false) }
 
     /* Like the original search screen, start with the keyboard open */
     LaunchedEffect(Unit) {
@@ -322,22 +308,8 @@ private fun SearchField(
         imeAction = ImeAction.Search,
         keyboardActions = KeyboardActions(onSearch = { keyboard?.hide() }),
         extraButtons = {
-            IconButton(onClick = { menuOpen = true }) {
-                Icon(Icons.Default.MoreVert, contentDescription = stringResource(R.string.more_options))
-            }
-            DropdownMenu(expanded = menuOpen, onDismissRequest = { menuOpen = false }) {
-                DropdownMenuItem(
-                    text = { Text(stringResource(R.string.menu_choose_language)) },
-                    onClick = { menuOpen = false; onChooseLanguage() },
-                )
-                DropdownMenuItem(
-                    text = { Text(stringResource(R.string.menu_preferences)) },
-                    onClick = { menuOpen = false; onPreferences() },
-                )
-                DropdownMenuItem(
-                    text = { Text(stringResource(R.string.menu_about)) },
-                    onClick = { menuOpen = false; onAbout() },
-                )
+            IconButton(onClick = onPreferences) {
+                Icon(Icons.Default.Settings, contentDescription = stringResource(R.string.preferences))
             }
         },
     )

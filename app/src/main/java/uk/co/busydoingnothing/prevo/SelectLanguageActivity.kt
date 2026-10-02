@@ -38,10 +38,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
-import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Star
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -63,6 +61,13 @@ import androidx.compose.ui.unit.dp
 
 class SelectLanguageActivity : AppCompatActivity() {
 
+    companion object {
+        /** Opened from the settings to choose the user's search languages:
+         * a tap on a language adds or removes it instead of searching in
+         * it. */
+        const val EXTRA_MANAGE = "uk.co.busydoingnothing.prevo.Manage"
+    }
+
     /* Reloaded every time the screen is shown, because choosing a
      * language changes them */
     private var mainLanguages by mutableStateOf(emptyList<Language>())
@@ -81,27 +86,23 @@ class SelectLanguageActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
 
         val allLanguages = getAllLanguages()
+        val manage = intent.getBooleanExtra(EXTRA_MANAGE, false)
 
         setContent {
             PrevoTheme {
-                var showAbout by remember { mutableStateOf(false) }
-
                 LanguageChooser(
+                    manage = manage,
                     mainLanguages = mainLanguages,
                     myLanguages = myLanguages,
                     allLanguages = allLanguages,
-                    onLanguageClick = ::chooseLanguage,
+                    onLanguageClick = if (manage) ::toggleMine else ::chooseLanguage,
                     onToggleMine = ::toggleMine,
                     onMoveMine = ::moveMine,
                     /* Nothing to go back to on the very first start,
                      * when this is the first screen of the app */
                     onBack = if (isTaskRoot) null else ::finish,
-                    onPreferences = { MenuHelper.goPreferences(this) },
-                    onAbout = { showAbout = true },
+                    onPreferences = if (manage) null else ({ MenuHelper.goPreferences(this) }),
                 )
-
-                if (showAbout)
-                    AboutDialog(onDismiss = { showAbout = false })
             }
         }
     }
@@ -147,6 +148,7 @@ class SelectLanguageActivity : AppCompatActivity() {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun LanguageChooser(
+    manage: Boolean,
     mainLanguages: List<Language>,
     myLanguages: List<Language>,
     allLanguages: List<Language>,
@@ -154,8 +156,7 @@ private fun LanguageChooser(
     onToggleMine: (Language) -> Unit,
     onMoveMine: (Language, Int) -> Unit,
     onBack: (() -> Unit)?,
-    onPreferences: () -> Unit,
-    onAbout: () -> Unit,
+    onPreferences: (() -> Unit)?,
 ) {
     var query by rememberSaveable { mutableStateOf("") }
     val filter = normaliseQuery(query)
@@ -165,7 +166,9 @@ private fun LanguageChooser(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(stringResource(R.string.select_language)) },
+                title = {
+                    Text(stringResource(if (manage) R.string.my_search_languages else R.string.select_language))
+                },
                 navigationIcon = {
                     if (onBack != null) {
                         IconButton(onClick = onBack) {
@@ -173,7 +176,13 @@ private fun LanguageChooser(
                         }
                     }
                 },
-                actions = { OverflowMenu(onPreferences, onAbout) },
+                actions = {
+                    if (onPreferences != null) {
+                        IconButton(onClick = onPreferences) {
+                            Icon(Icons.Default.Settings, stringResource(R.string.preferences))
+                        }
+                    }
+                },
             )
         },
     ) { padding ->
@@ -183,6 +192,16 @@ private fun LanguageChooser(
                 .padding(padding)
                 .imePadding(),
         ) {
+            if (manage) {
+                item {
+                    Text(
+                        stringResource(R.string.my_languages_help),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp),
+                    )
+                }
+            }
             item { LanguageSearchField(query, onQueryChange = { query = it }) }
 
             if (filter.isEmpty()) {
@@ -282,21 +301,3 @@ private fun LanguageSearchField(query: String, onQueryChange: (String) -> Unit) 
     )
 }
 
-@Composable
-private fun OverflowMenu(onPreferences: () -> Unit, onAbout: () -> Unit) {
-    var open by remember { mutableStateOf(false) }
-
-    IconButton(onClick = { open = true }) {
-        Icon(Icons.Default.MoreVert, contentDescription = stringResource(R.string.more_options))
-    }
-    DropdownMenu(expanded = open, onDismissRequest = { open = false }) {
-        DropdownMenuItem(
-            text = { Text(stringResource(R.string.menu_preferences)) },
-            onClick = { open = false; onPreferences() },
-        )
-        DropdownMenuItem(
-            text = { Text(stringResource(R.string.menu_about)) },
-            onClick = { open = false; onAbout() },
-        )
-    }
-}

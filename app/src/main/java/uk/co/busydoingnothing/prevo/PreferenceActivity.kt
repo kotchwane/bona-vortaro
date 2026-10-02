@@ -18,8 +18,11 @@
 
 package uk.co.busydoingnothing.prevo
 
+import android.content.Intent
+import android.content.pm.PackageManager
 import android.content.res.Configuration
 import android.os.Bundle
+import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
@@ -30,45 +33,60 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.selection.selectable
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SegmentedButton
-import androidx.compose.material3.SegmentedButtonDefaults
-import androidx.compose.material3.SingleChoiceSegmentedButtonRow
-import androidx.compose.material3.Text
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.RadioButton
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarResult
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import kotlin.math.roundToInt
+import kotlinx.coroutines.launch
 
+/*
+ * The settings, on two levels: a main page with one line per setting and
+ * its current value, and a page of their own for the translations, which
+ * is a long list. Everything that used to be in the menus of the other
+ * screens (the text size, the about dialog…) is here.
+ */
 class PreferenceActivity : AppCompatActivity() {
 
     private var theme by mutableStateOf(Theme.SYSTEM)
     private var textSize by mutableIntStateOf(PrevoSettings.DEFAULT_TEXT_SIZE)
+    private var myLanguages by mutableStateOf(emptyList<String>())
     private var translations by mutableStateOf(emptySet<String>())
-
-    /* The selected languages first, then the others. Computed when the
-     * screen is shown, so that a language doesn't move while it is
-     * being ticked or unticked */
-    private var orderedLanguages by mutableStateOf(emptyList<Language>())
 
     /** Every language that can be a translation, i.e. all but Esperanto */
     private lateinit var translationLanguages: List<Language>
@@ -88,28 +106,53 @@ class PreferenceActivity : AppCompatActivity() {
         translationLanguages =
             LanguageList.getDefault(this).allLanguages.filter { it.code != "eo" }
 
+        val version = try {
+            packageManager.getPackageInfo(packageName, 0).versionName
+        } catch (e: PackageManager.NameNotFoundException) {
+            null
+        } ?: "?"
+
         setContent {
             PrevoTheme {
-                SettingsScreen(
-                    theme = theme,
-                    onThemeChange = {
-                        theme = it
-                        PrevoSettings.setTheme(this, it)
-                    },
-                    textSize = textSize,
-                    onTextSizeChange = {
-                        textSize = it
-                        PrevoSettings.setTextSize(this, it)
-                    },
-                    translationLanguages = translationLanguages,
-                    orderedLanguages = orderedLanguages,
-                    translations = translations,
-                    onTranslationsChange = {
-                        translations = it
-                        PrevoSettings.setTranslationLanguages(this, translationLanguages, it)
-                    },
-                    onBack = ::finish,
-                )
+                var page by rememberSaveable { mutableStateOf(Page.MAIN) }
+
+                when (page) {
+                    Page.MAIN -> MainSettings(
+                        theme = theme,
+                        onThemeChange = {
+                            theme = it
+                            PrevoSettings.setTheme(this, it)
+                        },
+                        textSize = textSize,
+                        onTextSizeChange = {
+                            textSize = it
+                            PrevoSettings.setTextSize(this, it)
+                        },
+                        translationsSummary = translationsSummary(),
+                        onTranslations = { page = Page.TRANSLATIONS },
+                        myLanguagesSummary = languageNames(myLanguages),
+                        onMyLanguages = {
+                            startActivity(
+                                Intent(this, SelectLanguageActivity::class.java)
+                                    .putExtra(SelectLanguageActivity.EXTRA_MANAGE, true)
+                            )
+                        },
+                        version = version,
+                        onBack = ::finish,
+                    )
+                    Page.TRANSLATIONS -> {
+                        BackHandler { page = Page.MAIN }
+                        TranslationSettings(
+                            languages = translationLanguages,
+                            translations = translations,
+                            onTranslationsChange = {
+                                translations = it
+                                PrevoSettings.setTranslationLanguages(this, translationLanguages, it)
+                            },
+                            onBack = { page = Page.MAIN },
+                        )
+                    }
+                }
             }
         }
     }
@@ -117,78 +160,292 @@ class PreferenceActivity : AppCompatActivity() {
     override fun onStart() {
         super.onStart()
 
+        /* The user's languages may have been changed in the chooser */
         theme = PrevoSettings.getTheme(this)
         textSize = PrevoSettings.getTextSize(this)
+        myLanguages = MyLanguages.get(this)
         translations = PrevoSettings.getTranslationLanguages(this, translationLanguages)
-        orderedLanguages = translationLanguages.sortedBy { if (it.code in translations) 0 else 1 }
     }
 
+    private fun languageNames(codes: List<String>): String? {
+        val languageList = LanguageList.getDefault(this)
+        return codes.takeIf { it.isNotEmpty() }?.joinToString(", ") { languageList.getLanguageName(it) }
+    }
+
+    @Composable
+    private fun translationsSummary(): String = when (translations.size) {
+        translationLanguages.size -> stringResource(R.string.translations_all, translations.size)
+        0 -> stringResource(R.string.translations_none)
+        else -> translationLanguages.filter { it.code in translations }.joinToString(", ") { it.name }
+    }
 }
+
+private enum class Page { MAIN, TRANSLATIONS }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun SettingsScreen(
-    theme: Theme,
-    onThemeChange: (Theme) -> Unit,
-    textSize: Int,
-    onTextSizeChange: (Int) -> Unit,
-    translationLanguages: List<Language>,
-    orderedLanguages: List<Language>,
-    translations: Set<String>,
-    onTranslationsChange: (Set<String>) -> Unit,
+private fun SettingsScaffold(
+    title: String,
     onBack: () -> Unit,
+    snackbarHost: SnackbarHostState? = null,
+    bottomBar: @Composable () -> Unit = {},
+    content: LazyListScope.() -> Unit,
 ) {
-    var query by rememberSaveable { mutableStateOf("") }
-    val filter = normaliseQuery(query)
-
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(stringResource(R.string.preferences)) },
+                title = { Text(title) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(
-                            Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = stringResource(R.string.back),
-                        )
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, stringResource(R.string.back))
                     }
                 },
             )
         },
+        bottomBar = bottomBar,
+        snackbarHost = { snackbarHost?.let { SnackbarHost(it) } },
     ) { padding ->
         LazyColumn(
             Modifier
                 .fillMaxSize()
                 .padding(padding)
                 .imePadding(),
-        ) {
-            sectionTitle(R.string.appearance)
-            item { ThemeSetting(theme, onThemeChange) }
-            item { TextSizeSetting(textSize, onTextSizeChange) }
+            content = content,
+        )
+    }
+}
 
-            sectionTitle(R.string.translations_title)
-            item {
-                TranslationsIntro(
-                    selected = translations.size,
-                    total = translationLanguages.size,
-                    onAll = { onTranslationsChange(translationLanguages.map { it.code }.toSet()) },
-                    onNone = { onTranslationsChange(emptySet()) },
+/** A big section title, with a line above it except for the first one. */
+private fun LazyListScope.bigTitle(title: Int, first: Boolean = false) {
+    item {
+        Column {
+            if (!first)
+                HorizontalDivider(Modifier.padding(top = 12.dp))
+            Text(
+                stringResource(title),
+                style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
+                color = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 20.dp, bottom = 4.dp),
+            )
+        }
+    }
+}
+
+/** A setting: its name and current value, opening something on a tap. */
+@Composable
+private fun SettingRow(title: String, value: String?, onClick: () -> Unit) {
+    Row(
+        Modifier
+            .fillMaxWidth()
+            .clickable(onClick = onClick)
+            .padding(horizontal = 16.dp, vertical = 12.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Column(Modifier.weight(1f)) {
+            Text(title, style = MaterialTheme.typography.bodyLarge)
+            value?.let {
+                Text(
+                    it,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    maxLines = 2,
                 )
             }
-            item { FilterField(query, onQueryChange = { query = it }) }
+        }
+        Icon(
+            Icons.AutoMirrored.Filled.KeyboardArrowRight,
+            contentDescription = null,
+            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+    }
+}
 
-            val shown = if (filter.isEmpty()) orderedLanguages
-                        else orderedLanguages.filter { it.matches(filter) }
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun MainSettings(
+    theme: Theme,
+    onThemeChange: (Theme) -> Unit,
+    textSize: Int,
+    onTextSizeChange: (Int) -> Unit,
+    translationsSummary: String,
+    onTranslations: () -> Unit,
+    myLanguagesSummary: String?,
+    onMyLanguages: () -> Unit,
+    version: String,
+    onBack: () -> Unit,
+) {
+    var showTheme by remember { mutableStateOf(false) }
+    var showTextSize by remember { mutableStateOf(false) }
+    var showAbout by remember { mutableStateOf(false) }
+    val themeNames = mapOf(
+        Theme.SYSTEM to stringResource(R.string.theme_system),
+        Theme.LIGHT to stringResource(R.string.theme_light),
+        Theme.DARK to stringResource(R.string.theme_dark),
+    )
+    val percent = (PrevoSettings.textScale(textSize) * 100).roundToInt()
+    val textSizeValue =
+        if (textSize == PrevoSettings.DEFAULT_TEXT_SIZE) stringResource(R.string.text_size_default_value, percent)
+        else stringResource(R.string.text_size_value, percent)
 
-            items(shown, key = { it.code }) { language ->
+    SettingsScaffold(stringResource(R.string.preferences), onBack) {
+        bigTitle(R.string.appearance, first = true)
+        item { SettingRow(stringResource(R.string.theme), themeNames[theme]) { showTheme = true } }
+        item { SettingRow(stringResource(R.string.text_size), textSizeValue) { showTextSize = true } }
+
+        bigTitle(R.string.languages)
+        item {
+            SettingRow(stringResource(R.string.translations_title), translationsSummary, onTranslations)
+        }
+        item {
+            SettingRow(
+                stringResource(R.string.my_search_languages),
+                myLanguagesSummary ?: stringResource(R.string.my_languages_automatic),
+                onMyLanguages,
+            )
+        }
+
+        bigTitle(R.string.about_section)
+        item {
+            SettingRow(
+                stringResource(R.string.about_prevo),
+                stringResource(R.string.version, version),
+            ) { showAbout = true }
+        }
+    }
+
+    if (showTheme) {
+        AlertDialog(
+            onDismissRequest = { showTheme = false },
+            title = { Text(stringResource(R.string.theme)) },
+            text = {
+                Column {
+                    for ((value, name) in themeNames) {
+                        Row(
+                            Modifier
+                                .fillMaxWidth()
+                                .selectable(selected = theme == value) {
+                                    onThemeChange(value)
+                                    showTheme = false
+                                }
+                                .padding(vertical = 8.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            RadioButton(selected = theme == value, onClick = null)
+                            Text(name, Modifier.padding(start = 12.dp))
+                        }
+                    }
+                }
+            },
+            confirmButton = {
+                TextButton(onClick = { showTheme = false }) { Text(stringResource(R.string.close)) }
+            },
+        )
+    }
+
+    if (showTextSize) {
+        ModalBottomSheet(onDismissRequest = { showTextSize = false }) {
+            Column(Modifier.padding(bottom = 32.dp)) {
+                TextSizeSetting(textSize, onTextSizeChange)
+            }
+        }
+    }
+
+    if (showAbout)
+        AboutDialog(onDismiss = { showAbout = false })
+}
+
+/** Which translations the articles show. The selected languages come
+ * first; the buttons that change all of them at once are at the bottom,
+ * and can be undone. */
+@Composable
+private fun TranslationSettings(
+    languages: List<Language>,
+    translations: Set<String>,
+    onTranslationsChange: (Set<String>) -> Unit,
+    onBack: () -> Unit,
+) {
+    var query by rememberSaveable { mutableStateOf("") }
+    val filter = normaliseQuery(query)
+    val snackbar = remember { SnackbarHostState() }
+    val scope = rememberCoroutineScope()
+    val allSelected = stringResource(R.string.all_selected)
+    val noneSelected = stringResource(R.string.none_selected)
+    val undo = stringResource(R.string.undo)
+
+    /* The selected languages first, computed when the page is shown, so
+     * that a language doesn't move away while it is being ticked */
+    val order = remember { languages.sortedBy { if (it.code in translations) 0 else 1 } }
+    val firstOther = remember { order.indexOfFirst { it.code !in translations } }
+
+    fun changeAll(selection: Set<String>, message: String) {
+        val previous = translations
+        onTranslationsChange(selection)
+        scope.launch {
+            snackbar.currentSnackbarData?.dismiss()
+            if (snackbar.showSnackbar(message, actionLabel = undo, withDismissAction = true) ==
+                SnackbarResult.ActionPerformed)
+                onTranslationsChange(previous)
+        }
+    }
+
+    SettingsScaffold(
+        stringResource(R.string.translations_title),
+        onBack,
+        snackbarHost = snackbar,
+        bottomBar = {
+            Surface(color = MaterialTheme.colorScheme.surfaceContainer) {
+                Row(
+                    Modifier
+                        .fillMaxWidth()
+                        .navigationBarsPadding()
+                        .padding(horizontal = 16.dp, vertical = 10.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                ) {
+                    OutlinedButton(
+                        onClick = { changeAll(languages.map { it.code }.toSet(), allSelected) },
+                        enabled = translations.size < languages.size,
+                    ) { Text(stringResource(R.string.select_all)) }
+                    OutlinedButton(
+                        onClick = { changeAll(emptySet(), noneSelected) },
+                        enabled = translations.isNotEmpty(),
+                    ) { Text(stringResource(R.string.select_none)) }
+                }
+            }
+        },
+    ) {
+        item {
+            Text(
+                stringResource(R.string.translations_help),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp),
+            )
+        }
+        item {
+            RoundedSearchField(
+                query = query,
+                onQueryChange = { query = it },
+                placeholder = stringResource(R.string.search_language),
+                modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
+            )
+        }
+
+        val shown = if (filter.isEmpty()) order else order.filter { it.matches(filter) }
+
+        for ((index, language) in shown.withIndex()) {
+            /* The two groups, when the whole list is shown */
+            if (filter.isEmpty() && index == 0 && firstOther != 0)
+                item(key = "selected") {
+                    SectionTitle(stringResource(R.string.selected_languages, translations.size))
+                }
+            if (filter.isEmpty() && index == firstOther && firstOther >= 0)
+                item(key = "others") { SectionTitle(stringResource(R.string.other_languages)) }
+
+            item(key = language.code) {
                 val checked = language.code in translations
                 val toggle = {
-                    onTranslationsChange(
-                        if (checked) translations - language.code
-                        else translations + language.code
-                    )
+                    onTranslationsChange(if (checked) translations - language.code else translations + language.code)
                 }
-
                 Row(
                     Modifier
                         .fillMaxWidth()
@@ -196,88 +453,10 @@ private fun SettingsScreen(
                         .padding(start = 16.dp, end = 8.dp),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
-                    Text(
-                        language.name,
-                        style = MaterialTheme.typography.bodyLarge,
-                        modifier = Modifier.weight(1f),
-                    )
+                    Text(language.name, style = MaterialTheme.typography.bodyLarge, modifier = Modifier.weight(1f))
                     Checkbox(checked = checked, onCheckedChange = { toggle() })
                 }
             }
         }
     }
-}
-
-private fun LazyListScope.sectionTitle(title: Int) {
-    item { SectionTitle(stringResource(title), Modifier.padding(top = 8.dp)) }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-private fun ThemeSetting(theme: Theme, onThemeChange: (Theme) -> Unit) {
-    val options = listOf(
-        Theme.SYSTEM to R.string.theme_system,
-        Theme.LIGHT to R.string.theme_light,
-        Theme.DARK to R.string.theme_dark,
-    )
-
-    Column {
-        Text(
-            stringResource(R.string.theme),
-            style = MaterialTheme.typography.bodyLarge,
-            modifier = Modifier.padding(horizontal = 16.dp),
-        )
-        SingleChoiceSegmentedButtonRow(
-            Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp),
-        ) {
-            options.forEachIndexed { index, (value, label) ->
-                SegmentedButton(
-                    selected = theme == value,
-                    onClick = { onThemeChange(value) },
-                    shape = SegmentedButtonDefaults.itemShape(index, options.size),
-                ) {
-                    Text(stringResource(label))
-                }
-            }
-        }
-    }
-}
-
-/** What the translations setting is for, how many languages are
- * selected, and buttons to select all or none of them. */
-@Composable
-private fun TranslationsIntro(selected: Int, total: Int, onAll: () -> Unit, onNone: () -> Unit) {
-    Column(Modifier.padding(horizontal = 16.dp)) {
-        Text(
-            stringResource(R.string.translations_help),
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-        )
-        Text(
-            stringResource(R.string.translations_count, selected, total),
-            style = MaterialTheme.typography.bodyMedium,
-            modifier = Modifier.padding(top = 8.dp),
-        )
-        Row(
-            Modifier.padding(top = 8.dp),
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-        ) {
-            OutlinedButton(onClick = onAll, enabled = selected < total) {
-                Text(stringResource(R.string.select_all))
-            }
-            OutlinedButton(onClick = onNone, enabled = selected > 0) {
-                Text(stringResource(R.string.select_none))
-            }
-        }
-    }
-}
-
-@Composable
-private fun FilterField(query: String, onQueryChange: (String) -> Unit) {
-    RoundedSearchField(
-        query = query,
-        onQueryChange = onQueryChange,
-        placeholder = stringResource(R.string.search_language),
-        modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
-    )
 }
