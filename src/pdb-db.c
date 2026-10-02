@@ -172,6 +172,10 @@ typedef struct
   PdbDbSpannableString *string;
   PdbSpan *span;
   PdbDbReference *reference;
+  /* If not NULL, the span is empty and the title of the target
+   * section, followed by this number of the target sence in
+   * superscript, is inserted in it once the link is resolved */
+  char *sence_label;
 } PdbDbLink;
 
 /* PdbDbMark is only used as the value of the 'marks' hash table. This
@@ -324,6 +328,7 @@ static void
 pdb_db_link_free (PdbDbLink *link)
 {
   pdb_db_reference_free (link->reference);
+  g_free (link->sence_label);
   g_slice_free (PdbDbLink, link);
 }
 
@@ -747,7 +752,7 @@ pdb_db_get_trd_link (PdbDb *db,
   /* Add this span to the end of the list */
   pdb_list_insert (spans->prev, &span->link);
 
-  link = g_slice_new (PdbDbLink);
+  link = g_slice_new0 (PdbDbLink);
   link->span = span;
   link->reference = pdb_db_reference_copy (reference);
   link->string = NULL;
@@ -1199,6 +1204,99 @@ pdb_db_resolve_reference (PdbDb *db,
   return ret;
 }
 
+/* Inserts text at the end of a span, making the span longer and
+ * moving the spans that start after it */
+static void
+pdb_db_insert_in_span (PdbDbSpannableString *string,
+                       PdbSpan *span,
+                       const char *text,
+                       int len)
+{
+  int pos = span->span_start + span->span_length;
+  char *rep_text = g_malloc (string->length + len + 1);
+  memcpy (rep_text, string->text, pos);
+  memcpy (rep_text + pos, text, len);
+  memcpy (rep_text + pos + len,
+          string->text + pos,
+          string->length - pos);
+  rep_text[string->length + len] = '\0';
+  g_free (string->text);
+  string->text = rep_text;
+  string->length += len;
+  span->span_length += len;
+
+  PdbSpan *s;
+
+  pdb_list_for_each (s, &string->spans, link)
+    {
+      if (s == span)
+        continue;
+
+      if (s->span_start > span->span_start)
+        s->span_start += len;
+      else if (s->span_start + s->span_length > pos &&
+               s->span_start < span->span_start)
+        /* The span contains the one that grows */
+        s->span_length += len;
+    }
+}
+
+/* Fills the empty reference span of a sence that takes its
+ * definition from another sence, with the title of the target and
+ * its sence number in superscript, eg. “konfuzi¹” */
+static void
+pdb_db_set_sence_title (PdbDb *db,
+                        PdbDbLink *link,
+                        int article_num,
+                        int section_num)
+{
+  PdbDbArticle *article = db->articles->pdata[article_num];
+  PdbDbSection *section = g_list_nth_data (article->sections, section_num);
+
+  g_assert (section != NULL);
+
+  link->span->data1 = article_num;
+  link->span->data2 = section_num;
+
+  /* Leave out the superscripts of the title, which mark the
+   * officiality, eg. the “*” of “*konfuzi” */
+  GString *title = g_string_new (NULL);
+  int pos = 0;
+  PdbSpan *s;
+
+  pdb_list_for_each (s, &section->title.spans, link)
+    {
+      if (s->type != PDB_SPAN_SUPERSCRIPT || s->span_start < pos)
+        continue;
+
+      g_string_append_len (title,
+                           section->title.text + pos,
+                           s->span_start - pos);
+      pos = s->span_start + s->span_length;
+    }
+
+  g_string_append_len (title,
+                       section->title.text + pos,
+                       section->title.length - pos);
+
+  pdb_db_insert_in_span (link->string, link->span, title->str, title->len);
+  g_string_free (title, TRUE);
+
+  if (*link->sence_label)
+    {
+      const char *buf = link->sence_label;
+      int len = strlen (buf);
+      PdbSpan *sup = g_slice_new0 (PdbSpan);
+
+      sup->type = PDB_SPAN_SUPERSCRIPT;
+      sup->span_start = link->span->span_start + link->span->span_length;
+      pdb_list_insert (&link->span->link, &sup->link);
+      pdb_db_insert_in_span (link->string, sup, buf, len);
+      /* The number is part of the link */
+      link->span->span_length += len;
+    }
+}
+
 static void
 pdb_db_set_sncref (PdbDb *db,
                    PdbDbLink *link,
@@ -1298,7 +1396,11 @@ pdb_db_resolve_links (PdbDb *db)
                                     &section_num,
                                     &sence_num))
         {
-          if (link->span->type == PDB_SPAN_SUPERSCRIPT)
+          if (link->sence_label)
+            {
+              pdb_db_set_sence_title (db, link, article_num, section_num);
+            }
+          else if (link->span->type == PDB_SPAN_SUPERSCRIPT)
             {
               pdb_db_set_sncref (db,
                                  link,
@@ -1328,7 +1430,8 @@ typedef enum
   PDB_DB_STACK_NODE,
   PDB_DB_STACK_CLOSE_SPAN,
   PDB_DB_STACK_ADD_PARAGRAPH,
-  PDB_DB_STACK_CLOSING_CHARACTER
+  PDB_DB_STACK_CLOSING_CHARACTER,
+  PDB_DB_STACK_END_COPY
 } PdbDbStackType;
 
 typedef struct
@@ -1358,6 +1461,10 @@ typedef struct
   PdbList spans;
   PdbDbQueuedSpaceType queued_space;
   gboolean skip_children;
+  /* While the definition of another sence is copied, the examples in
+   * it and everything after them are skipped */
+  gboolean copying;
+  gboolean skip_copy;
 } PdbDbParseState;
 
 static PdbDbParseStackEntry *
@@ -1604,7 +1711,7 @@ pdb_db_add_reference_span (PdbDb *db,
 
   PdbSpan *span = pdb_db_start_span (state, span_type);
 
-  PdbDbLink *link = g_slice_new (PdbDbLink);
+  PdbDbLink *link = g_slice_new0 (PdbDbLink);
   link->span = span;
   link->string = state->string;
 
@@ -1722,6 +1829,121 @@ pdb_db_handle_subdrv (PdbDb *db,
   return TRUE;
 }
 
+static PdbDocElementNode *
+pdb_db_find_mark_element (PdbDocElementNode *element,
+                          const char *mrk)
+{
+  const char *element_mrk = pdb_doc_get_attribute (element, "mrk");
+
+  if (element_mrk && !strcmp (element_mrk, mrk))
+    return element;
+
+  for (PdbDocNode *n = element->node.first_child; n; n = n->next)
+    {
+      if (n->type == PDB_DOC_NODE_TYPE_ELEMENT)
+        {
+          PdbDocElementNode *found =
+            pdb_db_find_mark_element ((PdbDocElementNode *) n, mrk);
+
+          if (found)
+            return found;
+        }
+    }
+
+  return NULL;
+}
+
+/* The number of a sence as it is shown, eg. “2”, or “2b” for a
+ * subsence, or an empty string if it isn't numbered */
+static char *
+pdb_db_get_sence_label (PdbDocElementNode *element)
+{
+  GString *label = g_string_new (NULL);
+
+  if (element && !strcmp (element->name, "subsnc"))
+    {
+      int sub_num = pdb_db_get_element_num (element);
+      PdbDocElementNode *parent = (PdbDocElementNode *) element->node.parent;
+
+      if (parent && !strcmp (parent->name, "snc"))
+        {
+          int num = pdb_db_get_element_num (parent);
+
+          if (num != -1)
+            g_string_append_printf (label, "%i", num + 1);
+        }
+
+      if (sub_num != -1)
+        g_string_append_c (label, sub_num + 'a');
+    }
+  else if (element && !strcmp (element->name, "snc"))
+    {
+      int num = pdb_db_get_element_num (element);
+
+      if (num != -1)
+        g_string_append_printf (label, "%i", num + 1);
+    }
+
+  return g_string_free (label, FALSE);
+}
+
+/* A sence can have no definition and refer instead to a sence of
+ * another word of the article with its ref attribute, eg. the sences
+ * of “konfuzo” (the state of being konfuzita) are those of “konfuzi”.
+ * The sence then starts with a link to the other sence, followed by
+ * its definition without its examples, eg. “1. konfuzi¹: Kunigi kaj
+ * miksi…” */
+static void
+pdb_db_add_sence_ref (PdbDb *db,
+                      PdbDbParseState *state,
+                      PdbDocElementNode *element,
+                      const char *ref)
+{
+  PdbDocElementNode *root = element;
+
+  while (root->node.parent)
+    root = (PdbDocElementNode *) root->node.parent;
+
+  PdbDocElementNode *target = pdb_db_find_mark_element (root, ref);
+  PdbDocElementNode *dif =
+    target ? pdb_doc_get_child_element (&target->node, "dif") : NULL;
+
+  pdb_db_start_text (state);
+
+  PdbSpan *span = g_slice_new0 (PdbSpan);
+  span->type = PDB_SPAN_REFERENCE;
+  span->span_start = state->buf->len;
+  pdb_list_insert (state->spans.prev, &span->link);
+
+  PdbDbLink *link = g_slice_new0 (PdbDbLink);
+  link->span = span;
+  link->string = state->string;
+  link->sence_label = pdb_db_get_sence_label (target);
+
+  PdbDbReference *reference = g_slice_new (PdbDbReference);
+  reference->type = PDB_DB_REFERENCE_TYPE_MARK;
+  reference->d.mark = g_strdup (ref);
+  link->reference = reference;
+
+  db->links = g_list_prepend (db->links, link);
+
+  if (dif == NULL || dif->node.first_child == NULL)
+    {
+      g_string_append (state->buf, " ");
+      return;
+    }
+
+  g_string_append (state->buf, ": ");
+
+  /* Parse the children of the sence after the copied definition */
+  state->skip_children = TRUE;
+  if (element->node.first_child)
+    pdb_db_parse_push_node (state, element->node.first_child);
+  pdb_db_parse_push_entry (state, PDB_DB_STACK_END_COPY);
+  pdb_db_parse_push_node (state, dif->node.first_child);
+  state->copying = TRUE;
+}
+
 static gboolean
 pdb_db_handle_snc (PdbDb *db,
                    PdbDbParseState *state,
@@ -1739,6 +1961,11 @@ pdb_db_handle_snc (PdbDb *db,
       pdb_db_start_text (state);
       g_string_append_printf (state->buf, "%i. ", sence_num + 1);
     }
+
+  const char *ref = pdb_doc_get_attribute (element, "ref");
+
+  if (ref && !pdb_doc_get_child_element (&element->node, "dif"))
+    pdb_db_add_sence_ref (db, state, element, ref);
 
   return TRUE;
 }
@@ -2159,6 +2386,8 @@ pdb_db_parse_spannable_string_upto (PdbDb *db,
   state.buf = g_string_new (NULL);
   state.queued_space = PDB_DB_QUEUED_SPACE_TYPE_NONE;
   state.string = string;
+  state.copying = FALSE;
+  state.skip_copy = FALSE;
 
   pdb_list_init (&state.spans);
 
@@ -2183,13 +2412,27 @@ pdb_db_parse_spannable_string_upto (PdbDb *db,
           break;
 
         case PDB_DB_STACK_CLOSING_CHARACTER:
+          if (state.skip_copy)
+            break;
           pdb_db_start_text (&state);
           g_string_append_unichar (state.buf, this_entry.d.character);
+          break;
+
+        case PDB_DB_STACK_END_COPY:
+          state.copying = FALSE;
+          state.skip_copy = FALSE;
           break;
 
         case PDB_DB_STACK_NODE:
           if (this_entry.d.node == upto)
             goto done;
+          if (state.copying &&
+              this_entry.d.node->type == PDB_DOC_NODE_TYPE_ELEMENT &&
+              !strcmp (((PdbDocElementNode *) this_entry.d.node)->name,
+                       "ekz"))
+            state.skip_copy = TRUE;
+          if (state.skip_copy)
+            break;
           if (!pdb_db_parse_node (db, &state, this_entry.d.node, error))
             goto error;
           break;
