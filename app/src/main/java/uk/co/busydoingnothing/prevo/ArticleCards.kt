@@ -21,6 +21,9 @@ import android.graphics.Canvas
 import android.graphics.Paint
 import android.graphics.RectF
 import android.text.method.LinkMovementMethod
+import android.text.SpannableStringBuilder
+import android.text.Spanned
+import android.text.style.ForegroundColorSpan
 import android.text.style.ReplacementSpan
 import android.util.TypedValue
 import android.widget.TextView
@@ -55,6 +58,7 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -63,6 +67,14 @@ import kotlin.math.roundToInt
 
 /** How many languages of translations a card shows before "+ n lingvoj". */
 private const val SHOWN_TRANSLATIONS = 4
+
+/** A single example up to this length (in characters) is put at the end
+ * of the text before it, like in a printed dictionary. */
+private const val INLINE_EXAMPLE_LENGTH = 70
+
+/** Examples up to this total length are shown, longer ones are folded
+ * behind "Ekzemploj (n) ▾". */
+private const val SHOWN_EXAMPLES_LENGTH = 120
 
 /** A derived word of the article: its header with its officiality, its
  * content (text and remarks) and its translations. */
@@ -100,7 +112,9 @@ fun WordCard(entry: WordEntry, textSize: Int, onLongPress: () -> Unit, modifier:
                     LabelChip(label, Modifier.align(Alignment.CenterVertically))
             }
 
-            for ((index, group) in groupExamples(entry.blocks).withIndex()) {
+            val exampleColor = MaterialTheme.colorScheme.onSurfaceVariant.toArgb()
+
+            for ((index, group) in groupExamples(entry.blocks, exampleColor).withIndex()) {
                 when (group) {
                     is BlockGroup.Single -> when (val block = group.block) {
                         is ContentBlock.Text -> SpannedText(
@@ -115,10 +129,9 @@ fun WordCard(entry: WordEntry, textSize: Int, onLongPress: () -> Unit, modifier:
                     }
                     is BlockGroup.Examples ->
                         FoldedExamples(group.examples, scale, onLongPress, key = "${entry.section}-$index")
-                    is BlockGroup.OneExample -> {
-                        ExamplesTitle(stringResource(R.string.example))
-                        ExampleLine(group.example.text, scale, onLongPress)
-                    }
+                    is BlockGroup.ShortExamples ->
+                        for (example in group.examples)
+                            ExampleLine(example.text, scale, onLongPress)
                 }
             }
 
@@ -131,20 +144,28 @@ fun WordCard(entry: WordEntry, textSize: Int, onLongPress: () -> Unit, modifier:
 /** The blocks of a word, with the runs of several examples together. */
 private sealed class BlockGroup {
     class Single(val block: ContentBlock) : BlockGroup()
+    /** Folded */
     class Examples(val examples: List<ContentBlock.Example>) : BlockGroup()
-    class OneExample(val example: ContentBlock.Example) : BlockGroup()
+    /** Shown, without a title */
+    class ShortExamples(val examples: List<ContentBlock.Example>) : BlockGroup()
 }
 
-private fun groupExamples(blocks: List<ContentBlock>): List<BlockGroup> {
+/* Whether the examples are folded depends on their length, not on
+ * their number: a title and a tap cost more than a few short words. */
+private fun groupExamples(blocks: List<ContentBlock>, exampleColor: Int): List<BlockGroup> {
     val groups = mutableListOf<BlockGroup>()
     var run = mutableListOf<ContentBlock.Example>()
 
     fun endRun() {
-        when (run.size) {
-            0 -> {}
-            /* A single example is short enough to be shown as it is, with
-             * a title like the folded ones */
-            1 -> groups.add(BlockGroup.OneExample(run[0]))
+        val before = (groups.lastOrNull() as? BlockGroup.Single)?.block as? ContentBlock.Text
+
+        when {
+            run.isEmpty() -> {}
+            run.size == 1 && run[0].text.length <= INLINE_EXAMPLE_LENGTH && before != null ->
+                groups[groups.lastIndex] =
+                    BlockGroup.Single(ContentBlock.Text(withExample(before.text, run[0].text, exampleColor)))
+            run.sumOf { it.text.length } <= SHOWN_EXAMPLES_LENGTH ->
+                groups.add(BlockGroup.ShortExamples(run))
             else -> groups.add(BlockGroup.Examples(run))
         }
         run = mutableListOf()
@@ -163,6 +184,18 @@ private fun groupExamples(blocks: List<ContentBlock>): List<BlockGroup> {
     return groups
 }
 
+/** The text followed by a short example, in the colour of the
+ * examples. The example keeps its italics and its links. */
+private fun withExample(text: CharSequence, example: CharSequence, color: Int): CharSequence {
+    val result = SpannableStringBuilder(text).append(' ')
+    val start = result.length
+
+    result.append(example)
+    result.setSpan(ForegroundColorSpan(color), start, result.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+
+    return result
+}
+
 /** An example on its own line, with a bar on its left. */
 @Composable
 private fun ExampleLine(text: CharSequence, scale: Float, onLongPress: () -> Unit) {
@@ -178,17 +211,6 @@ private fun ExampleLine(text: CharSequence, scale: Float, onLongPress: () -> Uni
             .padding(top = 6.dp)
             .drawBehind { drawRect(bar, size = Size(2.dp.toPx(), size.height)) }
             .padding(start = 10.dp),
-    )
-}
-
-/** The title of a single example, in the style of the folded ones. */
-@Composable
-private fun ExamplesTitle(title: String) {
-    Text(
-        title,
-        style = MaterialTheme.typography.labelLarge,
-        color = MaterialTheme.colorScheme.primary,
-        modifier = Modifier.padding(top = 10.dp),
     )
 }
 
