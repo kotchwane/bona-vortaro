@@ -71,6 +71,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -398,15 +400,54 @@ private fun ResultList(
             }
         }
 
+        /* For a search in another language, the preview starts with the
+         * Esperanto word that the result translates */
+        val inEsperanto = searchOrder.getOrNull(outcome.languageIndex) == "eo"
+
         items(outcome.results) { result ->
-            Text(
-                result.word,
-                style = wordStyle,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clickable { onResultClick(result) }
-                    .padding(horizontal = 16.dp, vertical = 14.dp),
-            )
+            ResultRow(result, wordStyle, scale, inEsperanto, onClick = { onResultClick(result) })
         }
+    }
+}
+
+/** A search result: the word, and under it the start of its definition,
+ * read from its article once the row is shown. */
+@Composable
+private fun ResultRow(
+    result: SearchResult,
+    wordStyle: TextStyle,
+    scale: Float,
+    inEsperanto: Boolean,
+    onClick: () -> Unit,
+) {
+    val context = LocalContext.current
+    val preview by produceState<WordPreview?>(null, result) {
+        value = withContext(Dispatchers.IO) { SearchPreviews.get(context, result) }
+    }
+    val small = MaterialTheme.typography.bodyMedium
+
+    Column(
+        Modifier
+            .fillMaxWidth()
+            .clickable(onClick = onClick)
+            .padding(horizontal = 16.dp, vertical = 10.dp),
+    ) {
+        Text(result.word, style = wordStyle)
+
+        val text = preview?.let {
+            when {
+                inEsperanto -> it.definition
+                it.definition.isEmpty() -> it.title
+                else -> "${it.title} — ${it.definition}"
+            }
+        }
+        /* Keep the height of the row while the preview is loading */
+        Text(
+            text ?: "",
+            style = small.copy(fontSize = small.fontSize * scale, lineHeight = small.lineHeight * scale),
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+        )
     }
 }

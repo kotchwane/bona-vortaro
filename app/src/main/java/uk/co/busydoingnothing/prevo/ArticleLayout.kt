@@ -357,3 +357,46 @@ private fun CharSequence.trimEndPunctuation(): CharSequence {
         end--
     return subSequence(0, end)
 }
+
+/** A short preview of a word for the list of search results: its title
+ * and the start of its definition. */
+class WordPreview(val title: String, val definition: String)
+
+private val SENSE_NUMBER = Regex("""^(\d+\.|[a-z]\))\s*""")
+
+/**
+ * The preview of the section a search result points to. A result in
+ * another language than Esperanto points to the word it translates, or
+ * to a translation section; in that case the first word of the article is
+ * used. Returns null if the article has no word.
+ */
+fun previewOf(article: Article, mark: Int): WordPreview? {
+    val section = article.sections.getOrNull(mark)?.takeIf { it.isWord() }
+        ?: article.sections.firstOrNull { it.isWord() }
+        ?: return null
+
+    val (_, title) = splitOfficial(section.header)
+    val (_, content) = splitLabels(section.content)
+
+    /* The labels left within the text, eg. "muziko" at the start of a
+     * sense, can't be drawn as labels in a line of preview: put them in
+     * brackets so that they don't read as part of the definition */
+    val bracketed = SpannableStringBuilder(content)
+    for ((_, start, end) in labelSpans(content, 0, content.length).sortedByDescending { it.second }) {
+        bracketed.insert(end, ")")
+        bracketed.insert(start, "(")
+    }
+
+    /* The first paragraph that says something: not a lone sense number,
+     * nor a label in brackets such as "(malofte)" */
+    val definition = splitBlocks(bracketed)
+        .filterIsInstance<ContentBlock.Text>()
+        .flatMap { it.text.toString().split("\n\n") }
+        .map { it.replace(SENSE_NUMBER, "").replace(Regex("""\s+"""), " ").trim() }
+        .firstOrNull { it.length > 3 && !(it.startsWith("(") && it.endsWith(")")) }
+        ?.removeSuffix(":")
+        ?.trim()
+        ?: ""
+
+    return WordPreview(title.toString(), definition)
+}
