@@ -31,7 +31,8 @@ object DictionarySearch {
     private const val TAG = "prevosearch"
 
     /** Searches the languages in order and returns the results of the
-     * first one that has any. Typing the x-system is accepted (cx → ĉ).
+     * first one that has any. Typing the x-system is accepted (cx → ĉ), and
+     * the accents can be left out ("eleve" finds "élève").
      * This does disk access, so it shouldn't run on the main thread. */
     fun search(context: Context, languages: List<String>, query: String): SearchOutcome {
         val filter = normaliseQuery(query)
@@ -47,7 +48,8 @@ object DictionarySearch {
             }
 
             val results = arrayOfNulls<SearchResult>(MAX_RESULTS)
-            val count = trie.search(filter, results)
+            /* Ignoring the accents, the exact matches first */
+            val count = trie.searchIgnoringAccents(filter, results)
 
             if (count > 0)
                 return SearchOutcome(results.take(count).filterNotNull(), index)
