@@ -32,6 +32,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
@@ -136,8 +137,9 @@ fun TextSizeSetting(textSize: Int, onTextSizeChange: (Int) -> Unit) {
         Slider(
             value = textSize.toFloat(),
             onValueChange = { onTextSizeChange(it.roundToInt()) },
-            valueRange = 0f..(PrevoSettings.TEXT_SIZE_COUNT - 1).toFloat(),
-            steps = PrevoSettings.TEXT_SIZE_COUNT - 2,
+            valueRange = PrevoSettings.MIN_TEXT_SIZE.toFloat()..PrevoSettings.MAX_TEXT_SIZE.toFloat(),
+            /* One step per size, the ends excluded */
+            steps = PrevoSettings.MAX_TEXT_SIZE - PrevoSettings.MIN_TEXT_SIZE - 1,
             modifier = Modifier.padding(horizontal = 16.dp),
         )
         /* A preview at the size the articles will use */
@@ -146,5 +148,12 @@ fun TextSizeSetting(textSize: Int, onTextSizeChange: (Int) -> Unit) {
             style = body.copy(fontSize = body.fontSize * scale, lineHeight = body.lineHeight * scale),
             modifier = Modifier.padding(horizontal = 16.dp),
         )
+        TextButton(
+            onClick = { onTextSizeChange(PrevoSettings.DEFAULT_TEXT_SIZE) },
+            enabled = textSize != PrevoSettings.DEFAULT_TEXT_SIZE,
+            modifier = Modifier.padding(horizontal = 8.dp),
+        ) {
+            Text(stringResource(R.string.default_text_size))
+        }
     }
 }

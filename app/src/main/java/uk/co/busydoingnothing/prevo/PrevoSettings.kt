@@ -30,10 +30,14 @@ enum class Theme { SYSTEM, LIGHT, DARK }
 object PrevoSettings {
     private const val PREF_THEME = "theme"
 
-    /* There are 10 text sizes, from 0 to 9, on a logarithmic scale.
-     * Same values as the original zoom of the articles. */
-    const val TEXT_SIZE_COUNT = 10
-    const val DEFAULT_TEXT_SIZE = TEXT_SIZE_COUNT / 2
+    /* The text sizes are numbered as in the original zoom of the articles,
+     * from 0 to 9, each one 1.2 times bigger than the previous one, the
+     * default being 5. The two smallest ones (40 % and 48 % of the normal
+     * size) were too small to be useful, so the smallest is now 2 (58 %).
+     * A stored 0 or 1 is read as 2. */
+    const val MIN_TEXT_SIZE = 2
+    const val MAX_TEXT_SIZE = 9
+    const val DEFAULT_TEXT_SIZE = 5
     private const val TEXT_SIZE_ROOT = 1.2f
 
     fun getTheme(context: Context): Theme =
@@ -61,11 +65,11 @@ object PrevoSettings {
 
     fun getTextSize(context: Context): Int =
         prefs(context).getInt(MenuHelper.PREF_FONT_SIZE, DEFAULT_TEXT_SIZE)
-            .coerceIn(0, TEXT_SIZE_COUNT - 1)
+            .coerceIn(MIN_TEXT_SIZE, MAX_TEXT_SIZE)
 
     fun setTextSize(context: Context, size: Int) {
         prefs(context).edit()
-            .putInt(MenuHelper.PREF_FONT_SIZE, size.coerceIn(0, TEXT_SIZE_COUNT - 1))
+            .putInt(MenuHelper.PREF_FONT_SIZE, size.coerceIn(MIN_TEXT_SIZE, MAX_TEXT_SIZE))
             .apply()
     }
 

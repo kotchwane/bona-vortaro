@@ -43,6 +43,7 @@
   <string name="theme_light">Hela</string>
   <string name="theme_dark">Malhela</string>
   <string name="text_size">Grandeco de la teksto</string>
+  <string name="default_text_size">Defaŭlta grandeco</string>
   <string name="text_size_help">En la artikoloj kaj en la listo de serĉrezultoj.</string>
   <string name="translations_title">Tradukoj en la artikoloj</string>
   <string name="translations_help">La artikoloj montras tradukojn nur en la lingvoj elektitaj ĉi tie. Tio ne ŝanĝas la lingvojn, en kiuj vi povas serĉi.</string>
