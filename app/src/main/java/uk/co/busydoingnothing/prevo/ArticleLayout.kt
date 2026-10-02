@@ -379,17 +379,15 @@ fun previewOf(article: Article, mark: Int): WordPreview? {
     val (_, content) = splitLabels(section.content)
 
     /* The labels left within the text, eg. "muziko" at the start of a
-     * sense, can't be drawn as labels in a line of preview: put them in
-     * brackets so that they don't read as part of the definition */
-    val bracketed = SpannableStringBuilder(content)
-    for ((_, start, end) in labelSpans(content, 0, content.length).sortedByDescending { it.second }) {
-        bracketed.insert(end, ")")
-        bracketed.insert(start, "(")
-    }
+     * sense, are left out of the preview, so that it starts with the
+     * definition itself */
+    val withoutLabels = SpannableStringBuilder(content)
+    for ((_, start, end) in labelSpans(content, 0, content.length).sortedByDescending { it.second })
+        withoutLabels.delete(start, end)
 
     /* The first paragraph that says something: not a lone sense number,
      * nor a label in brackets such as "(malofte)" */
-    val definition = splitBlocks(bracketed)
+    val definition = splitBlocks(withoutLabels)
         .filterIsInstance<ContentBlock.Text>()
         .flatMap { it.text.toString().split("\n\n") }
         .map { it.replace(SENSE_NUMBER, "").replace(Regex("""\s+"""), " ").trim() }
