@@ -228,13 +228,19 @@ private fun splitBlocks(content: Spanned): List<ContentBlock> {
     return blocks
 }
 
-/** Removes the "Rim." that the box replaces and, as prevodb drops the
- * sources, a "Laŭ :" left without its source. */
+/** Removes the "Rim." and the quotation bar that the box replaces and, as
+ * the original prevodb drops the sources, a "Laŭ :" left without its
+ * source. */
 private fun cleanNote(note: CharSequence): CharSequence {
     var text = note
     text = text.removePrefixIgnoringSpace("Rim.")
     text = text.removePrefixIgnoringSpace("Laŭ :")
-    return text
+
+    /* The box replaces the bar of the quotation style */
+    val withoutBar = SpannableStringBuilder(text)
+    for (span in withoutBar.getSpans(0, withoutBar.length, QuoteSpan::class.java))
+        withoutBar.removeSpan(span)
+    return withoutBar
 }
 
 private fun CharSequence.removePrefixIgnoringSpace(prefix: String): CharSequence {
