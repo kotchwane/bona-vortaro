@@ -228,6 +228,8 @@ typedef struct
   const char *replacement;
 } PdbDbReplacement;
 
+/* The index of each type of link is written in the files with
+ * PDB_SPAN_LINK_TYPE, so new types must be added at the end */
 static const PdbDbReplacement
 pdb_db_ref_types[] =
   {
@@ -1568,10 +1570,25 @@ pdb_db_handle_reference_type (PdbDbParseState *state,
   for (att = element->atts; att[0]; att += 2)
     if (!strcmp (att[0], "tip"))
       {
-        pdb_db_add_replacement (state,
-                                att[1],
-                                pdb_db_ref_types,
-                                G_N_ELEMENTS (pdb_db_ref_types));
+        int i;
+
+        for (i = 0; i < G_N_ELEMENTS (pdb_db_ref_types); i++)
+          if (!strcmp (att[1], pdb_db_ref_types[i].name))
+            {
+              /* The symbol, in a span giving the type of the link */
+              PdbSpan *span = g_slice_new0 (PdbSpan);
+
+              pdb_db_start_text (state);
+
+              span->type = PDB_SPAN_LINK_TYPE;
+              span->span_start = state->buf->len;
+              span->data1 = i;
+              g_string_append (state->buf, pdb_db_ref_types[i].replacement);
+              span->span_length = state->buf->len - span->span_start;
+              pdb_list_insert (state->spans.prev, &span->link);
+
+              break;
+            }
 
         break;
       }

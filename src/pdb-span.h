@@ -39,6 +39,12 @@ typedef enum
   /* An example. It is also in an italic span, for the applications
    * that don't know this type */
   PDB_SPAN_EXAMPLE,
+  /* The symbol of the type of a link, eg. "↘". data1 is the type, as
+   * its index in pdb_db_ref_types: 0 vid, 1 hom, 2 dif, 3 sin, 4 ant,
+   * 5 super, 6 sub, 7 prt, 8 malprt, 9 ekz. Applications can show a
+   * word instead of the symbol, which is ambiguous: "↘" is both "sub"
+   * and "prt". */
+  PDB_SPAN_LINK_TYPE,
   PDB_SPAN_NONE
 } PdbSpanType;
 

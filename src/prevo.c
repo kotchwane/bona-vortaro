@@ -874,6 +874,8 @@ handle_start_span (WriteData *write_data,
       break;
     case PDB_SPAN_EXAMPLE:
       /* Examples are also in an italic span */
+    case PDB_SPAN_LINK_TYPE:
+      /* The symbol of the type of a link is written as it is */
     case PDB_SPAN_NONE:
       return;
     }
@@ -904,6 +906,8 @@ handle_end_span (WriteData *write_data,
       break;
     case PDB_SPAN_EXAMPLE:
       /* Examples are also in an italic span */
+    case PDB_SPAN_LINK_TYPE:
+      /* The symbol of the type of a link is written as it is */
     case PDB_SPAN_NONE:
       return;
     }
