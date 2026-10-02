@@ -19,6 +19,7 @@
 package uk.co.busydoingnothing.prevo
 
 import android.content.Intent
+import android.content.res.Configuration
 import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -66,6 +67,14 @@ class SelectLanguageActivity : AppCompatActivity() {
      * language changes them */
     private var mainLanguages by mutableStateOf(emptyList<Language>())
     private var myLanguages by mutableStateOf(emptyList<Language>())
+
+    override fun onConfigurationChanged(newConfig: Configuration) {
+        super.onConfigurationChanged(newConfig)
+        /* The colours of the icons of the system bars follow the theme only
+         * when they are set, and the screen isn't recreated any more when
+         * the theme changes */
+        enableEdgeToEdge()
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge()

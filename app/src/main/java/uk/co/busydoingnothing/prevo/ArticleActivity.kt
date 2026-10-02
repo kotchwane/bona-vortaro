@@ -21,6 +21,7 @@ package uk.co.busydoingnothing.prevo
 import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.net.Uri
+import android.content.res.Configuration
 import android.os.Bundle
 import android.text.method.LinkMovementMethod
 import android.util.Log
@@ -108,6 +109,14 @@ class ArticleActivity : AppCompatActivity() {
     /* Sections to scroll to: the one of the intent, then the ones of the
      * links within the article */
     private val sectionRequests = MutableSharedFlow<Int>(extraBufferCapacity = 1)
+
+    override fun onConfigurationChanged(newConfig: Configuration) {
+        super.onConfigurationChanged(newConfig)
+        /* The colours of the icons of the system bars follow the theme only
+         * when they are set, and the screen isn't recreated any more when
+         * the theme changes */
+        enableEdgeToEdge()
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge()

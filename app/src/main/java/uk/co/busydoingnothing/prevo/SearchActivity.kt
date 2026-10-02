@@ -19,6 +19,7 @@
 package uk.co.busydoingnothing.prevo
 
 import android.content.Intent
+import android.content.res.Configuration
 import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -103,6 +104,14 @@ class SearchActivity : AppCompatActivity() {
 
     /* Re-read when coming back, in case it was changed in the settings */
     private var textSize by mutableIntStateOf(PrevoSettings.DEFAULT_TEXT_SIZE)
+
+    override fun onConfigurationChanged(newConfig: Configuration) {
+        super.onConfigurationChanged(newConfig)
+        /* The colours of the icons of the system bars follow the theme only
+         * when they are set, and the screen isn't recreated any more when
+         * the theme changes */
+        enableEdgeToEdge()
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge()

@@ -21,7 +21,10 @@
           android:installLocation="auto">
 
   <!-- Every screen draws its own top bar with Compose, and follows the
-       light/dark setting of the phone or of the app -->
+       light/dark setting of the phone or of the app. The screens handle
+       a change of this setting themselves (configChanges="uiMode"):
+       Compose redraws them with the new colours, which is much faster than
+       recreating them. -->
   <application android:name=".PrevoApplication"
                android:label="@string/app_name"
                android:icon="@mipmap/ic_launcher"
@@ -35,14 +38,18 @@
       </intent-filter>
     </activity>
     <activity android:name="SearchActivity"
+              android:configChanges="uiMode"
               android:label="@string/search"
               android:exported="false" />
     <activity android:name="ArticleActivity"
+              android:configChanges="uiMode"
               android:exported="false" />
     <activity android:name="SelectLanguageActivity"
+              android:configChanges="uiMode"
               android:label="@string/select_language"
               android:exported="false" />
     <activity android:name="PreferenceActivity"
+              android:configChanges="uiMode"
               android:label="@string/preferences"
               android:exported="false" />
   </application>
