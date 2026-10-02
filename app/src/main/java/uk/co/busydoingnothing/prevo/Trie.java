@@ -369,7 +369,10 @@ public class Trie
   }
 
   /* Finds the nodes whose path from the root matches the rest of the
-   * prefix, from prefixOffset, ignoring the accents. Each node is added
+   * prefix, from prefixOffset, ignoring the accents. Only the letters
+   * typed without an accent match the accented ones: "e" matches "é",
+   * but "é" only matches "é", and "ĉ" (or "cx") doesn't match "c". Each
+   * node is added
    * to the nodes with its path, the string with the accents of the
    * index. */
   private void findIgnoringAccents (int trieStart,
@@ -387,7 +390,10 @@ public class Trie
       }
 
     int letterEnd = prefix.offsetByCodePoints (prefixOffset, 1);
-    String letter = foldLetter (prefix.substring (prefixOffset, letterEnd));
+    String typed =
+      prefix.substring (prefixOffset, letterEnd).toLowerCase (Locale.ROOT);
+    String letter = foldLetter (typed);
+    boolean plain = letter.equals (typed);
 
     int offset = extractInt (data, trieStart);
     int childStart = trieStart + 4;
@@ -420,7 +426,9 @@ public class Trie
       {
         String childLetter = getCharacter (child + 4);
 
-        if (foldLetter (childLetter).equals (letter))
+        if (plain ?
+            foldLetter (childLetter).equals (letter) :
+            childLetter.toLowerCase (Locale.ROOT).equals (typed))
           {
             int oldLength = path.length ();
             path.append (childLetter);
@@ -430,9 +438,9 @@ public class Trie
       }
   }
 
-  /* Like search, but ignoring the accents: "eleve" also finds "élève",
-   * and "cevalo" "ĉevalo". The words that match the prefix exactly come
-   * first. */
+  /* Like search, but ignoring the accents left out: "eleve" also finds
+   * "élève", and "cevalo" "ĉevalo", but "ĉevalo" doesn't find "cevalo".
+   * The words that match the prefix exactly come first. */
   public int searchIgnoringAccents (String prefix,
                                     SearchResult[] results)
   {
