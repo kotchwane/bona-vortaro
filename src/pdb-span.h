@@ -34,6 +34,8 @@ typedef enum
   PDB_SPAN_BOLD,
   /* The kind of word, eg. "transitiva" for a verb */
   PDB_SPAN_GRAMMAR,
+  /* The field of a word, eg. "matematiko" */
+  PDB_SPAN_FIELD,
   PDB_SPAN_NONE
 } PdbSpanType;
 

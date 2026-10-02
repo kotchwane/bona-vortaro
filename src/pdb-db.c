@@ -205,6 +205,10 @@ struct _PdbDb
 
   GHashTable *marks;
 
+  /* The names of the fields, indexed by their code, eg. "MAT" for
+   * "matematiko", from cfg/fakoj.xml */
+  GHashTable *fields;
+
   /* This is a list of links. Each link contains a reference to a
    * section (either directly a pointer or a mark name) and and a
    * pointer to the span. The data in the span will be replaced by an
@@ -1739,6 +1743,29 @@ pdb_db_handle_subsnc (PdbDb *db,
   return TRUE;
 }
 
+/* Writes the name of a field instead of its code, eg. "matematiko"
+ * instead of "MAT", in a span so that applications can show it
+ * differently */
+static void
+pdb_db_add_field (PdbDb *db,
+                  PdbDbParseState *state,
+                  PdbDocElementNode *element)
+{
+  GString *code = g_string_new (NULL);
+  const char *name;
+
+  pdb_doc_append_element_text (element, code);
+  pdb_trim_buf (code);
+
+  name = g_hash_table_lookup (db->fields, code->str);
+
+  pdb_db_start_text (state);
+  pdb_db_start_span (state, PDB_SPAN_FIELD);
+  g_string_append (state->buf, name ? name : code->str);
+
+  g_string_free (code, TRUE);
+}
+
 static gboolean
 pdb_db_handle_uzo (PdbDb *db,
                    PdbDbParseState *state,
@@ -1758,6 +1785,11 @@ pdb_db_handle_uzo (PdbDb *db,
                                                element,
                                                pdb_db_styles,
                                                G_N_ELEMENTS (pdb_db_styles));
+          else if (!strcmp (att[1], "fak"))
+            {
+              pdb_db_add_field (db, state, element);
+              state->skip_children = TRUE;
+            }
 
           break;
         }
@@ -2696,6 +2728,64 @@ compare_string_pointer (const void *pa,
   return strcmp (a, b);
 }
 
+/* Loads a list of codes from a configuration file of ReVo: each
+ * element called element_name maps the value of its attribute
+ * attribute_name to its text. The file is optional: if it can't be
+ * loaded, the table is empty and the codes are written as they are. */
+static GHashTable *
+pdb_db_load_codes (PdbRevo *revo,
+                   const char *filename,
+                   const char *element_name,
+                   const char *attribute_name)
+{
+  GHashTable *codes = g_hash_table_new_full (g_str_hash,
+                                             g_str_equal,
+                                             g_free,
+                                             g_free);
+  GError *error = NULL;
+  PdbDoc *doc;
+  PdbDocNode *node;
+
+  doc = pdb_doc_load (revo, filename, &error);
+
+  if (doc == NULL)
+    {
+      fprintf (stderr, "%s: %s\n", filename, error->message);
+      g_error_free (error);
+      return codes;
+    }
+
+  for (node = pdb_doc_get_root (doc)->node.first_child;
+       node;
+       node = node->next)
+    {
+      PdbDocElementNode *element = (PdbDocElementNode *) node;
+      const char *code;
+      GString *text;
+
+      if (node->type != PDB_DOC_NODE_TYPE_ELEMENT ||
+          strcmp (element->name, element_name))
+        continue;
+
+      code = pdb_doc_get_attribute (element, attribute_name);
+
+      if (code == NULL)
+        continue;
+
+      text = g_string_new (NULL);
+      pdb_doc_append_element_text (element, text);
+      pdb_trim_buf (text);
+
+      g_hash_table_insert (codes,
+                           g_strdup (code),
+                           g_string_free (text, FALSE));
+    }
+
+  pdb_doc_free (doc);
+
+  return codes;
+}
+
 PdbDb *
 pdb_db_new (PdbRevo *revo,
             GError **error)
@@ -2735,6 +2825,8 @@ pdb_db_new (PdbRevo *revo,
                                              g_str_equal,
                                              g_free,
                                              g_free);
+
+  db->fields = pdb_db_load_codes (revo, "cfg/fakoj.xml", "fako", "kodo");
 
   files = pdb_revo_list_files (revo, "revo/*.xml", error);
 
@@ -2862,6 +2954,7 @@ pdb_db_free (PdbDb *db)
   g_hash_table_destroy (db->marks);
   g_hash_table_destroy (db->translations);
   g_hash_table_destroy (db->root_variants);
+  g_hash_table_destroy (db->fields);
 
   g_slice_free (PdbDb, db);
 }
