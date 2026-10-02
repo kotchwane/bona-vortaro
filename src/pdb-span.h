@@ -36,6 +36,9 @@ typedef enum
   PDB_SPAN_GRAMMAR,
   /* The field of a word, eg. "matematiko" */
   PDB_SPAN_FIELD,
+  /* An example. It is also in an italic span, for the applications
+   * that don't know this type */
+  PDB_SPAN_EXAMPLE,
   PDB_SPAN_NONE
 } PdbSpanType;
 

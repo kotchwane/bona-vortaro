@@ -872,6 +872,8 @@ handle_start_span (WriteData *write_data,
     case PDB_SPAN_NOTE:
       write_data->indent_count++;
       break;
+    case PDB_SPAN_EXAMPLE:
+      /* Examples are also in an italic span */
     case PDB_SPAN_NONE:
       return;
     }
@@ -900,6 +902,8 @@ handle_end_span (WriteData *write_data,
     case PDB_SPAN_NOTE:
       write_data->indent_count--;
       break;
+    case PDB_SPAN_EXAMPLE:
+      /* Examples are also in an italic span */
     case PDB_SPAN_NONE:
       return;
     }

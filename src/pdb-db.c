@@ -1799,6 +1799,21 @@ pdb_db_handle_uzo (PdbDb *db,
 }
 
 static gboolean
+pdb_db_handle_ekz (PdbDb *db,
+                   PdbDbParseState *state,
+                   PdbDocElementNode *element,
+                   PdbSpan *span,
+                   GError **error)
+{
+  /* The example is in an italic span, from the table of the
+   * elements. It is also in a span of its own over the same text, so
+   * that applications can tell the examples from the other italics. */
+  pdb_db_start_span (state, PDB_SPAN_EXAMPLE);
+
+  return TRUE;
+}
+
+static gboolean
 pdb_db_handle_vspec (PdbDb *db,
                      PdbDbParseState *state,
                      PdbDocElementNode *element,
@@ -1818,7 +1833,7 @@ static PdbDbElementSpan
 pdb_db_element_spans[] =
   {
     { .name = "ofc", .type = PDB_SPAN_SUPERSCRIPT },
-    { .name = "ekz", .type = PDB_SPAN_ITALIC },
+    { .name = "ekz", .type = PDB_SPAN_ITALIC, .handler = pdb_db_handle_ekz },
     {
       .name = "subdrv",
       .type = PDB_SPAN_NONE,
