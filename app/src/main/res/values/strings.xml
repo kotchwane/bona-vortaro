@@ -37,6 +37,12 @@
   <string name="more_options">Pliaj elektoj</string>
   <string name="clear">Forviŝi</string>
   <string name="share">Kunhavigi</string>
+  <string name="remark">RIMARKO</string>
+  <string name="translations">TRADUKOJ</string>
+  <string name="more_languages">+ %1$d lingvoj</string>
+  <string name="fewer_languages">Malpli da lingvoj</string>
+  <string name="official_fundamento">Fundamento</string>
+  <string name="official_addition">%1$d-a Oficiala Aldono</string>
   <string name="appearance">Aspekto</string>
   <string name="theme">Etoso</string>
   <string name="theme_system">Laŭ la sistemo</string>

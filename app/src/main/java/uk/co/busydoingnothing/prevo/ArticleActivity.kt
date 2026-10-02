@@ -31,12 +31,14 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -54,6 +56,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -92,6 +95,9 @@ class ArticleActivity : AppCompatActivity() {
     private var articleNumber = -1
     private var article by mutableStateOf<Article?>(null)
     private var textSize by mutableIntStateOf(PrevoSettings.DEFAULT_TEXT_SIZE)
+
+    /* The user's languages, whose translations are shown first */
+    private var preferredLanguages by mutableStateOf(emptyList<String>())
     private var showNoFlashcard by mutableStateOf(false)
 
     /* The translations that were shown when the article was loaded, to
@@ -116,6 +122,7 @@ class ArticleActivity : AppCompatActivity() {
                 ArticleScreen(
                     article = article,
                     textSize = textSize,
+                    preferredLanguages = preferredLanguages,
                     initialSection = if (savedInstanceState == null) mark else -1,
                     sectionRequests = sectionRequests,
                     onBack = ::finish,
@@ -157,6 +164,7 @@ class ArticleActivity : AppCompatActivity() {
 
         /* The settings may have changed while another screen was shown */
         textSize = PrevoSettings.getTextSize(this)
+        preferredLanguages = MyLanguages.get(this)
 
         val translations = currentTranslations()
         if (article == null || translations != loadedTranslations) {
@@ -254,6 +262,7 @@ private const val QUOTE_COLOR = 0xFF9E9E9E.toInt()
 private fun ArticleScreen(
     article: Article?,
     textSize: Int,
+    preferredLanguages: List<String>,
     initialSection: Int,
     sectionRequests: MutableSharedFlow<Int>,
     onBack: () -> Unit,
@@ -272,30 +281,42 @@ private fun ArticleScreen(
     var actionsFor by remember { mutableStateOf<ArticleSection?>(null) }
     var showTextSize by remember { mutableStateOf(false) }
 
+    /* One card per word, with its translations */
+    val layout = remember(article, preferredLanguages) {
+        article?.let { layoutArticle(it, preferredLanguages) }
+    }
+
+    /* Where the card of each section is in the list */
+    val positions = remember(layout) {
+        layout?.words?.mapIndexed { position, word -> word.section to position }?.toMap() ?: emptyMap()
+    }
+
     /* Show the section the article was opened at, once it is loaded */
-    LaunchedEffect(article != null) {
-        val sections = article?.sections ?: return@LaunchedEffect
-        if (initialSection in sections.indices)
-            listState.scrollToItem(initialSection)
+    LaunchedEffect(layout != null) {
+        positions[initialSection]?.let { listState.scrollToItem(it) }
     }
 
     /* Links to another section of the same article. This keeps running,
      * so it needs to see the current article, not the one it started
      * with. */
-    val currentArticle by rememberUpdatedState(article)
+    val currentPositions by rememberUpdatedState(positions)
     LaunchedEffect(Unit) {
         sectionRequests.collect { section ->
-            if (section in (currentArticle?.sections?.indices ?: IntRange.EMPTY))
-                scope.launch { listState.animateScrollToItem(section) }
+            currentPositions[section]?.let { scope.launch { listState.animateScrollToItem(it) } }
         }
     }
 
     Scaffold(
+        containerColor = MaterialTheme.colorScheme.surfaceContainerLow,
         topBar = {
             TopAppBar(
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.surfaceContainerLow,
+                ),
                 title = {
                     Text(
-                        article?.title?.toString() ?: "",
+                        /* Without the officiality mark, shown on the card */
+                        article?.title?.let { splitOfficial(it).second.toString() } ?: "",
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
                     )
@@ -322,9 +343,19 @@ private fun ArticleScreen(
         LazyColumn(
             state = listState,
             modifier = Modifier.fillMaxSize(),
-            contentPadding = padding,
+            contentPadding = PaddingValues(
+                start = 12.dp,
+                end = 12.dp,
+                top = padding.calculateTopPadding() + 4.dp,
+                bottom = padding.calculateBottomPadding() + 16.dp,
+            ),
+            verticalArrangement = Arrangement.spacedBy(10.dp),
         ) {
-            itemsIndexed(article?.sections ?: emptyList()) { _, section ->
+            items(layout?.words ?: emptyList(), key = { it.section }) { word ->
+                WordCard(word, textSize, onLongPress = { actionsFor = word.source })
+            }
+            /* Translations that couldn't be given to a word, if any */
+            items(layout?.otherTranslations ?: emptyList()) { section ->
                 Section(section, textSize, onLongPress = { actionsFor = section })
             }
         }
