@@ -64,6 +64,11 @@ class PreferenceActivity : AppCompatActivity() {
     private var textSize by mutableIntStateOf(PrevoSettings.DEFAULT_TEXT_SIZE)
     private var translations by mutableStateOf(emptySet<String>())
 
+    /* The selected languages first, then the others. Computed when the
+     * screen is shown, so that a language doesn't move while it is
+     * being ticked or unticked */
+    private var orderedLanguages by mutableStateOf(emptyList<Language>())
+
     /** Every language that can be a translation, i.e. all but Esperanto */
     private lateinit var translationLanguages: List<Language>
 
@@ -88,6 +93,7 @@ class PreferenceActivity : AppCompatActivity() {
                         PrevoSettings.setTextSize(this, it)
                     },
                     translationLanguages = translationLanguages,
+                    orderedLanguages = orderedLanguages,
                     translations = translations,
                     onTranslationsChange = {
                         translations = it
@@ -105,6 +111,7 @@ class PreferenceActivity : AppCompatActivity() {
         theme = PrevoSettings.getTheme(this)
         textSize = PrevoSettings.getTextSize(this)
         translations = PrevoSettings.getTranslationLanguages(this, translationLanguages)
+        orderedLanguages = translationLanguages.sortedBy { if (it.code in translations) 0 else 1 }
     }
 
 }
@@ -117,6 +124,7 @@ private fun SettingsScreen(
     textSize: Int,
     onTextSizeChange: (Int) -> Unit,
     translationLanguages: List<Language>,
+    orderedLanguages: List<Language>,
     translations: Set<String>,
     onTranslationsChange: (Set<String>) -> Unit,
     onBack: () -> Unit,
@@ -160,8 +168,8 @@ private fun SettingsScreen(
             }
             item { FilterField(query, onQueryChange = { query = it }) }
 
-            val shown = if (filter.isEmpty()) translationLanguages
-                        else translationLanguages.filter { it.matches(filter) }
+            val shown = if (filter.isEmpty()) orderedLanguages
+                        else orderedLanguages.filter { it.matches(filter) }
 
             items(shown, key = { it.code }) { language ->
                 val checked = language.code in translations
