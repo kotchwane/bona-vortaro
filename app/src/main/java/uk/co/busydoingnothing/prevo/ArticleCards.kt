@@ -114,6 +114,10 @@ fun WordCard(entry: WordEntry, textSize: Int, onLongPress: () -> Unit, modifier:
                     }
                     is BlockGroup.Examples ->
                         FoldedExamples(group.examples, scale, onLongPress, key = "${entry.section}-$index")
+                    is BlockGroup.OneExample -> {
+                        ExamplesTitle(stringResource(R.string.example))
+                        ExampleLine(group.example.text, scale, onLongPress)
+                    }
                 }
             }
 
@@ -127,6 +131,7 @@ fun WordCard(entry: WordEntry, textSize: Int, onLongPress: () -> Unit, modifier:
 private sealed class BlockGroup {
     class Single(val block: ContentBlock) : BlockGroup()
     class Examples(val examples: List<ContentBlock.Example>) : BlockGroup()
+    class OneExample(val example: ContentBlock.Example) : BlockGroup()
 }
 
 private fun groupExamples(blocks: List<ContentBlock>): List<BlockGroup> {
@@ -136,8 +141,9 @@ private fun groupExamples(blocks: List<ContentBlock>): List<BlockGroup> {
     fun endRun() {
         when (run.size) {
             0 -> {}
-            /* A single example is short enough to be shown as it is */
-            1 -> groups.add(BlockGroup.Single(run[0]))
+            /* A single example is short enough to be shown as it is, with
+             * a title like the folded ones */
+            1 -> groups.add(BlockGroup.OneExample(run[0]))
             else -> groups.add(BlockGroup.Examples(run))
         }
         run = mutableListOf()
@@ -171,6 +177,17 @@ private fun ExampleLine(text: CharSequence, scale: Float, onLongPress: () -> Uni
             .padding(top = 6.dp)
             .drawBehind { drawRect(bar, size = Size(2.dp.toPx(), size.height)) }
             .padding(start = 10.dp),
+    )
+}
+
+/** The title of a single example, in the style of the folded ones. */
+@Composable
+private fun ExamplesTitle(title: String) {
+    Text(
+        title,
+        style = MaterialTheme.typography.labelLarge,
+        color = MaterialTheme.colorScheme.primary,
+        modifier = Modifier.padding(top = 10.dp),
     )
 }
 
