@@ -272,7 +272,10 @@ private fun splitExamples(content: Spanned, start: Int, end: Int): List<ContentB
 
     fun addText(to: Int) {
         val text = content.subSequence(position, to).trimBlankLines()
-        if (text.isNotBlank())
+        /* Between two examples, a lone ";" or "," is only their
+         * separator: dropping it keeps the examples together */
+        val betweenExamples = blocks.lastOrNull() is ContentBlock.Example && to < end
+        if (text.isNotBlank() && !(betweenExamples && text.all { it in " ;,." || it.isWhitespace() }))
             blocks.add(ContentBlock.Text(text))
     }
 
