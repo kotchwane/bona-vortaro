@@ -93,11 +93,6 @@ class SearchActivity : AppCompatActivity() {
         const val EXTRA_SEARCH_TERM = "uk.co.busydoingnothing.prevo.SearchTerm"
         const val EXTRA_USE_LANGUAGE = "uk.co.busydoingnothing.prevo.UseLanguage"
 
-        /** Maximum number of languages offered as chips when they are
-         * chosen automatically: the opened one, Esperanto and the main
-         * languages. The user's own languages have no limit. */
-        private const val MAX_SEARCH_LANGUAGES = 3
-
         private const val STATE_SELECTED = "selected"
     }
 
@@ -183,21 +178,7 @@ class SearchActivity : AppCompatActivity() {
 
         /* Otherwise, as in the original app: the chosen language,
          * Esperanto and the main languages from the usage counts */
-        val languages = mutableListOf<String>()
-
-        languages.add(mainLanguage)
-
-        if (mainLanguage != "eo")
-            languages.add("eo")
-
-        for (language in dbHelper.languages) {
-            if (languages.size >= MAX_SEARCH_LANGUAGES)
-                break
-            if (language !in languages)
-                languages.add(language)
-        }
-
-        return languages
+        return MyLanguages.automatic(this, mainLanguage)
     }
 
     private fun chooseLanguage(language: String) {

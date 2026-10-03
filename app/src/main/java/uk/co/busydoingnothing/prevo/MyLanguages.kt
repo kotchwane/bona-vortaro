@@ -25,6 +25,11 @@ import android.content.Context
 object MyLanguages {
     private const val PREF = "myLanguages"
 
+    /** Maximum number of search languages when they are chosen
+     * automatically: the opened one, Esperanto and the main languages.
+     * The user's own languages have no limit. */
+    private const val MAX_AUTOMATIC = 3
+
     fun get(context: Context): List<String> {
         val value = prefs(context).getString(PREF, null) ?: return emptyList()
         val languageList = LanguageList.getDefault(context)
@@ -52,6 +57,35 @@ object MyLanguages {
         set(context, updated)
         return updated
     }
+
+    /** The search languages when the user hasn't chosen theirs, as in
+     * the original app: the given language, Esperanto and the languages
+     * used the most. */
+    fun automatic(context: Context, mainLanguage: String): List<String> {
+        val languages = mutableListOf(mainLanguage)
+
+        if (mainLanguage != "eo")
+            languages.add("eo")
+
+        for (language in LanguageDatabaseHelper(context).languages) {
+            if (languages.size >= MAX_AUTOMATIC)
+                break
+            if (language !in languages)
+                languages.add(language)
+        }
+
+        return languages
+    }
+
+    /** The search languages: the user's own, or else the automatic ones
+     * from the language used last. */
+    fun searchLanguages(context: Context): List<String> =
+        get(context).ifEmpty {
+            val last = prefs(context).getString(MenuHelper.PREF_LAST_LANGUAGE, null)
+                ?.takeIf { LanguageList.getDefault(context).hasLanguage(it) }
+                ?: "eo"
+            automatic(context, last)
+        }
 
     private fun prefs(context: Context) =
         context.getSharedPreferences(MenuHelper.PREVO_PREFERENCES, Context.MODE_PRIVATE)
