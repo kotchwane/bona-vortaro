@@ -41,6 +41,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 
@@ -125,6 +126,7 @@ class SelectLanguageActivity : BonaActivity() {
         onBack: () -> Unit,
     ) {
         var query by rememberSaveable { mutableStateOf("") }
+        val focusManager = LocalFocusManager.current
         val listState = rememberLazyListState()
         val reorder = rememberListReorder(listState)
 
@@ -185,6 +187,10 @@ class SelectLanguageActivity : BonaActivity() {
                     reorder = reorder,
                     orderHelp = R.string.search_languages_order_help,
                     canUntick = ::canUntick,
+                    onSearchDone = {
+                        query = ""
+                        focusManager.clearFocus()
+                    },
                 )
             }
         }

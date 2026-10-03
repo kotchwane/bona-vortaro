@@ -281,7 +281,9 @@ fun DragHandle() {
  * changed by dragging them after a long press, then the others. A tap
  * anywhere on a row ticks or unticks its language. With a filter, every
  * matching language is listed, ticked or not, in one list.
- * [canUntick] can refuse to untick a language, eg. the last one. */
+ * [canUntick] can refuse to untick a language, eg. the last one.
+ * [onSearchDone] is called when a language is ticked or unticked from a
+ * search, to end it and show the whole list again. */
 fun LazyListScope.languageChoice(
     languages: List<Language>,
     chosen: List<String>,
@@ -290,6 +292,7 @@ fun LazyListScope.languageChoice(
     reorder: ListReorder,
     orderHelp: Int,
     canUntick: (List<String>) -> Boolean = { true },
+    onSearchDone: () -> Unit = {},
 ) {
     val byCode = languages.associateBy { it.code }
     val selected = chosen.mapNotNull { byCode[it] }
@@ -306,6 +309,10 @@ fun LazyListScope.languageChoice(
 
     if (filter.isNotEmpty()) {
         val matching = languages.filter { it.matches(filter) }
+        val toggleAndShowAll = { language: Language ->
+            toggle(language)
+            onSearchDone()
+        }
 
         if (matching.isEmpty())
             item(key = "none") {
@@ -317,7 +324,7 @@ fun LazyListScope.languageChoice(
                 )
             }
         for (language in matching)
-            item(key = language.code) { LanguageCheckRow(language, language.code in chosen, toggle) }
+            item(key = language.code) { LanguageCheckRow(language, language.code in chosen, toggleAndShowAll) }
         return
     }
 

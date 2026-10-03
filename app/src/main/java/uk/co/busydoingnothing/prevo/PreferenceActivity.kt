@@ -66,6 +66,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -398,6 +399,7 @@ private fun TranslationSettings(
     onBack: () -> Unit,
 ) {
     var query by rememberSaveable { mutableStateOf("") }
+    val focusManager = LocalFocusManager.current
     val filter = normaliseQuery(query)
     val snackbar = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
@@ -472,6 +474,10 @@ private fun TranslationSettings(
             filter = filter,
             reorder = reorder,
             orderHelp = R.string.translations_order_help,
+            onSearchDone = {
+                query = ""
+                focusManager.clearFocus()
+            },
         )
     }
 }
