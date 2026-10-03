@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Android 12 and later: the history of the searches is left out of the
+     backups to the cloud, so that it doesn't leave the phone (see
+     History.kt). A transfer from phone to phone, done by the user, still
+     takes it along. -->
+<data-extraction-rules>
+  <cloud-backup>
+    <exclude domain="file" path="history.txt" />
+  </cloud-backup>
+</data-extraction-rules>

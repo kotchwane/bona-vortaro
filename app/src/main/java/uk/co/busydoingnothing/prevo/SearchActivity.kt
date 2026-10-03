@@ -79,6 +79,8 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.withContext
 
 class SearchActivity : BonaActivity() {
@@ -154,7 +156,12 @@ class SearchActivity : BonaActivity() {
         }
     }
 
-    private fun openArticle(result: SearchResult) {
+    /** Opens the article of a result, found in the given language, and
+     * keeps the word in the history. */
+    private fun openArticle(result: SearchResult, language: String) {
+        val entry = HistoryEntry(language, result.word)
+        lifecycleScope.launch(Dispatchers.IO) { History.add(applicationContext, entry) }
+
         val intent = Intent(this, ArticleActivity::class.java)
         intent.putExtra(ArticleActivity.EXTRA_ARTICLE_NUMBER, result.article)
         intent.putExtra(ArticleActivity.EXTRA_MARK_NUMBER, result.mark)
@@ -169,7 +176,7 @@ private fun SearchScreen(
     textSize: Int,
     initialQuery: String,
     onLanguageChosen: (String) -> Unit,
-    onResultClick: (SearchResult) -> Unit,
+    onResultClick: (SearchResult, String) -> Unit,
     onChooseLanguage: () -> Unit,
     onPreferences: () -> Unit,
 ) {
@@ -346,7 +353,7 @@ private fun ResultList(
     outcome: SearchOutcome,
     searchOrder: List<String>,
     textSize: Int,
-    onResultClick: (SearchResult) -> Unit,
+    onResultClick: (SearchResult, String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val context = LocalContext.current
@@ -382,11 +389,14 @@ private fun ResultList(
 
         /* For a search in another language, the preview starts with the
          * Esperanto word that the result translates */
-        val inEsperanto = searchOrder.getOrNull(outcome.languageIndex) == "eo"
+        /* The language where the words were found, kept with them in the
+         * history */
+        val language = searchOrder[outcome.languageIndex]
+        val inEsperanto = language == "eo"
         val last = outcome.results.lastIndex
 
         itemsIndexed(outcome.results) { index, result ->
-            ResultRow(result, wordStyle, scale, inEsperanto, onClick = { onResultClick(result) })
+            ResultRow(result, wordStyle, scale, inEsperanto, onClick = { onResultClick(result, language) })
             if (index != last)
                 HorizontalDivider(Modifier.padding(horizontal = 20.dp), color = rule)
         }

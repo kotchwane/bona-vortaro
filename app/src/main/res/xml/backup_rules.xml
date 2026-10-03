@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Android 6 to 11: the history of the searches is left out of the
+     backups, so that it doesn't leave the phone (see History.kt) -->
+<full-backup-content>
+  <exclude domain="file" path="history.txt" />
+</full-backup-content>
