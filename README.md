@@ -1,22 +1,18 @@
-PReVo
-=====
+Bona vortaro
+============
 
-PReVo is an android application containing a portable version of the
-Reta Vortaro which is an open source dictionary for Esperanto. It
-contains all of the dictionary data in the package so the application
-does not need to access the internet.
+Bona vortaro is an Android dictionary of Esperanto. It contains the
+whole Reta Vortaro (ReVo), the open source dictionary of Esperanto,
+with its translations into many languages, so it works without
+internet access.
 
-The official website for the program is here:
+It is a modified version of PReVo, by Neil Roberts:
 
  http://www.busydoingnothing.co.uk/prevo/
 
-It is also available in the Google play store here:
-
- https://play.google.com/store/apps/details?id=uk.co.busydoingnothing.prevo
-
-or with F-Droid here:
-
- https://f-droid.org/en/packages/uk.co.busydoingnothing.prevo/
+with a new interface (Jetpack Compose), a new design, new features and
+up-to-date dictionary data. Like PReVo, it is free software under the
+GNU General Public License, version 2.
 
 Building
 --------
@@ -40,31 +36,23 @@ the app either with Android Studio or the command line as follows.
 
 Debug mode:
 
-    cd $HOME/prevo
     ./gradlew assembleDebug
 
-Release mode:
+Release mode (the APK must be signed with your own key, eg. from
+Android Studio: Build › Generate Signed App Bundle or APK):
 
-    cd $HOME/prevo
     ./gradlew assembleRelease
 
 You should then have the final package in either
 `app/build/outputs/apk/debug/` or `app/build/outputs/apk/release/`
 depending on the build type.
 
-Building a specific release
----------------------------
+History
+-------
 
-The releases are all tagged and signed in the git repo using the
-following public key:
+The releases of PReVo, up to 0.27, are tagged and signed in this git
+repo with the key of Neil Roberts:
 
  http://www.busydoingnothing.co.uk/neilroberts.asc
 
-The git submodules were added in version 0.25 so the signed tag
-contains the commit hash of the dependencies used as well. For older
-versions, the message for each tag contains the git hashes used for
-the ReVo sources and the prevodb program. This information can be used
-to build a copy of a release using exactly the same data. You can see
-this information for example with:
-
-    git show 0.12
+Bona vortaro starts again from version 0.1.
