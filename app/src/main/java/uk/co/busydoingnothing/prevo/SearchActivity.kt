@@ -25,6 +25,19 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.selection.selectable
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.sp
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -38,14 +51,11 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material3.AssistChip
-import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -231,7 +241,7 @@ private fun SearchScreen(
     var query by rememberSaveable { mutableStateOf(initialQuery) }
 
     /* The selected language is searched first, then the others in the
-     * order of the chips */
+     * order of the tabs */
     val searchOrder = listOf(selected) + languages.filter { it != selected }
 
     /* null until the first search is done, so that "no results" isn't
@@ -243,14 +253,19 @@ private fun SearchScreen(
     }
 
     Scaffold(
+        modifier = Modifier.prevoBackground(),
+        containerColor = Color.Transparent,
+        /* The colour of the text, which a transparent container doesn't give */
+        contentColor = MaterialTheme.colorScheme.onBackground,
         topBar = {
             Column(Modifier.windowInsetsPadding(WindowInsets.statusBars)) {
+                Wordmark()
                 SearchField(
                     query = query,
                     onQueryChange = { query = it },
                     onPreferences = onPreferences,
                 )
-                LanguageChips(
+                LanguageTabs(
                     languages = languages,
                     selected = selected,
                     onSelect = onLanguageChosen,
@@ -268,6 +283,7 @@ private fun SearchScreen(
             ) {
                 Text(
                     stringResource(R.string.no_results),
+                    style = MaterialTheme.typography.bodyLarge.copy(fontStyle = FontStyle.Italic),
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }
@@ -280,6 +296,30 @@ private fun SearchScreen(
                 modifier = Modifier.padding(padding).imePadding(),
             )
         }
+    }
+}
+
+/** The name of the app with the star of Esperanto, like the title of a
+ * dictionary, and the name of ReVo. */
+@Composable
+private fun Wordmark() {
+    Row(
+        Modifier.padding(start = 20.dp, end = 20.dp, top = 6.dp, bottom = 2.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Text(
+            stringResource(R.string.brand_name),
+            style = MaterialTheme.typography.headlineSmall,
+            fontWeight = FontWeight.Bold,
+            color = prevoDesign.headword,
+        )
+        Text(" ★", fontSize = 20.sp, color = prevoDesign.star)
+        Spacer(Modifier.weight(1f))
+        Text(
+            stringResource(R.string.brand_subtitle),
+            style = MaterialTheme.typography.bodySmall.copy(fontStyle = FontStyle.Italic),
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
     }
 }
 
@@ -315,8 +355,10 @@ private fun SearchField(
     )
 }
 
+/** The search languages, like the thumb index of a printed dictionary:
+ * their codes in small capitals, the selected one underlined. */
 @Composable
-private fun LanguageChips(
+private fun LanguageTabs(
     languages: List<String>,
     selected: String,
     onSelect: (String) -> Unit,
@@ -325,27 +367,45 @@ private fun LanguageChips(
     val context = LocalContext.current
     val languageList = remember { LanguageList.getDefault(context) }
     val chooseLanguage = stringResource(R.string.menu_choose_language)
+    val ink = prevoDesign.headword
+    val muted = MaterialTheme.colorScheme.onSurfaceVariant
 
     Row(
         Modifier
             .fillMaxWidth()
             .horizontalScroll(rememberScrollState())
-            .padding(horizontal = 16.dp),
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
+            .padding(horizontal = 10.dp),
+        verticalAlignment = Alignment.CenterVertically,
     ) {
         for (language in languages) {
+            val isSelected = language == selected
             val name = languageList.getLanguageName(language)
-            FilterChip(
-                selected = language == selected,
-                onClick = { onSelect(language) },
-                label = { Text(language.uppercase()) },
-                modifier = Modifier.semantics { contentDescription = name },
+
+            Text(
+                language.uppercase(),
+                style = MaterialTheme.typography.titleSmall,
+                fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
+                letterSpacing = 2.sp,
+                color = if (isSelected) ink else muted,
+                modifier = Modifier
+                    .selectable(selected = isSelected, role = Role.Tab) { onSelect(language) }
+                    .semantics { contentDescription = name }
+                    .padding(horizontal = 10.dp, vertical = 12.dp)
+                    .drawBehind {
+                        if (isSelected) {
+                            val thickness = 2.dp.toPx()
+                            drawRect(
+                                ink,
+                                topLeft = Offset(0f, size.height + 3.dp.toPx()),
+                                size = Size(size.width - 2.sp.toPx(), thickness),
+                            )
+                        }
+                    },
             )
         }
-        AssistChip(
-            onClick = onMore,
-            label = { Icon(Icons.Default.Add, contentDescription = chooseLanguage) },
-        )
+        IconButton(onClick = onMore) {
+            Icon(Icons.Default.Add, contentDescription = chooseLanguage, tint = muted)
+        }
     }
 }
 
@@ -359,10 +419,15 @@ private fun ResultList(
 ) {
     val context = LocalContext.current
     val scale = PrevoSettings.textScale(textSize)
-    val body = MaterialTheme.typography.bodyLarge
-    val wordStyle = body.copy(fontSize = body.fontSize * scale, lineHeight = body.lineHeight * scale)
+    val title = MaterialTheme.typography.titleMedium
+    val wordStyle = title.copy(
+        fontSize = title.fontSize * scale,
+        lineHeight = title.lineHeight * scale,
+        fontWeight = FontWeight.Bold,
+    )
+    val rule = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.25f)
 
-    LazyColumn(modifier.fillMaxSize()) {
+    LazyColumn(modifier.fillMaxSize(), contentPadding = PaddingValues(bottom = 12.dp)) {
         /* Explain when the words come from another language than the
          * selected one */
         if (outcome.languageIndex > 0) {
@@ -374,20 +439,48 @@ private fun ResultList(
                         languageList.getLanguageName(searchOrder[0], true),
                         languageList.getLanguageName(searchOrder[outcome.languageIndex], true),
                     ),
-                    style = MaterialTheme.typography.bodyMedium,
+                    style = MaterialTheme.typography.bodyMedium.copy(fontStyle = FontStyle.Italic),
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp),
+                    modifier = Modifier.padding(horizontal = 20.dp, vertical = 8.dp),
                 )
             }
         }
 
+        item { RunningHead(outcome.results.first().word, outcome.results.last().word) }
+
         /* For a search in another language, the preview starts with the
          * Esperanto word that the result translates */
         val inEsperanto = searchOrder.getOrNull(outcome.languageIndex) == "eo"
+        val last = outcome.results.lastIndex
 
-        items(outcome.results) { result ->
+        itemsIndexed(outcome.results) { index, result ->
             ResultRow(result, wordStyle, scale, inEsperanto, onClick = { onResultClick(result) })
+            if (index != last)
+                HorizontalDivider(Modifier.padding(horizontal = 20.dp), color = rule)
         }
+    }
+}
+
+/** The first and the last word of the results, like at the top of a page
+ * of a printed dictionary. */
+@Composable
+private fun RunningHead(first: String, last: String) {
+    val rule = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.4f)
+
+    Row(
+        Modifier.padding(horizontal = 20.dp, vertical = 6.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        HorizontalDivider(Modifier.weight(1f), color = rule)
+        Text(
+            if (first == last) first else "$first — $last",
+            style = MaterialTheme.typography.bodySmall.copy(fontStyle = FontStyle.Italic),
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+            modifier = Modifier.padding(horizontal = 10.dp),
+        )
+        HorizontalDivider(Modifier.weight(1f), color = rule)
     }
 }
 
@@ -411,9 +504,9 @@ private fun ResultRow(
         Modifier
             .fillMaxWidth()
             .clickable(onClick = onClick)
-            .padding(horizontal = 16.dp, vertical = 10.dp),
+            .padding(horizontal = 20.dp, vertical = 10.dp),
     ) {
-        Text(result.word, style = wordStyle)
+        Text(result.word, style = wordStyle, color = prevoDesign.headword)
 
         val text = preview?.let {
             when {
@@ -425,7 +518,11 @@ private fun ResultRow(
         /* Keep the height of the row while the preview is loading */
         Text(
             text ?: "",
-            style = small.copy(fontSize = small.fontSize * scale, lineHeight = small.lineHeight * scale),
+            style = small.copy(
+                fontSize = small.fontSize * scale,
+                lineHeight = small.lineHeight * scale,
+                fontStyle = FontStyle.Italic,
+            ),
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
