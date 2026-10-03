@@ -7,7 +7,10 @@ android {
     compileSdk = 37
 
     defaultConfig {
-        applicationId = "uk.co.busydoingnothing.prevo"
+        /* The ID of this modified version, so that it can be installed
+         * next to the original PReVo of the Play Store. The code keeps
+         * its package (the namespace above). */
+        applicationId = "io.github.kotchwane.prevo"
         minSdk = 23
         targetSdk = 34
         versionCode = 27
