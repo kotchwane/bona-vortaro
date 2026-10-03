@@ -76,26 +76,42 @@ object PrevoSettings {
     /** How much to scale the text of the articles for the given size. */
     fun textScale(size: Int): Float = TEXT_SIZE_ROOT.pow(size - DEFAULT_TEXT_SIZE)
 
-    /** The languages whose translations are shown in the articles. */
-    fun getTranslationLanguages(context: Context, all: List<Language>): Set<String> {
-        val selected = SelectedLanguages(context)
-        return all.map { it.code }.filter { selected.contains(it) }.toSet()
+    /** The languages whose translations are shown in the articles, in
+     * the order of the articles. */
+    fun getTranslationLanguages(context: Context, all: List<Language>): List<String> {
+        val stored = prefs(context).getString(SelectedLanguages.PREF, null)
+            ?: return defaultTranslationOrder(context, all)
+        val known = all.map { it.code }.toSet()
+
+        return stored.split(',').filter { it in known }.distinct()
     }
 
-    fun setTranslationLanguages(context: Context, all: List<Language>, codes: Set<String>) {
+    fun setTranslationLanguages(context: Context, all: List<Language>, codes: List<String>) {
         val editor = prefs(context).edit()
 
         /* Same encoding as the original app: no value means all of the
-         * languages, an empty value means none of them */
-        when {
-            all.all { it.code in codes } -> editor.remove(SelectedLanguages.PREF)
-            else -> editor.putString(
-                SelectedLanguages.PREF,
-                all.map { it.code }.filter { it in codes }.joinToString(","),
-            )
-        }
+         * languages, an empty value means none of them. The value keeps
+         * the order chosen by the user, which the original app ignores. */
+        if (codes == defaultTranslationOrder(context, all))
+            editor.remove(SelectedLanguages.PREF)
+        else
+            editor.putString(SelectedLanguages.PREF, codes.joinToString(","))
 
         editor.apply()
+    }
+
+    /** The order of the translations in the articles: the one chosen by
+     * the user, or else their search languages first. */
+    fun getTranslationOrder(context: Context): List<String> =
+        prefs(context).getString(SelectedLanguages.PREF, null)?.split(',')
+            ?: MyLanguages.get(context)
+
+    /* All of the languages, the user's search languages first */
+    private fun defaultTranslationOrder(context: Context, all: List<Language>): List<String> {
+        val codes = all.map { it.code }
+        val mine = MyLanguages.get(context).filter { it in codes }
+
+        return mine + (codes - mine.toSet())
     }
 
     private fun prefs(context: Context) =

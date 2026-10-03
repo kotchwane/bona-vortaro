@@ -161,7 +161,7 @@ class ArticleActivity : AppCompatActivity() {
 
         /* The settings may have changed while another screen was shown */
         textSize = PrevoSettings.getTextSize(this)
-        preferredLanguages = MyLanguages.get(this)
+        preferredLanguages = PrevoSettings.getTranslationOrder(this)
 
         val translations = currentTranslations()
         if (article == null || translations != loadedTranslations) {
@@ -179,9 +179,11 @@ class ArticleActivity : AppCompatActivity() {
         return super.onKeyDown(keyCode, event)
     }
 
+    /* Only which languages, not their order: the order doesn't need
+     * the article to be loaded again */
     private fun currentTranslations(): Set<String> {
         val languages = LanguageList.getDefault(this).allLanguages.toList()
-        return PrevoSettings.getTranslationLanguages(this, languages)
+        return PrevoSettings.getTranslationLanguages(this, languages).toSet()
     }
 
     private fun loadArticle() {

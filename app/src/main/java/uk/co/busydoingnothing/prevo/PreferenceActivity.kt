@@ -26,6 +26,16 @@ import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
+import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.material.icons.filled.Menu
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.zIndex
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -86,7 +96,7 @@ class PreferenceActivity : AppCompatActivity() {
     private var theme by mutableStateOf(Theme.SYSTEM)
     private var textSize by mutableIntStateOf(PrevoSettings.DEFAULT_TEXT_SIZE)
     private var myLanguages by mutableStateOf(emptyList<String>())
-    private var translations by mutableStateOf(emptySet<String>())
+    private var translations by mutableStateOf(emptyList<String>())
 
     /** Every language that can be a translation, i.e. all but Esperanto */
     private lateinit var translationLanguages: List<Language>
@@ -176,7 +186,10 @@ class PreferenceActivity : AppCompatActivity() {
     private fun translationsSummary(): String = when (translations.size) {
         translationLanguages.size -> stringResource(R.string.translations_all, translations.size)
         0 -> stringResource(R.string.translations_none)
-        else -> translationLanguages.filter { it.code in translations }.joinToString(", ") { it.name }
+        else -> {
+            val languageList = LanguageList.getDefault(this)
+            translations.joinToString(", ") { languageList.getLanguageName(it) }
+        }
     }
 }
 
@@ -189,6 +202,7 @@ private fun SettingsScaffold(
     onBack: () -> Unit,
     snackbarHost: SnackbarHostState? = null,
     bottomBar: @Composable () -> Unit = {},
+    listState: LazyListState = rememberLazyListState(),
     content: LazyListScope.() -> Unit,
 ) {
     Scaffold(
@@ -210,6 +224,7 @@ private fun SettingsScaffold(
                 .fillMaxSize()
                 .padding(padding)
                 .imePadding(),
+            state = listState,
             content = content,
         )
     }
@@ -354,30 +369,37 @@ private fun MainSettings(
         AboutDialog(onDismiss = { showAbout = false })
 }
 
-/** Which translations the articles show. The selected languages come
- * first; the buttons that change all of them at once are at the bottom,
- * and can be undone. */
+/** Which translations the articles show, and in which order. The
+ * selected languages come first, in their order, which can be changed
+ * by dragging them after a long press. The buttons that change all of
+ * them at once are at the bottom, and can be undone. */
 @Composable
 private fun TranslationSettings(
     languages: List<Language>,
-    translations: Set<String>,
-    onTranslationsChange: (Set<String>) -> Unit,
+    translations: List<String>,
+    onTranslationsChange: (List<String>) -> Unit,
     onBack: () -> Unit,
 ) {
     var query by rememberSaveable { mutableStateOf("") }
     val filter = normaliseQuery(query)
     val snackbar = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
+    val listState = rememberLazyListState()
     val allSelected = stringResource(R.string.all_selected)
     val noneSelected = stringResource(R.string.none_selected)
     val undo = stringResource(R.string.undo)
 
-    /* The selected languages first, computed when the page is shown, so
-     * that a language doesn't move away while it is being ticked */
-    val order = remember { languages.sortedBy { if (it.code in translations) 0 else 1 } }
-    val firstOther = remember { order.indexOfFirst { it.code !in translations } }
+    val byCode = languages.associateBy { it.code }
+    val selected = translations.mapNotNull { byCode[it] }
+    val others = languages.filter { it.code !in translations }
 
-    fun changeAll(selection: Set<String>, message: String) {
+    /* The language being dragged, and how far from its place */
+    var dragged by remember { mutableStateOf<String?>(null) }
+    var dragOffset by remember { mutableFloatStateOf(0f) }
+    val currentTranslations by rememberUpdatedState(translations)
+    val currentOnChange by rememberUpdatedState(onTranslationsChange)
+
+    fun changeAll(selection: List<String>, message: String) {
         val previous = translations
         onTranslationsChange(selection)
         scope.launch {
@@ -388,10 +410,32 @@ private fun TranslationSettings(
         }
     }
 
+    /* Moves the dragged language over the selected one under its middle */
+    fun dragBy(delta: Float) {
+        val code = dragged ?: return
+        dragOffset += delta
+
+        val items = listState.layoutInfo.visibleItemsInfo
+        val current = items.firstOrNull { it.key == code } ?: return
+        val middle = current.offset + dragOffset + current.size / 2
+        val target = items.firstOrNull {
+            it.key != code && it.key in currentTranslations &&
+                middle >= it.offset && middle < it.offset + it.size
+        } ?: return
+
+        val order = currentTranslations.toMutableList()
+        order.remove(code)
+        order.add(currentTranslations.indexOf(target.key as String), code)
+        /* The row moves to its new place, so the offset is now from there */
+        dragOffset -= target.offset - current.offset
+        currentOnChange(order)
+    }
+
     SettingsScaffold(
         stringResource(R.string.translations_title),
         onBack,
         snackbarHost = snackbar,
+        listState = listState,
         bottomBar = {
             Surface(color = MaterialTheme.colorScheme.surfaceContainer) {
                 Row(
@@ -402,11 +446,12 @@ private fun TranslationSettings(
                     horizontalArrangement = Arrangement.SpaceBetween,
                 ) {
                     OutlinedButton(
-                        onClick = { changeAll(languages.map { it.code }.toSet(), allSelected) },
-                        enabled = translations.size < languages.size,
+                        /* The ones already selected keep their order */
+                        onClick = { changeAll(translations + others.map { it.code }, allSelected) },
+                        enabled = others.isNotEmpty(),
                     ) { Text(stringResource(R.string.select_all)) }
                     OutlinedButton(
-                        onClick = { changeAll(emptySet(), noneSelected) },
+                        onClick = { changeAll(emptyList(), noneSelected) },
                         enabled = translations.isNotEmpty(),
                     ) { Text(stringResource(R.string.select_none)) }
                 }
@@ -430,33 +475,83 @@ private fun TranslationSettings(
             )
         }
 
-        val shown = if (filter.isEmpty()) order else order.filter { it.matches(filter) }
+        @Composable
+        fun LanguageCheckRow(language: Language, modifier: Modifier = Modifier, trailing: @Composable () -> Unit = {}) {
+            val checked = language.code in translations
+            val toggle = {
+                onTranslationsChange(if (checked) translations - language.code else translations + language.code)
+            }
+            Row(
+                modifier
+                    .fillMaxWidth()
+                    .clickable(onClick = toggle)
+                    .padding(start = 16.dp, end = 8.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text(language.name, style = MaterialTheme.typography.bodyLarge, modifier = Modifier.weight(1f))
+                trailing()
+                Checkbox(checked = checked, onCheckedChange = { toggle() })
+            }
+        }
 
-        for ((index, language) in shown.withIndex()) {
-            /* The two groups, when the whole list is shown */
-            if (filter.isEmpty() && index == 0 && firstOther != 0)
-                item(key = "selected") {
-                    SectionTitle(stringResource(R.string.selected_languages, translations.size))
-                }
-            if (filter.isEmpty() && index == firstOther && firstOther >= 0)
-                item(key = "others") { SectionTitle(stringResource(R.string.other_languages)) }
+        if (filter.isNotEmpty()) {
+            /* A search lists every match, ticked or not, in one list */
+            for (language in languages.filter { it.matches(filter) })
+                item(key = language.code) { LanguageCheckRow(language) }
+            return@SettingsScaffold
+        }
 
+        if (selected.isNotEmpty()) {
+            item(key = "selected") {
+                SectionTitle(stringResource(R.string.selected_languages, selected.size))
+            }
+            item(key = "order-help") {
+                Text(
+                    stringResource(R.string.translations_order_help),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(start = 16.dp, end = 16.dp, bottom = 4.dp),
+                )
+            }
+        }
+
+        for (language in selected) {
             item(key = language.code) {
-                val checked = language.code in translations
-                val toggle = {
-                    onTranslationsChange(if (checked) translations - language.code else translations + language.code)
-                }
-                Row(
-                    Modifier
-                        .fillMaxWidth()
-                        .clickable(onClick = toggle)
-                        .padding(start = 16.dp, end = 8.dp),
-                    verticalAlignment = Alignment.CenterVertically,
+                val isDragged = dragged == language.code
+                val elevation by animateDpAsState(if (isDragged) 6.dp else 0.dp, label = "drag")
+
+                Surface(
+                    shadowElevation = elevation,
+                    color = MaterialTheme.colorScheme.surface,
+                    modifier = Modifier
+                        .zIndex(if (isDragged) 1f else 0f)
+                        .graphicsLayer { translationY = if (isDragged) dragOffset else 0f }
+                        .then(if (isDragged) Modifier else Modifier.animateItem())
+                        .pointerInput(language.code) {
+                            detectDragGesturesAfterLongPress(
+                                onDragStart = { dragged = language.code; dragOffset = 0f },
+                                onDrag = { change, amount -> change.consume(); dragBy(amount.y) },
+                                onDragEnd = { dragged = null; dragOffset = 0f },
+                                onDragCancel = { dragged = null; dragOffset = 0f },
+                            )
+                        },
                 ) {
-                    Text(language.name, style = MaterialTheme.typography.bodyLarge, modifier = Modifier.weight(1f))
-                    Checkbox(checked = checked, onCheckedChange = { toggle() })
+                    LanguageCheckRow(language) {
+                        Icon(
+                            Icons.Default.Menu,
+                            contentDescription = stringResource(R.string.drag_to_reorder),
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.padding(horizontal = 8.dp),
+                        )
+                    }
                 }
             }
         }
+
+        if (others.isNotEmpty())
+            item(key = "others") { SectionTitle(stringResource(R.string.other_languages)) }
+
+        for (language in others)
+            item(key = language.code) { LanguageCheckRow(language, Modifier.animateItem()) }
     }
 }
