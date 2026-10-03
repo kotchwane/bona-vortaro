@@ -13,7 +13,7 @@ android {
         applicationId = "io.github.kotchwane.labonavortaro"
         minSdk = 23
         targetSdk = 34
-        /* La bona vortaro starts again from 0.1, like PReVo did in 2012:
+        /* Bona vortaro starts again from 0.1, like PReVo did in 2012:
          * it is a new app for Android, with its own ID. The code must go
          * up with every version given to anyone. */
         versionCode = 1

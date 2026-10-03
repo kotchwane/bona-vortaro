@@ -18,7 +18,7 @@
 -->
 
 <resources>
-  <string name="app_name">La bona vortaro</string>
+  <string name="app_name">Bona vortaro</string>
   <string name="search">Serĉi</string>
   <string name="preferences">Agordoj</string>
   <string name="no_results">Neniu vorto troviĝis</string>
@@ -34,7 +34,7 @@
   <string name="translations">TRADUKOJ</string>
   <string name="more_languages">+ %1$d lingvoj</string>
   <string name="fewer_languages">Malpli da lingvoj</string>
-  <string name="brand_name" translatable="false">La bona vortaro</string>
+  <string name="brand_name" translatable="false">Bona vortaro</string>
   <string name="brand_subtitle">laŭ Reta Vortaro</string>
   <string name="official_fundamento">Fundamento</string>
   <string name="official_addition">%1$d-a Oficiala Aldono</string>
@@ -75,7 +75,7 @@
   <string name="continue_to_search">Daŭrigi</string>
   <string name="one_language_needed">Necesas almenaŭ unu serĉlingvo.</string>
   <string name="about_section">Pri</string>
-  <string name="about_prevo">Pri La bona vortaro</string>
+  <string name="about_prevo">Pri Bona vortaro</string>
   <string name="version">Versio %1$s</string>
   <string name="text_size_value">%1$d %%</string>
   <string name="text_size_default_value">Defaŭlta (%1$d %%)</string>
@@ -102,7 +102,7 @@
   <string name="definition_label">Difino</string>
   <string name="close">Fermi</string>
   <string name="about_message">
-<b>La bona vortaro @VERSION@</b>\n
+<b>Bona vortaro @VERSION@</b>\n
 \nModifita versio de PReVo. PReVo: Copyright © 2012, 2013, 2016, 2017, 2018, 2019, 2020 Neil Roberts\n
 \nModifoj: © 2026 kotchwane, kun la nova aspekto, la novaj funkcioj kaj la ĝisdatigitaj datumoj. github.com/kotchwane/prevo\n
 \nLa datumoj por la vortaro venas de Reta Vortaro.\n
