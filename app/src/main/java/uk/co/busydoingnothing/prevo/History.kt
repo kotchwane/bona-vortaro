@@ -51,6 +51,12 @@ object History {
         file(context).writeText(encode(get(context) - entry))
     }
 
+    /** Puts back a history as it was, eg. to undo a removal. */
+    @Synchronized
+    fun set(context: Context, entries: List<HistoryEntry>) {
+        file(context).writeText(encode(entries.take(MAX_ENTRIES)))
+    }
+
     @Synchronized
     fun clear(context: Context) {
         file(context).delete()

@@ -22,6 +22,8 @@ import android.content.Intent
 import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.lazy.itemsIndexed
@@ -56,6 +58,10 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.material3.SnackbarResult
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarHost
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -101,6 +107,11 @@ class SearchActivity : BonaActivity() {
     /* Re-read when coming back, in case it was changed in the settings */
     private var textSize by mutableIntStateOf(BonaSettings.DEFAULT_TEXT_SIZE)
 
+    /* The words looked up last, shown while nothing is typed; null while
+     * they are read. Re-read when coming back from an article. */
+    private var recent by mutableStateOf<List<RecentSearch>?>(null)
+    private var keepHistory by mutableStateOf(true)
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -123,6 +134,11 @@ class SearchActivity : BonaActivity() {
                     onResultClick = ::openArticle,
                     onChooseLanguage = { SelectLanguageActivity.open(this) },
                     onPreferences = { Screens.goPreferences(this) },
+                    recent = recent,
+                    keepHistory = keepHistory,
+                    onRemoveRecent = ::removeFromHistory,
+                    onClearRecent = ::clearHistory,
+                    onRestoreHistory = ::restoreHistory,
                 )
             }
         }
@@ -131,6 +147,37 @@ class SearchActivity : BonaActivity() {
     override fun onStart() {
         super.onStart()
         textSize = BonaSettings.getTextSize(this)
+        keepHistory = BonaSettings.getKeepHistory(this)
+        loadHistory()
+    }
+
+    private fun loadHistory() {
+        lifecycleScope.launch {
+            recent = withContext(Dispatchers.IO) {
+                findRecentSearches(applicationContext, History.get(applicationContext))
+            }
+        }
+    }
+
+    /** Removes a word from the history, and returns the history as it was
+     * before, to undo it. */
+    private fun removeFromHistory(search: RecentSearch): List<HistoryEntry> {
+        val before = History.get(this)
+        History.remove(this, search.entry)
+        recent = recent?.filter { it !== search }
+        return before
+    }
+
+    private fun clearHistory(): List<HistoryEntry> {
+        val before = History.get(this)
+        History.clear(this)
+        recent = emptyList()
+        return before
+    }
+
+    private fun restoreHistory(entries: List<HistoryEntry>) {
+        History.set(this, entries)
+        loadHistory()
     }
 
     override fun onRestart() {
@@ -159,8 +206,10 @@ class SearchActivity : BonaActivity() {
     /** Opens the article of a result, found in the given language, and
      * keeps the word in the history. */
     private fun openArticle(result: SearchResult, language: String) {
-        val entry = HistoryEntry(language, result.word)
-        lifecycleScope.launch(Dispatchers.IO) { History.add(applicationContext, entry) }
+        if (keepHistory) {
+            val entry = HistoryEntry(language, result.word)
+            lifecycleScope.launch(Dispatchers.IO) { History.add(applicationContext, entry) }
+        }
 
         val intent = Intent(this, ArticleActivity::class.java)
         intent.putExtra(ArticleActivity.EXTRA_ARTICLE_NUMBER, result.article)
@@ -179,9 +228,29 @@ private fun SearchScreen(
     onResultClick: (SearchResult, String) -> Unit,
     onChooseLanguage: () -> Unit,
     onPreferences: () -> Unit,
+    recent: List<RecentSearch>?,
+    keepHistory: Boolean,
+    onRemoveRecent: (RecentSearch) -> List<HistoryEntry>,
+    onClearRecent: () -> List<HistoryEntry>,
+    onRestoreHistory: (List<HistoryEntry>) -> Unit,
 ) {
     val context = LocalContext.current
     var query by rememberSaveable { mutableStateOf(initialQuery) }
+    val snackbar = remember { SnackbarHostState() }
+    val scope = rememberCoroutineScope()
+    val removed = stringResource(R.string.history_removed)
+    val cleared = stringResource(R.string.history_cleared)
+    val undo = stringResource(R.string.undo)
+
+    /* A removal from the history can be undone for a moment */
+    fun offerUndo(message: String, before: List<HistoryEntry>) {
+        scope.launch {
+            snackbar.currentSnackbarData?.dismiss()
+            if (snackbar.showSnackbar(message, actionLabel = undo, withDismissAction = true) ==
+                SnackbarResult.ActionPerformed)
+                onRestoreHistory(before)
+        }
+    }
 
     /* The selected language is searched first, then the others in the
      * order of the tabs */
@@ -190,12 +259,14 @@ private fun SearchScreen(
     /* null until the first search is done, so that "no results" isn't
      * shown while the index is still loading */
     val outcome by produceState<SearchOutcome?>(null, query, selected, languages) {
-        value = withContext(Dispatchers.Default) {
+        /* Nothing is searched while nothing is typed: the history shows */
+        value = if (query.isBlank()) null else withContext(Dispatchers.Default) {
             DictionarySearch.search(context, searchOrder, query)
         }
     }
 
     BonaScaffold(
+        snackbarHost = { SnackbarHost(snackbar) },
         topBar = {
             Column(Modifier.windowInsetsPadding(WindowInsets.statusBars)) {
                 Wordmark()
@@ -215,7 +286,17 @@ private fun SearchScreen(
     ) { padding ->
         val current = outcome
 
-        if (current != null && current.results.isEmpty()) {
+        if (query.isBlank()) {
+            RecentSearches(
+                recent = recent,
+                keepHistory = keepHistory,
+                textSize = textSize,
+                onOpen = { onResultClick(it.result, it.entry.language) },
+                onRemove = { offerUndo(removed, onRemoveRecent(it)) },
+                onClear = { offerUndo(cleared, onClearRecent()) },
+                modifier = Modifier.padding(padding).consumeWindowInsets(padding).imePadding(),
+            )
+        } else if (current != null && current.results.isEmpty()) {
             Box(
                 Modifier.fillMaxSize().padding(padding).consumeWindowInsets(padding).imePadding(),
                 contentAlignment = Alignment.Center,
@@ -428,13 +509,17 @@ private fun RunningHead(first: String, last: String) {
 
 /** A search result: the word, and under it the start of its definition,
  * read from its article once the row is shown. */
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
-private fun ResultRow(
+internal fun ResultRow(
     result: SearchResult,
     wordStyle: TextStyle,
     scale: Float,
     inEsperanto: Boolean,
     onClick: () -> Unit,
+    /** Shown small at the right of the word, eg. the language "FR" */
+    label: String? = null,
+    onLongClick: (() -> Unit)? = null,
 ) {
     val context = LocalContext.current
     val preview by produceState<WordPreview?>(null, result) {
@@ -445,10 +530,20 @@ private fun ResultRow(
     Column(
         Modifier
             .fillMaxWidth()
-            .clickable(onClick = onClick)
+            .combinedClickable(onClick = onClick, onLongClick = onLongClick)
             .padding(horizontal = 20.dp, vertical = 10.dp),
     ) {
-        Text(result.word, style = wordStyle, color = bonaDesign.headword)
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Text(result.word, style = wordStyle, color = bonaDesign.headword, modifier = Modifier.weight(1f))
+            if (label != null)
+                Text(
+                    label,
+                    style = MaterialTheme.typography.labelMedium,
+                    letterSpacing = 1.sp,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(start = 12.dp),
+                )
+        }
 
         val text = preview?.let {
             when {
