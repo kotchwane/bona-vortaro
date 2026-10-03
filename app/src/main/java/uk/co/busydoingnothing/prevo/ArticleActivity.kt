@@ -122,8 +122,8 @@ class ArticleActivity : PrevoActivity() {
                     initialSection = if (savedInstanceState == null) mark else -1,
                     sectionRequests = sectionRequests,
                     onBack = ::finish,
-                    onSearch = { MenuHelper.goSearch(this) },
-                    onPreferences = { MenuHelper.goPreferences(this) },
+                    onSearch = { Screens.goSearch(this) },
+                    onPreferences = { Screens.goPreferences(this) },
                     onCopy = ::copyDefinition,
                     onFlashcard = ::createFlashcard,
                     onLookUpInPiv = ::lookUpInPiv,
@@ -166,7 +166,7 @@ class ArticleActivity : PrevoActivity() {
 
     override fun onKeyDown(keyCode: Int, event: KeyEvent): Boolean {
         if (keyCode == KeyEvent.KEYCODE_SEARCH) {
-            MenuHelper.goSearch(this)
+            Screens.goSearch(this)
             return true
         }
 

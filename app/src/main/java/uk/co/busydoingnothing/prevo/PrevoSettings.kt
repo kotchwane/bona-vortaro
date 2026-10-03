@@ -26,11 +26,18 @@ import kotlin.math.pow
 
 enum class Theme { SYSTEM, LIGHT, DARK }
 
-/** The settings of the app, stored in the same preferences as in the
- * original app so that existing settings are kept. */
+/** All of the settings of the app, in one place. They are stored in the
+ * same preferences file and under the same keys as in the original app
+ * (PReVo), so that no setting is lost. */
 object PrevoSettings {
+    private const val FILE = "PrevoPreferences"
     private const val PREF_THEME = "theme"
+    private const val PREF_TEXT_SIZE = "fontSize"
     private const val PREF_UNFOLD_EXAMPLES = "unfoldExamples"
+    /* No value means all of the languages, an empty value none of them */
+    private const val PREF_TRANSLATION_LANGUAGES = "selectedLanguages"
+    private const val PREF_SEARCH_LANGUAGES = "myLanguages"
+    private const val PREF_LAST_LANGUAGE = "lastLanguage"
 
     /* The text sizes are numbered as in the original zoom of the articles,
      * from 0 to 9, each one 1.2 times bigger than the previous one, the
@@ -66,12 +73,12 @@ object PrevoSettings {
     }
 
     fun getTextSize(context: Context): Int =
-        prefs(context).getInt(MenuHelper.PREF_FONT_SIZE, DEFAULT_TEXT_SIZE)
+        prefs(context).getInt(PREF_TEXT_SIZE, DEFAULT_TEXT_SIZE)
             .coerceIn(MIN_TEXT_SIZE, MAX_TEXT_SIZE)
 
     fun setTextSize(context: Context, size: Int) {
         prefs(context).edit()
-            .putInt(MenuHelper.PREF_FONT_SIZE, size.coerceIn(MIN_TEXT_SIZE, MAX_TEXT_SIZE))
+            .putInt(PREF_TEXT_SIZE, size.coerceIn(MIN_TEXT_SIZE, MAX_TEXT_SIZE))
             .apply()
     }
 
@@ -89,7 +96,7 @@ object PrevoSettings {
     /** The languages whose translations are shown in the articles, in
      * the order of the articles. */
     fun getTranslationLanguages(context: Context, all: List<Language>): List<String> {
-        val stored = prefs(context).getString(SelectedLanguages.PREF, null)
+        val stored = prefs(context).getString(PREF_TRANSLATION_LANGUAGES, null)
             ?: return defaultTranslationOrder(context, all)
         val known = all.map { it.code }.toSet()
 
@@ -103,9 +110,9 @@ object PrevoSettings {
          * languages, an empty value means none of them. The value keeps
          * the order chosen by the user, which the original app ignores. */
         if (codes == defaultTranslationOrder(context, all))
-            editor.remove(SelectedLanguages.PREF)
+            editor.remove(PREF_TRANSLATION_LANGUAGES)
         else
-            editor.putString(SelectedLanguages.PREF, codes.joinToString(","))
+            editor.putString(PREF_TRANSLATION_LANGUAGES, codes.joinToString(","))
 
         editor.apply()
     }
@@ -113,8 +120,46 @@ object PrevoSettings {
     /** The order of the translations in the articles: the one chosen by
      * the user, or else the languages they likely read first. */
     fun getTranslationOrder(context: Context): List<String> =
-        prefs(context).getString(SelectedLanguages.PREF, null)?.split(',')
+        prefs(context).getString(PREF_TRANSLATION_LANGUAGES, null)?.split(',')
             ?: likelyLanguages(context)
+
+    /** Whether the articles show the translations in a language, read
+     * quickly while an article is loaded. Esperanto is always shown. */
+    fun translationFilter(context: Context): (String) -> Boolean {
+        val stored = prefs(context).getString(PREF_TRANSLATION_LANGUAGES, null)
+            ?: return { true }
+        val codes = stored.split(',').filter { it.isNotEmpty() }.toSet()
+
+        return { it == "eo" || it in codes }
+    }
+
+    /** The languages the user chose to search in, in their order, or an
+     * empty list before they have gone through the first screen. */
+    fun getChosenSearchLanguages(context: Context): List<String> {
+        val value = prefs(context).getString(PREF_SEARCH_LANGUAGES, null) ?: return emptyList()
+        val languageList = LanguageList.getDefault(context)
+
+        /* Skip languages that have disappeared in an update of the
+         * dictionary data */
+        return value.split(',').filter { it.isNotEmpty() && languageList.hasLanguage(it) }
+    }
+
+    /** The search languages: the user's, and only those; Esperanto before
+     * the first screen has been gone through. */
+    fun getSearchLanguages(context: Context): List<String> =
+        getChosenSearchLanguages(context).ifEmpty { listOf("eo") }
+
+    fun setSearchLanguages(context: Context, languages: List<String>) {
+        prefs(context).edit().putString(PREF_SEARCH_LANGUAGES, languages.joinToString(",")).apply()
+    }
+
+    /** The search language used last, reopened at the next start. */
+    fun getLastLanguage(context: Context): String? =
+        prefs(context).getString(PREF_LAST_LANGUAGE, null)
+
+    fun setLastLanguage(context: Context, language: String) {
+        prefs(context).edit().putString(PREF_LAST_LANGUAGE, language).apply()
+    }
 
     /* The languages the user likely reads: their search languages, even
      * the automatic ones, so that the language chosen on the first screen
@@ -123,7 +168,7 @@ object PrevoSettings {
         val locales = ConfigurationCompat.getLocales(context.resources.configuration)
         val phone = (0 until locales.size()).mapNotNull { locales[it]?.language }
 
-        return (MyLanguages.searchLanguages(context) + phone).distinct()
+        return (getSearchLanguages(context) + phone).distinct()
     }
 
     /* All of the languages, the ones the user likely reads first */
@@ -135,7 +180,7 @@ object PrevoSettings {
     }
 
     private fun prefs(context: Context) =
-        context.getSharedPreferences(MenuHelper.PREVO_PREFERENCES, Context.MODE_PRIVATE)
+        context.getSharedPreferences(FILE, Context.MODE_PRIVATE)
 }
 
 class PrevoApplication : Application() {

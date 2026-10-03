@@ -101,7 +101,7 @@ class SearchActivity : PrevoActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        searchLanguages = MyLanguages.searchLanguages(this)
+        searchLanguages = PrevoSettings.getSearchLanguages(this)
         selected = (savedInstanceState?.getString(STATE_SELECTED)
             ?: intent.getStringExtra(EXTRA_LANGUAGE))
             ?.takeIf { it in searchLanguages }
@@ -119,7 +119,7 @@ class SearchActivity : PrevoActivity() {
                     onLanguageChosen = ::chooseLanguage,
                     onResultClick = ::openArticle,
                     onChooseLanguage = { SelectLanguageActivity.open(this) },
-                    onPreferences = { MenuHelper.goPreferences(this) },
+                    onPreferences = { Screens.goPreferences(this) },
                 )
             }
         }
@@ -133,7 +133,7 @@ class SearchActivity : PrevoActivity() {
     override fun onRestart() {
         super.onRestart()
         /* The languages may have been changed meanwhile */
-        searchLanguages = MyLanguages.searchLanguages(this)
+        searchLanguages = PrevoSettings.getSearchLanguages(this)
         if (selected !in searchLanguages)
             selected = searchLanguages.first()
     }
@@ -149,10 +149,7 @@ class SearchActivity : PrevoActivity() {
             selected = language
 
             /* Reopened at the next start */
-            getSharedPreferences(MenuHelper.PREVO_PREFERENCES, MODE_PRIVATE)
-                .edit()
-                .putString(MenuHelper.PREF_LAST_LANGUAGE, language)
-                .apply()
+            PrevoSettings.setLastLanguage(this, language)
         }
     }
 

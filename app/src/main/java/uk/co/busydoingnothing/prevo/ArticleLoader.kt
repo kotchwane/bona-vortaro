@@ -102,13 +102,13 @@ object ArticleLoader {
             val articleStart = input.position
             val reader = SpanReader(articleNumber, onShowSection, quoteColor)
             val title = reader.read(input)
-            val selectedLanguages = SelectedLanguages(context)
+            val showTranslations = PrevoSettings.translationFilter(context)
             val sections = mutableListOf<ArticleSection>()
 
             while (input.position - articleStart < articleLength) {
                 val language = readLanguageCode(input)
 
-                if (selectedLanguages.contains(language)) {
+                if (showTranslations(language)) {
                     val header = reader.read(input)
                     val content = reader.read(input)
                     sections.add(ArticleSection(language, header, content))

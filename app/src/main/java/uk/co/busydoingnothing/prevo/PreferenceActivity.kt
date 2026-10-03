@@ -155,7 +155,7 @@ class PreferenceActivity : PrevoActivity() {
         theme = PrevoSettings.getTheme(this)
         textSize = PrevoSettings.getTextSize(this)
         unfoldExamples = PrevoSettings.getUnfoldExamples(this)
-        myLanguages = MyLanguages.get(this)
+        myLanguages = PrevoSettings.getChosenSearchLanguages(this)
         translations = PrevoSettings.getTranslationLanguages(this, translationLanguages)
     }
 

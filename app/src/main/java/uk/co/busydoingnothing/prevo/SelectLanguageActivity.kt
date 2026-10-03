@@ -69,7 +69,7 @@ class SelectLanguageActivity : PrevoActivity() {
         chosen = savedInstanceState?.getStringArrayList("chosen")
             /* Esperanto is ticked to start with, as this is an Esperanto
              * dictionary; it can be unticked */
-            ?: if (firstStart) listOf("eo") else MyLanguages.get(this)
+            ?: if (firstStart) listOf("eo") else PrevoSettings.getChosenSearchLanguages(this)
 
         val languages = LanguageList.getDefault(this).allLanguages.toList()
 
@@ -96,7 +96,7 @@ class SelectLanguageActivity : PrevoActivity() {
         chosen = codes
         /* Afterwards, each change is saved at once */
         if (!firstStart)
-            MyLanguages.set(this, codes)
+            PrevoSettings.setSearchLanguages(this, codes)
     }
 
     /* At least one language is needed to search in */
@@ -108,8 +108,8 @@ class SelectLanguageActivity : PrevoActivity() {
     }
 
     private fun continueToSearch() {
-        MyLanguages.set(this, chosen)
-        startActivity(MenuHelper.createSearchIntent(this, chosen.first()))
+        PrevoSettings.setSearchLanguages(this, chosen)
+        startActivity(Screens.searchIntent(this, chosen.first()))
         finish()
     }
 
