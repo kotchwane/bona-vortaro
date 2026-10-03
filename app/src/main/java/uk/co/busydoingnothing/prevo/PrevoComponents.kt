@@ -52,6 +52,7 @@ import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.res.stringResource
@@ -85,6 +86,8 @@ fun RoundedSearchField(
     keyboardActions: KeyboardActions = KeyboardActions.Default,
     extraButtons: @Composable () -> Unit = {},
 ) {
+    val fieldColor = prevoDesign.field
+
     TextField(
         value = query,
         onValueChange = onQueryChange,
@@ -104,10 +107,10 @@ fun RoundedSearchField(
         singleLine = true,
         shape = RoundedCornerShape(28.dp),
         colors = TextFieldDefaults.colors(
-            focusedIndicatorColor = MaterialTheme.colorScheme.surfaceContainerHigh,
-            unfocusedIndicatorColor = MaterialTheme.colorScheme.surfaceContainerHigh,
-            focusedContainerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
-            unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+            focusedIndicatorColor = Color.Transparent,
+            unfocusedIndicatorColor = Color.Transparent,
+            focusedContainerColor = fieldColor,
+            unfocusedContainerColor = fieldColor,
         ),
         /* No automatic capital or correction: these are dictionary
          * searches, not sentences */
@@ -235,7 +238,9 @@ fun LazyItemScope.ReorderableRow(
 
     Surface(
         shadowElevation = elevation,
-        color = MaterialTheme.colorScheme.surface,
+        /* Transparent on the background of the screen, except while
+         * it is dragged above the others */
+        color = if (isDragged) MaterialTheme.colorScheme.surfaceContainerHigh else Color.Transparent,
         modifier = Modifier
             .zIndex(if (isDragged) 1f else 0f)
             .graphicsLayer { translationY = if (isDragged) reorder.offset else 0f }

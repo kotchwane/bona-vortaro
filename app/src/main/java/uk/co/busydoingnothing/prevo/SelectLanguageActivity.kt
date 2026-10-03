@@ -54,6 +54,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -173,8 +174,13 @@ private fun LanguageChooser(
     )
 
     Scaffold(
+        modifier = Modifier.prevoBackground(),
+        containerColor = Color.Transparent,
+        /* The colour of the text, which a transparent container doesn't give */
+        contentColor = MaterialTheme.colorScheme.onBackground,
         topBar = {
             TopAppBar(
+                colors = prevoTopBarColors(),
                 title = {
                     Text(stringResource(if (manage) R.string.my_search_languages else R.string.select_language))
                 },

@@ -102,8 +102,11 @@ fun WordCard(
     Card(
         modifier = modifier.fillMaxWidth(),
         shape = RoundedCornerShape(14.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
+        /* A sheet of paper on the page, with a thin edge instead of a
+         * shadow */
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerLowest),
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
     ) {
         Column(
             Modifier
@@ -119,7 +122,7 @@ fun WordCard(
                     entry.title,
                     style = MaterialTheme.typography.titleLarge.scaled(scale)
                         .copy(fontWeight = FontWeight.Bold),
-                    color = primary,
+                    color = prevoDesign.headword,
                     modifier = Modifier.align(Alignment.CenterVertically),
                 )
                 for (official in entry.official)
@@ -476,7 +479,7 @@ private fun TranslationsBox(translations: List<Translation>, scale: Float, folda
     Surface(
         modifier = Modifier.fillMaxWidth().padding(top = 10.dp),
         shape = RoundedCornerShape(10.dp),
-        color = MaterialTheme.colorScheme.surface,
+        color = Color.Transparent,
         border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
     ) {
         Column(Modifier.padding(start = 10.dp, end = 10.dp, top = 8.dp)) {
@@ -546,8 +549,12 @@ fun SpannedText(
             view.setTextColor(color.toArgb())
             view.setLinkTextColor(linkColor.toArgb())
             view.setTextSize(TypedValue.COMPLEX_UNIT_SP, style.fontSize.value)
-            view.typeface = if ((style.fontWeight?.weight ?: 400) >= 600)
-                android.graphics.Typeface.DEFAULT_BOLD else android.graphics.Typeface.DEFAULT
+            /* Serif, like the rest of the design */
+            view.typeface = android.graphics.Typeface.create(
+                android.graphics.Typeface.SERIF,
+                if ((style.fontWeight?.weight ?: 400) >= 600) android.graphics.Typeface.BOLD
+                else android.graphics.Typeface.NORMAL,
+            )
             if (onLongPress != null)
                 view.setOnLongClickListener { onLongPress(); true }
         },
