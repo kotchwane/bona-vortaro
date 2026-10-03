@@ -238,7 +238,10 @@ private fun LanguageChooser(
                     row,
                 )
             } else {
-                val matching = allLanguages.filter { it.matches(filter) }
+                /* Esperanto is only among the main languages */
+                val matching = (mainLanguages + allLanguages)
+                    .distinctBy { it.code }
+                    .filter { it.matches(filter) }
 
                 if (matching.isEmpty()) {
                     item {
