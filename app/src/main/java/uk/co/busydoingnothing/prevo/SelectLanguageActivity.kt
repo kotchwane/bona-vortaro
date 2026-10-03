@@ -32,12 +32,11 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.lazy.LazyListScope
-import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.KeyboardArrowDown
-import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -97,7 +96,7 @@ class SelectLanguageActivity : AppCompatActivity() {
                     allLanguages = allLanguages,
                     onLanguageClick = if (manage) ::toggleMine else ::chooseLanguage,
                     onToggleMine = ::toggleMine,
-                    onMoveMine = ::moveMine,
+                    onReorderMine = ::reorderMine,
                     /* Nothing to go back to on the very first start,
                      * when this is the first screen of the app */
                     onBack = if (isTaskRoot) null else ::finish,
@@ -124,8 +123,9 @@ class SelectLanguageActivity : AppCompatActivity() {
         myLanguages = toLanguages(MyLanguages.toggle(this, language.code))
     }
 
-    private fun moveMine(language: Language, delta: Int) {
-        myLanguages = toLanguages(MyLanguages.move(this, language.code, delta))
+    private fun reorderMine(codes: List<String>) {
+        MyLanguages.set(this, codes)
+        myLanguages = toLanguages(codes)
     }
 
 
@@ -154,14 +154,23 @@ private fun LanguageChooser(
     allLanguages: List<Language>,
     onLanguageClick: (Language) -> Unit,
     onToggleMine: (Language) -> Unit,
-    onMoveMine: (Language, Int) -> Unit,
+    onReorderMine: (List<String>) -> Unit,
     onBack: (() -> Unit)?,
     onPreferences: (() -> Unit)?,
 ) {
     var query by rememberSaveable { mutableStateOf("") }
     val filter = normaliseQuery(query)
     val myCodes = myLanguages.map { it.code }.toSet()
-    val row = LanguageRow(myCodes, onLanguageClick, onToggleMine, onMoveMine)
+    val listState = rememberLazyListState()
+    val reorder = rememberListReorder(listState)
+    val row = LanguageRow(
+        myCodes,
+        onLanguageClick,
+        onToggleMine,
+        myLanguages.map { it.code },
+        onReorderMine,
+        reorder,
+    )
 
     Scaffold(
         topBar = {
@@ -191,6 +200,7 @@ private fun LanguageChooser(
                 .fillMaxSize()
                 .padding(padding)
                 .imePadding(),
+            state = listState,
         ) {
             if (manage) {
                 item {
@@ -249,7 +259,11 @@ private class LanguageRow(
     val myCodes: Set<String>,
     val onClick: (Language) -> Unit,
     val onToggleMine: (Language) -> Unit,
-    val onMove: (Language, Int) -> Unit,
+    /** The order of the user's languages, which can be changed by
+     * dragging them */
+    val order: List<String>,
+    val onReorder: (List<String>) -> Unit,
+    val reorder: ListReorder,
 )
 
 private fun LazyListScope.languageSection(
@@ -262,42 +276,45 @@ private fun LazyListScope.languageSection(
 
     /* The keys keep the rows in place when a language moves between
      * the sections */
-    itemsIndexed(languages, key = { _, language -> language.code }) { index, language ->
-        val mine = language.code in row.myCodes
+    items(languages, key = { it.code }) { language ->
+        /* The order of the user's languages is the order of the chips
+         * and of the search */
+        if (reorderable)
+            ReorderableRow(row.reorder, language.code, row.order, row.onReorder) {
+                LanguageItem(language, row) { DragHandle() }
+            }
+        else
+            LanguageItem(language, row)
+    }
+}
 
-        Row(
-            Modifier
-                .fillMaxWidth()
-                .clickable { row.onClick(language) }
-                .padding(start = 16.dp),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Text(
-                language.name,
-                style = MaterialTheme.typography.bodyLarge,
-                modifier = Modifier.weight(1f).padding(vertical = 14.dp),
+@Composable
+private fun LanguageItem(language: Language, row: LanguageRow, handle: @Composable () -> Unit = {}) {
+    val mine = language.code in row.myCodes
+
+    Row(
+        Modifier
+            .fillMaxWidth()
+            .clickable { row.onClick(language) }
+            .padding(start = 16.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Text(
+            language.name,
+            style = MaterialTheme.typography.bodyLarge,
+            modifier = Modifier.weight(1f).padding(vertical = 14.dp),
+        )
+        handle()
+        IconButton(onClick = { row.onToggleMine(language) }) {
+            Icon(
+                Icons.Default.Star,
+                contentDescription = stringResource(
+                    if (mine) R.string.remove_from_my_languages
+                    else R.string.add_to_my_languages
+                ),
+                tint = if (mine) MaterialTheme.colorScheme.primary
+                       else MaterialTheme.colorScheme.outlineVariant,
             )
-            /* The order of the user's languages is the order of the chips
-             * and of the search */
-            if (reorderable) {
-                IconButton(onClick = { row.onMove(language, -1) }, enabled = index > 0) {
-                    Icon(Icons.Default.KeyboardArrowUp, stringResource(R.string.move_up))
-                }
-                IconButton(onClick = { row.onMove(language, 1) }, enabled = index < languages.size - 1) {
-                    Icon(Icons.Default.KeyboardArrowDown, stringResource(R.string.move_down))
-                }
-            }
-            IconButton(onClick = { row.onToggleMine(language) }) {
-                Icon(
-                    Icons.Default.Star,
-                    contentDescription = stringResource(
-                        if (mine) R.string.remove_from_my_languages
-                        else R.string.add_to_my_languages
-                    ),
-                    tint = if (mine) MaterialTheme.colorScheme.primary
-                           else MaterialTheme.colorScheme.outlineVariant,
-                )
-            }
         }
     }
 }

@@ -17,7 +17,22 @@
 
 package uk.co.busydoingnothing.prevo
 
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.lazy.LazyItemScope
+import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material3.Surface
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.zIndex
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -156,4 +171,97 @@ fun TextSizeSetting(textSize: Int, onTextSizeChange: (Int) -> Unit) {
             Text(stringResource(R.string.default_text_size))
         }
     }
+}
+
+/** The row being dragged in a list whose rows can be reordered by
+ * dragging them after a long press, and how far it is from its place. */
+class ListReorder(private val listState: LazyListState) {
+    var dragged by mutableStateOf<String?>(null)
+        private set
+    var offset by mutableFloatStateOf(0f)
+        private set
+
+    fun start(key: String) {
+        dragged = key
+        offset = 0f
+    }
+
+    fun stop() {
+        dragged = null
+        offset = 0f
+    }
+
+    /** Moves the dragged row by delta. Returns the new order if it went
+     * over another row of the order, under its middle, or else null. */
+    fun dragBy(delta: Float, order: List<String>): List<String>? {
+        val key = dragged ?: return null
+        offset += delta
+
+        val items = listState.layoutInfo.visibleItemsInfo
+        val current = items.firstOrNull { it.key == key } ?: return null
+        val middle = current.offset + offset + current.size / 2
+        val target = items.firstOrNull {
+            it.key != key && it.key in order && middle >= it.offset && middle < it.offset + it.size
+        } ?: return null
+
+        val newOrder = order.toMutableList()
+        newOrder.remove(key)
+        newOrder.add(order.indexOf(target.key as String), key)
+        /* The row moves to its new place, so the offset is now from there */
+        offset -= target.offset - current.offset
+
+        return newOrder
+    }
+}
+
+@Composable
+fun rememberListReorder(listState: LazyListState) = remember(listState) { ListReorder(listState) }
+
+/** A row of a list that can be reordered: a long press lets it be
+ * dragged, raised above the others, among the rows of the order. Its
+ * key in the list must be the same as in the order. */
+@Composable
+fun LazyItemScope.ReorderableRow(
+    reorder: ListReorder,
+    key: String,
+    order: List<String>,
+    onReorder: (List<String>) -> Unit,
+    content: @Composable () -> Unit,
+) {
+    val currentOrder by rememberUpdatedState(order)
+    val currentOnReorder by rememberUpdatedState(onReorder)
+    val isDragged = reorder.dragged == key
+    val elevation by animateDpAsState(if (isDragged) 6.dp else 0.dp, label = "drag")
+
+    Surface(
+        shadowElevation = elevation,
+        color = MaterialTheme.colorScheme.surface,
+        modifier = Modifier
+            .zIndex(if (isDragged) 1f else 0f)
+            .graphicsLayer { translationY = if (isDragged) reorder.offset else 0f }
+            .then(if (isDragged) Modifier else Modifier.animateItem())
+            .pointerInput(key) {
+                detectDragGesturesAfterLongPress(
+                    onDragStart = { reorder.start(key) },
+                    onDrag = { change, amount ->
+                        change.consume()
+                        reorder.dragBy(amount.y, currentOrder)?.let(currentOnReorder)
+                    },
+                    onDragEnd = { reorder.stop() },
+                    onDragCancel = { reorder.stop() },
+                )
+            },
+        content = content,
+    )
+}
+
+/** The handle that shows that a row can be moved. */
+@Composable
+fun DragHandle() {
+    Icon(
+        Icons.Default.Menu,
+        contentDescription = stringResource(R.string.drag_to_reorder),
+        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+        modifier = Modifier.padding(horizontal = 8.dp),
+    )
 }

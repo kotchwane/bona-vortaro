@@ -26,16 +26,8 @@ import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
-import androidx.compose.animation.core.animateDpAsState
-import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.material.icons.filled.Menu
-import androidx.compose.runtime.mutableFloatStateOf
-import androidx.compose.runtime.rememberUpdatedState
-import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.zIndex
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -435,11 +427,7 @@ private fun TranslationSettings(
     val selected = translations.mapNotNull { byCode[it] }
     val others = languages.filter { it.code !in translations }
 
-    /* The language being dragged, and how far from its place */
-    var dragged by remember { mutableStateOf<String?>(null) }
-    var dragOffset by remember { mutableFloatStateOf(0f) }
-    val currentTranslations by rememberUpdatedState(translations)
-    val currentOnChange by rememberUpdatedState(onTranslationsChange)
+    val reorder = rememberListReorder(listState)
 
     fun changeAll(selection: List<String>, message: String) {
         val previous = translations
@@ -450,27 +438,6 @@ private fun TranslationSettings(
                 SnackbarResult.ActionPerformed)
                 onTranslationsChange(previous)
         }
-    }
-
-    /* Moves the dragged language over the selected one under its middle */
-    fun dragBy(delta: Float) {
-        val code = dragged ?: return
-        dragOffset += delta
-
-        val items = listState.layoutInfo.visibleItemsInfo
-        val current = items.firstOrNull { it.key == code } ?: return
-        val middle = current.offset + dragOffset + current.size / 2
-        val target = items.firstOrNull {
-            it.key != code && it.key in currentTranslations &&
-                middle >= it.offset && middle < it.offset + it.size
-        } ?: return
-
-        val order = currentTranslations.toMutableList()
-        order.remove(code)
-        order.add(currentTranslations.indexOf(target.key as String), code)
-        /* The row moves to its new place, so the offset is now from there */
-        dragOffset -= target.offset - current.offset
-        currentOnChange(order)
     }
 
     SettingsScaffold(
@@ -559,33 +526,8 @@ private fun TranslationSettings(
 
         for (language in selected) {
             item(key = language.code) {
-                val isDragged = dragged == language.code
-                val elevation by animateDpAsState(if (isDragged) 6.dp else 0.dp, label = "drag")
-
-                Surface(
-                    shadowElevation = elevation,
-                    color = MaterialTheme.colorScheme.surface,
-                    modifier = Modifier
-                        .zIndex(if (isDragged) 1f else 0f)
-                        .graphicsLayer { translationY = if (isDragged) dragOffset else 0f }
-                        .then(if (isDragged) Modifier else Modifier.animateItem())
-                        .pointerInput(language.code) {
-                            detectDragGesturesAfterLongPress(
-                                onDragStart = { dragged = language.code; dragOffset = 0f },
-                                onDrag = { change, amount -> change.consume(); dragBy(amount.y) },
-                                onDragEnd = { dragged = null; dragOffset = 0f },
-                                onDragCancel = { dragged = null; dragOffset = 0f },
-                            )
-                        },
-                ) {
-                    LanguageCheckRow(language) {
-                        Icon(
-                            Icons.Default.Menu,
-                            contentDescription = stringResource(R.string.drag_to_reorder),
-                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                            modifier = Modifier.padding(horizontal = 8.dp),
-                        )
-                    }
+                ReorderableRow(reorder, language.code, translations, onTranslationsChange) {
+                    LanguageCheckRow(language) { DragHandle() }
                 }
             }
         }

@@ -53,20 +53,6 @@ object MyLanguages {
         return updated
     }
 
-    /** Moves the language by the given number of places (-1 = up). */
-    fun move(context: Context, language: String, delta: Int): List<String> {
-        val list = get(context).toMutableList()
-        val from = list.indexOf(language)
-        val to = from + delta
-
-        if (from < 0 || to < 0 || to >= list.size)
-            return list
-
-        list.add(to, list.removeAt(from))
-        set(context, list)
-        return list
-    }
-
     private fun prefs(context: Context) =
         context.getSharedPreferences(MenuHelper.PREVO_PREFERENCES, Context.MODE_PRIVATE)
 }

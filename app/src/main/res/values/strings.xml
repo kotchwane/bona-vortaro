@@ -31,8 +31,6 @@
   <string name="my_languages">Miaj lingvoj</string>
   <string name="add_to_my_languages">Aldoni al miaj lingvoj</string>
   <string name="remove_from_my_languages">Forigi el miaj lingvoj</string>
-  <string name="move_up">Movi supren</string>
-  <string name="move_down">Movi malsupren</string>
   <string name="back">Reen</string>
   <string name="clear">Forviŝi</string>
   <string name="share">Kunhavigi</string>
@@ -59,7 +57,7 @@
   <string name="translations_none">Neniu</string>
   <string name="my_search_languages">Miaj serĉlingvoj</string>
   <string name="my_languages_automatic">Aŭtomate, laŭ via uzado</string>
-  <string name="my_languages_help">Tuŝu lingvon por aldoni ĝin al viaj serĉlingvoj aŭ forigi ĝin. Ili aperas kiel butonoj super la serĉrezultoj, en ĉi tiu ordo.</string>
+  <string name="my_languages_help">Tuŝu lingvon por aldoni ĝin al viaj serĉlingvoj aŭ forigi ĝin. Ili aperas kiel butonoj super la serĉrezultoj, en ĉi tiu ordo. Tenu lingvon premita por movi ĝin.</string>
   <string name="about_section">Pri</string>
   <string name="about_prevo">Pri PReVo</string>
   <string name="version">Versio %1$s</string>
