@@ -294,11 +294,17 @@ private fun splitExamples(content: Spanned, start: Int, end: Int): List<ContentB
     var position = start
 
     fun addText(to: Int) {
-        val text = content.subSequence(position, to).trimBlankLines()
-        /* Between two examples, a lone ";" or "," is only their
-         * separator: dropping it keeps the examples together */
-        val betweenExamples = blocks.lastOrNull() is ContentBlock.Example && to < end
-        if (text.isNotBlank() && !(betweenExamples && text.all { it in " ;,." || it.isWhitespace() }))
+        var from = position
+        /* After an example, the ";", "," or "." that follow it are only
+         * its punctuation, between two examples or after the last one:
+         * dropping them keeps the examples together, and avoids a line
+         * with only a "." before the next sense */
+        if (blocks.lastOrNull() is ContentBlock.Example) {
+            while (from < to && (content[from] in ";,." || content[from].isWhitespace()))
+                from++
+        }
+        val text = content.subSequence(from, to).trimBlankLines()
+        if (text.isNotBlank())
             blocks.add(ContentBlock.Text(text))
     }
 
