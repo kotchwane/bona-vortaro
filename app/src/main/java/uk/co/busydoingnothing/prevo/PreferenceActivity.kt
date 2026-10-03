@@ -145,10 +145,7 @@ class PreferenceActivity : AppCompatActivity() {
                         onTranslations = { page = Page.TRANSLATIONS },
                         myLanguagesSummary = languageNames(myLanguages),
                         onMyLanguages = {
-                            startActivity(
-                                Intent(this, SelectLanguageActivity::class.java)
-                                    .putExtra(SelectLanguageActivity.EXTRA_MANAGE, true)
-                            )
+                            SelectLanguageActivity.open(this)
                         },
                         version = version,
                         onBack = ::finish,
@@ -356,7 +353,7 @@ private fun MainSettings(
         item {
             SettingRow(
                 stringResource(R.string.my_search_languages),
-                myLanguagesSummary ?: stringResource(R.string.my_languages_automatic),
+                myLanguagesSummary ?: "",
                 onMyLanguages,
             )
         }
@@ -437,8 +434,6 @@ private fun TranslationSettings(
     val noneSelected = stringResource(R.string.none_selected)
     val undo = stringResource(R.string.undo)
 
-    val byCode = languages.associateBy { it.code }
-    val selected = translations.mapNotNull { byCode[it] }
     val others = languages.filter { it.code !in translations }
 
     val reorder = rememberListReorder(listState)
@@ -498,58 +493,13 @@ private fun TranslationSettings(
             )
         }
 
-        @Composable
-        fun LanguageCheckRow(language: Language, modifier: Modifier = Modifier, trailing: @Composable () -> Unit = {}) {
-            val checked = language.code in translations
-            val toggle = {
-                onTranslationsChange(if (checked) translations - language.code else translations + language.code)
-            }
-            Row(
-                modifier
-                    .fillMaxWidth()
-                    .clickable(onClick = toggle)
-                    .padding(start = 16.dp, end = 8.dp),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Text(language.name, style = MaterialTheme.typography.bodyLarge, modifier = Modifier.weight(1f))
-                trailing()
-                Checkbox(checked = checked, onCheckedChange = { toggle() })
-            }
-        }
-
-        if (filter.isNotEmpty()) {
-            /* A search lists every match, ticked or not, in one list */
-            for (language in languages.filter { it.matches(filter) })
-                item(key = language.code) { LanguageCheckRow(language) }
-            return@SettingsScaffold
-        }
-
-        if (selected.isNotEmpty()) {
-            item(key = "selected") {
-                SectionTitle(stringResource(R.string.selected_languages, selected.size))
-            }
-            item(key = "order-help") {
-                Text(
-                    stringResource(R.string.translations_order_help),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.padding(start = 16.dp, end = 16.dp, bottom = 4.dp),
-                )
-            }
-        }
-
-        for (language in selected) {
-            item(key = language.code) {
-                ReorderableRow(reorder, language.code, translations, onTranslationsChange) {
-                    LanguageCheckRow(language) { DragHandle() }
-                }
-            }
-        }
-
-        if (others.isNotEmpty())
-            item(key = "others") { SectionTitle(stringResource(R.string.other_languages)) }
-
-        for (language in others)
-            item(key = language.code) { LanguageCheckRow(language, Modifier.animateItem()) }
+        languageChoice(
+            languages = languages,
+            chosen = translations,
+            onChange = onTranslationsChange,
+            filter = filter,
+            reorder = reorder,
+            orderHelp = R.string.translations_order_help,
+        )
     }
 }

@@ -19,18 +19,12 @@
 
 <resources>
   <string name="app_name">PReVo</string>
-  <string name="select_language">Elekti lingvon</string>
   <string name="search">Serĉi</string>
   <string name="preferences">Agordoj</string>
   <string name="no_results">Neniu vorto troviĝis</string>
   <string name="other_language_note">Neniu vorto troviĝis en %1$s, jen vortoj en %2$s</string>
   <string name="type_to_filter">Tajpi ion por serĉi</string>
-  <string name="main_languages">Ĉefaj lingvoj</string>
-  <string name="all_languages">Ĉiuj lingvoj</string>
   <string name="search_language">Serĉi lingvon</string>
-  <string name="my_languages">Miaj lingvoj</string>
-  <string name="add_to_my_languages">Aldoni al miaj lingvoj</string>
-  <string name="remove_from_my_languages">Forigi el miaj lingvoj</string>
   <string name="back">Reen</string>
   <string name="clear">Forviŝi</string>
   <string name="share">Kunhavigi</string>
@@ -75,8 +69,11 @@
   <string name="translations_all">Ĉiuj (%1$d lingvoj)</string>
   <string name="translations_none">Neniu</string>
   <string name="my_search_languages">Miaj serĉlingvoj</string>
-  <string name="my_languages_automatic">Aŭtomate, laŭ via uzado</string>
-  <string name="my_languages_help">Tuŝu lingvon por aldoni ĝin al viaj serĉlingvoj aŭ forigi ĝin. Ili aperas kiel butonoj super la serĉrezultoj, en ĉi tiu ordo. Tenu lingvon premita por movi ĝin.</string>
+  <string name="my_languages_help">La lingvoj, en kiuj vi serĉas vortojn. Tuŝu lingvon por aldoni aŭ forigi ĝin.</string>
+  <string name="welcome_search_languages">Bonvenon! En kiuj lingvoj vi volas serĉi vortojn? Tuŝu unu aŭ plurajn lingvojn, poste „Daŭrigi“. Vi povos ŝanĝi ilin iam ajn en la agordoj.</string>
+  <string name="search_languages_order_help">Ili aperas super la serĉrezultoj en ĉi tiu ordo. Tenu lingvon premita por movi ĝin.</string>
+  <string name="continue_to_search">Daŭrigi</string>
+  <string name="one_language_needed">Necesas almenaŭ unu serĉlingvo.</string>
   <string name="about_section">Pri</string>
   <string name="about_prevo">Pri PReVo</string>
   <string name="version">Versio %1$s</string>
@@ -95,7 +92,7 @@
   <string name="select_none">Malelekti ĉiujn</string>
   <string name="text_size_sample">Ekzemplo: mi estas timida kun virinoj.</string>
   <string name="no_language_found">Neniu lingvo troviĝis</string>
-  <string name="menu_choose_language">Elekti lingvon</string>
+  <string name="menu_choose_language">Ŝanĝi la serĉlingvojn</string>
   <string name="menu_search">Serĉi</string>
   <string name="menu_copy_definition">Kopii difinon</string>
   <string name="menu_create_flashcard_word">Krei fulmkarton, difino→vorto</string>

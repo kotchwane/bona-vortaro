@@ -142,5 +142,8 @@ class PrevoApplication : Application() {
     override fun onCreate() {
         super.onCreate()
         PrevoSettings.applyTheme(PrevoSettings.getTheme(this))
+        /* The usage counts of the languages, which the original app kept
+         * to guess the main languages, aren't used any more */
+        deleteDatabase("language")
     }
 }

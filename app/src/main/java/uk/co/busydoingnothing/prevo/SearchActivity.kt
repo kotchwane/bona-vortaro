@@ -91,17 +91,13 @@ class SearchActivity : AppCompatActivity() {
     companion object {
         const val EXTRA_LANGUAGE = "uk.co.busydoingnothing.prevo.Language"
         const val EXTRA_SEARCH_TERM = "uk.co.busydoingnothing.prevo.SearchTerm"
-        const val EXTRA_USE_LANGUAGE = "uk.co.busydoingnothing.prevo.UseLanguage"
 
         private const val STATE_SELECTED = "selected"
     }
 
-    private lateinit var dbHelper: LanguageDatabaseHelper
-
-    /* The language whose chip is selected, and the languages of all the
-     * chips. The chips keep their order while the screen is shown, even
-     * though choosing one counts as a use, and are recomputed when coming
-     * back to it, in case the user's languages were changed meanwhile. */
+    /* The language whose tab is selected, and the user's search
+     * languages, re-read when coming back to the screen in case they were
+     * changed meanwhile */
     private var selected by mutableStateOf("eo")
     private var searchLanguages by mutableStateOf(listOf("eo"))
 
@@ -120,17 +116,11 @@ class SearchActivity : AppCompatActivity() {
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
 
-        dbHelper = LanguageDatabaseHelper(this)
-
-        selected = savedInstanceState?.getString(STATE_SELECTED)
-            ?: intent.getStringExtra(EXTRA_LANGUAGE) ?: "eo"
-        searchLanguages = getSearchLanguages(selected)
-
-        /* Only count the language once, not every time the activity is
-         * recreated, for example when the screen is rotated */
-        if (savedInstanceState == null &&
-            intent.getBooleanExtra(EXTRA_USE_LANGUAGE, false))
-            useLanguage(selected)
+        searchLanguages = MyLanguages.searchLanguages(this)
+        selected = (savedInstanceState?.getString(STATE_SELECTED)
+            ?: intent.getStringExtra(EXTRA_LANGUAGE))
+            ?.takeIf { it in searchLanguages }
+            ?: searchLanguages.first()
 
         val initialQuery = intent.getStringExtra(EXTRA_SEARCH_TERM) ?: ""
 
@@ -143,7 +133,7 @@ class SearchActivity : AppCompatActivity() {
                     initialQuery = initialQuery,
                     onLanguageChosen = ::chooseLanguage,
                     onResultClick = ::openArticle,
-                    onChooseLanguage = { MenuHelper.goChooseLanguage(this) },
+                    onChooseLanguage = { SelectLanguageActivity.open(this) },
                     onPreferences = { MenuHelper.goPreferences(this) },
                 )
             }
@@ -157,7 +147,10 @@ class SearchActivity : AppCompatActivity() {
 
     override fun onRestart() {
         super.onRestart()
-        searchLanguages = getSearchLanguages(selected)
+        /* The languages may have been changed meanwhile */
+        searchLanguages = MyLanguages.searchLanguages(this)
+        if (selected !in searchLanguages)
+            selected = searchLanguages.first()
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -166,37 +159,16 @@ class SearchActivity : AppCompatActivity() {
     }
 
 
-    private fun getSearchLanguages(mainLanguage: String): List<String> {
-        val myLanguages = MyLanguages.get(this)
-
-        /* The user's own languages, in their order and as many as they
-         * want. The language that was opened is added if it isn't one of
-         * them, so that it can still be selected. */
-        if (myLanguages.isNotEmpty())
-            return if (mainLanguage in myLanguages) myLanguages
-                   else listOf(mainLanguage) + myLanguages
-
-        /* Otherwise, as in the original app: the chosen language,
-         * Esperanto and the main languages from the usage counts */
-        return MyLanguages.automatic(this, mainLanguage)
-    }
-
     private fun chooseLanguage(language: String) {
         if (language != selected) {
             selected = language
-            useLanguage(language)
+
+            /* Reopened at the next start */
+            getSharedPreferences(MenuHelper.PREVO_PREFERENCES, MODE_PRIVATE)
+                .edit()
+                .putString(MenuHelper.PREF_LAST_LANGUAGE, language)
+                .apply()
         }
-    }
-
-    /** Remembers the language as explicitly chosen: it counts towards the
-     * main languages and is reopened at the next start. */
-    private fun useLanguage(language: String) {
-        dbHelper.useLanguage(language)
-
-        getSharedPreferences(MenuHelper.PREVO_PREFERENCES, MODE_PRIVATE)
-            .edit()
-            .putString(MenuHelper.PREF_LAST_LANGUAGE, language)
-            .apply()
     }
 
     private fun openArticle(result: SearchResult) {
