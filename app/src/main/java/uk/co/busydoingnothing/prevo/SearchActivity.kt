@@ -41,6 +41,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBars
@@ -209,7 +210,7 @@ private fun SearchScreen(
 
         if (current != null && current.results.isEmpty()) {
             Box(
-                Modifier.fillMaxSize().padding(padding).imePadding(),
+                Modifier.fillMaxSize().padding(padding).consumeWindowInsets(padding).imePadding(),
                 contentAlignment = Alignment.Center,
             ) {
                 Text(
@@ -224,7 +225,7 @@ private fun SearchScreen(
                 searchOrder = searchOrder,
                 textSize = textSize,
                 onResultClick = onResultClick,
-                modifier = Modifier.padding(padding).imePadding(),
+                modifier = Modifier.padding(padding).consumeWindowInsets(padding).imePadding(),
             )
         }
     }
