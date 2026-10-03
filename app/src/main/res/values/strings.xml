@@ -69,6 +69,8 @@
   <string name="none_selected">Ĉiuj lingvoj malelektitaj</string>
   <string name="undo">Malfari</string>
   <string name="selected_languages">Elektitaj (%1$d)</string>
+  <string name="unfold_examples">Ĉiam montri la ekzemplojn</string>
+  <string name="unfold_examples_summary">Malfaldi ĉiujn ekzemplojn en la artikoloj, anstataŭ kaŝi la longajn sub „Ekzemploj“</string>
   <string name="translations_order_help">La tradukoj aperas en la artikoloj en ĉi tiu ordo. Tenu lingvon premita por movi ĝin.</string>
   <string name="drag_to_reorder">Tenu kaj movu por ŝanĝi la ordon</string>
   <string name="other_languages">Aliaj lingvoj</string>

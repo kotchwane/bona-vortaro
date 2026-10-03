@@ -48,6 +48,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.selection.selectable
+import androidx.compose.foundation.selection.toggleable
+import androidx.compose.ui.semantics.Role
+import androidx.compose.material3.Switch
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
@@ -97,6 +100,7 @@ class PreferenceActivity : AppCompatActivity() {
     private var textSize by mutableIntStateOf(PrevoSettings.DEFAULT_TEXT_SIZE)
     private var myLanguages by mutableStateOf(emptyList<String>())
     private var translations by mutableStateOf(emptyList<String>())
+    private var unfoldExamples by mutableStateOf(false)
 
     /** Every language that can be a translation, i.e. all but Esperanto */
     private lateinit var translationLanguages: List<Language>
@@ -138,6 +142,11 @@ class PreferenceActivity : AppCompatActivity() {
                             textSize = it
                             PrevoSettings.setTextSize(this, it)
                         },
+                        unfoldExamples = unfoldExamples,
+                        onUnfoldExamplesChange = {
+                            unfoldExamples = it
+                            PrevoSettings.setUnfoldExamples(this, it)
+                        },
                         translationsSummary = translationsSummary(),
                         onTranslations = { page = Page.TRANSLATIONS },
                         myLanguagesSummary = languageNames(myLanguages),
@@ -173,6 +182,7 @@ class PreferenceActivity : AppCompatActivity() {
         /* The user's languages may have been changed in the chooser */
         theme = PrevoSettings.getTheme(this)
         textSize = PrevoSettings.getTextSize(this)
+        unfoldExamples = PrevoSettings.getUnfoldExamples(this)
         myLanguages = MyLanguages.get(this)
         translations = PrevoSettings.getTranslationLanguages(this, translationLanguages)
     }
@@ -275,6 +285,28 @@ private fun SettingRow(title: String, value: String?, onClick: () -> Unit) {
     }
 }
 
+/** A setting that is on or off, changed by tapping anywhere on its row. */
+@Composable
+private fun SwitchRow(title: String, summary: String, checked: Boolean, onCheckedChange: (Boolean) -> Unit) {
+    Row(
+        Modifier
+            .fillMaxWidth()
+            .toggleable(value = checked, role = Role.Switch, onValueChange = onCheckedChange)
+            .padding(horizontal = 16.dp, vertical = 12.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Column(Modifier.weight(1f).padding(end = 16.dp)) {
+            Text(title, style = MaterialTheme.typography.bodyLarge)
+            Text(
+                summary,
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        }
+        Switch(checked = checked, onCheckedChange = null)
+    }
+}
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun MainSettings(
@@ -282,6 +314,8 @@ private fun MainSettings(
     onThemeChange: (Theme) -> Unit,
     textSize: Int,
     onTextSizeChange: (Int) -> Unit,
+    unfoldExamples: Boolean,
+    onUnfoldExamplesChange: (Boolean) -> Unit,
     translationsSummary: String,
     onTranslations: () -> Unit,
     myLanguagesSummary: String?,
@@ -306,6 +340,14 @@ private fun MainSettings(
         bigTitle(R.string.appearance, first = true)
         item { SettingRow(stringResource(R.string.theme), themeNames[theme]) { showTheme = true } }
         item { SettingRow(stringResource(R.string.text_size), textSizeValue) { showTextSize = true } }
+        item {
+            SwitchRow(
+                stringResource(R.string.unfold_examples),
+                stringResource(R.string.unfold_examples_summary),
+                unfoldExamples,
+                onUnfoldExamplesChange,
+            )
+        }
 
         bigTitle(R.string.languages)
         item {

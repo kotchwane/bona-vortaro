@@ -95,6 +95,7 @@ class ArticleActivity : AppCompatActivity() {
     private var articleNumber = -1
     private var article by mutableStateOf<Article?>(null)
     private var textSize by mutableIntStateOf(PrevoSettings.DEFAULT_TEXT_SIZE)
+    private var unfoldExamples by mutableStateOf(false)
 
     /* The user's languages, whose translations are shown first */
     private var preferredLanguages by mutableStateOf(emptyList<String>())
@@ -128,6 +129,7 @@ class ArticleActivity : AppCompatActivity() {
                 ArticleScreen(
                     article = article,
                     textSize = textSize,
+                    unfoldExamples = unfoldExamples,
                     preferredLanguages = preferredLanguages,
                     initialSection = if (savedInstanceState == null) mark else -1,
                     sectionRequests = sectionRequests,
@@ -161,6 +163,7 @@ class ArticleActivity : AppCompatActivity() {
 
         /* The settings may have changed while another screen was shown */
         textSize = PrevoSettings.getTextSize(this)
+        unfoldExamples = PrevoSettings.getUnfoldExamples(this)
         preferredLanguages = PrevoSettings.getTranslationOrder(this)
 
         val translations = currentTranslations()
@@ -261,6 +264,7 @@ private const val QUOTE_COLOR = 0xFF9E9E9E.toInt()
 private fun ArticleScreen(
     article: Article?,
     textSize: Int,
+    unfoldExamples: Boolean,
     preferredLanguages: List<String>,
     initialSection: Int,
     sectionRequests: MutableSharedFlow<Int>,
@@ -376,7 +380,7 @@ private fun ArticleScreen(
             verticalArrangement = Arrangement.spacedBy(10.dp),
         ) {
             items(layout?.words ?: emptyList(), key = { it.section }) { word ->
-                WordCard(word, textSize, onLongPress = { actionsFor = word.source })
+                WordCard(word, textSize, unfoldExamples, onLongPress = { actionsFor = word.source })
             }
             /* Translations that couldn't be given to a word, if any */
             items(layout?.otherTranslations ?: emptyList()) { section ->

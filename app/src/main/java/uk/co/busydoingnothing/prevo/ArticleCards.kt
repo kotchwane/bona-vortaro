@@ -83,7 +83,13 @@ private const val SHOWN_EXAMPLES_LENGTH = 120
 /** A derived word of the article: its header with its officiality, its
  * content (text and remarks) and its translations. */
 @Composable
-fun WordCard(entry: WordEntry, textSize: Int, onLongPress: () -> Unit, modifier: Modifier = Modifier) {
+fun WordCard(
+    entry: WordEntry,
+    textSize: Int,
+    unfoldExamples: Boolean,
+    onLongPress: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
     val scale = PrevoSettings.textScale(textSize)
     val primary = MaterialTheme.colorScheme.primary
 
@@ -132,7 +138,7 @@ fun WordCard(entry: WordEntry, textSize: Int, onLongPress: () -> Unit, modifier:
                         is ContentBlock.Note -> NoteBox(block.text, scale, onLongPress)
                     }
                     is BlockGroup.Examples ->
-                        FoldedExamples(group.examples, scale, onLongPress, key = "${entry.section}-$index")
+                        FoldedExamples(group.examples, scale, onLongPress, key = "${entry.section}-$index", unfolded = unfoldExamples)
                     is BlockGroup.ShortExamples ->
                         for (example in group.examples)
                             ExampleLine(example.text, scale, onLongPress)
@@ -225,8 +231,10 @@ private fun FoldedExamples(
     scale: Float,
     onLongPress: () -> Unit,
     key: String,
+    unfolded: Boolean,
 ) {
-    var expanded by rememberSaveable(key) { mutableStateOf(false) }
+    /* Unfolded at first if the user chose it, and can still be folded */
+    var expanded by rememberSaveable(key, unfolded) { mutableStateOf(unfolded) }
 
     TextButton(
         onClick = { expanded = !expanded },

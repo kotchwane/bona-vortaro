@@ -29,6 +29,7 @@ enum class Theme { SYSTEM, LIGHT, DARK }
  * original app so that existing settings are kept. */
 object PrevoSettings {
     private const val PREF_THEME = "theme"
+    private const val PREF_UNFOLD_EXAMPLES = "unfoldExamples"
 
     /* The text sizes are numbered as in the original zoom of the articles,
      * from 0 to 9, each one 1.2 times bigger than the previous one, the
@@ -71,6 +72,14 @@ object PrevoSettings {
         prefs(context).edit()
             .putInt(MenuHelper.PREF_FONT_SIZE, size.coerceIn(MIN_TEXT_SIZE, MAX_TEXT_SIZE))
             .apply()
+    }
+
+    /** Whether the examples of the articles are shown unfolded. */
+    fun getUnfoldExamples(context: Context): Boolean =
+        prefs(context).getBoolean(PREF_UNFOLD_EXAMPLES, false)
+
+    fun setUnfoldExamples(context: Context, unfold: Boolean) {
+        prefs(context).edit().putBoolean(PREF_UNFOLD_EXAMPLES, unfold).apply()
     }
 
     /** How much to scale the text of the articles for the given size. */
