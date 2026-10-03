@@ -69,7 +69,8 @@ import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.roundToInt
 
-/** How many languages of translations a card shows before "+ n lingvoj". */
+/** How many languages of translations a card shows before "+ n lingvoj",
+ * when it shows all of the languages. */
 private const val SHOWN_TRANSLATIONS = 4
 
 /** A single example up to this length (in characters) is put at the end
@@ -87,6 +88,7 @@ fun WordCard(
     entry: WordEntry,
     textSize: Int,
     unfoldExamples: Boolean,
+    foldTranslations: Boolean,
     onLongPress: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -146,7 +148,7 @@ fun WordCard(
             }
 
             if (entry.translations.isNotEmpty())
-                TranslationsBox(entry.translations, scale)
+                TranslationsBox(entry.translations, scale, foldTranslations)
         }
     }
 }
@@ -445,9 +447,10 @@ private fun NoteBox(text: CharSequence, scale: Float, onLongPress: () -> Unit) {
 /** The translations of the word, the user's languages first. After a few
  * languages, the others are shown on demand. */
 @Composable
-private fun TranslationsBox(translations: List<Translation>, scale: Float) {
+private fun TranslationsBox(translations: List<Translation>, scale: Float, foldable: Boolean) {
     var expanded by rememberSaveable { mutableStateOf(false) }
-    val shown = if (expanded) translations else translations.take(SHOWN_TRANSLATIONS)
+    val folded = foldable && !expanded
+    val shown = if (folded) translations.take(SHOWN_TRANSLATIONS) else translations
     val body = MaterialTheme.typography.bodyMedium.scaled(scale)
 
     /* Outlined, to be told apart from the filled box of the remarks */
@@ -486,7 +489,7 @@ private fun TranslationsBox(translations: List<Translation>, scale: Float) {
                     )
                 }
             }
-            if (translations.size > SHOWN_TRANSLATIONS) {
+            if (foldable && translations.size > SHOWN_TRANSLATIONS) {
                 TextButton(onClick = { expanded = !expanded }) {
                     Text(
                         if (expanded) stringResource(R.string.fewer_languages)

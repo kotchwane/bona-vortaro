@@ -96,6 +96,7 @@ class ArticleActivity : AppCompatActivity() {
     private var article by mutableStateOf<Article?>(null)
     private var textSize by mutableIntStateOf(PrevoSettings.DEFAULT_TEXT_SIZE)
     private var unfoldExamples by mutableStateOf(false)
+    private var foldTranslations by mutableStateOf(true)
 
     /* The user's languages, whose translations are shown first */
     private var preferredLanguages by mutableStateOf(emptyList<String>())
@@ -130,6 +131,7 @@ class ArticleActivity : AppCompatActivity() {
                     article = article,
                     textSize = textSize,
                     unfoldExamples = unfoldExamples,
+                    foldTranslations = foldTranslations,
                     preferredLanguages = preferredLanguages,
                     initialSection = if (savedInstanceState == null) mark else -1,
                     sectionRequests = sectionRequests,
@@ -167,6 +169,9 @@ class ArticleActivity : AppCompatActivity() {
         preferredLanguages = PrevoSettings.getTranslationOrder(this)
 
         val translations = currentTranslations()
+        /* The translations are folded only when all of the languages
+         * are shown: the ones the user chose are all shown */
+        foldTranslations = translations.size == LanguageList.getDefault(this).allLanguages.size
         if (article == null || translations != loadedTranslations) {
             loadArticle()
             loadedTranslations = translations
@@ -265,6 +270,7 @@ private fun ArticleScreen(
     article: Article?,
     textSize: Int,
     unfoldExamples: Boolean,
+    foldTranslations: Boolean,
     preferredLanguages: List<String>,
     initialSection: Int,
     sectionRequests: MutableSharedFlow<Int>,
@@ -380,7 +386,7 @@ private fun ArticleScreen(
             verticalArrangement = Arrangement.spacedBy(10.dp),
         ) {
             items(layout?.words ?: emptyList(), key = { it.section }) { word ->
-                WordCard(word, textSize, unfoldExamples, onLongPress = { actionsFor = word.source })
+                WordCard(word, textSize, unfoldExamples, foldTranslations, onLongPress = { actionsFor = word.source })
             }
             /* Translations that couldn't be given to a word, if any */
             items(layout?.otherTranslations ?: emptyList()) { section ->
