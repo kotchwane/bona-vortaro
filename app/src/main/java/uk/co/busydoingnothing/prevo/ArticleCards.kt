@@ -30,6 +30,10 @@ import android.widget.TextView
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Info
+import androidx.compose.foundation.layout.size
+import androidx.compose.material3.Icon
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
@@ -396,27 +400,42 @@ class LinkTypeLabelSpan(
     }
 }
 
-/** "Fundamento" for "*", "n-a Oficiala Aldono" for a number. */
+/** "Fundamento" for "*", "n-a Oficiala Aldono" for a number. A tap
+ * explains what it means, with a small ⓘ to show that it can be tapped. */
 @Composable
-private fun OfficialBadge(official: String, modifier: Modifier = Modifier) {
-    val label = when {
-        official == "*" -> stringResource(R.string.official_fundamento)
-        official.toIntOrNull() != null -> stringResource(R.string.official_addition, official.toInt())
-        else -> official
+fun OfficialBadge(official: String, modifier: Modifier = Modifier) {
+    val level = officialLevel(official)
+    val label = when (level) {
+        null -> official
+        0 -> stringResource(R.string.official_fundamento)
+        else -> stringResource(R.string.official_addition, level)
     }
+    var explain by rememberSaveable { mutableStateOf(false) }
 
     Surface(
+        onClick = { explain = true },
+        enabled = level != null,
         modifier = modifier,
         shape = RoundedCornerShape(8.dp),
         color = MaterialTheme.colorScheme.primary,
         contentColor = MaterialTheme.colorScheme.onPrimary,
     ) {
-        Text(
-            label,
-            style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold),
-            modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp),
-        )
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.padding(start = 8.dp, end = if (level != null) 5.dp else 8.dp, top = 2.dp, bottom = 2.dp),
+        ) {
+            Text(label, style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold))
+            if (level != null)
+                Icon(
+                    Icons.Outlined.Info,
+                    contentDescription = stringResource(R.string.official_explain),
+                    modifier = Modifier.padding(start = 3.dp).size(13.dp),
+                )
+        }
     }
+
+    if (explain && level != null)
+        OfficialSheet(level, onDismiss = { explain = false })
 }
 
 /** A remark, in a tinted box with its title. */

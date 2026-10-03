@@ -74,6 +74,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -318,6 +319,7 @@ private fun MainSettings(
     var showTheme by remember { mutableStateOf(false) }
     var showTextSize by remember { mutableStateOf(false) }
     var showAbout by remember { mutableStateOf(false) }
+    val context = LocalContext.current
     val themeNames = mapOf(
         Theme.SYSTEM to stringResource(R.string.theme_system),
         Theme.LIGHT to stringResource(R.string.theme_light),
@@ -354,6 +356,12 @@ private fun MainSettings(
         }
 
         bigTitle(R.string.about_section)
+        item {
+            SettingRow(
+                stringResource(R.string.officiality_title),
+                stringResource(R.string.officiality_summary),
+            ) { OfficialityActivity.open(context) }
+        }
         item {
             SettingRow(
                 stringResource(R.string.about_prevo),
