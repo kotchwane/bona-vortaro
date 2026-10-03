@@ -245,6 +245,10 @@ private fun splitBlocks(content: Spanned): List<ContentBlock> {
         if (note.isNotBlank())
             blocks.add(ContentBlock.Note(note))
         position = end
+        /* The punctuation after a remark is only its end, eg. in
+         * "komputilo", where it was left alone on a line */
+        while (position < content.length && (content[position] in ";,." || content[position].isWhitespace()))
+            position++
     }
     addText(content.length)
 
