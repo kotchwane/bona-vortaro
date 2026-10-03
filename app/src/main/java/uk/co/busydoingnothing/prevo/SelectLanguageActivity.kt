@@ -19,12 +19,9 @@
 package uk.co.busydoingnothing.prevo
 
 import android.content.Intent
-import android.content.res.Configuration
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
-import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.imePadding
@@ -32,24 +29,17 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 
@@ -58,7 +48,7 @@ import androidx.compose.ui.unit.dp
  * tabs of the search. On the first start, it is the first screen, with a
  * button to go on to the search; afterwards it is opened from the
  * settings and from the "+" of the search. */
-class SelectLanguageActivity : AppCompatActivity() {
+class SelectLanguageActivity : PrevoActivity() {
 
     companion object {
         /** The first start: nothing is saved until "Daŭrigi" */
@@ -72,16 +62,7 @@ class SelectLanguageActivity : AppCompatActivity() {
     private var chosen by mutableStateOf(emptyList<String>())
     private var firstStart = false
 
-    override fun onConfigurationChanged(newConfig: Configuration) {
-        super.onConfigurationChanged(newConfig)
-        /* The colours of the icons of the system bars follow the theme only
-         * when they are set, and the screen isn't recreated any more when
-         * the theme changes */
-        enableEdgeToEdge()
-    }
-
     override fun onCreate(savedInstanceState: Bundle?) {
-        enableEdgeToEdge()
         super.onCreate(savedInstanceState)
 
         firstStart = intent.getBooleanExtra(EXTRA_FIRST_START, false)
@@ -146,22 +127,12 @@ class SelectLanguageActivity : AppCompatActivity() {
         val listState = rememberLazyListState()
         val reorder = rememberListReorder(listState)
 
-        Scaffold(
-            modifier = Modifier.prevoBackground(),
-            containerColor = Color.Transparent,
-            /* The colour of the text, which a transparent container doesn't give */
-            contentColor = MaterialTheme.colorScheme.onBackground,
+        PrevoScaffold(
             topBar = {
-                TopAppBar(
-                    colors = prevoTopBarColors(),
+                PrevoTopBar(
                     title = { Text(stringResource(R.string.my_search_languages)) },
-                    navigationIcon = {
-                        /* Nothing to go back to on the first start */
-                        if (!firstStart)
-                            IconButton(onClick = onBack) {
-                                Icon(Icons.AutoMirrored.Filled.ArrowBack, stringResource(R.string.back))
-                            }
-                    },
+                    /* Nothing to go back to on the first start */
+                    onBack = if (firstStart) null else onBack,
                 )
             },
             bottomBar = {

@@ -21,7 +21,6 @@ package uk.co.busydoingnothing.prevo
 import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.net.Uri
-import android.content.res.Configuration
 import android.os.Bundle
 import android.text.method.LinkMovementMethod
 import android.util.Log
@@ -29,8 +28,6 @@ import android.util.TypedValue
 import android.view.KeyEvent
 import android.widget.TextView
 import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
-import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -44,7 +41,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -53,10 +49,8 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -68,7 +62,6 @@ import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
@@ -79,7 +72,7 @@ import java.io.IOException
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.launch
 
-class ArticleActivity : AppCompatActivity() {
+class ArticleActivity : PrevoActivity() {
 
     companion object {
         const val EXTRA_ARTICLE_NUMBER = "uk.co.busydoingnothing.prevo.ArticleNumber"
@@ -112,16 +105,7 @@ class ArticleActivity : AppCompatActivity() {
      * links within the article */
     private val sectionRequests = MutableSharedFlow<Int>(extraBufferCapacity = 1)
 
-    override fun onConfigurationChanged(newConfig: Configuration) {
-        super.onConfigurationChanged(newConfig)
-        /* The colours of the icons of the system bars follow the theme only
-         * when they are set, and the screen isn't recreated any more when
-         * the theme changes */
-        enableEdgeToEdge()
-    }
-
     override fun onCreate(savedInstanceState: Bundle?) {
-        enableEdgeToEdge()
         super.onCreate(savedInstanceState)
 
         articleNumber = intent.getIntExtra(EXTRA_ARTICLE_NUMBER, -1)
@@ -345,14 +329,9 @@ private fun ArticleScreen(
         }
     }
 
-    Scaffold(
-        modifier = Modifier.prevoBackground(),
-        containerColor = Color.Transparent,
-        /* The colour of the text, which a transparent container doesn't give */
-        contentColor = MaterialTheme.colorScheme.onBackground,
+    PrevoScaffold(
         topBar = {
-            TopAppBar(
-                colors = prevoTopBarColors(),
+            PrevoTopBar(
                 title = {
                     val (marks, title) = article?.title?.let { splitOfficial(it) } ?: (emptyList<String>() to "")
 
@@ -369,11 +348,7 @@ private fun ArticleScreen(
                             OfficialBadge(mark, Modifier.padding(start = 8.dp))
                     }
                 },
-                navigationIcon = {
-                    IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, stringResource(R.string.back))
-                    }
-                },
+                onBack = onBack,
                 actions = {
                     IconButton(onClick = onSearch) {
                         Icon(Icons.Default.Search, stringResource(R.string.menu_search))

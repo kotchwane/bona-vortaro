@@ -19,11 +19,8 @@ package uk.co.busydoingnothing.prevo
 
 import android.content.Context
 import android.content.Intent
-import android.content.res.Configuration
 import android.os.Bundle
 import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
-import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -38,22 +35,15 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -75,7 +65,7 @@ fun officialLevel(official: String): Int? = when {
 }
 
 /** A page that explains the Fundamento and the Oficialaj Aldonoj. */
-class OfficialityActivity : AppCompatActivity() {
+class OfficialityActivity : PrevoActivity() {
 
     companion object {
         fun open(context: Context) {
@@ -83,15 +73,7 @@ class OfficialityActivity : AppCompatActivity() {
         }
     }
 
-    override fun onConfigurationChanged(newConfig: Configuration) {
-        super.onConfigurationChanged(newConfig)
-        /* The colours of the icons of the system bars follow the theme only
-         * when they are set */
-        enableEdgeToEdge()
-    }
-
     override fun onCreate(savedInstanceState: Bundle?) {
-        enableEdgeToEdge()
         super.onCreate(savedInstanceState)
 
         setContent {
@@ -103,21 +85,9 @@ class OfficialityActivity : AppCompatActivity() {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun OfficialityPage(onBack: () -> Unit) {
-    Scaffold(
-        modifier = Modifier.prevoBackground(),
-        containerColor = Color.Transparent,
-        /* The colour of the text, which a transparent container doesn't give */
-        contentColor = MaterialTheme.colorScheme.onBackground,
+    PrevoScaffold(
         topBar = {
-            TopAppBar(
-                colors = prevoTopBarColors(),
-                title = { Text(stringResource(R.string.officiality_title)) },
-                navigationIcon = {
-                    IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, stringResource(R.string.back))
-                    }
-                },
-            )
+            PrevoTopBar(title = { Text(stringResource(R.string.officiality_title)) }, onBack = onBack)
         },
     ) { padding ->
         Column(

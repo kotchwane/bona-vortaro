@@ -19,11 +19,8 @@
 package uk.co.busydoingnothing.prevo
 
 import android.content.Intent
-import android.content.res.Configuration
 import android.os.Bundle
 import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
-import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
@@ -33,13 +30,11 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import androidx.compose.foundation.horizontalScroll
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Column
@@ -59,7 +54,6 @@ import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -86,7 +80,7 @@ import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
-class SearchActivity : AppCompatActivity() {
+class SearchActivity : PrevoActivity() {
 
     companion object {
         const val EXTRA_LANGUAGE = "uk.co.busydoingnothing.prevo.Language"
@@ -104,16 +98,7 @@ class SearchActivity : AppCompatActivity() {
     /* Re-read when coming back, in case it was changed in the settings */
     private var textSize by mutableIntStateOf(PrevoSettings.DEFAULT_TEXT_SIZE)
 
-    override fun onConfigurationChanged(newConfig: Configuration) {
-        super.onConfigurationChanged(newConfig)
-        /* The colours of the icons of the system bars follow the theme only
-         * when they are set, and the screen isn't recreated any more when
-         * the theme changes */
-        enableEdgeToEdge()
-    }
-
     override fun onCreate(savedInstanceState: Bundle?) {
-        enableEdgeToEdge()
         super.onCreate(savedInstanceState)
 
         searchLanguages = MyLanguages.searchLanguages(this)
@@ -205,11 +190,7 @@ private fun SearchScreen(
         }
     }
 
-    Scaffold(
-        modifier = Modifier.prevoBackground(),
-        containerColor = Color.Transparent,
-        /* The colour of the text, which a transparent container doesn't give */
-        contentColor = MaterialTheme.colorScheme.onBackground,
+    PrevoScaffold(
         topBar = {
             Column(Modifier.windowInsetsPadding(WindowInsets.statusBars)) {
                 Wordmark()
