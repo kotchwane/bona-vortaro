@@ -63,6 +63,10 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
+import kotlin.math.ceil
+import kotlin.math.floor
+import kotlin.math.max
+import kotlin.math.min
 import kotlin.math.roundToInt
 
 /** How many languages of translations a card shows before "+ n lingvoj". */
@@ -281,8 +285,7 @@ class InlineLabelSpan(
         end: Int,
         fm: Paint.FontMetricsInt?,
     ): Int {
-        /* Keep the height of the line of the surrounding text */
-        fm?.let { paint.getFontMetricsInt(it) }
+        fm?.let { fitPill(it, paint, labelPaint(paint), padding, 0f) }
         return (labelPaint(paint).measureText(text, start, end) + 2 * padding).roundToInt()
     }
 
@@ -307,6 +310,21 @@ class InlineLabelSpan(
     }
 }
 
+/** The height of the line of the surrounding text, made taller if
+ * needed so that a pill drawn around the smaller label text isn't cut
+ * at the top or the bottom of the line. */
+private fun fitPill(fm: Paint.FontMetricsInt, paint: Paint, label: Paint, padding: Float, stroke: Float) {
+    paint.getFontMetricsInt(fm)
+
+    val pillTop = floor(label.ascent() - padding / 2 - stroke).toInt()
+    val pillBottom = ceil(label.descent() + padding / 2 + stroke).toInt()
+
+    fm.ascent = min(fm.ascent, pillTop)
+    fm.top = min(fm.top, pillTop)
+    fm.descent = max(fm.descent, pillBottom)
+    fm.bottom = max(fm.bottom, pillBottom)
+}
+
 /** Draws the symbol of the type of a link as a word in a rounded pill,
  * eg. "subnocioj" instead of "↘", in the colour of its family. */
 class LinkTypeLabelSpan(
@@ -324,7 +342,7 @@ class LinkTypeLabelSpan(
     }
 
     override fun getSize(paint: Paint, text: CharSequence, start: Int, end: Int, fm: Paint.FontMetricsInt?): Int {
-        fm?.let { paint.getFontMetricsInt(it) }
+        fm?.let { fitPill(it, paint, labelPaint(paint), padding, stroke) }
         /* The width of the pill and a space after it */
         return (labelPaint(paint).measureText(label) + 2 * padding + padding).roundToInt()
     }
@@ -342,7 +360,14 @@ class LinkTypeLabelSpan(
     ) {
         val label = labelPaint(paint)
         val width = label.measureText(this.label) + 2 * padding
-        val rect = RectF(x, y + label.ascent() - padding / 2, x + width, y + label.descent() + padding / 2)
+        /* The outline is drawn inside the pill, not across its edges */
+        val inset = stroke / 2
+        val rect = RectF(
+            x + inset,
+            y + label.ascent() - padding / 2 + inset,
+            x + width - inset,
+            y + label.descent() + padding / 2 - inset,
+        )
 
         /* A light tint of the colour, and an outline */
         val fill = Paint(paint).apply {
