@@ -37,7 +37,9 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
+import androidx.compose.ui.Alignment
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -351,12 +353,20 @@ private fun ArticleScreen(
                     containerColor = MaterialTheme.colorScheme.surfaceContainerLow,
                 ),
                 title = {
-                    Text(
-                        /* Without the officiality mark, shown on the card */
-                        article?.title?.let { splitOfficial(it).second.toString() } ?: "",
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                    )
+                    val (marks, title) = article?.title?.let { splitOfficial(it) } ?: (emptyList<String>() to "")
+
+                    /* The officiality of the root of the article, which
+                     * the words of the article share */
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text(
+                            title.toString(),
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                            modifier = Modifier.weight(1f, fill = false),
+                        )
+                        for (mark in marks)
+                            OfficialBadge(mark, Modifier.padding(start = 8.dp))
+                    }
                 },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
