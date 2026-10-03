@@ -17,33 +17,29 @@
 
 package uk.co.busydoingnothing.prevo;
 
-import android.app.Activity;
-import android.content.SharedPreferences;
+import android.content.Intent;
 import android.os.Bundle;
 import androidx.appcompat.app.AppCompatActivity;
 
 /* This activity is just like a landing page to select the right
- * initial activity. If the user has already previously selected a
- * language then we'll default to searching in that language again,
- * otherwise we show the language select page */
+ * initial activity: the search, in the language used last, or the
+ * choice of the search languages if the user hasn't made it yet */
 
 public class StartActivity extends AppCompatActivity
 {
   @Override
   public void onCreate (Bundle savedInstanceState)
   {
-    String lastLanguage;
-
     super.onCreate (savedInstanceState);
 
-    SharedPreferences prefs =
-      getSharedPreferences (MenuHelper.PREVO_PREFERENCES,
-                            Activity.MODE_PRIVATE);
-
-    lastLanguage = prefs.getString (MenuHelper.PREF_LAST_LANGUAGE, null);
-
-    if (lastLanguage == null)
-      MenuHelper.goChooseLanguage (this);
+    /* Until the user has chosen the languages they search in, the first
+     * screen is the choice of these languages */
+    if (MyLanguages.INSTANCE.get (this).isEmpty ())
+      {
+        Intent intent = new Intent (this, SelectLanguageActivity.class);
+        intent.putExtra (SelectLanguageActivity.EXTRA_FIRST_START, true);
+        startActivity (intent);
+      }
     else
       MenuHelper.goSearch (this);
 

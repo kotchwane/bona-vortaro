@@ -2,93 +2,76 @@
 # Generates the launcher icon of the app (see the docstring below).
 #
 # Usage, from the root of the repository:
-#   python3 -m venv /tmp/icon-venv && /tmp/icon-venv/bin/pip install fonttools
-#   curl -LO https://github.com/notofonts/notofonts.github.io/raw/main/fonts/NotoSans/unhinted/ttf/NotoSans-Regular.ttf
-#   /tmp/icon-venv/bin/python scripts/generate-icon.py NotoSans-Regular.ttf app/src/main/res icon.svg
-#   for d in mdpi:48 hdpi:72 xhdpi:96 xxhdpi:144 xxxhdpi:192; do
-#     rsvg-convert -w ${d#*:} -h ${d#*:} icon.svg -o app/src/main/res/mipmap-${d%%:*}/ic_launcher.png
-#   done
-"""Generate PReVo's launcher icon as vectors: an open green book with "ĉ e".
+#   python3 -m venv /tmp/icon-venv && /tmp/icon-venv/bin/pip install pillow
+#   /tmp/icon-venv/bin/python scripts/generate-icon.py app/src/main/res
+"""Generate the launcher icon of La bona vortaro: a magnifying glass with
+the green star of Esperanto in its lens, on cream paper, in the colours of
+the design of the app (see PrevoTheme.kt).
 
 Outputs (into the given res/ directory):
-  drawable/ic_launcher_foreground.xml   adaptive icon foreground (green book, white letters)
-  drawable/ic_launcher_monochrome.xml   themed icon (book with letters cut out)
+  drawable/ic_launcher_foreground.xml   adaptive icon foreground
+  drawable/ic_launcher_monochrome.xml   themed icon (Android 13+)
   mipmap-anydpi-v26/ic_launcher.xml     adaptive icon definition
-  values/ic_launcher_background.xml     background colour (white)
-and an SVG of the legacy icon (book only, transparent) for rendering PNGs.
+  values/ic_launcher_background.xml     background colour (the paper)
+  mipmap-*/ic_launcher.png              legacy icons, before Android 8
 
-Letters: glyph outlines of Noto Sans Bold (SIL Open Font License 1.1).
-The adaptive icon canvas is 108x108; the safe zone is the centred 66 circle.
+The adaptive icon canvas is 108x108; launchers show about its centred 72,
+and the safe zone is the centred 66 circle. Only shapes, no font.
 """
+import math
 import os
 import sys
 
-from fontTools.pens.svgPathPen import SVGPathPen
-from fontTools.pens.transformPen import TransformPen
-from fontTools.ttLib import TTFont
+from PIL import Image, ImageDraw
 
-FONT, RES, SVG_OUT = sys.argv[1], sys.argv[2], sys.argv[3]
-GREEN = "#00660B"
+RES = sys.argv[1]
 
-# --- The book, in 108x108 coordinates (y down) -------------------------------
-# Two pages meeting at the spine, rising to the right like the original icon.
-LEFT_PAGE = "M23,49 Q38,44 53,53 L53,80 Q38,72 25,76 Z"
-RIGHT_PAGE = "M55,53 Q70,44 85,49 L83,76 Q70,72 55,80 Z"
-# Edges of the pages under the covers, drawn as thin white strokes
-PAGE_LINES = [
-    "M25,79 Q38,75 53,83",
-    "M25,82 Q38,78 53,86",
-    "M55,83 Q70,75 83,79",
-    "M55,86 Q70,78 83,82",
-]
-# Covers under the page edges, so the white lines sit on green
-LEFT_COVER = "M21,49 L23,49 L25,76 Q38,72 53,80 L53,89 Q38,81 23,85 Z"
-RIGHT_COVER = "M55,80 Q70,72 83,76 L85,49 L87,49 L85,85 Q70,81 55,89 Z"
+PAPER = "#F4EDDD"   # background
+GLASS = "#FFFAEF"   # the lens
+INK = "#1F5132"     # rim and handle
+STAR = "#0F7A35"    # the green of the flag of Esperanto
 
-
-def glyph_path(font, char, x, y, height, skew):
-    """Outline of a glyph, scaled to `height` (cap-ish), its baseline at
-    (x, y), sheared vertically by `skew` (dy per dx) to follow the page."""
-    glyphs = font.getGlyphSet()
-    name = font.getBestCmap()[ord(char)]
-    upm = font["head"].unitsPerEm
-    scale = height / (upm * 0.536)  # 0.536 em ≈ x-height of Noto Sans
-    width = glyphs[name].width * scale
-    pen = SVGPathPen(glyphs)
-    # font units: y up -> icon units: y down; shear y by skew * x
-    tpen = TransformPen(pen, (scale, -skew * scale, 0, -scale, x - width / 2, y))
-    glyphs[name].draw(tpen)
-    return pen.getCommands()
+# --- The shapes, in 108x108 coordinates (y down) -----------------------------
+# The lens, a little up and left so that the handle fits in the safe zone
+LENS_X, LENS_Y = 49.8, 49.8
+LENS_R = 21.1        # outside of the rim
+RIM = 4.8
+# The handle, at 45° down to the right, with round ends
+HANDLE_ANGLE = math.radians(45)
+HANDLE_FROM = LENS_R
+HANDLE_TO = LENS_R + 13.4
+HANDLE_W = 7.9
+# The star in the lens
+STAR_X, STAR_Y = 49.8, 50.6
+STAR_R = 12.9
+STAR_INNER = 0.42
 
 
-font = TTFont(FONT)
-# Letters centred on each page, following the slope of the page
-LETTER_C = glyph_path(font, "ĉ", 38.5, 72, 13, 0)
-LETTER_E = glyph_path(font, "e", 70, 70, 13, 0)
-LETTERS = LETTER_C + " " + LETTER_E
-
-os.makedirs(f"{RES}/drawable", exist_ok=True)
-os.makedirs(f"{RES}/mipmap-anydpi-v26", exist_ok=True)
-os.makedirs(f"{RES}/values", exist_ok=True)
-
-HEADER = """<?xml version="1.0" encoding="utf-8"?>
-<!-- Generated: an open book with "ĉ e". Letters from Noto Sans Bold
-     (SIL Open Font License 1.1). -->
-"""
+def star_points(cx, cy, r, inner=STAR_INNER):
+    points = []
+    for i in range(10):
+        a = -math.pi / 2 + i * math.pi / 5
+        rr = r if i % 2 == 0 else r * inner
+        points.append((cx + rr * math.cos(a), cy + rr * math.sin(a)))
+    return points
 
 
-ROTATION = -14  # degrees, around the centre, like the tilted book of the original
+def handle_ends():
+    c, s = math.cos(HANDLE_ANGLE), math.sin(HANDLE_ANGLE)
+    return ((LENS_X + HANDLE_FROM * c, LENS_Y + HANDLE_FROM * s),
+            (LENS_X + HANDLE_TO * c, LENS_Y + HANDLE_TO * s))
+
+
+def circle_path(cx, cy, r):
+    return (f"M{cx - r:.2f},{cy:.2f} a{r:.2f},{r:.2f} 0 1,0 {2 * r:.2f},0 "
+            f"a{r:.2f},{r:.2f} 0 1,0 {-2 * r:.2f},0 Z")
 
 
 def vector(body):
-    # The book is centred around (54, 66). Launchers only guarantee that
-    # the circle of diameter 66 at the centre is shown, so the book is
-    # scaled down and moved up into it.
-    body = f"""    <group android:rotation="{ROTATION}" android:pivotX="54" android:pivotY="66"
-        android:scaleX="0.78" android:scaleY="0.78" android:translateY="-12">
-{body}    </group>
-"""
-    return HEADER + f"""<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    return f"""<?xml version="1.0" encoding="utf-8"?>
+<!-- Generated by scripts/generate-icon.py: a magnifying glass with the
+     green star of Esperanto in its lens. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
         android:width="108dp"
         android:height="108dp"
         android:viewportWidth="108"
@@ -97,39 +80,45 @@ def vector(body):
 """
 
 
-def fill(d, color, even_odd=False):
-    rule = '\n        android:fillType="evenOdd"' if even_odd else ""
-    return f"""    <path
-        android:fillColor="{color}"{rule}
-        android:pathData="{d}" />
+def fill(d, color):
+    return f"""    <path android:fillColor="{color}"
+          android:pathData="{d}" />
 """
 
 
 def stroke(d, color, width):
-    return f"""    <path
-        android:strokeColor="{color}"
-        android:strokeWidth="{width}"
-        android:strokeLineCap="round"
-        android:pathData="{d}" />
+    return f"""    <path android:strokeColor="{color}"
+          android:strokeWidth="{width:.2f}"
+          android:strokeLineCap="round"
+          android:pathData="{d}" />
 """
 
 
-foreground = "".join([
-    fill(LEFT_COVER, GREEN), fill(RIGHT_COVER, GREEN),
-    fill(LEFT_PAGE, GREEN), fill(RIGHT_PAGE, GREEN),
-    *[stroke(d, "#FFFFFF", 1.1) for d in PAGE_LINES],
-    fill(LETTERS, "#FFFFFF"),
-])
+(hx0, hy0), (hx1, hy1) = handle_ends()
+handle = f"M{hx0:.2f},{hy0:.2f} L{hx1:.2f},{hy1:.2f}"
+star = "M" + " L".join(f"{x:.2f},{y:.2f}" for x, y in star_points(STAR_X, STAR_Y, STAR_R)) + " Z"
+glass = circle_path(LENS_X, LENS_Y, LENS_R - RIM)
+rim = circle_path(LENS_X, LENS_Y, LENS_R - RIM / 2)
+
+
+def shapes(glass_color, rim_color, star_color):
+    body = stroke(handle, rim_color, HANDLE_W)
+    if glass_color:
+        body += fill(glass, glass_color)
+    body += stroke(rim, rim_color, RIM)
+    body += fill(star, star_color)
+    return body
+
+
+os.makedirs(f"{RES}/drawable", exist_ok=True)
 with open(f"{RES}/drawable/ic_launcher_foreground.xml", "w") as f:
-    f.write(vector(foreground))
+    f.write(vector(shapes(GLASS, INK, STAR)))
 
-# Monochrome: one shape, the letters being holes (even-odd)
-book = " ".join([LEFT_COVER, RIGHT_COVER, LEFT_PAGE, RIGHT_PAGE])
-monochrome = fill(LEFT_COVER + " " + RIGHT_COVER, "#FFFFFF") + \
-    fill(LEFT_PAGE + " " + RIGHT_PAGE + " " + LETTERS, "#FFFFFF", even_odd=True)
+# Themed icon: a single colour chosen by the system, the lens left empty
 with open(f"{RES}/drawable/ic_launcher_monochrome.xml", "w") as f:
-    f.write(vector(monochrome))
+    f.write(vector(shapes(None, "#000000", "#000000")))
 
+os.makedirs(f"{RES}/mipmap-anydpi-v26", exist_ok=True)
 with open(f"{RES}/mipmap-anydpi-v26/ic_launcher.xml", "w") as f:
     f.write("""<?xml version="1.0" encoding="utf-8"?>
 <adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">
@@ -140,21 +129,38 @@ with open(f"{RES}/mipmap-anydpi-v26/ic_launcher.xml", "w") as f:
 """)
 
 with open(f"{RES}/values/ic_launcher_background.xml", "w") as f:
-    f.write("""<?xml version="1.0" encoding="utf-8"?>
+    f.write(f"""<?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="ic_launcher_background">#FFFFFF</color>
+    <color name="ic_launcher_background">{PAPER}</color>
 </resources>
 """)
 
-# Legacy icon (Android 6–7): the book alone on a transparent background,
-# like the original, enlarged to fill the square (crop to x 20..88, y 36..94)
-with open(SVG_OUT, "w") as f:
-    f.write(f"""<svg xmlns="http://www.w3.org/2000/svg" viewBox="17 25 74 74">
-  <g transform="rotate({ROTATION} 54 54)">
-  <path fill="{GREEN}" d="{LEFT_COVER} {RIGHT_COVER} {LEFT_PAGE} {RIGHT_PAGE}"/>
-  {''.join(f'<path fill="none" stroke="#FFFFFF" stroke-width="1.1" stroke-linecap="round" d="{d}"/>' for d in PAGE_LINES)}
-  <path fill="#FFFFFF" d="{LETTERS}"/>
-  </g>
-</svg>
-""")
-print("ok")
+
+# --- Legacy icons: the same shapes on a round paper background, drawn large
+# and scaled down. They show the centred 72 of the canvas, like launchers.
+def legacy(size):
+    big = 1024
+    k = big / 72.0  # 72 icon units fill the image
+
+    def p(x, y):
+        return ((x - 18) * k, (y - 18) * k)
+
+    im = Image.new("RGBA", (big, big), (0, 0, 0, 0))
+    d = ImageDraw.Draw(im)
+    d.ellipse([0, 0, big - 1, big - 1], fill=PAPER)
+    w = HANDLE_W * k
+    d.line([p(hx0, hy0), p(hx1, hy1)], fill=INK, width=round(w))
+    for x, y in (p(hx0, hy0), p(hx1, hy1)):
+        d.ellipse([x - w / 2, y - w / 2, x + w / 2, y + w / 2], fill=INK)
+    cx, cy = p(LENS_X, LENS_Y)
+    r = LENS_R * k
+    d.ellipse([cx - r, cy - r, cx + r, cy + r], fill=INK)
+    r = (LENS_R - RIM) * k
+    d.ellipse([cx - r, cy - r, cx + r, cy + r], fill=GLASS)
+    d.polygon([p(x, y) for x, y in star_points(STAR_X, STAR_Y, STAR_R)], fill=STAR)
+    return im.resize((size, size), Image.LANCZOS)
+
+
+for density, size in [("mdpi", 48), ("hdpi", 72), ("xhdpi", 96), ("xxhdpi", 144), ("xxxhdpi", 192)]:
+    os.makedirs(f"{RES}/mipmap-{density}", exist_ok=True)
+    legacy(size).save(f"{RES}/mipmap-{density}/ic_launcher.png")

@@ -7,11 +7,17 @@ android {
     compileSdk = 37
 
     defaultConfig {
-        applicationId = "uk.co.busydoingnothing.prevo"
+        /* The ID of this modified version, so that it can be installed
+         * next to the original PReVo of the Play Store. The code keeps
+         * its package (the namespace above). */
+        applicationId = "io.github.kotchwane.labonavortaro"
         minSdk = 23
         targetSdk = 34
-        versionCode = 27
-        versionName = "0.27"
+        /* Bona vortaro starts again from 0.1, like PReVo did in 2012:
+         * it is a new app for Android, with its own ID. The code must go
+         * up with every version given to anyone. */
+        versionCode = 1
+        versionName = "0.1"
     }
 
    signingConfigs {

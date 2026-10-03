@@ -53,6 +53,7 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -103,8 +104,13 @@ class OfficialityActivity : AppCompatActivity() {
 @Composable
 private fun OfficialityPage(onBack: () -> Unit) {
     Scaffold(
+        modifier = Modifier.prevoBackground(),
+        containerColor = Color.Transparent,
+        /* The colour of the text, which a transparent container doesn't give */
+        contentColor = MaterialTheme.colorScheme.onBackground,
         topBar = {
             TopAppBar(
+                colors = prevoTopBarColors(),
                 title = { Text(stringResource(R.string.officiality_title)) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {

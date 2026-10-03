@@ -20,6 +20,11 @@ package uk.co.busydoingnothing.prevo
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
 import androidx.compose.foundation.layout.Column
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.Alignment
+import androidx.compose.material3.Checkbox
+import androidx.compose.foundation.selection.toggleable
+import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.LazyItemScope
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.material.icons.filled.Menu
@@ -52,6 +57,7 @@ import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.res.stringResource
@@ -85,6 +91,8 @@ fun RoundedSearchField(
     keyboardActions: KeyboardActions = KeyboardActions.Default,
     extraButtons: @Composable () -> Unit = {},
 ) {
+    val fieldColor = prevoDesign.field
+
     TextField(
         value = query,
         onValueChange = onQueryChange,
@@ -104,10 +112,10 @@ fun RoundedSearchField(
         singleLine = true,
         shape = RoundedCornerShape(28.dp),
         colors = TextFieldDefaults.colors(
-            focusedIndicatorColor = MaterialTheme.colorScheme.surfaceContainerHigh,
-            unfocusedIndicatorColor = MaterialTheme.colorScheme.surfaceContainerHigh,
-            focusedContainerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
-            unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+            focusedIndicatorColor = Color.Transparent,
+            unfocusedIndicatorColor = Color.Transparent,
+            focusedContainerColor = fieldColor,
+            unfocusedContainerColor = fieldColor,
         ),
         /* No automatic capital or correction: these are dictionary
          * searches, not sentences */
@@ -235,7 +243,9 @@ fun LazyItemScope.ReorderableRow(
 
     Surface(
         shadowElevation = elevation,
-        color = MaterialTheme.colorScheme.surface,
+        /* Transparent on the background of the screen, except while
+         * it is dragged above the others */
+        color = if (isDragged) MaterialTheme.colorScheme.surfaceContainerHigh else Color.Transparent,
         modifier = Modifier
             .zIndex(if (isDragged) 1f else 0f)
             .graphicsLayer { translationY = if (isDragged) reorder.offset else 0f }
@@ -264,4 +274,102 @@ fun DragHandle() {
         tint = MaterialTheme.colorScheme.onSurfaceVariant,
         modifier = Modifier.padding(horizontal = 8.dp),
     )
+}
+
+/** A list of languages to choose from, for the search and the
+ * translations: the chosen ones first, in their order, which can be
+ * changed by dragging them after a long press, then the others. A tap
+ * anywhere on a row ticks or unticks its language. With a filter, every
+ * matching language is listed, ticked or not, in one list.
+ * [canUntick] can refuse to untick a language, eg. the last one. */
+fun LazyListScope.languageChoice(
+    languages: List<Language>,
+    chosen: List<String>,
+    onChange: (List<String>) -> Unit,
+    filter: String,
+    reorder: ListReorder,
+    orderHelp: Int,
+    canUntick: (List<String>) -> Boolean = { true },
+) {
+    val byCode = languages.associateBy { it.code }
+    val selected = chosen.mapNotNull { byCode[it] }
+    val others = languages.filter { it.code !in chosen }
+    val toggle = { language: Language ->
+        if (language.code in chosen) {
+            val remaining = chosen - language.code
+            if (canUntick(remaining))
+                onChange(remaining)
+        } else {
+            onChange(chosen + language.code)
+        }
+    }
+
+    if (filter.isNotEmpty()) {
+        val matching = languages.filter { it.matches(filter) }
+
+        if (matching.isEmpty())
+            item(key = "none") {
+                Text(
+                    stringResource(R.string.no_language_found),
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.fillMaxWidth().padding(32.dp),
+                )
+            }
+        for (language in matching)
+            item(key = language.code) { LanguageCheckRow(language, language.code in chosen, toggle) }
+        return
+    }
+
+    if (selected.isNotEmpty()) {
+        item(key = "selected") {
+            SectionTitle(stringResource(R.string.selected_languages, selected.size))
+        }
+        item(key = "order-help") {
+            Text(
+                stringResource(orderHelp),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(start = 16.dp, end = 16.dp, bottom = 4.dp),
+            )
+        }
+    }
+
+    for (language in selected)
+        item(key = language.code) {
+            ReorderableRow(reorder, language.code, chosen, onChange) {
+                LanguageCheckRow(language, true, toggle) { DragHandle() }
+            }
+        }
+
+    if (others.isNotEmpty())
+        item(key = "others") { SectionTitle(stringResource(R.string.other_languages)) }
+
+    for (language in others)
+        item(key = language.code) {
+            LanguageCheckRow(language, false, toggle, Modifier.animateItem())
+        }
+}
+
+/** A language with a check box, ticked or unticked by a tap anywhere on
+ * the row. */
+@Composable
+private fun LanguageCheckRow(
+    language: Language,
+    checked: Boolean,
+    onToggle: (Language) -> Unit,
+    modifier: Modifier = Modifier,
+    trailing: @Composable () -> Unit = {},
+) {
+    Row(
+        modifier
+            .fillMaxWidth()
+            .toggleable(value = checked, role = Role.Checkbox) { onToggle(language) }
+            .padding(start = 16.dp, end = 8.dp, top = 2.dp, bottom = 2.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Text(language.name, style = MaterialTheme.typography.bodyLarge, modifier = Modifier.weight(1f))
+        trailing()
+        Checkbox(checked = checked, onCheckedChange = null, modifier = Modifier.padding(12.dp))
+    }
 }

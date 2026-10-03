@@ -411,11 +411,25 @@ fun previewOf(article: Article, mark: Int): WordPreview? {
     val (_, title) = splitOfficial(section.header)
     val (_, content) = splitLabels(section.content)
 
-    /* The labels left within the text, eg. "muziko" at the start of a
-     * sense, are left out of the preview, so that it starts with the
-     * definition itself */
+    /* Left out of the preview: the labels within the text, eg. "muziko"
+     * at the start of a sense, so that it starts with the definition
+     * itself, and the superscripts, eg. the sense number of "trovi¹",
+     * which would read as "trovi1" in plain text */
+    val superscripts = content.getSpans(0, content.length, SuperscriptSpan::class.java)
+        .map { content.getSpanStart(it) to content.getSpanEnd(it) }
+    val removed = (labelSpans(content, 0, content.length).map { (_, start, end) -> start to end } + superscripts)
+        .sortedBy { it.first }
+        /* Merged where they overlap, so that nothing is deleted twice */
+        .fold(mutableListOf<Pair<Int, Int>>()) { ranges, range ->
+            val last = ranges.lastOrNull()
+            if (last != null && range.first <= last.second)
+                ranges[ranges.lastIndex] = last.first to maxOf(last.second, range.second)
+            else
+                ranges.add(range)
+            ranges
+        }
     val withoutLabels = SpannableStringBuilder(content)
-    for ((_, start, end) in labelSpans(content, 0, content.length).sortedByDescending { it.second })
+    for ((start, end) in removed.asReversed())
         withoutLabels.delete(start, end)
 
     /* The first paragraph that says something: not a lone sense number,

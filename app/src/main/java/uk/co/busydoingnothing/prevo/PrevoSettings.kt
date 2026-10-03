@@ -20,6 +20,7 @@ package uk.co.busydoingnothing.prevo
 
 import android.app.Application
 import android.content.Context
+import androidx.core.os.ConfigurationCompat
 import androidx.appcompat.app.AppCompatDelegate
 import kotlin.math.pow
 
@@ -110,15 +111,25 @@ object PrevoSettings {
     }
 
     /** The order of the translations in the articles: the one chosen by
-     * the user, or else their search languages first. */
+     * the user, or else the languages they likely read first. */
     fun getTranslationOrder(context: Context): List<String> =
         prefs(context).getString(SelectedLanguages.PREF, null)?.split(',')
-            ?: MyLanguages.get(context)
+            ?: likelyLanguages(context)
 
-    /* All of the languages, the user's search languages first */
+    /* The languages the user likely reads: their search languages, even
+     * the automatic ones, so that the language chosen on the first screen
+     * comes first, then the languages of the phone */
+    private fun likelyLanguages(context: Context): List<String> {
+        val locales = ConfigurationCompat.getLocales(context.resources.configuration)
+        val phone = (0 until locales.size()).mapNotNull { locales[it]?.language }
+
+        return (MyLanguages.searchLanguages(context) + phone).distinct()
+    }
+
+    /* All of the languages, the ones the user likely reads first */
     private fun defaultTranslationOrder(context: Context, all: List<Language>): List<String> {
         val codes = all.map { it.code }
-        val mine = MyLanguages.get(context).filter { it in codes }
+        val mine = likelyLanguages(context).filter { it in codes }
 
         return mine + (codes - mine.toSet())
     }
@@ -131,5 +142,8 @@ class PrevoApplication : Application() {
     override fun onCreate() {
         super.onCreate()
         PrevoSettings.applyTheme(PrevoSettings.getTheme(this))
+        /* The usage counts of the languages, which the original app kept
+         * to guess the main languages, aren't used any more */
+        deleteDatabase("language")
     }
 }

@@ -36,7 +36,6 @@ public class MenuHelper
     Intent intent = new Intent (context, SearchActivity.class);
 
     intent.putExtra (SearchActivity.EXTRA_LANGUAGE, language);
-    intent.putExtra (SearchActivity.EXTRA_USE_LANGUAGE, true);
 
     return intent;
   }
@@ -56,12 +55,6 @@ public class MenuHelper
     Intent intent = new Intent (context, SearchActivity.class);
     intent.putExtra (SearchActivity.EXTRA_LANGUAGE, defaultLanguage);
 
-    context.startActivity (intent);
-  }
-
-  public static void goChooseLanguage (Context context)
-  {
-    Intent intent = new Intent (context, SelectLanguageActivity.class);
     context.startActivity (intent);
   }
 

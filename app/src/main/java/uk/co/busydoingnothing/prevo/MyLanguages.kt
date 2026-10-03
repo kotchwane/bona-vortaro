@@ -38,20 +38,10 @@ object MyLanguages {
         prefs(context).edit().putString(PREF, languages.joinToString(",")).apply()
     }
 
-    /** Adds the language at the end of the list, or removes it. The first
-     * time a language is added, Esperanto is added before it, so that it
-     * doesn't silently disappear from the search languages. */
-    fun toggle(context: Context, language: String): List<String> {
-        val current = get(context)
-        val updated = when {
-            language in current -> current - language
-            current.isEmpty() && language != "eo" -> listOf("eo", language)
-            else -> current + language
-        }
-
-        set(context, updated)
-        return updated
-    }
+    /** The search languages: the user's own, and only those. Esperanto
+     * if there are none yet, which only happens before the first screen
+     * has been gone through. */
+    fun searchLanguages(context: Context): List<String> = get(context).ifEmpty { listOf("eo") }
 
     private fun prefs(context: Context) =
         context.getSharedPreferences(MenuHelper.PREVO_PREFERENCES, Context.MODE_PRIVATE)
