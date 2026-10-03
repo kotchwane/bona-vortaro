@@ -20,6 +20,10 @@ package uk.co.busydoingnothing.prevo;
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.io.IOException;
+import java.text.Normalizer;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
 
 class TrieStack
 {
@@ -247,6 +251,18 @@ public class Trie
 
     StringBuilder stringBuf = new StringBuilder (prefix);
 
+    return collect (trieStart, stringBuf, results, 0);
+  }
+
+  /* Adds to the results the words of the node at trieStart and of its
+   * children, in sorted order, after the results already found. The
+   * node is the last one of the string in stringBuf. Returns the new
+   * number of results. */
+  private int collect (int trieStart,
+                       StringBuilder stringBuf,
+                       SearchResult[] results,
+                       int numResults)
+  {
     /* trieStart is now pointing at the last node with this string.
      * Any children of that node are therefore extensions of the
      * prefix. We can now depth-first search the tree to get them all
@@ -258,7 +274,6 @@ public class Trie
                 trieStart + extractInt (data, trieStart) & 0x7fffffff,
                 stringBuf.length ());
 
-    int numResults = 0;
     boolean firstChar = true;
 
     while (numResults < results.length &&
@@ -331,6 +346,124 @@ public class Trie
                         searchStart + offset,
                         stringBuf.length ());
       }
+
+    return numResults;
+  }
+
+  /* The letter without its accents and in lower case, eg. "e" for "É" and
+   * "c" for "ĉ", to compare letters ignoring their accents */
+  private static String foldLetter (String letter)
+  {
+    String decomposed = Normalizer.normalize (letter, Normalizer.Form.NFD);
+    StringBuilder buf = new StringBuilder ();
+
+    for (int i = 0; i < decomposed.length (); i++)
+      {
+        char ch = decomposed.charAt (i);
+
+        if (Character.getType (ch) != Character.NON_SPACING_MARK)
+          buf.append (ch);
+      }
+
+    return buf.toString ().toLowerCase (Locale.ROOT);
+  }
+
+  /* Finds the nodes whose path from the root matches the rest of the
+   * prefix, from prefixOffset, ignoring the accents. Only the letters
+   * typed without an accent match the accented ones: "e" matches "é",
+   * but "é" only matches "é", and "ĉ" (or "cx") doesn't match "c". Each
+   * node is added
+   * to the nodes with its path, the string with the accents of the
+   * index. */
+  private void findIgnoringAccents (int trieStart,
+                                    String prefix,
+                                    int prefixOffset,
+                                    StringBuilder path,
+                                    List<Integer> nodes,
+                                    List<String> paths)
+  {
+    if (prefixOffset >= prefix.length ())
+      {
+        nodes.add (trieStart);
+        paths.add (path.toString ());
+        return;
+      }
+
+    int letterEnd = prefix.offsetByCodePoints (prefixOffset, 1);
+    String typed =
+      prefix.substring (prefixOffset, letterEnd).toLowerCase (Locale.ROOT);
+    String letter = foldLetter (typed);
+    boolean plain = letter.equals (typed);
+
+    int offset = extractInt (data, trieStart);
+    int childStart = trieStart + 4;
+    childStart += getUtf8Length (data[childStart]);
+
+    /* Skip the words of the node, if it is the end of some */
+    if (offset < 0)
+      {
+        offset &= 0x7fffffff;
+
+        boolean hasNext;
+
+        do
+          {
+            hasNext = (data[childStart + 1] & 0x80) != 0;
+            boolean hasDisplayName = (data[childStart + 1] & 0x40) != 0;
+
+            childStart += 3;
+
+            if (hasDisplayName)
+              childStart += (data[childStart] & 0xff) + 1;
+          } while (hasNext);
+      }
+
+    int trieEnd = trieStart + offset;
+
+    for (int child = childStart;
+         child < trieEnd;
+         child += extractInt (data, child) & 0x7fffffff)
+      {
+        String childLetter = getCharacter (child + 4);
+
+        if (plain ?
+            foldLetter (childLetter).equals (letter) :
+            childLetter.toLowerCase (Locale.ROOT).equals (typed))
+          {
+            int oldLength = path.length ();
+            path.append (childLetter);
+            findIgnoringAccents (child, prefix, letterEnd, path, nodes, paths);
+            path.setLength (oldLength);
+          }
+      }
+  }
+
+  /* Like search, but ignoring the accents left out: "eleve" also finds
+   * "élève", and "cevalo" "ĉevalo", but "ĉevalo" doesn't find "cevalo".
+   * The words that match the prefix exactly come first. */
+  public int searchIgnoringAccents (String prefix,
+                                    SearchResult[] results)
+  {
+    List<Integer> nodes = new ArrayList<Integer> ();
+    List<String> paths = new ArrayList<String> ();
+
+    findIgnoringAccents (0, prefix, 0, new StringBuilder (), nodes, paths);
+
+    /* Put the exact match first */
+    int exact = paths.indexOf (prefix);
+    if (exact > 0)
+      {
+        nodes.add (0, nodes.remove (exact));
+        paths.add (0, paths.remove (exact));
+      }
+
+    int numResults = 0;
+
+    for (int i = 0; i < nodes.size () && numResults < results.length; i++)
+      numResults = collect (nodes.get (i),
+                            new StringBuilder (paths.get (i)),
+                            results,
+                            numResults);
 
     return numResults;
   }
