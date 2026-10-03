@@ -31,7 +31,7 @@ object Screens {
 
     /** The search, in the language used last. */
     fun goSearch(context: Context) {
-        val language = PrevoSettings.getLastLanguage(context)
+        val language = BonaSettings.getLastLanguage(context)
             /* The language may have disappeared in an update of the
              * dictionary data */
             ?.takeIf { LanguageList.getDefault(context).hasLanguage(it) }

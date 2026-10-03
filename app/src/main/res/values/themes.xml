@@ -2,7 +2,7 @@
 <resources>
   <!-- The colour of the window while a screen opens, so that it doesn't
        flash white before the paper or the night sky are drawn -->
-  <style name="Theme.Prevo" parent="Theme.AppCompat.DayNight.NoActionBar">
-    <item name="android:windowBackground">@color/prevo_window</item>
+  <style name="Theme.Bona" parent="Theme.AppCompat.DayNight.NoActionBar">
+    <item name="android:windowBackground">@color/bona_window</item>
   </style>
 </resources>

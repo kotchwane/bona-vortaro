@@ -1,5 +1,5 @@
 /*
- * PReVo - A portable version of ReVo for Android
+ * Bona vortaro - an Esperanto dictionary for Android, based on PReVo
  * Copyright (C) 2013, 2016  Neil Roberts
  * Copyright (C) 2026  kotchwane
  *
@@ -78,10 +78,10 @@ import kotlinx.coroutines.launch
  * is a long list. Everything that used to be in the menus of the other
  * screens (the text size, the about dialog…) is here.
  */
-class PreferenceActivity : PrevoActivity() {
+class PreferenceActivity : BonaActivity() {
 
     private var theme by mutableStateOf(Theme.SYSTEM)
-    private var textSize by mutableIntStateOf(PrevoSettings.DEFAULT_TEXT_SIZE)
+    private var textSize by mutableIntStateOf(BonaSettings.DEFAULT_TEXT_SIZE)
     private var myLanguages by mutableStateOf(emptyList<String>())
     private var translations by mutableStateOf(emptyList<String>())
     private var unfoldExamples by mutableStateOf(false)
@@ -102,7 +102,7 @@ class PreferenceActivity : PrevoActivity() {
         } ?: "?"
 
         setContent {
-            PrevoTheme {
+            BonaTheme {
                 var page by rememberSaveable { mutableStateOf(Page.MAIN) }
 
                 when (page) {
@@ -110,17 +110,17 @@ class PreferenceActivity : PrevoActivity() {
                         theme = theme,
                         onThemeChange = {
                             theme = it
-                            PrevoSettings.setTheme(this, it)
+                            BonaSettings.setTheme(this, it)
                         },
                         textSize = textSize,
                         onTextSizeChange = {
                             textSize = it
-                            PrevoSettings.setTextSize(this, it)
+                            BonaSettings.setTextSize(this, it)
                         },
                         unfoldExamples = unfoldExamples,
                         onUnfoldExamplesChange = {
                             unfoldExamples = it
-                            PrevoSettings.setUnfoldExamples(this, it)
+                            BonaSettings.setUnfoldExamples(this, it)
                         },
                         translationsSummary = translationsSummary(),
                         onTranslations = { page = Page.TRANSLATIONS },
@@ -138,7 +138,7 @@ class PreferenceActivity : PrevoActivity() {
                             translations = translations,
                             onTranslationsChange = {
                                 translations = it
-                                PrevoSettings.setTranslationLanguages(this, translationLanguages, it)
+                                BonaSettings.setTranslationLanguages(this, translationLanguages, it)
                             },
                             onBack = { page = Page.MAIN },
                         )
@@ -152,11 +152,11 @@ class PreferenceActivity : PrevoActivity() {
         super.onStart()
 
         /* The user's languages may have been changed in the chooser */
-        theme = PrevoSettings.getTheme(this)
-        textSize = PrevoSettings.getTextSize(this)
-        unfoldExamples = PrevoSettings.getUnfoldExamples(this)
-        myLanguages = PrevoSettings.getChosenSearchLanguages(this)
-        translations = PrevoSettings.getTranslationLanguages(this, translationLanguages)
+        theme = BonaSettings.getTheme(this)
+        textSize = BonaSettings.getTextSize(this)
+        unfoldExamples = BonaSettings.getUnfoldExamples(this)
+        myLanguages = BonaSettings.getChosenSearchLanguages(this)
+        translations = BonaSettings.getTranslationLanguages(this, translationLanguages)
     }
 
     private fun languageNames(codes: List<String>): String? {
@@ -187,9 +187,9 @@ private fun SettingsScaffold(
     listState: LazyListState = rememberLazyListState(),
     content: LazyListScope.() -> Unit,
 ) {
-    PrevoScaffold(
+    BonaScaffold(
         topBar = {
-            PrevoTopBar(title = { Text(title) }, onBack = onBack)
+            BonaTopBar(title = { Text(title) }, onBack = onBack)
         },
         bottomBar = bottomBar,
         snackbarHost = { snackbarHost?.let { SnackbarHost(it) } },
@@ -297,9 +297,9 @@ private fun MainSettings(
         Theme.LIGHT to stringResource(R.string.theme_light),
         Theme.DARK to stringResource(R.string.theme_dark),
     )
-    val percent = (PrevoSettings.textScale(textSize) * 100).roundToInt()
+    val percent = (BonaSettings.textScale(textSize) * 100).roundToInt()
     val textSizeValue =
-        if (textSize == PrevoSettings.DEFAULT_TEXT_SIZE) stringResource(R.string.text_size_default_value, percent)
+        if (textSize == BonaSettings.DEFAULT_TEXT_SIZE) stringResource(R.string.text_size_default_value, percent)
         else stringResource(R.string.text_size_value, percent)
 
     SettingsScaffold(stringResource(R.string.preferences), onBack) {
@@ -336,7 +336,7 @@ private fun MainSettings(
         }
         item {
             SettingRow(
-                stringResource(R.string.about_prevo),
+                stringResource(R.string.about_app),
                 stringResource(R.string.version, version),
             ) { showAbout = true }
         }

@@ -10,7 +10,7 @@ android {
         /* The ID of this modified version, so that it can be installed
          * next to the original PReVo of the Play Store. The code keeps
          * its package (the namespace above). */
-        applicationId = "io.github.kotchwane.labonavortaro"
+        applicationId = "io.github.kotchwane.bonavortaro"
         minSdk = 23
         targetSdk = 34
         /* Bona vortaro starts again from 0.1, like PReVo did in 2012:

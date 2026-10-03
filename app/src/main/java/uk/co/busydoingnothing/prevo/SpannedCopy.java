@@ -1,5 +1,5 @@
 /*
- * PReVo - A portable version of ReVo for Android
+ * Bona vortaro - an Esperanto dictionary for Android, based on PReVo
  * Copyright (C) 2012  Neil Roberts
  *
  * This program is free software: you can redistribute it and/or modify
@@ -26,7 +26,7 @@ import android.text.Spanned;
 
 public abstract class SpannedCopy
 {
-  public static final String TAG = "prevoclip";
+  public static final String TAG = "bonaclip";
 
   public static void copyText (Context context,
                                CharSequence label,

@@ -1,5 +1,5 @@
 /*
- * PReVo - A portable version of ReVo for Android
+ * Bona vortaro - an Esperanto dictionary for Android, based on PReVo
  * Copyright (C) 2026  kotchwane
  *
  * This program is free software: you can redistribute it and/or modify
@@ -65,7 +65,7 @@ fun officialLevel(official: String): Int? = when {
 }
 
 /** A page that explains the Fundamento and the Oficialaj Aldonoj. */
-class OfficialityActivity : PrevoActivity() {
+class OfficialityActivity : BonaActivity() {
 
     companion object {
         fun open(context: Context) {
@@ -77,7 +77,7 @@ class OfficialityActivity : PrevoActivity() {
         super.onCreate(savedInstanceState)
 
         setContent {
-            PrevoTheme { OfficialityPage(onBack = ::finish) }
+            BonaTheme { OfficialityPage(onBack = ::finish) }
         }
     }
 }
@@ -85,9 +85,9 @@ class OfficialityActivity : PrevoActivity() {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun OfficialityPage(onBack: () -> Unit) {
-    PrevoScaffold(
+    BonaScaffold(
         topBar = {
-            PrevoTopBar(title = { Text(stringResource(R.string.officiality_title)) }, onBack = onBack)
+            BonaTopBar(title = { Text(stringResource(R.string.officiality_title)) }, onBack = onBack)
         },
     ) { padding ->
         Column(

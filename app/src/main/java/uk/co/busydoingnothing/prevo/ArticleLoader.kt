@@ -1,5 +1,5 @@
 /*
- * PReVo - A portable version of ReVo for Android
+ * Bona vortaro - an Esperanto dictionary for Android, based on PReVo
  * Copyright (C) 2012, 2013, 2016  Neil Roberts
  * Copyright (C) 2026  kotchwane
  *
@@ -62,7 +62,7 @@ class SectionLinkSpan(val section: Int, private val onShowSection: (Int) -> Unit
  * code, a header and a content. Every string is UTF-8 text followed by a
  * list of spans. */
 object ArticleLoader {
-    private const val TAG = "prevoarticle"
+    private const val TAG = "bonaarticle"
 
     /* Types of the spans in the files */
     private const val SPAN_REFERENCE = 0
@@ -102,7 +102,7 @@ object ArticleLoader {
             val articleStart = input.position
             val reader = SpanReader(articleNumber, onShowSection, quoteColor)
             val title = reader.read(input)
-            val showTranslations = PrevoSettings.translationFilter(context)
+            val showTranslations = BonaSettings.translationFilter(context)
             val sections = mutableListOf<ArticleSection>()
 
             while (input.position - articleStart < articleLength) {

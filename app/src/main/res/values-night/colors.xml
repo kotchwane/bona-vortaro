@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-  <!-- The night sky of the dark theme, see PrevoTheme.kt -->
-  <color name="prevo_window">#0A1330</color>
+  <!-- The night sky of the dark theme, see BonaTheme.kt -->
+  <color name="bona_window">#0A1330</color>
 </resources>

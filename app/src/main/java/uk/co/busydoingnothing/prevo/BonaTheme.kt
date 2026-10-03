@@ -1,5 +1,5 @@
 /*
- * PReVo - A portable version of ReVo for Android
+ * Bona vortaro - an Esperanto dictionary for Android, based on PReVo
  * Copyright (C) 2026  kotchwane
  *
  * This program is free software: you can redistribute it and/or modify
@@ -104,7 +104,7 @@ private val NightColors = darkColorScheme(
 
 /** What the design needs beyond the colours of Material 3. */
 @Immutable
-class PrevoDesign(
+class BonaDesign(
     val dark: Boolean,
     /** The words looked up: the search results, the headwords */
     val headword: Color,
@@ -119,7 +119,7 @@ class PrevoDesign(
     val bar: Color,
 )
 
-private val PaperDesign = PrevoDesign(
+private val PaperDesign = BonaDesign(
     dark = false,
     headword = PaperColors.primary,
     star = STAR_GREEN,
@@ -128,7 +128,7 @@ private val PaperDesign = PrevoDesign(
     bar = PaperColors.background,
 )
 
-private val NightDesign = PrevoDesign(
+private val NightDesign = BonaDesign(
     dark = true,
     headword = Color(0xFFF1E8D2),
     star = NIGHT_STAR_GREEN,
@@ -138,11 +138,11 @@ private val NightDesign = PrevoDesign(
     bar = Color(0xFF0A1330),
 )
 
-val LocalPrevoDesign = staticCompositionLocalOf { PaperDesign }
+val LocalBonaDesign = staticCompositionLocalOf { PaperDesign }
 
 /** The design of the current theme. */
-val prevoDesign: PrevoDesign
-    @Composable get() = LocalPrevoDesign.current
+val bonaDesign: BonaDesign
+    @Composable get() = LocalBonaDesign.current
 
 /* Serif type, as in a printed dictionary */
 private val SerifTypography = Typography().let { t ->
@@ -168,10 +168,10 @@ private val SerifTypography = Typography().let { t ->
 
 /** The theme of PReVo, which follows the light/dark setting. */
 @Composable
-fun PrevoTheme(content: @Composable () -> Unit) {
+fun BonaTheme(content: @Composable () -> Unit) {
     val dark = isSystemInDarkTheme()
 
-    CompositionLocalProvider(LocalPrevoDesign provides if (dark) NightDesign else PaperDesign) {
+    CompositionLocalProvider(LocalBonaDesign provides if (dark) NightDesign else PaperDesign) {
         MaterialTheme(
             colorScheme = if (dark) NightColors else PaperColors,
             typography = SerifTypography,
@@ -183,12 +183,12 @@ fun PrevoTheme(content: @Composable () -> Unit) {
 /** The page behind a screen: paper by day, the night sky by night. The
  * screens are transparent above it. */
 @Composable
-fun Modifier.prevoBackground(): Modifier = background(prevoDesign.background)
+fun Modifier.bonaBackground(): Modifier = background(bonaDesign.background)
 
 /** The top bars have the colour of the top of the background. */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun prevoTopBarColors(): TopAppBarColors = TopAppBarDefaults.topAppBarColors(
-    containerColor = prevoDesign.bar,
-    scrolledContainerColor = prevoDesign.bar,
+fun bonaTopBarColors(): TopAppBarColors = TopAppBarDefaults.topAppBarColors(
+    containerColor = bonaDesign.bar,
+    scrolledContainerColor = bonaDesign.bar,
 )

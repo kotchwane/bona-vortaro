@@ -6,7 +6,7 @@
 #   /tmp/icon-venv/bin/python scripts/generate-icon.py app/src/main/res
 """Generate the launcher icon of La bona vortaro: a magnifying glass with
 the green star of Esperanto in its lens, on cream paper, in the colours of
-the design of the app (see PrevoTheme.kt).
+the design of the app (see BonaTheme.kt).
 
 Outputs (into the given res/ directory):
   drawable/ic_launcher_foreground.xml   adaptive icon foreground

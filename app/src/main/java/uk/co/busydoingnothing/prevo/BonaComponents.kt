@@ -1,5 +1,5 @@
 /*
- * PReVo - A portable version of ReVo for Android
+ * Bona vortaro - an Esperanto dictionary for Android, based on PReVo
  * Copyright (C) 2026  kotchwane
  *
  * This program is free software: you can redistribute it and/or modify
@@ -91,7 +91,7 @@ fun RoundedSearchField(
     keyboardActions: KeyboardActions = KeyboardActions.Default,
     extraButtons: @Composable () -> Unit = {},
 ) {
-    val fieldColor = prevoDesign.field
+    val fieldColor = bonaDesign.field
 
     TextField(
         value = query,
@@ -142,7 +142,7 @@ fun SectionTitle(title: String, modifier: Modifier = Modifier) {
 /** The text size of the articles, with a slider and a preview. */
 @Composable
 fun TextSizeSetting(textSize: Int, onTextSizeChange: (Int) -> Unit) {
-    val scale = PrevoSettings.textScale(textSize)
+    val scale = BonaSettings.textScale(textSize)
     val body = MaterialTheme.typography.bodyLarge
 
     Column {
@@ -160,9 +160,9 @@ fun TextSizeSetting(textSize: Int, onTextSizeChange: (Int) -> Unit) {
         Slider(
             value = textSize.toFloat(),
             onValueChange = { onTextSizeChange(it.roundToInt()) },
-            valueRange = PrevoSettings.MIN_TEXT_SIZE.toFloat()..PrevoSettings.MAX_TEXT_SIZE.toFloat(),
+            valueRange = BonaSettings.MIN_TEXT_SIZE.toFloat()..BonaSettings.MAX_TEXT_SIZE.toFloat(),
             /* One step per size, the ends excluded */
-            steps = PrevoSettings.MAX_TEXT_SIZE - PrevoSettings.MIN_TEXT_SIZE - 1,
+            steps = BonaSettings.MAX_TEXT_SIZE - BonaSettings.MIN_TEXT_SIZE - 1,
             modifier = Modifier.padding(horizontal = 16.dp),
         )
         /* A preview at the size the articles will use */
@@ -172,8 +172,8 @@ fun TextSizeSetting(textSize: Int, onTextSizeChange: (Int) -> Unit) {
             modifier = Modifier.padding(horizontal = 16.dp),
         )
         TextButton(
-            onClick = { onTextSizeChange(PrevoSettings.DEFAULT_TEXT_SIZE) },
-            enabled = textSize != PrevoSettings.DEFAULT_TEXT_SIZE,
+            onClick = { onTextSizeChange(BonaSettings.DEFAULT_TEXT_SIZE) },
+            enabled = textSize != BonaSettings.DEFAULT_TEXT_SIZE,
             modifier = Modifier.padding(horizontal = 8.dp),
         ) {
             Text(stringResource(R.string.default_text_size))

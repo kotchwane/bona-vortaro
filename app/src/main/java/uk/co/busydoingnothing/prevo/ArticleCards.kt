@@ -1,5 +1,5 @@
 /*
- * PReVo - A portable version of ReVo for Android
+ * Bona vortaro - an Esperanto dictionary for Android, based on PReVo
  * Copyright (C) 2026  kotchwane
  *
  * This program is free software: you can redistribute it and/or modify
@@ -96,7 +96,7 @@ fun WordCard(
     onLongPress: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val scale = PrevoSettings.textScale(textSize)
+    val scale = BonaSettings.textScale(textSize)
     val primary = MaterialTheme.colorScheme.primary
 
     Card(
@@ -122,7 +122,7 @@ fun WordCard(
                     entry.title,
                     style = MaterialTheme.typography.titleLarge.scaled(scale)
                         .copy(fontWeight = FontWeight.Bold),
-                    color = prevoDesign.headword,
+                    color = bonaDesign.headword,
                     modifier = Modifier.align(Alignment.CenterVertically),
                 )
                 for (official in entry.official)

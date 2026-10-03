@@ -1,5 +1,5 @@
 /*
- * PReVo - A portable version of ReVo for Android
+ * Bona vortaro - an Esperanto dictionary for Android, based on PReVo
  * Copyright (C) 2026  kotchwane
  *
  * This program is free software: you can redistribute it and/or modify
@@ -26,7 +26,7 @@ import java.io.IOException
  * are read from the articles when a result is shown, so this does disk
  * access and shouldn't run on the main thread. */
 object SearchPreviews {
-    private const val TAG = "prevopreview"
+    private const val TAG = "bonapreview"
 
     /* Neighbouring results often come from the same article, and the
      * same results come back while typing */

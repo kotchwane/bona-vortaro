@@ -1,5 +1,5 @@
 /*
- * PReVo - A portable version of ReVo for Android
+ * Bona vortaro - an Esperanto dictionary for Android, based on PReVo
  * Copyright (C) 2012, 2013, 2016  Neil Roberts
  * Copyright (C) 2026  kotchwane
  *
@@ -80,7 +80,7 @@ import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
-class SearchActivity : PrevoActivity() {
+class SearchActivity : BonaActivity() {
 
     companion object {
         const val EXTRA_LANGUAGE = "uk.co.busydoingnothing.prevo.Language"
@@ -96,12 +96,12 @@ class SearchActivity : PrevoActivity() {
     private var searchLanguages by mutableStateOf(listOf("eo"))
 
     /* Re-read when coming back, in case it was changed in the settings */
-    private var textSize by mutableIntStateOf(PrevoSettings.DEFAULT_TEXT_SIZE)
+    private var textSize by mutableIntStateOf(BonaSettings.DEFAULT_TEXT_SIZE)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        searchLanguages = PrevoSettings.getSearchLanguages(this)
+        searchLanguages = BonaSettings.getSearchLanguages(this)
         selected = (savedInstanceState?.getString(STATE_SELECTED)
             ?: intent.getStringExtra(EXTRA_LANGUAGE))
             ?.takeIf { it in searchLanguages }
@@ -110,7 +110,7 @@ class SearchActivity : PrevoActivity() {
         val initialQuery = intent.getStringExtra(EXTRA_SEARCH_TERM) ?: ""
 
         setContent {
-            PrevoTheme {
+            BonaTheme {
                 SearchScreen(
                     languages = searchLanguages,
                     selected = selected,
@@ -127,13 +127,13 @@ class SearchActivity : PrevoActivity() {
 
     override fun onStart() {
         super.onStart()
-        textSize = PrevoSettings.getTextSize(this)
+        textSize = BonaSettings.getTextSize(this)
     }
 
     override fun onRestart() {
         super.onRestart()
         /* The languages may have been changed meanwhile */
-        searchLanguages = PrevoSettings.getSearchLanguages(this)
+        searchLanguages = BonaSettings.getSearchLanguages(this)
         if (selected !in searchLanguages)
             selected = searchLanguages.first()
     }
@@ -149,7 +149,7 @@ class SearchActivity : PrevoActivity() {
             selected = language
 
             /* Reopened at the next start */
-            PrevoSettings.setLastLanguage(this, language)
+            BonaSettings.setLastLanguage(this, language)
         }
     }
 
@@ -187,7 +187,7 @@ private fun SearchScreen(
         }
     }
 
-    PrevoScaffold(
+    BonaScaffold(
         topBar = {
             Column(Modifier.windowInsetsPadding(WindowInsets.statusBars)) {
                 Wordmark()
@@ -242,9 +242,9 @@ private fun Wordmark() {
             stringResource(R.string.brand_name),
             style = MaterialTheme.typography.headlineSmall,
             fontWeight = FontWeight.Bold,
-            color = prevoDesign.headword,
+            color = bonaDesign.headword,
         )
-        Text(" ★", fontSize = 20.sp, color = prevoDesign.star)
+        Text(" ★", fontSize = 20.sp, color = bonaDesign.star)
         Spacer(Modifier.weight(1f))
         Text(
             stringResource(R.string.brand_subtitle),
@@ -298,7 +298,7 @@ private fun LanguageTabs(
     val context = LocalContext.current
     val languageList = remember { LanguageList.getDefault(context) }
     val chooseLanguage = stringResource(R.string.menu_choose_language)
-    val ink = prevoDesign.headword
+    val ink = bonaDesign.headword
     val muted = MaterialTheme.colorScheme.onSurfaceVariant
 
     Row(
@@ -349,7 +349,7 @@ private fun ResultList(
     modifier: Modifier = Modifier,
 ) {
     val context = LocalContext.current
-    val scale = PrevoSettings.textScale(textSize)
+    val scale = BonaSettings.textScale(textSize)
     val title = MaterialTheme.typography.titleMedium
     val wordStyle = title.copy(
         fontSize = title.fontSize * scale,
@@ -437,7 +437,7 @@ private fun ResultRow(
             .clickable(onClick = onClick)
             .padding(horizontal = 20.dp, vertical = 10.dp),
     ) {
-        Text(result.word, style = wordStyle, color = prevoDesign.headword)
+        Text(result.word, style = wordStyle, color = bonaDesign.headword)
 
         val text = preview?.let {
             when {

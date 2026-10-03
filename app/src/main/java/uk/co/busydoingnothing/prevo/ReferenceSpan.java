@@ -1,5 +1,5 @@
 /*
- * PReVo - A portable version of ReVo for Android
+ * Bona vortaro - an Esperanto dictionary for Android, based on PReVo
  * Copyright (C) 2012  Neil Roberts
  *
  * This program is free software: you can redistribute it and/or modify
@@ -27,7 +27,7 @@ public class ReferenceSpan extends ClickableSpan
   private int articleNumber;
   private int sectionNumber;
 
-  private static String TAG = "PrevoReference";
+  private static String TAG = "BonaReference";
 
   public ReferenceSpan (int articleNumber,
                         int sectionNumber)

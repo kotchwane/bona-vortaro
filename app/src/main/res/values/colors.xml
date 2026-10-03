@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-  <!-- The paper of the light theme, see PrevoTheme.kt -->
-  <color name="prevo_window">#F4EDDD</color>
+  <!-- The paper of the light theme, see BonaTheme.kt -->
+  <color name="bona_window">#F4EDDD</color>
 </resources>

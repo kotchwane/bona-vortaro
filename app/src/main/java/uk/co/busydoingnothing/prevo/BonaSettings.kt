@@ -1,5 +1,5 @@
 /*
- * PReVo - A portable version of ReVo for Android
+ * Bona vortaro - an Esperanto dictionary for Android, based on PReVo
  * Copyright (C) 2013, 2016  Neil Roberts
  * Copyright (C) 2026  kotchwane
  *
@@ -26,11 +26,10 @@ import kotlin.math.pow
 
 enum class Theme { SYSTEM, LIGHT, DARK }
 
-/** All of the settings of the app, in one place. They are stored in the
- * same preferences file and under the same keys as in the original app
- * (PReVo), so that no setting is lost. */
-object PrevoSettings {
-    private const val FILE = "PrevoPreferences"
+/** All of the settings of the app, in one place. The keys are those of
+ * the original app (PReVo). */
+object BonaSettings {
+    private const val FILE = "BonaVortaro"
     private const val PREF_THEME = "theme"
     private const val PREF_TEXT_SIZE = "fontSize"
     private const val PREF_UNFOLD_EXAMPLES = "unfoldExamples"
@@ -183,10 +182,10 @@ object PrevoSettings {
         context.getSharedPreferences(FILE, Context.MODE_PRIVATE)
 }
 
-class PrevoApplication : Application() {
+class BonaApplication : Application() {
     override fun onCreate() {
         super.onCreate()
-        PrevoSettings.applyTheme(PrevoSettings.getTheme(this))
+        BonaSettings.applyTheme(BonaSettings.getTheme(this))
         /* The usage counts of the languages, which the original app kept
          * to guess the main languages, aren't used any more */
         deleteDatabase("language")

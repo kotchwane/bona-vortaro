@@ -30,7 +30,7 @@ open class StartActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        if (PrevoSettings.getChosenSearchLanguages(this).isEmpty())
+        if (BonaSettings.getChosenSearchLanguages(this).isEmpty())
             startActivity(
                 Intent(this, SelectLanguageActivity::class.java)
                     .putExtra(SelectLanguageActivity.EXTRA_FIRST_START, true)

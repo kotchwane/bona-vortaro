@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <!--
- * PReVo - A portable version of ReVo for Android
+ * Bona vortaro - an Esperanto dictionary for Android, based on PReVo
  * Copyright (C) 2012, 2016  Neil Roberts
  *
  * This program is free software: you can redistribute it and/or modify
@@ -75,7 +75,7 @@
   <string name="continue_to_search">Daŭrigi</string>
   <string name="one_language_needed">Necesas almenaŭ unu serĉlingvo.</string>
   <string name="about_section">Pri</string>
-  <string name="about_prevo">Pri Bona vortaro</string>
+  <string name="about_app">Pri Bona vortaro</string>
   <string name="version">Versio %1$s</string>
   <string name="text_size_value">%1$d %%</string>
   <string name="text_size_default_value">Defaŭlta (%1$d %%)</string>

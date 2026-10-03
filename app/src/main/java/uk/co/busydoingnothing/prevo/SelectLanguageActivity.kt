@@ -1,5 +1,5 @@
 /*
- * PReVo - A portable version of ReVo for Android
+ * Bona vortaro - an Esperanto dictionary for Android, based on PReVo
  * Copyright (C) 2012, 2016  Neil Roberts
  * Copyright (C) 2026  kotchwane
  *
@@ -48,7 +48,7 @@ import androidx.compose.ui.unit.dp
  * tabs of the search. On the first start, it is the first screen, with a
  * button to go on to the search; afterwards it is opened from the
  * settings and from the "+" of the search. */
-class SelectLanguageActivity : PrevoActivity() {
+class SelectLanguageActivity : BonaActivity() {
 
     companion object {
         /** The first start: nothing is saved until "Daŭrigi" */
@@ -69,12 +69,12 @@ class SelectLanguageActivity : PrevoActivity() {
         chosen = savedInstanceState?.getStringArrayList("chosen")
             /* Esperanto is ticked to start with, as this is an Esperanto
              * dictionary; it can be unticked */
-            ?: if (firstStart) listOf("eo") else PrevoSettings.getChosenSearchLanguages(this)
+            ?: if (firstStart) listOf("eo") else BonaSettings.getChosenSearchLanguages(this)
 
         val languages = LanguageList.getDefault(this).allLanguages.toList()
 
         setContent {
-            PrevoTheme {
+            BonaTheme {
                 SearchLanguagesScreen(
                     firstStart = firstStart,
                     languages = languages,
@@ -96,7 +96,7 @@ class SelectLanguageActivity : PrevoActivity() {
         chosen = codes
         /* Afterwards, each change is saved at once */
         if (!firstStart)
-            PrevoSettings.setSearchLanguages(this, codes)
+            BonaSettings.setSearchLanguages(this, codes)
     }
 
     /* At least one language is needed to search in */
@@ -108,7 +108,7 @@ class SelectLanguageActivity : PrevoActivity() {
     }
 
     private fun continueToSearch() {
-        PrevoSettings.setSearchLanguages(this, chosen)
+        BonaSettings.setSearchLanguages(this, chosen)
         startActivity(Screens.searchIntent(this, chosen.first()))
         finish()
     }
@@ -127,9 +127,9 @@ class SelectLanguageActivity : PrevoActivity() {
         val listState = rememberLazyListState()
         val reorder = rememberListReorder(listState)
 
-        PrevoScaffold(
+        BonaScaffold(
             topBar = {
-                PrevoTopBar(
+                BonaTopBar(
                     title = { Text(stringResource(R.string.my_search_languages)) },
                     /* Nothing to go back to on the first start */
                     onBack = if (firstStart) null else onBack,

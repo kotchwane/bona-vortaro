@@ -1,5 +1,5 @@
 /*
- * PReVo - A portable version of ReVo for Android
+ * Bona vortaro - an Esperanto dictionary for Android, based on PReVo
  * Copyright (C) 2026  kotchwane
  *
  * This program is free software: you can redistribute it and/or modify
@@ -39,7 +39,7 @@ import androidx.compose.ui.res.stringResource
 /** What every screen of the app does: drawing under the system bars,
  * and following a change of theme without being recreated (the activities
  * declare configChanges="uiMode" in the manifest). */
-abstract class PrevoActivity : AppCompatActivity() {
+abstract class BonaActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge()
@@ -57,7 +57,7 @@ abstract class PrevoActivity : AppCompatActivity() {
 /** A screen on the background of the design: paper by day, the night
  * sky by night. */
 @Composable
-fun PrevoScaffold(
+fun BonaScaffold(
     modifier: Modifier = Modifier,
     topBar: @Composable () -> Unit = {},
     bottomBar: @Composable () -> Unit = {},
@@ -65,7 +65,7 @@ fun PrevoScaffold(
     content: @Composable (PaddingValues) -> Unit,
 ) {
     Scaffold(
-        modifier = modifier.prevoBackground(),
+        modifier = modifier.bonaBackground(),
         topBar = topBar,
         bottomBar = bottomBar,
         snackbarHost = snackbarHost,
@@ -79,13 +79,13 @@ fun PrevoScaffold(
 /** The top bar of a screen, with a back arrow unless [onBack] is null. */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun PrevoTopBar(
+fun BonaTopBar(
     title: @Composable () -> Unit,
     onBack: (() -> Unit)?,
     actions: @Composable RowScope.() -> Unit = {},
 ) {
     TopAppBar(
-        colors = prevoTopBarColors(),
+        colors = bonaTopBarColors(),
         title = title,
         navigationIcon = {
             if (onBack != null)

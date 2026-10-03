@@ -1,5 +1,5 @@
 /*
- * PReVo - A portable version of ReVo for Android
+ * Bona vortaro - an Esperanto dictionary for Android, based on PReVo
  * Copyright (C) 2012, 2013, 2016, 2018  Neil Roberts
  * Copyright (C) 2026  kotchwane
  *
@@ -72,7 +72,7 @@ import java.io.IOException
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.launch
 
-class ArticleActivity : PrevoActivity() {
+class ArticleActivity : BonaActivity() {
 
     companion object {
         const val EXTRA_ARTICLE_NUMBER = "uk.co.busydoingnothing.prevo.ArticleNumber"
@@ -84,12 +84,12 @@ class ArticleActivity : PrevoActivity() {
         const val SOURCE_TEXT = "SOURCE_TEXT"
         const val TARGET_TEXT = "TARGET_TEXT"
 
-        private const val TAG = "prevoarticle"
+        private const val TAG = "bonaarticle"
     }
 
     private var articleNumber = -1
     private var article by mutableStateOf<Article?>(null)
-    private var textSize by mutableIntStateOf(PrevoSettings.DEFAULT_TEXT_SIZE)
+    private var textSize by mutableIntStateOf(BonaSettings.DEFAULT_TEXT_SIZE)
     private var unfoldExamples by mutableStateOf(false)
     private var foldTranslations by mutableStateOf(true)
 
@@ -112,7 +112,7 @@ class ArticleActivity : PrevoActivity() {
         val mark = intent.getIntExtra(EXTRA_MARK_NUMBER, -1)
 
         setContent {
-            PrevoTheme {
+            BonaTheme {
                 ArticleScreen(
                     article = article,
                     textSize = textSize,
@@ -150,9 +150,9 @@ class ArticleActivity : PrevoActivity() {
         super.onStart()
 
         /* The settings may have changed while another screen was shown */
-        textSize = PrevoSettings.getTextSize(this)
-        unfoldExamples = PrevoSettings.getUnfoldExamples(this)
-        preferredLanguages = PrevoSettings.getTranslationOrder(this)
+        textSize = BonaSettings.getTextSize(this)
+        unfoldExamples = BonaSettings.getUnfoldExamples(this)
+        preferredLanguages = BonaSettings.getTranslationOrder(this)
 
         val translations = currentTranslations()
         /* The translations are folded only when all of the languages
@@ -177,7 +177,7 @@ class ArticleActivity : PrevoActivity() {
      * the article to be loaded again */
     private fun currentTranslations(): Set<String> {
         val languages = LanguageList.getDefault(this).allLanguages.toList()
-        return PrevoSettings.getTranslationLanguages(this, languages).toSet()
+        return BonaSettings.getTranslationLanguages(this, languages).toSet()
     }
 
     private fun loadArticle() {
@@ -329,9 +329,9 @@ private fun ArticleScreen(
         }
     }
 
-    PrevoScaffold(
+    BonaScaffold(
         topBar = {
-            PrevoTopBar(
+            BonaTopBar(
                 title = {
                     val (marks, title) = article?.title?.let { splitOfficial(it) } ?: (emptyList<String>() to "")
 
@@ -402,7 +402,7 @@ private fun ArticleScreen(
  * superscripts, quotations…). */
 @Composable
 private fun Section(section: ArticleSection, textSize: Int, onLongPress: () -> Unit) {
-    val scale = PrevoSettings.textScale(textSize)
+    val scale = BonaSettings.textScale(textSize)
     val colors = MaterialTheme.colorScheme
     val headerSize = MaterialTheme.typography.titleSmall.fontSize.value * scale
     val bodySize = MaterialTheme.typography.bodyLarge.fontSize.value * scale

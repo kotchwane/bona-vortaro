@@ -1,5 +1,5 @@
 /*
- * PReVo - A portable version of ReVo for Android
+ * Bona vortaro - an Esperanto dictionary for Android, based on PReVo
  * Copyright (C) 2012, 2016  Neil Roberts
  * Copyright (C) 2026  kotchwane
  *
@@ -28,7 +28,7 @@ class SearchOutcome(val results: List<SearchResult>, val languageIndex: Int)
 
 object DictionarySearch {
     private const val MAX_RESULTS = 128
-    private const val TAG = "prevosearch"
+    private const val TAG = "bonasearch"
 
     /** Searches the languages in order and returns the results of the
      * first one that has any. Typing the x-system is accepted (cx → ĉ), and
