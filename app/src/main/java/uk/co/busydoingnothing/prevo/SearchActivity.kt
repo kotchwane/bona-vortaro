@@ -521,6 +521,8 @@ internal fun ResultRow(
     /** Shown small at the right of the word, eg. the language "FR" */
     label: String? = null,
     onLongClick: (() -> Unit)? = null,
+    /** A button at the right of the row, eg. to remove it */
+    action: (@Composable () -> Unit)? = null,
 ) {
     val context = LocalContext.current
     val preview by produceState<WordPreview?>(null, result) {
@@ -528,42 +530,46 @@ internal fun ResultRow(
     }
     val small = MaterialTheme.typography.bodyMedium
 
-    Column(
+    Row(
         Modifier
             .fillMaxWidth()
             .combinedClickable(onClick = onClick, onLongClick = onLongClick)
-            .padding(horizontal = 20.dp, vertical = 10.dp),
+            .padding(start = 20.dp, end = if (action != null) 8.dp else 20.dp, top = 10.dp, bottom = 10.dp),
+        verticalAlignment = Alignment.CenterVertically,
     ) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Text(result.word, style = wordStyle, color = bonaDesign.headword, modifier = Modifier.weight(1f))
-            if (label != null)
-                Text(
-                    label,
-                    style = MaterialTheme.typography.labelMedium,
-                    letterSpacing = 1.sp,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.padding(start = 12.dp),
-                )
-        }
-
-        val text = preview?.let {
-            when {
-                inEsperanto -> it.definition
-                it.definition.isEmpty() -> it.title
-                else -> "${it.title} — ${it.definition}"
+        Column(Modifier.weight(1f)) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(result.word, style = wordStyle, color = bonaDesign.headword, modifier = Modifier.weight(1f))
+                if (label != null)
+                    Text(
+                        label,
+                        style = MaterialTheme.typography.labelMedium,
+                        letterSpacing = 1.sp,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.padding(start = 12.dp),
+                    )
             }
+
+            val text = preview?.let {
+                when {
+                    inEsperanto -> it.definition
+                    it.definition.isEmpty() -> it.title
+                    else -> "${it.title} — ${it.definition}"
+                }
+            }
+            /* Keep the height of the row while the preview is loading */
+            Text(
+                text ?: "",
+                style = small.copy(
+                    fontSize = small.fontSize * scale,
+                    lineHeight = small.lineHeight * scale,
+                    fontStyle = FontStyle.Italic,
+                ),
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+            )
         }
-        /* Keep the height of the row while the preview is loading */
-        Text(
-            text ?: "",
-            style = small.copy(
-                fontSize = small.fontSize * scale,
-                lineHeight = small.lineHeight * scale,
-                fontStyle = FontStyle.Italic,
-            ),
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
-        )
+        action?.invoke()
     }
 }

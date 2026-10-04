@@ -19,6 +19,15 @@ package uk.co.busydoingnothing.prevo
 
 import android.content.Context
 import android.util.Log
+import androidx.activity.compose.BackHandler
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -88,10 +97,22 @@ fun RecentSearches(
         lineHeight = title.lineHeight * scale,
         fontWeight = FontWeight.Bold,
     )
-    val rule = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.25f)
+    val muted = MaterialTheme.colorScheme.onSurfaceVariant
+    val rule = muted.copy(alpha = 0.25f)
+
+    /* Editing: a bin next to each word, from a long press until "Preta",
+     * the back button, or typing */
+    var editing by remember { mutableStateOf(false) }
+    val showBins = editing && keepHistory && !recent.isNullOrEmpty()
+    BackHandler(enabled = showBins) { editing = false }
 
     LazyColumn(modifier.fillMaxSize(), contentPadding = PaddingValues(bottom = 12.dp)) {
-        item { RunningHeadText(stringResource(R.string.recent_searches)) }
+        item {
+            RunningHeadText(stringResource(R.string.recent_searches)) {
+                if (showBins)
+                    TextButton(onClick = { editing = false }) { Text(stringResource(R.string.done)) }
+            }
+        }
 
         when {
             /* Still being read */
@@ -106,7 +127,18 @@ fun RecentSearches(
                         inEsperanto = search.entry.language == "eo",
                         onClick = { onOpen(search) },
                         label = search.entry.language.uppercase(),
-                        onLongClick = { onRemove(search) },
+                        onLongClick = { editing = true },
+                        action = if (!showBins) null else {
+                            {
+                                IconButton(onClick = { onRemove(search) }) {
+                                    Icon(
+                                        Icons.Default.Delete,
+                                        contentDescription = stringResource(R.string.remove_from_history),
+                                        tint = muted,
+                                    )
+                                }
+                            }
+                        },
                     )
                     if (index != recent.lastIndex)
                         HorizontalDivider(Modifier.padding(horizontal = 20.dp), color = rule)
@@ -127,9 +159,10 @@ fun RecentSearches(
     }
 }
 
-/** A title between two rules, like the running head of the results. */
+/** A title between two rules, like the running head of the results,
+ * and optionally a button after it. */
 @Composable
-private fun RunningHeadText(text: String) {
+private fun RunningHeadText(text: String, trailing: @Composable () -> Unit = {}) {
     val rule = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.4f)
 
     Row(
@@ -144,6 +177,7 @@ private fun RunningHeadText(text: String) {
             modifier = Modifier.padding(horizontal = 10.dp),
         )
         HorizontalDivider(Modifier.weight(1f), color = rule)
+        trailing()
     }
 }
 
