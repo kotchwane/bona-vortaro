@@ -112,7 +112,10 @@
   <string name="guide_neighbours_title">Legi plu</string>
   <string name="guide_neighbours">Fine de ĉiu artikolo, la antaŭa kaj la sekva radikoj permesas legi la vortaron de radiko al radiko, kiel presitan vortaron.</string>
   <string name="guide_long_press_title">Teni premita</string>
-  <string name="guide_long_press">Tenu vorton de artikolo premita por kopii ĝian difinon, kunhavigi ĝin, krei fulmkarton, aŭ serĉi ĝin ĉe Vortaro.net.</string>
+  <string name="guide_long_press">Tenu vorton de artikolo premita por trovi ĝin en la vortaro, kiel ajn ĝi estas skribita: _arbojn_ trovas „arbo“, kaj _kuris_ trovas „kuri“. Same en la tradukoj, en ilia lingvo. Tenu la kapvorton premita por kopii la difinon, kunhavigi ĝin aŭ krei fulmkarton.</string>
+  <string name="copy_word">Kopii la vorton</string>
+  <string name="word_label">Vorto</string>
+  <string name="word_not_found">Nenio troviĝis por „%1$s“.</string>
   <string name="officiality_title">Oficialeco de la vortoj</string>
   <string name="officiality_summary">Kion signifas „Fundamento“ kaj „Oficiala Aldono“</string>
   <string name="officiality_intro">Iuj vortoj havas etikedon, kiu montras, ke ili apartenas al la oficiala vortaro de Esperanto, kaj kiam ili eniris ĝin. La etikedo apud la nomo de artikolo, supre, koncernas ĝian radikon; tiu sur vorto koncernas la vorton mem.</string>

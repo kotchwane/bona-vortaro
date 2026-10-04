@@ -20,6 +20,8 @@ package uk.co.busydoingnothing.prevo
 
 import android.content.ActivityNotFoundException
 import android.content.Intent
+import androidx.compose.foundation.layout.height
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.foundation.layout.Spacer
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.Dispatchers
@@ -141,6 +143,8 @@ class ArticleActivity : BonaActivity() {
                     onLookUpInPiv = ::lookUpInPiv,
                     onShare = ::share,
                     onOpenNeighbour = ::openNeighbour,
+                    onOpenEntry = ::openEntry,
+                    onCopyWord = ::copyWord,
                 )
 
                 if (showNoFlashcard) {
@@ -258,6 +262,20 @@ class ArticleActivity : BonaActivity() {
         finish()
     }
 
+    /* An entry found from a word of the text, on top of this article,
+     * as a link would */
+    private fun openEntry(entry: SearchResult) {
+        startActivity(
+            Intent(this, ArticleActivity::class.java)
+                .putExtra(EXTRA_ARTICLE_NUMBER, entry.article)
+                .putExtra(EXTRA_MARK_NUMBER, entry.mark)
+        )
+    }
+
+    private fun copyWord(word: String) {
+        SpannedCopy.copyText(this, getText(R.string.word_label), word)
+    }
+
     private fun share(section: ArticleSection) {
         val intent = Intent(Intent.ACTION_SEND)
             .setType("text/plain")
@@ -288,10 +306,14 @@ private fun ArticleScreen(
     onLookUpInPiv: (CharSequence) -> Unit,
     onShare: (ArticleSection) -> Unit,
     onOpenNeighbour: (Int) -> Unit,
+    onOpenEntry: (SearchResult) -> Unit,
+    onCopyWord: (String) -> Unit,
 ) {
     val listState = rememberLazyListState()
     val scope = rememberCoroutineScope()
     var actionsFor by remember { mutableStateOf<ArticleSection?>(null) }
+    /* The word pressed in the text, and its language */
+    var wordFor by remember { mutableStateOf<Pair<String, String>?>(null) }
 
     /* One card per word, with its translations */
     val colors = MaterialTheme.colorScheme
@@ -395,7 +417,11 @@ private fun ArticleScreen(
             verticalArrangement = Arrangement.spacedBy(10.dp),
         ) {
             items(layout?.words ?: emptyList(), key = { it.section }) { word ->
-                WordCard(word, textSize, unfoldExamples, foldTranslations, onLongPress = { actionsFor = word.source })
+                WordCard(
+                    word, textSize, unfoldExamples, foldTranslations,
+                    onLongPress = { actionsFor = word.source },
+                    onLongPressWord = { pressed, language -> wordFor = pressed to language },
+                )
             }
             /* Translations that couldn't be given to a word, if any */
             items(layout?.otherTranslations ?: emptyList()) { section ->
@@ -405,6 +431,17 @@ private fun ArticleScreen(
             if (layout != null)
                 item(key = "neighbours") { NeighbourRoots(articleNumber, onOpenNeighbour) }
         }
+    }
+
+    wordFor?.let { (word, language) ->
+        WordActions(
+            word = word,
+            language = language,
+            onDismiss = { wordFor = null },
+            onOpen = onOpenEntry,
+            onCopy = { onCopyWord(word) },
+            onLookUpInPiv = onLookUpInPiv,
+        )
     }
 
     actionsFor?.let { section ->
@@ -467,6 +504,88 @@ private fun Section(section: ArticleSection, textSize: Int, onLongPress: () -> U
             },
             modifier = Modifier.fillMaxWidth(),
         )
+    }
+}
+
+/** What can be done with a word of the text, shown on a long press: its
+ * entries in the dictionary, found from the form it has in the text
+ * ("arbojn" → arbo), each with the start of its definition, then copy it,
+ * or look it up in PIV. */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun WordActions(
+    word: String,
+    language: String,
+    onDismiss: () -> Unit,
+    onOpen: (SearchResult) -> Unit,
+    onCopy: () -> Unit,
+    onLookUpInPiv: (CharSequence) -> Unit,
+) {
+    val context = LocalContext.current
+    val muted = MaterialTheme.colorScheme.onSurfaceVariant
+    /* null while it is looked up */
+    val entries by produceState<List<Pair<SearchResult, WordPreview?>>?>(null, word, language) {
+        value = withContext(Dispatchers.IO) {
+            WordLookup.find(context, word, language).map { it to SearchPreviews.get(context, it) }
+        }
+    }
+
+    ModalBottomSheet(
+        onDismissRequest = onDismiss,
+        sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
+    ) {
+        Text(
+            if (language == "eo") word
+            else "$word (${LanguageList.getDefault(context).getLanguageName(language)})",
+            style = MaterialTheme.typography.titleMedium,
+            color = MaterialTheme.colorScheme.primary,
+            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
+        )
+        when {
+            entries == null -> {}
+            entries!!.isEmpty() -> Text(
+                stringResource(R.string.word_not_found, word),
+                style = MaterialTheme.typography.bodyMedium.copy(fontStyle = FontStyle.Italic),
+                color = muted,
+                modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
+            )
+            else -> for ((entry, preview) in entries!!)
+                ListItem(
+                    headlineContent = {
+                        Text(
+                            preview?.title ?: entry.word,
+                            fontWeight = FontWeight.Bold,
+                            color = bonaDesign.headword,
+                        )
+                    },
+                    supportingContent = preview?.let {
+                        {
+                            Text(
+                                it.definition,
+                                style = MaterialTheme.typography.bodyMedium.copy(fontStyle = FontStyle.Italic),
+                                maxLines = 2,
+                                overflow = TextOverflow.Ellipsis,
+                            )
+                        }
+                    },
+                    modifier = Modifier.clickable { onDismiss(); onOpen(entry) },
+                )
+        }
+        HorizontalDivider(Modifier.padding(horizontal = 16.dp, vertical = 4.dp), color = muted.copy(alpha = 0.25f))
+        ListItem(
+            headlineContent = { Text(stringResource(R.string.copy_word)) },
+            modifier = Modifier.clickable { onDismiss(); onCopy() },
+        )
+        /* PIV is a dictionary of Esperanto */
+        if (language == "eo")
+            ListItem(
+                headlineContent = { Text(stringResource(R.string.menu_look_up_in_piv)) },
+                modifier = Modifier.clickable {
+                    onDismiss()
+                    onLookUpInPiv(entries?.firstOrNull()?.first?.word ?: word)
+                },
+            )
+        Spacer(Modifier.height(16.dp))
     }
 }
 

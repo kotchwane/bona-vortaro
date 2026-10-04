@@ -18,6 +18,11 @@
 package uk.co.busydoingnothing.prevo
 
 import android.graphics.Canvas
+import androidx.compose.ui.text.TextLayoutResult
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.runtime.remember
+import androidx.compose.foundation.gestures.detectTapGestures
+import android.view.MotionEvent
 import android.graphics.Paint
 import android.graphics.RectF
 import android.text.method.LinkMovementMethod
@@ -93,10 +98,16 @@ fun WordCard(
     textSize: Int,
     unfoldExamples: Boolean,
     foldTranslations: Boolean,
+    /** A long press on the headword, or where there is no word */
     onLongPress: () -> Unit,
+    /** A long press on a word of the text, with its language */
+    onLongPressWord: (word: String, language: String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val scale = BonaSettings.textScale(textSize)
+    val onLongPressText: (String?) -> Unit = { word ->
+        if (word != null) onLongPressWord(word, "eo") else onLongPress()
+    }
     val primary = MaterialTheme.colorScheme.primary
 
     Card(
@@ -123,6 +134,7 @@ fun WordCard(
                     style = MaterialTheme.typography.titleLarge.scaled(scale)
                         .copy(fontWeight = FontWeight.Bold),
                     color = bonaDesign.headword,
+                    onLongPress = { onLongPress() },
                     modifier = Modifier.align(Alignment.CenterVertically),
                 )
                 for (official in entry.official)
@@ -140,22 +152,22 @@ fun WordCard(
                             block.text,
                             style = MaterialTheme.typography.bodyLarge.scaled(scale),
                             color = MaterialTheme.colorScheme.onSurface,
-                            onLongPress = onLongPress,
+                            onLongPress = onLongPressText,
                             modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
                         )
-                        is ContentBlock.Example -> ExampleLine(block.text, scale, onLongPress)
-                        is ContentBlock.Note -> NoteBox(block.text, scale, onLongPress)
+                        is ContentBlock.Example -> ExampleLine(block.text, scale, onLongPressText)
+                        is ContentBlock.Note -> NoteBox(block.text, scale, onLongPressText)
                     }
                     is BlockGroup.Examples ->
-                        FoldedExamples(group.examples, scale, onLongPress, key = "${entry.section}-$index", unfolded = unfoldExamples)
+                        FoldedExamples(group.examples, scale, onLongPressText, key = "${entry.section}-$index", unfolded = unfoldExamples)
                     is BlockGroup.ShortExamples ->
                         for (example in group.examples)
-                            ExampleLine(example.text, scale, onLongPress)
+                            ExampleLine(example.text, scale, onLongPressText)
                 }
             }
 
             if (entry.translations.isNotEmpty())
-                TranslationsBox(entry.translations, scale, foldTranslations)
+                TranslationsBox(entry.translations, scale, foldTranslations, onLongPressWord)
         }
     }
 }
@@ -217,7 +229,7 @@ private fun withExample(text: CharSequence, example: CharSequence, color: Int): 
 
 /** An example on its own line, with a bar on its left. */
 @Composable
-private fun ExampleLine(text: CharSequence, scale: Float, onLongPress: () -> Unit) {
+private fun ExampleLine(text: CharSequence, scale: Float, onLongPress: (String?) -> Unit) {
     val bar = MaterialTheme.colorScheme.outlineVariant
 
     SpannedText(
@@ -238,7 +250,7 @@ private fun ExampleLine(text: CharSequence, scale: Float, onLongPress: () -> Uni
 private fun FoldedExamples(
     examples: List<ContentBlock.Example>,
     scale: Float,
-    onLongPress: () -> Unit,
+    onLongPress: (String?) -> Unit,
     key: String,
     unfolded: Boolean,
 ) {
@@ -443,7 +455,7 @@ fun OfficialBadge(official: String, modifier: Modifier = Modifier) {
 
 /** A remark, in a tinted box with its title. */
 @Composable
-private fun NoteBox(text: CharSequence, scale: Float, onLongPress: () -> Unit) {
+private fun NoteBox(text: CharSequence, scale: Float, onLongPress: (String?) -> Unit) {
     Surface(
         modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
         shape = RoundedCornerShape(10.dp),
@@ -469,7 +481,12 @@ private fun NoteBox(text: CharSequence, scale: Float, onLongPress: () -> Unit) {
 /** The translations of the word, the user's languages first. After a few
  * languages, the others are shown on demand. */
 @Composable
-private fun TranslationsBox(translations: List<Translation>, scale: Float, foldable: Boolean) {
+private fun TranslationsBox(
+    translations: List<Translation>,
+    scale: Float,
+    foldable: Boolean,
+    onLongPressWord: (word: String, language: String) -> Unit,
+) {
     var expanded by rememberSaveable { mutableStateOf(false) }
     val folded = foldable && !expanded
     val shown = if (folded) translations.take(SHOWN_TRANSLATIONS) else translations
@@ -504,10 +521,22 @@ private fun TranslationsBox(translations: List<Translation>, scale: Float, folda
                             )
                         }
                     }
+                    /* A long press looks up the word under the finger in
+                     * the language of the translation */
+                    var layout by remember { mutableStateOf<TextLayoutResult?>(null) }
                     Text(
                         translation.text,
                         style = body,
-                        modifier = Modifier.weight(1f),
+                        onTextLayout = { layout = it },
+                        modifier = Modifier
+                            .weight(1f)
+                            .pointerInput(translation) {
+                                detectTapGestures(onLongPress = { position ->
+                                    val offset = layout?.getOffsetForPosition(position) ?: return@detectTapGestures
+                                    WordLookup.wordAt(translation.text, offset)
+                                        ?.let { onLongPressWord(it, translation.language) }
+                                })
+                            },
                     )
                 }
             }
@@ -533,7 +562,8 @@ fun SpannedText(
     style: TextStyle,
     color: Color,
     modifier: Modifier = Modifier,
-    onLongPress: (() -> Unit)? = null,
+    /** With the word pressed, or null if the press wasn't on a word */
+    onLongPress: ((String?) -> Unit)? = null,
 ) {
     val linkColor = MaterialTheme.colorScheme.primary
 
@@ -555,8 +585,23 @@ fun SpannedText(
                 if ((style.fontWeight?.weight ?: 400) >= 600) android.graphics.Typeface.BOLD
                 else android.graphics.Typeface.NORMAL,
             )
-            if (onLongPress != null)
-                view.setOnLongClickListener { onLongPress(); true }
+            if (onLongPress != null) {
+                /* Where the finger went down, to find the word under it;
+                 * the touch goes on to the links */
+                val down = FloatArray(2)
+                view.setOnTouchListener { _, event ->
+                    if (event.actionMasked == MotionEvent.ACTION_DOWN) {
+                        down[0] = event.x
+                        down[1] = event.y
+                    }
+                    false
+                }
+                view.setOnLongClickListener {
+                    val offset = view.getOffsetForPosition(down[0], down[1])
+                    onLongPress(WordLookup.wordAt(view.text, offset))
+                    true
+                }
+            }
         },
         modifier = modifier,
     )
