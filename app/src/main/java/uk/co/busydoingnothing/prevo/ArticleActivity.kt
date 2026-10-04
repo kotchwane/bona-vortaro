@@ -121,7 +121,6 @@ class ArticleActivity : BonaActivity() {
                     preferredLanguages = preferredLanguages,
                     initialSection = if (savedInstanceState == null) mark else -1,
                     sectionRequests = sectionRequests,
-                    onBack = ::finish,
                     onSearch = { Screens.goSearch(this) },
                     onPreferences = { Screens.goPreferences(this) },
                     onCopy = ::copyDefinition,
@@ -260,7 +259,6 @@ private fun ArticleScreen(
     preferredLanguages: List<String>,
     initialSection: Int,
     sectionRequests: MutableSharedFlow<Int>,
-    onBack: () -> Unit,
     onSearch: () -> Unit,
     onPreferences: () -> Unit,
     onCopy: (ArticleSection) -> Unit,
@@ -348,7 +346,9 @@ private fun ArticleScreen(
                             OfficialBadge(mark, Modifier.padding(start = 8.dp))
                     }
                 },
-                onBack = onBack,
+                /* No back arrow: the back of the phone does it, and the
+                 * root needs the room */
+                onBack = null,
                 actions = {
                     IconButton(onClick = onSearch) {
                         Icon(Icons.Default.Search, stringResource(R.string.menu_search))
