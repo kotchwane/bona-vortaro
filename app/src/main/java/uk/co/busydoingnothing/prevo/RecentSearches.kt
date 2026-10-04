@@ -19,15 +19,14 @@ package uk.co.busydoingnothing.prevo
 
 import android.content.Context
 import android.util.Log
+import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.activity.compose.BackHandler
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -84,6 +83,9 @@ fun findRecentSearches(context: Context, entries: List<HistoryEntry>): List<Rece
 fun RecentSearches(
     recent: List<RecentSearch>?,
     keepHistory: Boolean,
+    /** Whether a bin shows next to each word, after a long press */
+    editing: Boolean,
+    onEditingChange: (Boolean) -> Unit,
     textSize: Int,
     onOpen: (RecentSearch) -> Unit,
     onRemove: (RecentSearch) -> Unit,
@@ -100,17 +102,25 @@ fun RecentSearches(
     val muted = MaterialTheme.colorScheme.onSurfaceVariant
     val rule = muted.copy(alpha = 0.25f)
 
-    /* Editing: a bin next to each word, from a long press until "Preta",
-     * the back button, or typing */
-    var editing by remember { mutableStateOf(false) }
     val showBins = editing && keepHistory && !recent.isNullOrEmpty()
-    BackHandler(enabled = showBins) { editing = false }
+    val focusManager = LocalFocusManager.current
+    BackHandler(enabled = showBins) { onEditingChange(false) }
 
-    LazyColumn(modifier.fillMaxSize(), contentPadding = PaddingValues(bottom = 12.dp)) {
+    LazyColumn(
+        modifier
+            .fillMaxSize()
+            /* A tap where there is nothing to tap ends the editing; the
+             * words, the bins and the scrolling are left alone */
+            .pointerInput(showBins) {
+                if (showBins)
+                    detectTapGestures { onEditingChange(false) }
+            },
+        contentPadding = PaddingValues(bottom = 12.dp),
+    ) {
         item {
             RunningHeadText(stringResource(R.string.recent_searches)) {
                 if (showBins)
-                    TextButton(onClick = { editing = false }) { Text(stringResource(R.string.done)) }
+                    TextButton(onClick = { onEditingChange(false) }) { Text(stringResource(R.string.done)) }
             }
         }
 
@@ -127,7 +137,12 @@ fun RecentSearches(
                         inEsperanto = search.entry.language == "eo",
                         onClick = { onOpen(search) },
                         label = search.entry.language.uppercase(),
-                        onLongClick = { editing = true },
+                        onLongClick = {
+                            /* The keyboard closes, so that the back
+                             * button ends the editing at once */
+                            focusManager.clearFocus()
+                            onEditingChange(true)
+                        },
                         action = if (!showBins) null else {
                             {
                                 IconButton(onClick = { onRemove(search) }) {

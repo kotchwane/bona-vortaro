@@ -75,6 +75,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.onFocusChanged
+import androidx.lifecycle.compose.LifecycleEventEffect
+import androidx.lifecycle.Lifecycle
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
@@ -236,6 +239,10 @@ private fun SearchScreen(
 ) {
     val context = LocalContext.current
     var query by rememberSaveable { mutableStateOf(initialQuery) }
+    /* The bins of the history: any action but removing or scrolling
+     * ends them */
+    var editing by remember { mutableStateOf(false) }
+    LifecycleEventEffect(Lifecycle.Event.ON_STOP) { editing = false }
     val snackbar = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
     val removed = stringResource(R.string.history_removed)
@@ -273,14 +280,15 @@ private fun SearchScreen(
                 Wordmark()
                 SearchField(
                     query = query,
-                    onQueryChange = { query = it },
-                    onPreferences = onPreferences,
+                    onQueryChange = { editing = false; query = it },
+                    onPreferences = { editing = false; onPreferences() },
+                    onFocused = { editing = false },
                 )
                 LanguageTabs(
                     languages = languages,
                     selected = selected,
-                    onSelect = onLanguageChosen,
-                    onMore = onChooseLanguage,
+                    onSelect = { editing = false; onLanguageChosen(it) },
+                    onMore = { editing = false; onChooseLanguage() },
                 )
             }
         },
@@ -291,10 +299,12 @@ private fun SearchScreen(
             RecentSearches(
                 recent = recent,
                 keepHistory = keepHistory,
+                editing = editing,
+                onEditingChange = { editing = it },
                 textSize = textSize,
-                onOpen = { onResultClick(it.result, it.entry.language) },
+                onOpen = { editing = false; onResultClick(it.result, it.entry.language) },
                 onRemove = { offerUndo(removed, onRemoveRecent(it)) },
-                onClear = { offerUndo(cleared, onClearRecent()) },
+                onClear = { editing = false; offerUndo(cleared, onClearRecent()) },
                 modifier = Modifier.padding(padding).consumeWindowInsets(padding).imePadding(),
             )
         } else if (current != null && current.results.isEmpty()) {
@@ -349,6 +359,8 @@ private fun SearchField(
     query: String,
     onQueryChange: (String) -> Unit,
     onPreferences: () -> Unit,
+    /** The field is tapped, or gets the focus otherwise */
+    onFocused: () -> Unit,
 ) {
     val focusRequester = remember { FocusRequester() }
     val keyboard = LocalSoftwareKeyboardController.current
@@ -365,7 +377,8 @@ private fun SearchField(
         placeholder = stringResource(R.string.type_to_filter),
         modifier = Modifier
             .padding(start = 16.dp, end = 16.dp, top = 8.dp)
-            .focusRequester(focusRequester),
+            .focusRequester(focusRequester)
+            .onFocusChanged { if (it.isFocused) onFocused() },
         imeAction = ImeAction.Search,
         keyboardActions = KeyboardActions(onSearch = { keyboard?.hide() }),
         extraButtons = {
