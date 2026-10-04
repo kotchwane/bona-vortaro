@@ -58,6 +58,9 @@
               android:configChanges="uiMode"
               android:label="@string/name_title"
               android:exported="false" />
+    <activity android:name="AdditionActivity"
+              android:configChanges="uiMode"
+              android:exported="false" />
     <activity android:name="OfficialityActivity"
               android:configChanges="uiMode"
               android:label="@string/officiality_title"

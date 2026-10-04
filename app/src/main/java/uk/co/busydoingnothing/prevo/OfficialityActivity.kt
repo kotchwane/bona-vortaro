@@ -42,6 +42,11 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.foundation.clickable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.produceState
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -100,11 +105,13 @@ private fun OfficialityPage(onBack: () -> Unit) {
         ) {
             Text(stringResource(R.string.officiality_intro), style = MaterialTheme.typography.bodyLarge)
             Spacer(Modifier.height(20.dp))
-            OfficialTimeline(level = null)
+            val context = LocalContext.current
+            OfficialTimeline(level = null, onSelect = { AdditionActivity.open(context, it) })
 
             Paragraph(R.string.officiality_fundamento_title, R.string.officiality_fundamento_text)
             Paragraph(R.string.officiality_additions_title, R.string.officiality_additions_text)
             Paragraph(R.string.officiality_meaning_title, R.string.officiality_meaning_text)
+            OfficialListsSection()
 
             Spacer(Modifier.height(24.dp))
             Text(
@@ -116,6 +123,51 @@ private fun OfficialityPage(onBack: () -> Unit) {
         }
     }
 }
+
+/** One line per list, with its counts, opening it */
+@Composable
+private fun OfficialListsSection() {
+    val context = LocalContext.current
+    val all by produceState<List<OfficialEntry>?>(null) {
+        value = withContext(Dispatchers.IO) { OfficialLists.get(context) }
+    }
+
+    Spacer(Modifier.height(24.dp))
+    Text(
+        stringResource(R.string.official_lists_title),
+        style = MaterialTheme.typography.titleMedium,
+        color = MaterialTheme.colorScheme.primary,
+        fontWeight = FontWeight.Bold,
+    )
+    for (level in OFFICIAL_YEARS.indices) {
+        val counts = all?.let { OfficialLists.counts(OfficialLists.groups(it, level)) }
+        Row(
+            Modifier
+                .fillMaxWidth()
+                .clickable { AdditionActivity.open(context, level) }
+                .padding(vertical = 10.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Column(Modifier.weight(1f)) {
+                Text("${levelName(level)} (${OFFICIAL_YEARS[level]})", style = MaterialTheme.typography.bodyLarge)
+                counts?.let { (roots, words) ->
+                    Text(
+                        if (words == 0) pluralRoots(roots) else pluralRoots(roots) + ", " + pluralWords(words),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+            }
+            Text("›", style = MaterialTheme.typography.titleLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        }
+    }
+}
+
+@Composable
+private fun pluralRoots(n: Int) = if (n == 1) stringResource(R.string.one_root) else stringResource(R.string.roots, n)
+
+@Composable
+private fun pluralWords(n: Int) = if (n == 1) stringResource(R.string.one_word) else stringResource(R.string.words, n)
 
 @Composable
 private fun Paragraph(title: Int, text: Int) {
@@ -160,8 +212,20 @@ fun OfficialSheet(level: Int, onDismiss: () -> Unit) {
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
             Spacer(Modifier.height(8.dp))
-            OfficialTimeline(level)
+            OfficialTimeline(level, onSelect = {
+                onDismiss()
+                AdditionActivity.open(context, it)
+            })
             Spacer(Modifier.height(20.dp))
+            OutlinedButton(onClick = {
+                onDismiss()
+                AdditionActivity.open(context, level)
+            }) {
+                Text(
+                    if (level == 0) stringResource(R.string.addition_list_fundamento)
+                    else stringResource(R.string.addition_list, level)
+                )
+            }
             OutlinedButton(onClick = {
                 onDismiss()
                 OfficialityActivity.open(context)
@@ -173,9 +237,10 @@ fun OfficialSheet(level: Int, onDismiss: () -> Unit) {
 }
 
 /** The Fundamento and the Oficialaj Aldonoj with their years: "F", 1,
- * 2… The given level is highlighted, and the earlier ones tinted. */
+ * 2… The given level is highlighted, and the earlier ones tinted. A tap
+ * on a circle selects its level. */
 @Composable
-private fun OfficialTimeline(level: Int?) {
+fun OfficialTimeline(level: Int?, onSelect: ((Int) -> Unit)? = null) {
     val colors = MaterialTheme.colorScheme
 
     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
@@ -183,7 +248,13 @@ private fun OfficialTimeline(level: Int?) {
             val current = index == level
             val earlier = level != null && index < level
 
-            Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.weight(1f)) {
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier
+                    .weight(1f)
+                    .then(if (onSelect != null) Modifier.clickable { onSelect(index) } else Modifier)
+                    .padding(vertical = 4.dp),
+            ) {
                 Surface(
                     shape = CircleShape,
                     color = when {
