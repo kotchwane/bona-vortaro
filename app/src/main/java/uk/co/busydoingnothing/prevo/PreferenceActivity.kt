@@ -202,7 +202,8 @@ private fun SettingsScaffold(
             BonaTopBar(title = { Text(title) }, onBack = onBack)
         },
         bottomBar = bottomBar,
-        snackbarHost = { snackbarHost?.let { SnackbarHost(it) } },
+        /* Above the keyboard, if it is open */
+        snackbarHost = { snackbarHost?.let { SnackbarHost(it, Modifier.imePadding()) } },
     ) { padding ->
         LazyColumn(
             Modifier

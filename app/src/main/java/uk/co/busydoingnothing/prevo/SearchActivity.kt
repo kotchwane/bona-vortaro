@@ -266,7 +266,8 @@ private fun SearchScreen(
     }
 
     BonaScaffold(
-        snackbarHost = { SnackbarHost(snackbar) },
+        /* Above the keyboard, which the search opens with */
+        snackbarHost = { SnackbarHost(snackbar, Modifier.imePadding()) },
         topBar = {
             Column(Modifier.windowInsetsPadding(WindowInsets.statusBars)) {
                 Wordmark()
