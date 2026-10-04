@@ -9,4 +9,5 @@ local.properties
 
 /app/src/main/assets/articles/article-*.bin
 /app/src/main/assets/indices/index-*.bin
+/app/src/main/assets/officiality.txt
 /app/src/main/res/xml/languages.xml
