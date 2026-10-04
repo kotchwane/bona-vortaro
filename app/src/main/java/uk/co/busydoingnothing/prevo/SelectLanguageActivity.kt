@@ -27,6 +27,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -111,6 +112,13 @@ class SelectLanguageActivity : BonaActivity() {
 
     private fun continueToSearch() {
         BonaSettings.setSearchLanguages(this, chosen)
+        /* The articles then show the translations in the same languages,
+         * Esperanto apart; with Esperanto alone, they keep all of them */
+        val translations = chosen - "eo"
+        if (translations.isNotEmpty()) {
+            val all = LanguageList.getDefault(this).allLanguages.filter { it.code != "eo" }
+            BonaSettings.setTranslationLanguages(this, all, translations)
+        }
         startActivity(Screens.searchIntent(this, chosen.first()))
         finish()
     }
@@ -141,15 +149,27 @@ class SelectLanguageActivity : BonaActivity() {
             bottomBar = {
                 if (firstStart)
                     Surface(color = MaterialTheme.colorScheme.surfaceContainer) {
-                        Button(
-                            onClick = onContinue,
-                            enabled = chosen.isNotEmpty(),
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .navigationBarsPadding()
-                                .padding(horizontal = 16.dp, vertical = 10.dp),
-                        ) {
-                            Text(stringResource(R.string.continue_to_search))
+                        Column(Modifier.navigationBarsPadding()) {
+                            /* What the choice also does to the articles */
+                            if (chosen.isNotEmpty())
+                                Text(
+                                    stringResource(
+                                        if (chosen.any { it != "eo" }) R.string.first_translations_same
+                                        else R.string.first_translations_all
+                                    ),
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 10.dp),
+                                )
+                            Button(
+                                onClick = onContinue,
+                                enabled = chosen.isNotEmpty(),
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(horizontal = 16.dp, vertical = 10.dp),
+                            ) {
+                                Text(stringResource(R.string.continue_to_search))
+                            }
                         }
                     }
             },
