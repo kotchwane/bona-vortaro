@@ -20,6 +20,7 @@ package uk.co.busydoingnothing.prevo
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
@@ -41,6 +42,7 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -118,8 +120,14 @@ private fun AdditionPage(initialLevel: Int, onOpen: (OfficialEntry) -> Unit, onB
             ?.distinctBy { it.first }.orEmpty()
     }
 
+    /* After a jump to a letter, or a long scroll, back returns to the top
+     * of the list first, and only then leaves */
+    val scrolled by remember { derivedStateOf { listState.firstVisibleItemIndex > 0 } }
+    val toTop = { scope.launch { listState.animateScrollToItem(0) }; Unit }
+    BackHandler(enabled = scrolled, onBack = toTop)
+
     BonaScaffold(
-        topBar = { BonaTopBar(title = { Text(levelName(level)) }, onBack = onBack) },
+        topBar = { BonaTopBar(title = { Text(levelName(level)) }, onBack = if (scrolled) toTop else onBack) },
     ) { padding ->
         LazyColumn(
             Modifier
