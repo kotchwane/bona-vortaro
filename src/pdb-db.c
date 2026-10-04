@@ -3469,6 +3469,125 @@ pdb_db_save_article (PdbDb *db,
   return TRUE;
 }
 
+/* Whether a span of a title is an officiality mark: a superscript "*"
+ * for the Fundamento, or the number of an Oficiala Aldono */
+static char *
+pdb_db_get_officiality_mark (const PdbDbSpannableString *title,
+                             const PdbSpan *span)
+{
+  if (span->type != PDB_SPAN_SUPERSCRIPT)
+    return NULL;
+
+  char *mark = g_strndup (title->text + span->span_start, span->span_length);
+  g_strstrip (mark);
+
+  if (!strcmp (mark, "*") ||
+      (*mark && strspn (mark, "0123456789") == strlen (mark)))
+    return mark;
+
+  g_free (mark);
+  return NULL;
+}
+
+/* Writes a line for each officiality mark of a title. A title can have
+ * several, eg. "*absolut/a" is also in the 1st and 7th additions, and a
+ * variant can have its own, eg. "arĥaism/o, 8arkaism/o". The marks are
+ * left out of the text. */
+static void
+pdb_db_add_officiality (GString *out,
+                        const PdbDbSpannableString *title,
+                        char kind,
+                        int article_num,
+                        int section_num)
+{
+  GPtrArray *marks = g_ptr_array_new_with_free_func (g_free);
+  GString *text = g_string_new (NULL);
+  const PdbSpan *span;
+  int pos = 0;
+  int i;
+
+  pdb_list_for_each (span, &title->spans, link)
+    {
+      char *mark = pdb_db_get_officiality_mark (title, span);
+
+      if (mark == NULL || span->span_start < pos)
+        {
+          g_free (mark);
+          continue;
+        }
+
+      g_string_append_len (text, title->text + pos, span->span_start - pos);
+      pos = span->span_start + span->span_length;
+
+      for (i = 0; i < marks->len; i++)
+        if (!strcmp (g_ptr_array_index (marks, i), mark))
+          break;
+      if (i < marks->len)
+        g_free (mark);
+      else
+        g_ptr_array_add (marks, mark);
+    }
+
+  g_string_append_len (text, title->text + pos, title->length - pos);
+  g_strstrip (text->str);
+
+  for (i = 0; i < marks->len; i++)
+    g_string_append_printf (out,
+                            "%s\t%c\t%i\t%i\t%s\n",
+                            (const char *) g_ptr_array_index (marks, i),
+                            kind,
+                            article_num,
+                            section_num,
+                            text->str);
+
+  g_string_free (text, TRUE);
+  g_ptr_array_free (marks, TRUE);
+}
+
+/* Writes the list of the official roots and words, for the
+ * applications that show what each Oficiala Aldono contains. One line
+ * per mark: the level ("*" for the Fundamento, or the number of the
+ * addition), R for the root of an article or W for a word, the article,
+ * the section of the word (0 for a root), and the text without its
+ * mark, eg. "9\tR\t5182\t0\tkomput/i". */
+static gboolean
+pdb_db_save_officiality (PdbDb *db,
+                         const char *dir,
+                         GError **error)
+{
+  GString *out = g_string_new (NULL);
+  int article_num;
+  gboolean ret;
+
+  for (article_num = 0; article_num < db->articles->len; article_num++)
+    {
+      PdbDbArticle *article = g_ptr_array_index (db->articles, article_num);
+      int section_num = 0;
+      GList *l;
+
+      pdb_db_add_officiality (out, &article->title, 'R', article_num, 0);
+
+      for (l = article->sections; l; l = l->next, section_num++)
+        {
+          PdbDbSection *section = l->data;
+
+          if (!strcmp (section->lang_code, "eo"))
+            pdb_db_add_officiality (out,
+                                    &section->title,
+                                    'W',
+                                    article_num,
+                                    section_num);
+        }
+    }
+
+  char *file_name = g_build_filename (dir, "assets", "officiality.txt", NULL);
+  ret = g_file_set_contents (file_name, out->str, out->len, error);
+  g_free (file_name);
+  g_string_free (out, TRUE);
+
+  return ret;
+}
+
 gboolean
 pdb_db_save (PdbDb *db,
              const char *dir,
@@ -3538,6 +3657,9 @@ pdb_db_save (PdbDb *db,
         }
     }
   else
+    ret = FALSE;
+
+  if (ret && !pdb_db_save_officiality (db, dir, error))
     ret = FALSE;
 
   return ret;
