@@ -37,12 +37,12 @@
   <string name="brand_name" translatable="false">Bona vortaro</string>
   <string name="brand_subtitle">laŭ Reta Vortaro</string>
   <string name="official_fundamento">Fundamento</string>
-  <string name="official_addition">%1$d-a Oficiala Aldono</string>
+  <string name="official_addition">%1$da Oficiala Aldono</string>
   <string name="official_explain">Klarigo pri la oficialeco</string>
   <string name="official_fundamento_title">Fundamenta vorto</string>
   <string name="official_fundamento_text">Ĉi tiu vorto estas en la Fundamento de Esperanto (1905), la baza verko de la lingvo. La Bulonja Deklaracio faris la Fundamenton netuŝebla: neniu rajtas ŝanĝi ĝin.</string>
-  <string name="official_addition_title">Vorto de la %1$d-a Oficiala Aldono</string>
-  <string name="official_addition_text">Ĉi tiu vorto oficialiĝis per la %1$d-a Oficiala Aldono al la Universala Vortaro (%2$s). La Oficialaj Aldonoj kompletigas la Fundamenton per radikoj, kiuj montriĝis necesaj kaj vaste uzataj.</string>
+  <string name="official_addition_title">Vorto de la %1$da Oficiala Aldono</string>
+  <string name="official_addition_text">Ĉi tiu vorto oficialiĝis per la %1$da Oficiala Aldono al la Universala Vortaro (%2$s). La Oficialaj Aldonoj kompletigas la Fundamenton per radikoj, kiuj montriĝis necesaj kaj vaste uzataj.</string>
   <string name="official_timeline">La oficiala vortaro, paŝo post paŝo</string>
   <string name="official_more">Pli pri la oficialeco</string>
   <string name="name_title">Kial „Bona vortaro“?</string>
@@ -60,13 +60,13 @@
   <string name="words">%1$d vortoj</string>
   <string name="one_word">1 vorto</string>
   <string name="addition_fundamento">La Fundamento de Esperanto (1905) enhavas la Universalan Vortaron de Zamenhof: la radikojn, sur kiuj la lingvo staras, kaj kiujn neniu rajtas ŝanĝi.</string>
-  <string name="addition_text">La %1$d-a Oficiala Aldono al la Universala Vortaro (%2$s) aldonis al ĝi radikojn, kaj, en kelkaj el ili, vortojn faritajn el ili.</string>
+  <string name="addition_text">La %1$da Oficiala Aldono al la Universala Vortaro (%2$s) aldonis al ĝi radikojn, kaj, en kelkaj el ili, vortojn faritajn el ili.</string>
   <string name="addition_9">Ĝiaj difinoj estas nur en Esperanto.</string>
   <string name="addition_10">Ĝi estas ĉefe geografia (landoj, regionoj, maroj…), kaj por la unua fojo ĝi oficialigis ankaŭ multajn tutajn vortojn kaj plurvortajn nomojn.</string>
   <string name="addition_counts">En ĉi tiu vortaro: %1$s.</string>
   <string name="addition_filter">Serĉi en la listo</string>
   <string name="addition_from">el %1$s</string>
-  <string name="addition_list">La listo de la %1$d-a Oficiala Aldono</string>
+  <string name="addition_list">La listo de la %1$da Oficiala Aldono</string>
   <string name="addition_list_fundamento">La listo de la Fundamento</string>
   <string name="officiality_title">Oficialeco de la vortoj</string>
   <string name="officiality_summary">Kion signifas „Fundamento“ kaj „Oficiala Aldono“</string>
@@ -74,7 +74,7 @@
   <string name="officiality_fundamento_title">La Fundamento (1905)</string>
   <string name="officiality_fundamento_text">La Fundamento de Esperanto estas la baza verko de la lingvo: ĝi enhavas la gramatikon, la Ekzercaron kaj la Universalan Vortaron de Zamenhof. La Bulonja Deklaracio, akceptita ĉe la unua Universala Kongreso en 1905, faris ĝin netuŝebla: neniu rajtas ŝanĝi ĝin. La vortoj kun la etikedo „Fundamento“ venas el ĝi.</string>
   <string name="officiality_additions_title">La Oficialaj Aldonoj</string>
-  <string name="officiality_additions_text">Poste, la Lingva Komitato kaj la Akademio de Esperanto aldonis al la Universala Vortaro radikojn, kiuj montriĝis necesaj kaj jam estis vaste uzataj. Ĝis nun aperis dek Oficialaj Aldonoj. La etikedo „9-a Oficiala Aldono“ signifas, ke la vorto oficialiĝis en 2007.</string>
+  <string name="officiality_additions_text">Poste, la Lingva Komitato kaj la Akademio de Esperanto aldonis al la Universala Vortaro radikojn, kiuj montriĝis necesaj kaj jam estis vaste uzataj. Ĝis nun aperis dek Oficialaj Aldonoj. La etikedo „9a Oficiala Aldono“ signifas, ke la vorto oficialiĝis en 2007.</string>
   <string name="officiality_meaning_title">Kion tio signifas</string>
   <string name="officiality_meaning_text">Oficiala vorto estas certe ĝusta Esperanto. Sed multaj bonaj kaj vaste uzataj vortoj ne estas oficialaj: vorto sen etikedo ne estas malĝusta. Krome, la vortoj faritaj el oficiala radiko laŭ la reguloj de la lingvo estas same bonaj.</string>
   <string name="officiality_source">Fonto: Akademio de Esperanto, akademio-de-esperanto.org</string>

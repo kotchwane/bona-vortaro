@@ -47,6 +47,13 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.produceState
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import androidx.compose.material3.FilledTonalButton
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.res.stringArrayResource
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -152,7 +159,7 @@ private fun OfficialListsSection() {
                 Text("${levelName(level)} (${OFFICIAL_YEARS[level]})", style = MaterialTheme.typography.bodyLarge)
                 counts?.let { (roots, words) ->
                     Text(
-                        if (words == 0) pluralRoots(roots) else pluralRoots(roots) + ", " + pluralWords(words),
+                        countsText(roots, words),
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
@@ -162,12 +169,6 @@ private fun OfficialListsSection() {
         }
     }
 }
-
-@Composable
-private fun pluralRoots(n: Int) = if (n == 1) stringResource(R.string.one_root) else stringResource(R.string.roots, n)
-
-@Composable
-private fun pluralWords(n: Int) = if (n == 1) stringResource(R.string.one_word) else stringResource(R.string.words, n)
 
 @Composable
 private fun Paragraph(title: Int, text: Int) {
@@ -182,29 +183,27 @@ private fun Paragraph(title: Int, text: Int) {
     Text(stringResource(text), style = MaterialTheme.typography.bodyLarge)
 }
 
-/** What the badge of a word means, opened by tapping it: a short
- * explanation, where the word is in the timeline, and a link to the
+/** What the Fundamento or an Oficiala Aldono is, opened by tapping the
+ * badge of a word: what is worth knowing about it, some of its words,
+ * and where it is in the timeline. A circle of the timeline shows
+ * another one in the same panel; the buttons open its list, and the
  * page with more. */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun OfficialSheet(level: Int, onDismiss: () -> Unit) {
     val context = LocalContext.current
+    var shown by rememberSaveable { mutableIntStateOf(level) }
 
     ModalBottomSheet(onDismissRequest = onDismiss) {
         Column(Modifier.padding(start = 24.dp, end = 24.dp, bottom = 32.dp)) {
             Text(
-                if (level == 0) stringResource(R.string.official_fundamento_title)
-                else stringResource(R.string.official_addition_title, level),
+                "${levelName(shown)} (${OFFICIAL_YEARS[shown]})",
                 style = MaterialTheme.typography.titleLarge,
                 color = MaterialTheme.colorScheme.primary,
                 fontWeight = FontWeight.Bold,
             )
             Spacer(Modifier.height(12.dp))
-            Text(
-                if (level == 0) stringResource(R.string.official_fundamento_text)
-                else stringResource(R.string.official_addition_text, level, OFFICIAL_YEARS[level]),
-                style = MaterialTheme.typography.bodyLarge,
-            )
+            AdditionAbout(shown, examples = true)
             Spacer(Modifier.height(20.dp))
             Text(
                 stringResource(R.string.official_timeline),
@@ -212,27 +211,76 @@ fun OfficialSheet(level: Int, onDismiss: () -> Unit) {
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
             Spacer(Modifier.height(8.dp))
-            OfficialTimeline(level, onSelect = {
-                onDismiss()
-                AdditionActivity.open(context, it)
-            })
+            OfficialTimeline(shown, onSelect = { shown = it })
             Spacer(Modifier.height(20.dp))
-            OutlinedButton(onClick = {
-                onDismiss()
-                AdditionActivity.open(context, level)
-            }) {
-                Text(
-                    if (level == 0) stringResource(R.string.addition_list_fundamento)
-                    else stringResource(R.string.addition_list, level)
-                )
-            }
-            OutlinedButton(onClick = {
-                onDismiss()
-                OfficialityActivity.open(context)
-            }) {
-                Text(stringResource(R.string.official_more))
+            Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                FilledTonalButton(
+                    onClick = {
+                        onDismiss()
+                        AdditionActivity.open(context, shown)
+                    },
+                    modifier = Modifier.weight(1f),
+                ) {
+                    Text(stringResource(R.string.addition_list), maxLines = 1)
+                }
+                OutlinedButton(
+                    onClick = {
+                        onDismiss()
+                        OfficialityActivity.open(context)
+                    },
+                    modifier = Modifier.weight(1f),
+                ) {
+                    Text(stringResource(R.string.official_more), maxLines = 1)
+                }
             }
         }
+    }
+}
+
+/** What is worth knowing about a level, optionally some of its words,
+ * and how many roots and words of this dictionary it made official. */
+@Composable
+fun AdditionAbout(level: Int, examples: Boolean) {
+    val context = LocalContext.current
+    val all by produceState<List<OfficialEntry>?>(null) {
+        value = withContext(Dispatchers.IO) { OfficialLists.get(context) }
+    }
+    val muted = MaterialTheme.colorScheme.onSurfaceVariant
+
+    Text(stringArrayResource(R.array.addition_about)[level], style = MaterialTheme.typography.bodyLarge)
+    if (examples) {
+        Spacer(Modifier.height(8.dp))
+        Text(
+            stringResource(R.string.addition_examples, stringArrayResource(R.array.addition_example_words)[level]),
+            style = MaterialTheme.typography.bodyLarge,
+        )
+    }
+    all?.let { entries ->
+        val (roots, words) = remember(entries, level) { OfficialLists.counts(OfficialLists.groups(entries, level)) }
+        Spacer(Modifier.height(8.dp))
+        Text(
+            stringResource(R.string.addition_counts, countsText(roots, words)),
+            style = MaterialTheme.typography.bodyMedium.copy(fontStyle = FontStyle.Italic),
+            color = muted,
+        )
+    }
+}
+
+/** "Fundamento" or "9a Oficiala Aldono" */
+@Composable
+fun levelName(level: Int): String =
+    if (level == 0) stringResource(R.string.official_fundamento)
+    else stringResource(R.string.official_addition, level)
+
+/** "209 radikoj, 72 vortoj" */
+@Composable
+fun countsText(roots: Int, words: Int): String {
+    val r = if (roots == 1) stringResource(R.string.one_root) else stringResource(R.string.roots, roots)
+    val w = if (words == 1) stringResource(R.string.one_word) else stringResource(R.string.words, words)
+    return when {
+        words == 0 -> r
+        roots == 0 -> w
+        else -> "$r, $w"
     }
 }
 

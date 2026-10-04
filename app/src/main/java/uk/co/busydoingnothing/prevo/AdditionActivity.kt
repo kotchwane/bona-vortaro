@@ -20,6 +20,7 @@ package uk.co.busydoingnothing.prevo
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
@@ -41,6 +42,7 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -93,24 +95,6 @@ class AdditionActivity : BonaActivity() {
     }
 }
 
-/** "Fundamento" or "9-a Oficiala Aldono" */
-@Composable
-fun levelName(level: Int): String =
-    if (level == 0) stringResource(R.string.official_fundamento)
-    else stringResource(R.string.official_addition, level)
-
-/** "209 radikoj, 241 vortoj" */
-@Composable
-private fun countsText(roots: Int, words: Int): String {
-    val r = if (roots == 1) stringResource(R.string.one_root) else stringResource(R.string.roots, roots)
-    val w = if (words == 1) stringResource(R.string.one_word) else stringResource(R.string.words, words)
-    return when {
-        words == 0 -> r
-        roots == 0 -> w
-        else -> "$r, $w"
-    }
-}
-
 @Composable
 private fun AdditionPage(initialLevel: Int, onOpen: (OfficialEntry) -> Unit, onBack: () -> Unit) {
     val context = LocalContext.current
@@ -136,8 +120,14 @@ private fun AdditionPage(initialLevel: Int, onOpen: (OfficialEntry) -> Unit, onB
             ?.distinctBy { it.first }.orEmpty()
     }
 
+    /* After a jump to a letter, or a long scroll, back returns to the top
+     * of the list first, and only then leaves */
+    val scrolled by remember { derivedStateOf { listState.firstVisibleItemIndex > 0 } }
+    val toTop = { scope.launch { listState.animateScrollToItem(0) }; Unit }
+    BackHandler(enabled = scrolled, onBack = toTop)
+
     BonaScaffold(
-        topBar = { BonaTopBar(title = { Text(levelName(level)) }, onBack = onBack) },
+        topBar = { BonaTopBar(title = { Text(levelName(level)) }, onBack = if (scrolled) toTop else onBack) },
     ) { padding ->
         LazyColumn(
             Modifier
@@ -152,26 +142,7 @@ private fun AdditionPage(initialLevel: Int, onOpen: (OfficialEntry) -> Unit, onB
                 Column(Modifier.padding(horizontal = 20.dp)) {
                     OfficialTimeline(level, onSelect = { level = it; scope.launch { listState.scrollToItem(0) } })
                     Spacer(Modifier.height(16.dp))
-                    Text(
-                        when (level) {
-                            0 -> stringResource(R.string.addition_fundamento)
-                            9 -> stringResource(R.string.addition_text, level, OFFICIAL_YEARS[level]) + " " +
-                                stringResource(R.string.addition_9)
-                            10 -> stringResource(R.string.addition_text, level, OFFICIAL_YEARS[level]) + " " +
-                                stringResource(R.string.addition_10)
-                            else -> stringResource(R.string.addition_text, level, OFFICIAL_YEARS[level])
-                        },
-                        style = MaterialTheme.typography.bodyLarge,
-                    )
-                    groups?.let { list ->
-                        val (roots, words) = OfficialLists.counts(list)
-                        Spacer(Modifier.height(8.dp))
-                        Text(
-                            stringResource(R.string.addition_counts, countsText(roots, words)),
-                            style = MaterialTheme.typography.bodyMedium.copy(fontStyle = FontStyle.Italic),
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        )
-                    }
+                    AdditionAbout(level, examples = false)
                     Spacer(Modifier.height(8.dp))
                     RoundedSearchField(
                         query = query,
