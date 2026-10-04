@@ -140,7 +140,6 @@ class SearchActivity : BonaActivity() {
                     recent = recent,
                     keepHistory = keepHistory,
                     onRemoveRecent = ::removeFromHistory,
-                    onClearRecent = ::clearHistory,
                     onRestoreHistory = ::restoreHistory,
                 )
             }
@@ -168,13 +167,6 @@ class SearchActivity : BonaActivity() {
         val before = History.get(this)
         History.remove(this, search.entry)
         recent = recent?.filter { it !== search }
-        return before
-    }
-
-    private fun clearHistory(): List<HistoryEntry> {
-        val before = History.get(this)
-        History.clear(this)
-        recent = emptyList()
         return before
     }
 
@@ -234,7 +226,6 @@ private fun SearchScreen(
     recent: List<RecentSearch>?,
     keepHistory: Boolean,
     onRemoveRecent: (RecentSearch) -> List<HistoryEntry>,
-    onClearRecent: () -> List<HistoryEntry>,
     onRestoreHistory: (List<HistoryEntry>) -> Unit,
 ) {
     val context = LocalContext.current
@@ -246,7 +237,6 @@ private fun SearchScreen(
     val snackbar = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
     val removed = stringResource(R.string.history_removed)
-    val cleared = stringResource(R.string.history_cleared)
     val undo = stringResource(R.string.undo)
 
     /* A removal from the history can be undone for a moment */
@@ -304,7 +294,6 @@ private fun SearchScreen(
                 textSize = textSize,
                 onOpen = { editing = false; onResultClick(it.result, it.entry.language) },
                 onRemove = { offerUndo(removed, onRemoveRecent(it)) },
-                onClear = { editing = false; offerUndo(cleared, onClearRecent()) },
                 modifier = Modifier.padding(padding).consumeWindowInsets(padding).imePadding(),
             )
         } else if (current != null && current.results.isEmpty()) {

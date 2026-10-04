@@ -89,7 +89,6 @@ fun RecentSearches(
     textSize: Int,
     onOpen: (RecentSearch) -> Unit,
     onRemove: (RecentSearch) -> Unit,
-    onClear: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val scale = BonaSettings.textScale(textSize)
@@ -157,17 +156,6 @@ fun RecentSearches(
                     )
                     if (index != recent.lastIndex)
                         HorizontalDivider(Modifier.padding(horizontal = 20.dp), color = rule)
-                }
-                item {
-                    Box(Modifier.fillMaxWidth().padding(top = 8.dp), contentAlignment = Alignment.Center) {
-                        TextButton(onClick = onClear) {
-                            Text(
-                                stringResource(R.string.clear_history),
-                                style = MaterialTheme.typography.bodyMedium.copy(fontStyle = FontStyle.Italic),
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            )
-                        }
-                    }
                 }
             }
         }
