@@ -39,12 +39,8 @@
   <string name="official_fundamento">Fundamento</string>
   <string name="official_addition">%1$da Oficiala Aldono</string>
   <string name="official_explain">Klarigo pri la oficialeco</string>
-  <string name="official_fundamento_title">Fundamenta vorto</string>
-  <string name="official_fundamento_text">Ĉi tiu vorto estas en la Fundamento de Esperanto (1905), la baza verko de la lingvo. La Bulonja Deklaracio faris la Fundamenton netuŝebla: neniu rajtas ŝanĝi ĝin.</string>
-  <string name="official_addition_title">Vorto de la %1$da Oficiala Aldono</string>
-  <string name="official_addition_text">Ĉi tiu vorto oficialiĝis per la %1$da Oficiala Aldono al la Universala Vortaro (%2$s). La Oficialaj Aldonoj kompletigas la Fundamenton per radikoj, kiuj montriĝis necesaj kaj vaste uzataj.</string>
   <string name="official_timeline">La oficiala vortaro, paŝo post paŝo</string>
-  <string name="official_more">Pli pri la oficialeco</string>
+  <string name="official_more">Pri oficialeco</string>
   <string name="name_title">Kial „Bona vortaro“?</string>
   <string name="name_summary">Omaĝe al *La bona lingvo* de Claude Piron</string>
   <string name="name_quote">„Pri la bona lingvo mi babilos kun vi, se vi konsentas.“</string>
@@ -59,15 +55,38 @@
   <string name="one_root">1 radiko</string>
   <string name="words">%1$d vortoj</string>
   <string name="one_word">1 vorto</string>
-  <string name="addition_fundamento">La Fundamento de Esperanto (1905) enhavas la Universalan Vortaron de Zamenhof: la radikojn, sur kiuj la lingvo staras, kaj kiujn neniu rajtas ŝanĝi.</string>
-  <string name="addition_text">La %1$da Oficiala Aldono al la Universala Vortaro (%2$s) aldonis al ĝi radikojn, kaj, en kelkaj el ili, vortojn faritajn el ili.</string>
-  <string name="addition_9">Ĝiaj difinoj estas nur en Esperanto.</string>
-  <string name="addition_10">Ĝi estas ĉefe geografia (landoj, regionoj, maroj…), kaj por la unua fojo ĝi oficialigis ankaŭ multajn tutajn vortojn kaj plurvortajn nomojn.</string>
   <string name="addition_counts">En ĉi tiu vortaro: %1$s.</string>
   <string name="addition_filter">Serĉi en la listo</string>
   <string name="addition_from">el %1$s</string>
-  <string name="addition_list">La listo de la %1$da Oficiala Aldono</string>
-  <string name="addition_list_fundamento">La listo de la Fundamento</string>
+  <string name="addition_list">Vidi la liston</string>
+  <string name="addition_examples">Ekzemple: %1$s.</string>
+  <!-- What is worth knowing about the Fundamento (0) and each Oficiala Aldono (1 to 10) -->
+  <string-array name="addition_about">
+    <item>La baza verko de Esperanto, publikigita de Zamenhof en 1905: la gramatiko, la Ekzercaro kaj la Universala Vortaro. La Bulonja Deklaracio faris ĝin netuŝebla: neniu rajtas ŝanĝi ĝin.</item>
+    <item>La unua Oficiala Aldono aperis kvar jarojn post la Fundamento, ankoraŭ dum la vivo de Zamenhof. Ĝi oficialigis ankaŭ la sufikson -aĉ-.</item>
+    <item>La unua post la Unua Mondmilito kaj post la morto de Zamenhof (1917). Ĝi oficialigis ankaŭ la sufikson -ism-.</item>
+    <item>Ĝi aperis nur du jarojn post la 2a. Kelkaj el ĝiaj radikoj havas du formojn, kun ĥ kaj kun k, kiel anarĥio kaj anarkio.</item>
+    <item>Inter ĝiaj radikoj estas multaj vortoj de la sciencoj, kiel aluminio, karbono kaj oksido.</item>
+    <item>La 5a kaj la 6a aperis unu post la alia, en 1934 kaj 1935, kaj ambaŭ estas tre mallongaj.</item>
+    <item>Ĝi aperis nur unu jaron post la 5a, kaj ankaŭ ĝi estas tre mallonga.</item>
+    <item>La unua post la Dua Mondmilito, 23 jarojn post la 6a. Ĝi oficialigis la nomojn de la literoj (a, bo, co…), nomojn de popoloj kaj de personoj (anglo, Petro), kaj eĉ la radikon de la vorto Esperanto.</item>
+    <item>Ĝi oficialigis multajn nomojn de landoj (Aŭstralio, Brazilo, Irlando…) kaj vortojn de la moderna vivo.</item>
+    <item>La unua post 33 jaroj. Ĝiaj difinoj estas nur en Esperanto.</item>
+    <item>La plej nova. Ĝi estas ĉefe geografia (landoj, urboj, riveroj, maroj…), kaj por la unua fojo ĝi oficialigis ankaŭ multajn tutajn vortojn kaj plurvortajn nomojn, kiel Nigra Maro.</item>
+  </string-array>
+  <string-array name="addition_example_words">
+    <item>akvo, amiko, arbo, domo, ŝati</item>
+    <item>biblioteko, politiko, programo, temperaturo</item>
+    <item>balono, dinamito, kompromiso, rekordo</item>
+    <item>aeroplano, invadi, medio, stenografi</item>
+    <item>aluminio, dimensio, murdi, orbito</item>
+    <item>aviado, bulteno, kabineto, plagiato</item>
+    <item>baleto, gramofono, monotona, vizio</item>
+    <item>Eŭropo, kongreso, teatro</item>
+    <item>aŭtobuso, ekrano, filmo, helikoptero</item>
+    <item>aspirino, satelito, testi, viruso</item>
+    <item>Ateno, Danubo, Helsinko, Kopenhago</item>
+  </string-array>
   <string name="officiality_title">Oficialeco de la vortoj</string>
   <string name="officiality_summary">Kion signifas „Fundamento“ kaj „Oficiala Aldono“</string>
   <string name="officiality_intro">Iuj vortoj havas etikedon, kiu montras, ke ili apartenas al la oficiala vortaro de Esperanto, kaj kiam ili eniris ĝin. La etikedo apud la nomo de artikolo, supre, koncernas ĝian radikon; tiu sur vorto koncernas la vorton mem.</string>
