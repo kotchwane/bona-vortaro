@@ -19,6 +19,7 @@ package uk.co.busydoingnothing.prevo
 
 import android.content.Context
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Arrangement
@@ -60,8 +61,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+
+private const val FUNDAMENTO_URL = "https://eo.wikipedia.org/wiki/Fundamento_de_Esperanto"
+private const val ADDITIONS_URL = "https://eo.wikipedia.org/wiki/Oficialaj_aldonoj"
 
 /** The years of the Fundamento (index 0) and of the Oficialaj Aldonoj
  * (index n for the n-th), from the Akademio de Esperanto. */
@@ -116,9 +121,8 @@ private fun OfficialityPage(onBack: () -> Unit) {
             val context = LocalContext.current
             OfficialTimeline(level = null, onSelect = { AdditionActivity.open(context, it) })
 
-            Paragraph(R.string.officiality_fundamento_title, R.string.officiality_fundamento_text)
-            Paragraph(R.string.officiality_additions_title, R.string.officiality_additions_text)
-            Paragraph(R.string.officiality_meaning_title, R.string.officiality_meaning_text)
+            Paragraph(R.string.officiality_fundamento_title, R.string.officiality_fundamento_text, FUNDAMENTO_URL)
+            Paragraph(R.string.officiality_additions_title, R.string.officiality_additions_text, ADDITIONS_URL)
             OfficialListsSection()
 
             Spacer(Modifier.height(24.dp))
@@ -171,8 +175,11 @@ private fun OfficialListsSection() {
     }
 }
 
+/** A paragraph, and a link to more about it in Vikipedio */
 @Composable
-private fun Paragraph(title: Int, text: Int) {
+private fun Paragraph(title: Int, text: Int, link: String) {
+    val context = LocalContext.current
+
     Spacer(Modifier.height(24.dp))
     Text(
         stringResource(title),
@@ -182,6 +189,14 @@ private fun Paragraph(title: Int, text: Int) {
     )
     Spacer(Modifier.height(6.dp))
     Text(stringResource(text), style = MaterialTheme.typography.bodyLarge)
+    Text(
+        stringResource(R.string.officiality_wikipedia),
+        style = MaterialTheme.typography.bodyLarge.copy(textDecoration = TextDecoration.Underline),
+        color = MaterialTheme.colorScheme.primary,
+        modifier = Modifier
+            .clickable { context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(link))) }
+            .padding(vertical = 8.dp),
+    )
 }
 
 /** What the Fundamento or an Oficiala Aldono is, opened by tapping the

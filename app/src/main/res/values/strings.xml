@@ -93,9 +93,8 @@
   <string name="officiality_fundamento_title">La Fundamento (1905)</string>
   <string name="officiality_fundamento_text">La Fundamento de Esperanto estas la baza verko de la lingvo: ĝi enhavas la gramatikon, la Ekzercaron kaj la Universalan Vortaron de Zamenhof. La Bulonja Deklaracio, akceptita ĉe la unua Universala Kongreso en 1905, faris ĝin netuŝebla: neniu rajtas ŝanĝi ĝin. La vortoj kun la etikedo „Fundamento“ venas el ĝi.</string>
   <string name="officiality_additions_title">La Oficialaj Aldonoj</string>
-  <string name="officiality_additions_text">Poste, la Lingva Komitato kaj la Akademio de Esperanto aldonis al la Universala Vortaro radikojn, kiuj montriĝis necesaj kaj jam estis vaste uzataj. Ĝis nun aperis dek Oficialaj Aldonoj. La etikedo „9a Oficiala Aldono“ signifas, ke la vorto oficialiĝis en 2007.</string>
-  <string name="officiality_meaning_title">Kion tio signifas</string>
-  <string name="officiality_meaning_text">Oficiala vorto estas certe ĝusta Esperanto. Sed multaj bonaj kaj vaste uzataj vortoj ne estas oficialaj: vorto sen etikedo ne estas malĝusta. Krome, la vortoj faritaj el oficiala radiko laŭ la reguloj de la lingvo estas same bonaj.</string>
+  <string name="officiality_additions_text">Poste, la Lingva Komitato kaj la Akademio de Esperanto aldonis al la Universala Vortaro radikojn, kiuj montriĝis necesaj kaj jam estis vaste uzataj. Ĝis nun aperis dek Oficialaj Aldonoj. Sube troviĝas la listo de ĉiu el ili.</string>
+  <string name="officiality_wikipedia">Pli en Vikipedio</string>
   <string name="officiality_source">Fonto: Akademio de Esperanto, akademio-de-esperanto.org</string>
   <string name="appearance">Aspekto</string>
   <string name="theme">Etoso</string>
