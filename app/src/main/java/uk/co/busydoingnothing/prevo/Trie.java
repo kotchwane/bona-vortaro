@@ -23,6 +23,8 @@ import java.io.IOException;
 import java.text.Normalizer;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.HashSet;
 import java.util.Locale;
 
 class TrieStack
@@ -469,6 +471,147 @@ public class Trie
   }
 
   /* Test program */
+  /* The offset of the first child of a node, after the words that end
+   * on it, if any */
+  private int childrenOf (int node)
+  {
+    int child = node + 4;
+    child += getUtf8Length (data[child]);
+
+    if (extractInt (data, node) < 0)
+      {
+        boolean hasNext;
+
+        do
+          {
+            hasNext = (data[child + 1] & 0x80) != 0;
+            boolean hasDisplayName = (data[child + 1] & 0x40) != 0;
+
+            child += 3;
+
+            if (hasDisplayName)
+              child += (data[child] & 0xff) + 1;
+          } while (hasNext);
+      }
+
+    return child;
+  }
+
+  /* Adds the words that end on a node, whose path is 'path' */
+  private int addWordsOf (int node,
+                          String path,
+                          SearchResult[] results,
+                          int numResults)
+  {
+    if (extractInt (data, node) >= 0)
+      return numResults;
+
+    int child = node + 4;
+    child += getUtf8Length (data[child]);
+
+    boolean hasNext = true;
+
+    while (hasNext && numResults < results.length)
+      {
+        int article = ((data[child] & 0xff) |
+                       ((data[child + 1] & 0xff) << 8));
+        int mark = data[child + 2] & 0xff;
+        hasNext = (article & 0x8000) != 0;
+        boolean hasDisplayName = (article & 0x4000) != 0;
+
+        child += 3;
+        article &= 0x3fff;
+
+        String word = path;
+        if (hasDisplayName)
+          {
+            int len = data[child] & 0xff;
+            word = new String (data, child + 1, len);
+            child += len + 1;
+          }
+
+        results[numResults++] = new SearchResult (word, article, mark);
+      }
+
+    return numResults;
+  }
+
+  /* Follows the pattern from patternOffset, the node being reached by
+   * 'path'. A node is visited only once for each place in the pattern,
+   * so that two stars don't find a word twice. */
+  private int matchPattern (int node,
+                            String pattern,
+                            int patternOffset,
+                            StringBuilder path,
+                            Set<Long> visited,
+                            SearchResult[] results,
+                            int numResults)
+  {
+    if (numResults >= results.length ||
+        !visited.add (((long) node << 8) | patternOffset))
+      return numResults;
+
+    if (patternOffset >= pattern.length ())
+      return addWordsOf (node, path.toString (), results, numResults);
+
+    int nextOffset = pattern.offsetByCodePoints (patternOffset, 1);
+    String typed =
+      pattern.substring (patternOffset, nextOffset).toLowerCase (Locale.ROOT);
+    boolean star = typed.equals ("*");
+
+    /* A star can also stand for nothing */
+    if (star)
+      numResults = matchPattern (node, pattern, nextOffset, path,
+                                 visited, results, numResults);
+
+    String letter = foldLetter (typed);
+    boolean plain = letter.equals (typed);
+    int nodeEnd = node + (extractInt (data, node) & 0x7fffffff);
+
+    for (int child = childrenOf (node);
+         child < nodeEnd && numResults < results.length;
+         child += extractInt (data, child) & 0x7fffffff)
+      {
+        String childLetter = getCharacter (child + 4);
+        boolean matches;
+
+        if (star || typed.equals ("?"))
+          matches = true;
+        else if (plain)
+          matches = foldLetter (childLetter).equals (letter);
+        else
+          matches = childLetter.toLowerCase (Locale.ROOT).equals (typed);
+
+        if (matches)
+          {
+            int oldLength = path.length ();
+            path.append (childLetter);
+            /* A star stays, to take more letters */
+            numResults = matchPattern (child, pattern,
+                                       star ? patternOffset : nextOffset,
+                                       path, visited, results, numResults);
+            path.setLength (oldLength);
+          }
+      }
+
+    return numResults;
+  }
+
+  /* Searches the whole words that match a pattern, where "*" stands for
+   * any letters, even none, and "?" for exactly one letter: "*ologio"
+   * finds "biologio" and "geologio". The letters follow the same rules
+   * as searchIgnoringAccents. The results are in the order of the
+   * index. */
+  public int searchPattern (String pattern,
+                            SearchResult[] results)
+  {
+    /* Several stars in a row are the same as one */
+    pattern = pattern.replaceAll ("\\*+", "*");
+
+    return matchPattern (0, pattern, 0, new StringBuilder (),
+                         new HashSet<Long> (), results, 0);
+  }
+
   public static void main (String[] args)
     throws IOException
   {
