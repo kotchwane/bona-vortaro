@@ -121,9 +121,10 @@ private fun AdditionPage(initialLevel: Int, onOpen: (OfficialEntry) -> Unit, onB
     }
 
     /* After a jump to a letter, or a long scroll, back returns to the top
-     * of the list first, and only then leaves */
+     * of the list first, and only then leaves. Jumps, not animations: an
+     * animation builds every row on the way, a thousand in the Fundamento */
     val scrolled by remember { derivedStateOf { listState.firstVisibleItemIndex > 0 } }
-    val toTop = { scope.launch { listState.animateScrollToItem(0) }; Unit }
+    val toTop = { scope.launch { listState.scrollToItem(0) }; Unit }
     BackHandler(enabled = scrolled, onBack = toTop)
 
     BonaScaffold(
@@ -168,7 +169,7 @@ private fun AdditionPage(initialLevel: Int, onOpen: (OfficialEntry) -> Unit, onB
                                 style = MaterialTheme.typography.titleSmall,
                                 color = bonaDesign.headword,
                                 modifier = Modifier
-                                    .clickable { scope.launch { listState.animateScrollToItem(index + 2) } }
+                                    .clickable { scope.launch { listState.scrollToItem(index + 2) } }
                                     .padding(horizontal = 9.dp, vertical = 8.dp),
                             )
                     }
