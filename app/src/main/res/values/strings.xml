@@ -45,6 +45,15 @@
   <string name="official_addition_text">Ĉi tiu vorto oficialiĝis per la %1$d-a Oficiala Aldono al la Universala Vortaro (%2$s). La Oficialaj Aldonoj kompletigas la Fundamenton per radikoj, kiuj montriĝis necesaj kaj vaste uzataj.</string>
   <string name="official_timeline">La oficiala vortaro, paŝo post paŝo</string>
   <string name="official_more">Pli pri la oficialeco</string>
+  <string name="name_title">Kial „Bona vortaro“?</string>
+  <string name="name_summary">Omaĝe al *La bona lingvo* de Claude Piron</string>
+  <string name="name_quote">„Pri la bona lingvo mi babilos kun vi, se vi konsentas.“</string>
+  <string name="name_quote_source">Claude Piron, *La bona lingvo* (1989)</string>
+  <string name="name_tribute">La nomo de ĉi tiu vortaro omaĝas al *La bona lingvo*, la libro de Claude Piron (1927–2008), psikologo, tradukisto kaj verkisto. En ĝi li montras, ke Esperanto estas plej klara kaj plej bela, kiam oni uzas ĝiajn simplajn radikojn kaj ĝian riĉan vortfaradon, anstataŭ prunti novajn vortojn kaj enkonduki novajn radikojn.</string>
+  <string name="name_aim">Bona vortaro volas esti same: simpla, klara, kaj agrabla por uzi.</string>
+  <string name="name_examples">En la artikoloj, la rimarkoj „Laŭ vortoj de la bona lingvo“ venas el la sama spirito: anstataŭ novajn radikojn, ili proponas vortojn faritajn el jam konataj, ekzemple *sinĝenema* aŭ *malaplomba* por *timida*, *manĝobastoneto* por *haŝio*, *ŝatokupo* por *hobio*, *memlernanto* por *aŭtodidakto*, *flugroboto* por *droneo*.</string>
+  <string name="name_read_book">Legi *La bonan lingvon*</string>
+  <string name="name_read_book_where">La tuta libro, en la retejo de Claude Piron</string>
   <string name="officiality_title">Oficialeco de la vortoj</string>
   <string name="officiality_summary">Kion signifas „Fundamento“ kaj „Oficiala Aldono“</string>
   <string name="officiality_intro">Iuj vortoj havas etikedon, kiu montras, ke ili apartenas al la oficiala vortaro de Esperanto, kaj kiam ili eniris ĝin. La etikedo apud la nomo de artikolo, supre, koncernas ĝian radikon; tiu sur vorto koncernas la vorton mem.</string>

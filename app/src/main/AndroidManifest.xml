@@ -54,6 +54,10 @@
               android:configChanges="uiMode"
               android:label="@string/preferences"
               android:exported="false" />
+    <activity android:name="NameActivity"
+              android:configChanges="uiMode"
+              android:label="@string/name_title"
+              android:exported="false" />
     <activity android:name="OfficialityActivity"
               android:configChanges="uiMode"
               android:label="@string/officiality_title"

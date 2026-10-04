@@ -358,6 +358,12 @@ private fun MainSettings(
         bigTitle(R.string.about_section)
         item {
             SettingRow(
+                stringResource(R.string.name_title),
+                stringResource(R.string.name_summary).replace("*", ""),
+            ) { NameActivity.open(context) }
+        }
+        item {
+            SettingRow(
                 stringResource(R.string.officiality_title),
                 stringResource(R.string.officiality_summary),
             ) { OfficialityActivity.open(context) }
