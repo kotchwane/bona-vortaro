@@ -20,6 +20,18 @@ package uk.co.busydoingnothing.prevo
 
 import android.content.ActivityNotFoundException
 import android.content.Intent
+import androidx.compose.foundation.layout.Spacer
+import kotlinx.coroutines.withContext
+import kotlinx.coroutines.Dispatchers
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.runtime.produceState
+import androidx.compose.material3.Surface
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.BorderStroke
 import android.net.Uri
 import android.os.Bundle
 import android.text.method.LinkMovementMethod
@@ -114,6 +126,7 @@ class ArticleActivity : BonaActivity() {
         setContent {
             BonaTheme {
                 ArticleScreen(
+                    articleNumber = articleNumber,
                     article = article,
                     textSize = textSize,
                     unfoldExamples = unfoldExamples,
@@ -127,6 +140,7 @@ class ArticleActivity : BonaActivity() {
                     onFlashcard = ::createFlashcard,
                     onLookUpInPiv = ::lookUpInPiv,
                     onShare = ::share,
+                    onOpenNeighbour = ::openNeighbour,
                 )
 
                 if (showNoFlashcard) {
@@ -237,6 +251,13 @@ class ArticleActivity : BonaActivity() {
         }
     }
 
+    /* The next or previous root replaces this one, as a page is turned:
+     * back then returns to where the reading started */
+    private fun openNeighbour(number: Int) {
+        startActivity(Intent(this, ArticleActivity::class.java).putExtra(EXTRA_ARTICLE_NUMBER, number))
+        finish()
+    }
+
     private fun share(section: ArticleSection) {
         val intent = Intent(Intent.ACTION_SEND)
             .setType("text/plain")
@@ -252,6 +273,7 @@ private const val QUOTE_COLOR = 0xFF9E9E9E.toInt()
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun ArticleScreen(
+    articleNumber: Int,
     article: Article?,
     textSize: Int,
     unfoldExamples: Boolean,
@@ -265,6 +287,7 @@ private fun ArticleScreen(
     onFlashcard: (CharSequence, CharSequence) -> Unit,
     onLookUpInPiv: (CharSequence) -> Unit,
     onShare: (ArticleSection) -> Unit,
+    onOpenNeighbour: (Int) -> Unit,
 ) {
     val listState = rememberLazyListState()
     val scope = rememberCoroutineScope()
@@ -378,6 +401,9 @@ private fun ArticleScreen(
             items(layout?.otherTranslations ?: emptyList()) { section ->
                 Section(section, textSize, onLongPress = { actionsFor = section })
             }
+            /* The roots before and after, once the article is there */
+            if (layout != null)
+                item(key = "neighbours") { NeighbourRoots(articleNumber, onOpenNeighbour) }
         }
     }
 
@@ -476,6 +502,92 @@ private fun DefinitionActions(
                 headlineContent = { Text(stringResource(label)) },
                 modifier = Modifier.clickable { onDismiss(); action() },
             )
+        }
+    }
+}
+
+
+/** An article next to this one, in the order of the dictionary */
+private class Neighbour(val number: Int, val root: String, val definition: String)
+
+/** The roots just before and after this one, as on the page of a printed
+ * dictionary, to read on from one to the next. A tap opens it. */
+@Composable
+private fun NeighbourRoots(articleNumber: Int, onOpen: (Int) -> Unit) {
+    val context = LocalContext.current
+    val neighbours by produceState<List<Neighbour?>>(listOf(null, null), articleNumber) {
+        value = withContext(Dispatchers.IO) {
+            listOf(articleNumber - 1, articleNumber + 1).map { number ->
+                /* None before the first article, nor after the last */
+                if (number < 0) return@map null
+                try {
+                    val article = ArticleLoader.load(context, number, onShowSection = {}, quoteColor = 0)
+                    Neighbour(
+                        number,
+                        splitOfficial(article.title).second.toString(),
+                        previewOf(article, 0)?.definition.orEmpty(),
+                    )
+                } catch (e: IOException) {
+                    null
+                }
+            }
+        }
+    }
+    val muted = MaterialTheme.colorScheme.onSurfaceVariant
+
+    Column(Modifier.fillMaxWidth().padding(top = 14.dp)) {
+        Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)) {
+            HorizontalDivider(Modifier.weight(1f), color = muted.copy(alpha = 0.4f))
+            Text(
+                stringResource(R.string.neighbours_title),
+                style = MaterialTheme.typography.bodySmall.copy(fontStyle = FontStyle.Italic),
+                color = muted,
+                modifier = Modifier.padding(horizontal = 10.dp),
+            )
+            HorizontalDivider(Modifier.weight(1f), color = muted.copy(alpha = 0.4f))
+        }
+        Row(horizontalArrangement = Arrangement.spacedBy(10.dp), modifier = Modifier.padding(top = 6.dp)) {
+            for ((index, neighbour) in neighbours.withIndex()) {
+                val before = index == 0
+                if (neighbour == null) {
+                    Spacer(Modifier.weight(1f))
+                    continue
+                }
+                Surface(
+                    onClick = { onOpen(neighbour.number) },
+                    shape = RoundedCornerShape(12.dp),
+                    color = MaterialTheme.colorScheme.surfaceContainerLow,
+                    border = BorderStroke(1.dp, muted.copy(alpha = 0.3f)),
+                    modifier = Modifier.weight(1f),
+                ) {
+                    Column(
+                        Modifier.padding(horizontal = 14.dp, vertical = 12.dp),
+                        horizontalAlignment = if (before) Alignment.Start else Alignment.End,
+                    ) {
+                        Text(
+                            stringResource(if (before) R.string.neighbour_previous else R.string.neighbour_next),
+                            style = MaterialTheme.typography.labelMedium,
+                            color = muted,
+                        )
+                        Text(
+                            neighbour.root,
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Bold,
+                            color = bonaDesign.headword,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                        )
+                        Text(
+                            neighbour.definition,
+                            style = MaterialTheme.typography.bodySmall.copy(fontStyle = FontStyle.Italic),
+                            color = muted,
+                            maxLines = 2,
+                            overflow = TextOverflow.Ellipsis,
+                            textAlign = if (before) TextAlign.Start else TextAlign.End,
+                        )
+                    }
+                }
+            }
         }
     }
 }

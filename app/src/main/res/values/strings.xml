@@ -87,6 +87,9 @@
     <item>aspirino, satelito, testi, viruso</item>
     <item>Ateno, Danubo, Helsinko, Kopenhago</item>
   </string-array>
+  <string name="neighbours_title">En la vortaro</string>
+  <string name="neighbour_previous">‹ antaŭa radiko</string>
+  <string name="neighbour_next">sekva radiko ›</string>
   <string name="officiality_title">Oficialeco de la vortoj</string>
   <string name="officiality_summary">Kion signifas „Fundamento“ kaj „Oficiala Aldono“</string>
   <string name="officiality_intro">Iuj vortoj havas etikedon, kiu montras, ke ili apartenas al la oficiala vortaro de Esperanto, kaj kiam ili eniris ĝin. La etikedo apud la nomo de artikolo, supre, koncernas ĝian radikon; tiu sur vorto koncernas la vorton mem.</string>
