@@ -40,6 +40,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.foundation.clickable
@@ -194,7 +195,11 @@ fun OfficialSheet(level: Int, onDismiss: () -> Unit) {
     val context = LocalContext.current
     var shown by rememberSaveable { mutableIntStateOf(level) }
 
-    ModalBottomSheet(onDismissRequest = onDismiss) {
+    /* Opened at once to the height of its content, never half-way */
+    ModalBottomSheet(
+        onDismissRequest = onDismiss,
+        sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
+    ) {
         Column(Modifier.padding(start = 24.dp, end = 24.dp, bottom = 32.dp)) {
             Text(
                 "${levelName(shown)} (${OFFICIAL_YEARS[shown]})",
