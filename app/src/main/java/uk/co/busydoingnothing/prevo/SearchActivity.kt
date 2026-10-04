@@ -22,6 +22,8 @@ import android.content.Intent
 import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.lazy.itemsIndexed
@@ -56,6 +58,10 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.material3.SnackbarResult
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarHost
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -69,6 +75,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.onFocusChanged
+import androidx.lifecycle.compose.LifecycleEventEffect
+import androidx.lifecycle.Lifecycle
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
@@ -79,6 +88,8 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.withContext
 
 class SearchActivity : BonaActivity() {
@@ -98,6 +109,11 @@ class SearchActivity : BonaActivity() {
 
     /* Re-read when coming back, in case it was changed in the settings */
     private var textSize by mutableIntStateOf(BonaSettings.DEFAULT_TEXT_SIZE)
+
+    /* The words looked up last, shown while nothing is typed; null while
+     * they are read. Re-read when coming back from an article. */
+    private var recent by mutableStateOf<List<RecentSearch>?>(null)
+    private var keepHistory by mutableStateOf(true)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -121,6 +137,10 @@ class SearchActivity : BonaActivity() {
                     onResultClick = ::openArticle,
                     onChooseLanguage = { SelectLanguageActivity.open(this) },
                     onPreferences = { Screens.goPreferences(this) },
+                    recent = recent,
+                    keepHistory = keepHistory,
+                    onRemoveRecent = ::removeFromHistory,
+                    onRestoreHistory = ::restoreHistory,
                 )
             }
         }
@@ -129,6 +149,30 @@ class SearchActivity : BonaActivity() {
     override fun onStart() {
         super.onStart()
         textSize = BonaSettings.getTextSize(this)
+        keepHistory = BonaSettings.getKeepHistory(this)
+        loadHistory()
+    }
+
+    private fun loadHistory() {
+        lifecycleScope.launch {
+            recent = withContext(Dispatchers.IO) {
+                findRecentSearches(applicationContext, History.get(applicationContext))
+            }
+        }
+    }
+
+    /** Removes a word from the history, and returns the history as it was
+     * before, to undo it. */
+    private fun removeFromHistory(search: RecentSearch): List<HistoryEntry> {
+        val before = History.get(this)
+        History.remove(this, search.entry)
+        recent = recent?.filter { it !== search }
+        return before
+    }
+
+    private fun restoreHistory(entries: List<HistoryEntry>) {
+        History.set(this, entries)
+        loadHistory()
     }
 
     override fun onRestart() {
@@ -154,7 +198,14 @@ class SearchActivity : BonaActivity() {
         }
     }
 
-    private fun openArticle(result: SearchResult) {
+    /** Opens the article of a result, found in the given language, and
+     * keeps the word in the history. */
+    private fun openArticle(result: SearchResult, language: String) {
+        if (keepHistory) {
+            val entry = HistoryEntry(language, result.word)
+            lifecycleScope.launch(Dispatchers.IO) { History.add(applicationContext, entry) }
+        }
+
         val intent = Intent(this, ArticleActivity::class.java)
         intent.putExtra(ArticleActivity.EXTRA_ARTICLE_NUMBER, result.article)
         intent.putExtra(ArticleActivity.EXTRA_MARK_NUMBER, result.mark)
@@ -169,12 +220,34 @@ private fun SearchScreen(
     textSize: Int,
     initialQuery: String,
     onLanguageChosen: (String) -> Unit,
-    onResultClick: (SearchResult) -> Unit,
+    onResultClick: (SearchResult, String) -> Unit,
     onChooseLanguage: () -> Unit,
     onPreferences: () -> Unit,
+    recent: List<RecentSearch>?,
+    keepHistory: Boolean,
+    onRemoveRecent: (RecentSearch) -> List<HistoryEntry>,
+    onRestoreHistory: (List<HistoryEntry>) -> Unit,
 ) {
     val context = LocalContext.current
     var query by rememberSaveable { mutableStateOf(initialQuery) }
+    /* The bins of the history: any action but removing or scrolling
+     * ends them */
+    var editing by remember { mutableStateOf(false) }
+    LifecycleEventEffect(Lifecycle.Event.ON_STOP) { editing = false }
+    val snackbar = remember { SnackbarHostState() }
+    val scope = rememberCoroutineScope()
+    val removed = stringResource(R.string.history_removed)
+    val undo = stringResource(R.string.undo)
+
+    /* A removal from the history can be undone for a moment */
+    fun offerUndo(message: String, before: List<HistoryEntry>) {
+        scope.launch {
+            snackbar.currentSnackbarData?.dismiss()
+            if (snackbar.showSnackbar(message, actionLabel = undo, withDismissAction = true) ==
+                SnackbarResult.ActionPerformed)
+                onRestoreHistory(before)
+        }
+    }
 
     /* The selected language is searched first, then the others in the
      * order of the tabs */
@@ -183,32 +256,47 @@ private fun SearchScreen(
     /* null until the first search is done, so that "no results" isn't
      * shown while the index is still loading */
     val outcome by produceState<SearchOutcome?>(null, query, selected, languages) {
-        value = withContext(Dispatchers.Default) {
+        /* Nothing is searched while nothing is typed: the history shows */
+        value = if (query.isBlank()) null else withContext(Dispatchers.Default) {
             DictionarySearch.search(context, searchOrder, query)
         }
     }
 
     BonaScaffold(
+        /* Above the keyboard, which the search opens with */
+        snackbarHost = { SnackbarHost(snackbar, Modifier.imePadding()) },
         topBar = {
             Column(Modifier.windowInsetsPadding(WindowInsets.statusBars)) {
                 Wordmark()
                 SearchField(
                     query = query,
-                    onQueryChange = { query = it },
-                    onPreferences = onPreferences,
+                    onQueryChange = { editing = false; query = it },
+                    onPreferences = { editing = false; onPreferences() },
+                    onFocused = { editing = false },
                 )
                 LanguageTabs(
                     languages = languages,
                     selected = selected,
-                    onSelect = onLanguageChosen,
-                    onMore = onChooseLanguage,
+                    onSelect = { editing = false; onLanguageChosen(it) },
+                    onMore = { editing = false; onChooseLanguage() },
                 )
             }
         },
     ) { padding ->
         val current = outcome
 
-        if (current != null && current.results.isEmpty()) {
+        if (query.isBlank()) {
+            RecentSearches(
+                recent = recent,
+                keepHistory = keepHistory,
+                editing = editing,
+                onEditingChange = { editing = it },
+                textSize = textSize,
+                onOpen = { editing = false; onResultClick(it.result, it.entry.language) },
+                onRemove = { offerUndo(removed, onRemoveRecent(it)) },
+                modifier = Modifier.padding(padding).consumeWindowInsets(padding).imePadding(),
+            )
+        } else if (current != null && current.results.isEmpty()) {
             Box(
                 Modifier.fillMaxSize().padding(padding).consumeWindowInsets(padding).imePadding(),
                 contentAlignment = Alignment.Center,
@@ -260,6 +348,8 @@ private fun SearchField(
     query: String,
     onQueryChange: (String) -> Unit,
     onPreferences: () -> Unit,
+    /** The field is tapped, or gets the focus otherwise */
+    onFocused: () -> Unit,
 ) {
     val focusRequester = remember { FocusRequester() }
     val keyboard = LocalSoftwareKeyboardController.current
@@ -276,7 +366,8 @@ private fun SearchField(
         placeholder = stringResource(R.string.type_to_filter),
         modifier = Modifier
             .padding(start = 16.dp, end = 16.dp, top = 8.dp)
-            .focusRequester(focusRequester),
+            .focusRequester(focusRequester)
+            .onFocusChanged { if (it.isFocused) onFocused() },
         imeAction = ImeAction.Search,
         keyboardActions = KeyboardActions(onSearch = { keyboard?.hide() }),
         extraButtons = {
@@ -346,7 +437,7 @@ private fun ResultList(
     outcome: SearchOutcome,
     searchOrder: List<String>,
     textSize: Int,
-    onResultClick: (SearchResult) -> Unit,
+    onResultClick: (SearchResult, String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val context = LocalContext.current
@@ -382,11 +473,14 @@ private fun ResultList(
 
         /* For a search in another language, the preview starts with the
          * Esperanto word that the result translates */
-        val inEsperanto = searchOrder.getOrNull(outcome.languageIndex) == "eo"
+        /* The language where the words were found, kept with them in the
+         * history */
+        val language = searchOrder[outcome.languageIndex]
+        val inEsperanto = language == "eo"
         val last = outcome.results.lastIndex
 
         itemsIndexed(outcome.results) { index, result ->
-            ResultRow(result, wordStyle, scale, inEsperanto, onClick = { onResultClick(result) })
+            ResultRow(result, wordStyle, scale, inEsperanto, onClick = { onResultClick(result, language) })
             if (index != last)
                 HorizontalDivider(Modifier.padding(horizontal = 20.dp), color = rule)
         }
@@ -418,13 +512,19 @@ private fun RunningHead(first: String, last: String) {
 
 /** A search result: the word, and under it the start of its definition,
  * read from its article once the row is shown. */
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
-private fun ResultRow(
+internal fun ResultRow(
     result: SearchResult,
     wordStyle: TextStyle,
     scale: Float,
     inEsperanto: Boolean,
     onClick: () -> Unit,
+    /** Shown small at the right of the word, eg. the language "FR" */
+    label: String? = null,
+    onLongClick: (() -> Unit)? = null,
+    /** A button at the right of the row, eg. to remove it */
+    action: (@Composable () -> Unit)? = null,
 ) {
     val context = LocalContext.current
     val preview by produceState<WordPreview?>(null, result) {
@@ -432,32 +532,46 @@ private fun ResultRow(
     }
     val small = MaterialTheme.typography.bodyMedium
 
-    Column(
+    Row(
         Modifier
             .fillMaxWidth()
-            .clickable(onClick = onClick)
-            .padding(horizontal = 20.dp, vertical = 10.dp),
+            .combinedClickable(onClick = onClick, onLongClick = onLongClick)
+            .padding(start = 20.dp, end = if (action != null) 8.dp else 20.dp, top = 10.dp, bottom = 10.dp),
+        verticalAlignment = Alignment.CenterVertically,
     ) {
-        Text(result.word, style = wordStyle, color = bonaDesign.headword)
-
-        val text = preview?.let {
-            when {
-                inEsperanto -> it.definition
-                it.definition.isEmpty() -> it.title
-                else -> "${it.title} — ${it.definition}"
+        Column(Modifier.weight(1f)) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(result.word, style = wordStyle, color = bonaDesign.headword, modifier = Modifier.weight(1f))
+                if (label != null)
+                    Text(
+                        label,
+                        style = MaterialTheme.typography.labelMedium,
+                        letterSpacing = 1.sp,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.padding(start = 12.dp),
+                    )
             }
+
+            val text = preview?.let {
+                when {
+                    inEsperanto -> it.definition
+                    it.definition.isEmpty() -> it.title
+                    else -> "${it.title} — ${it.definition}"
+                }
+            }
+            /* Keep the height of the row while the preview is loading */
+            Text(
+                text ?: "",
+                style = small.copy(
+                    fontSize = small.fontSize * scale,
+                    lineHeight = small.lineHeight * scale,
+                    fontStyle = FontStyle.Italic,
+                ),
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+            )
         }
-        /* Keep the height of the row while the preview is loading */
-        Text(
-            text ?: "",
-            style = small.copy(
-                fontSize = small.fontSize * scale,
-                lineHeight = small.lineHeight * scale,
-                fontStyle = FontStyle.Italic,
-            ),
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
-        )
+        action?.invoke()
     }
 }

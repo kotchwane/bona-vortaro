@@ -87,6 +87,7 @@ class PreferenceActivity : BonaActivity() {
     private var myLanguages by mutableStateOf(emptyList<String>())
     private var translations by mutableStateOf(emptyList<String>())
     private var unfoldExamples by mutableStateOf(false)
+    private var keepHistory by mutableStateOf(true)
 
     /** Every language that can be a translation, i.e. all but Esperanto */
     private lateinit var translationLanguages: List<Language>
@@ -119,6 +120,12 @@ class PreferenceActivity : BonaActivity() {
                             textSize = it
                             BonaSettings.setTextSize(this, it)
                         },
+                        keepHistory = keepHistory,
+                        onKeepHistoryChange = {
+                            keepHistory = it
+                            BonaSettings.setKeepHistory(this, it)
+                        },
+                        onClearHistory = { History.clear(this) },
                         unfoldExamples = unfoldExamples,
                         onUnfoldExamplesChange = {
                             unfoldExamples = it
@@ -157,6 +164,7 @@ class PreferenceActivity : BonaActivity() {
         theme = BonaSettings.getTheme(this)
         textSize = BonaSettings.getTextSize(this)
         unfoldExamples = BonaSettings.getUnfoldExamples(this)
+        keepHistory = BonaSettings.getKeepHistory(this)
         myLanguages = BonaSettings.getChosenSearchLanguages(this)
         translations = BonaSettings.getTranslationLanguages(this, translationLanguages)
     }
@@ -194,7 +202,8 @@ private fun SettingsScaffold(
             BonaTopBar(title = { Text(title) }, onBack = onBack)
         },
         bottomBar = bottomBar,
-        snackbarHost = { snackbarHost?.let { SnackbarHost(it) } },
+        /* Above the keyboard, if it is open */
+        snackbarHost = { snackbarHost?.let { SnackbarHost(it, Modifier.imePadding()) } },
     ) { padding ->
         LazyColumn(
             Modifier
@@ -283,6 +292,9 @@ private fun MainSettings(
     onThemeChange: (Theme) -> Unit,
     textSize: Int,
     onTextSizeChange: (Int) -> Unit,
+    keepHistory: Boolean,
+    onKeepHistoryChange: (Boolean) -> Unit,
+    onClearHistory: () -> Unit,
     unfoldExamples: Boolean,
     onUnfoldExamplesChange: (Boolean) -> Unit,
     translationsSummary: String,
@@ -295,6 +307,7 @@ private fun MainSettings(
     var showTheme by remember { mutableStateOf(false) }
     var showTextSize by remember { mutableStateOf(false) }
     var showAbout by remember { mutableStateOf(false) }
+    var showClearHistory by remember { mutableStateOf(false) }
     val context = LocalContext.current
     val themeNames = mapOf(
         Theme.SYSTEM to stringResource(R.string.theme_system),
@@ -330,6 +343,17 @@ private fun MainSettings(
                 onMyLanguages,
             )
         }
+
+        bigTitle(R.string.history_section)
+        item {
+            SwitchRow(
+                stringResource(R.string.keep_history),
+                stringResource(R.string.keep_history_summary),
+                keepHistory,
+                onKeepHistoryChange,
+            )
+        }
+        item { SettingRow(stringResource(R.string.clear_history), null) { showClearHistory = true } }
 
         bigTitle(R.string.about_section)
         item {
@@ -385,6 +409,21 @@ private fun MainSettings(
 
     if (showAbout)
         AboutDialog(onDismiss = { showAbout = false })
+
+    if (showClearHistory)
+        AlertDialog(
+            onDismissRequest = { showClearHistory = false },
+            text = { Text(stringResource(R.string.clear_history_question)) },
+            confirmButton = {
+                TextButton(onClick = {
+                    onClearHistory()
+                    showClearHistory = false
+                }) { Text(stringResource(R.string.clear)) }
+            },
+            dismissButton = {
+                TextButton(onClick = { showClearHistory = false }) { Text(stringResource(R.string.cancel)) }
+            },
+        )
 }
 
 /** Which translations the articles show, and in which order. The

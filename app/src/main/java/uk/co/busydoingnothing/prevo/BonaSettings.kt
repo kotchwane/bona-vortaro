@@ -37,6 +37,7 @@ object BonaSettings {
     private const val PREF_TRANSLATION_LANGUAGES = "selectedLanguages"
     private const val PREF_SEARCH_LANGUAGES = "myLanguages"
     private const val PREF_LAST_LANGUAGE = "lastLanguage"
+    private const val PREF_KEEP_HISTORY = "keepHistory"
 
     /* The text sizes are numbered as in the original zoom of the articles,
      * from 0 to 9, each one 1.2 times bigger than the previous one, the
@@ -150,6 +151,18 @@ object BonaSettings {
 
     fun setSearchLanguages(context: Context, languages: List<String>) {
         prefs(context).edit().putString(PREF_SEARCH_LANGUAGES, languages.joinToString(",")).apply()
+    }
+
+    /** Whether the words opened from the search are kept in the history,
+     * which is the case unless the user turns it off. */
+    fun getKeepHistory(context: Context): Boolean =
+        prefs(context).getBoolean(PREF_KEEP_HISTORY, true)
+
+    /** Turning the history off also forgets it: off means nothing kept. */
+    fun setKeepHistory(context: Context, keep: Boolean) {
+        prefs(context).edit().putBoolean(PREF_KEEP_HISTORY, keep).apply()
+        if (!keep)
+            History.clear(context)
     }
 
     /** The search language used last, reopened at the next start. */

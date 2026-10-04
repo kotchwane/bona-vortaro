@@ -101,6 +101,20 @@
   <string name="no_flashcard">Mankas aplikaĵo kiu povas krei fulmkarton. Eble vi volos instali “Anki”; almenaŭ version 2.0.</string>
   <string name="definition_label">Difino</string>
   <string name="close">Fermi</string>
+  <string name="recent_searches">Lastaj serĉoj</string>
+  <string name="clear_history">Forviŝi la historion</string>
+  <string name="history_removed">Forigita el la historio</string>
+  <string name="remove_from_history">Forigi el la historio</string>
+  <string name="done">Preta</string>
+  <string name="history_empty">Ĉi tie aperos la vortoj, kiujn vi serĉos.</string>
+  <string name="history_off">La historio estas malŝaltita en la agordoj.</string>
+  <string name="tip_languages">La langetoj EO, FR… elektas la lingvon de la serĉo. Se nenio troviĝas en ĝi, la serĉo daŭras en la aliaj lingvoj, de maldekstre dekstren.</string>
+  <string name="tip_typing">Vi povas tajpi „cx“ por „ĉ“ (same gx, hx, jx, sx, ux), kaj ignori la supersignojn: „cevalo“ trovas „ĉevalo“.</string>
+  <string name="history_section">Historio</string>
+  <string name="keep_history">Konservi la historion</string>
+  <string name="keep_history_summary">La vortoj, kiujn vi malfermas el la serĉo, aperas sub „Lastaj serĉoj“. Malŝalti ĝin ankaŭ forviŝas ĝin.</string>
+  <string name="clear_history_question">Ĉu forviŝi la tutan historion?</string>
+  <string name="cancel">Nuligi</string>
   <string name="about_message">
 <b>Bona vortaro @VERSION@</b>\n
 \nModifita versio de PReVo. PReVo: Copyright © 2012, 2013, 2016, 2017, 2018, 2019, 2020 Neil Roberts\n
