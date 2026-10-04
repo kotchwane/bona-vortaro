@@ -121,9 +121,10 @@ private fun NamePage(onBack: () -> Unit) {
 }
 
 /** The text with the parts between asterisks in italics: "*La bona
- * lingvo*" for a title, as the texts of strings.xml write them. */
-fun withItalics(text: String): AnnotatedString = buildAnnotatedString {
-    text.split('*').forEachIndexed { index, part ->
+ * lingvo*" for a title, as the texts of strings.xml write them. Texts
+ * that need a real asterisk mark their italics with another character. */
+fun withItalics(text: String, marker: Char = '*'): AnnotatedString = buildAnnotatedString {
+    text.split(marker).forEachIndexed { index, part ->
         if (index % 2 == 1) withStyle(SpanStyle(fontStyle = FontStyle.Italic)) { append(part) }
         else append(part)
     }
