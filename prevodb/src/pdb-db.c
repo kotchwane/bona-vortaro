@@ -620,17 +620,64 @@ pdb_db_compare_language_code (const void *a,
   return pdb_strcmp (name_a, name_b);
 }
 
+/* Removes the spaces and commas at the end of the buffer, but not before
+ * min_len, so that the text before the part being written is left as it is */
 static void
-trim_trailing_commas (GString *buf)
+trim_trailing_commas (GString *buf,
+                      gsize min_len)
 {
   gsize len = buf->len;
 
-  while (len > 0 &&
+  while (len > min_len &&
          (g_ascii_isspace (buf->str[len - 1]) ||
           buf->str[len - 1] == ','))
     len--;
 
   g_string_truncate (buf, len);
+}
+
+/* Appends the text of a kap element, its roots and tildes as "~", and
+ * leaving out its variants */
+static void
+pdb_db_append_kap_text (GString *buf,
+                        PdbDocElementNode *kap)
+{
+  PdbDocNode *n;
+
+  for (n = kap->node.first_child; n; n = n->next)
+    {
+      switch (n->type)
+        {
+        case PDB_DOC_NODE_TYPE_TEXT:
+          {
+            PdbDocTextNode *text = (PdbDocTextNode *) n;
+            const char *p, *end;
+
+            for (p = text->data, end = text->data + text->len;
+                 p < end;
+                 p++)
+              if (g_ascii_isspace (*p))
+                {
+                  if (buf->len > 0 &&
+                      !g_ascii_isspace (buf->str[buf->len - 1]))
+                    g_string_append_c (buf, ' ');
+                }
+              else
+                g_string_append_c (buf, *p);
+          }
+          break;
+
+        case PDB_DOC_NODE_TYPE_ELEMENT:
+          {
+            PdbDocElementNode *elem = (PdbDocElementNode *) n;
+
+            if (!strcmp (elem->name, "tld") ||
+                !strcmp (elem->name, "rad"))
+              g_string_append_c (buf, '~');
+          }
+          break;
+        }
+    }
 }
 
 static gboolean
@@ -642,7 +689,6 @@ pdb_db_get_trd_link (PdbDb *db,
                      GError **error)
 {
   PdbDocElementNode *parent, *kap;
-  PdbDocNode *n;
   int sence_num = -1;
   int subsence_num = -1;
   PdbSpan *span;
@@ -696,44 +742,25 @@ pdb_db_get_trd_link (PdbDb *db,
 
   span_start = buf->len;
 
-  for (n = kap->node.first_child; n; n = n->next)
+  pdb_db_append_kap_text (buf, kap);
+
+  /* A headword made only of a variant, eg. "<kap><var><kap>~eco</kap></var></kap>"
+   * in korupt.xml: use the variant, instead of an empty label */
+  if (buf->len == span_start)
     {
-      switch (n->type)
-        {
-        case PDB_DOC_NODE_TYPE_TEXT:
-          {
-            PdbDocTextNode *text = (PdbDocTextNode *) n;
-            const char *p, *end;
+      PdbDocElementNode *var = pdb_doc_get_child_element (&kap->node, "var");
+      PdbDocElementNode *var_kap =
+        var ? pdb_doc_get_child_element (&var->node, "kap") : NULL;
 
-            for (p = text->data, end = text->data + text->len;
-                 p < end;
-                 p++)
-              if (g_ascii_isspace (*p))
-                {
-                  if (buf->len > 0 &&
-                      !g_ascii_isspace (buf->str[buf->len - 1]))
-                    g_string_append_c (buf, ' ');
-                }
-              else
-                g_string_append_c (buf, *p);
-          }
-          break;
-
-        case PDB_DOC_NODE_TYPE_ELEMENT:
-          {
-            PdbDocElementNode *elem = (PdbDocElementNode *) n;
-
-            if (!strcmp (elem->name, "tld") ||
-                !strcmp (elem->name, "rad"))
-              g_string_append_c (buf, '~');
-          }
-          break;
-        }
+      if (var_kap)
+        pdb_db_append_kap_text (buf, var_kap);
     }
 
   /* If the root has variants then the text of the kap element will
-   * have trailing commas */
-  trim_trailing_commas (buf);
+   * have trailing commas. Only the label is trimmed: an empty label
+   * would otherwise eat into the text before it, and give the span a
+   * negative length */
+  trim_trailing_commas (buf, span_start);
 
   if (sence_num != -1)
     {
