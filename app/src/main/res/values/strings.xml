@@ -151,6 +151,8 @@
   <string name="about_app">Pri Bona vortaro</string>
   <string name="about_version">Versio %1$s</string>
   <string name="about_intro">*Bona vortaro* estas vortaro de Esperanto por Android. Ĝi enhavas la tutan Retan Vortaron, kun ĝiaj tradukoj en pli ol 170 lingvojn.</string>
+  <string name="about_origin">Ĝi naskiĝis el PReVo, la vortaro de Neil Roberts, kiu kreis ĝin en 2012 kaj ankaŭ verkis prevodb, la ilon kiu konvertas la Retan Vortaron por la apo.</string>
+  <string name="about_origin_link">PReVo ĉe GitHub</string>
   <string name="about_free_title">Libera programaro</string>
   <string name="about_free">*Bona vortaro* estas libera programaro: ĉiu rajtas uzi, studi, kunhavigi kaj ŝanĝi ĝin, laŭ la GNUa Ĝenerala Publika Permesilo (GPL), versio 2. Ĝia tuta fontkodo estas publika.</string>
   <string name="about_source_link">La fontkodo ĉe GitHub</string>
@@ -162,7 +164,7 @@
   <string name="about_data">La difinoj kaj la tradukoj estas tiuj de la Reta Vortaro (ReVo), verkitaj de ĝiaj redaktantoj kaj publikigitaj laŭ la GPL, versio 2.</string>
   <string name="about_data_link">La Reta Vortaro</string>
   <string name="about_copyright_title">Kopirajto</string>
-  <string name="about_copyright">© 2026 kotchwane. *Bona vortaro* naskiĝis el PReVo kaj el ĝia ilo prevodb, de Neil Roberts: © 2012, 2013, 2016, 2017, 2018, 2019, 2020 Neil Roberts.</string>
+  <string name="about_copyright">*Bona vortaro*: © 2026 kotchwane. PReVo kaj prevodb: © 2012, 2013, 2016, 2017, 2018, 2019, 2020 Neil Roberts.</string>
   <string name="about_warranty_title">Neniu garantio</string>
   <string name="about_warranty">Ĉi tiu programo venas kun ABSOLUTE NENIA GARANTIO. Ĝi estas libera programaro, kaj vi rajtas redisdoni ĝin laŭ certaj kondiĉoj, priskribitaj en la permesilo.</string>
   <string name="about_license_link">La permesilo (GPL, versio 2)</string>

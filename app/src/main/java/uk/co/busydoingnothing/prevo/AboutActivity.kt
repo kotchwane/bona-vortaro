@@ -43,6 +43,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 
+private const val PREVO_URL = "https://github.com/bpeel/prevo"
 private const val SOURCE_URL = "https://github.com/kotchwane/bona-vortaro"
 private const val RETA_VORTARO_URL = "https://reta-vortaro.de/"
 private const val LICENSE_URL = "https://www.gnu.org/licenses/old-licenses/gpl-2.0-standalone.html"
@@ -110,6 +111,10 @@ private fun AboutPage(onBack: () -> Unit) {
             )
             Spacer(Modifier.height(8.dp))
             Text(withItalics(stringResource(R.string.about_intro)), style = body)
+            /* Where it comes from, at once: PReVo is its starting point */
+            Spacer(Modifier.height(8.dp))
+            Text(withItalics(stringResource(R.string.about_origin)), style = body)
+            Link(R.string.about_origin_link, PREVO_URL)
 
             for (part in PARTS) {
                 Spacer(Modifier.height(20.dp))
@@ -121,18 +126,24 @@ private fun AboutPage(onBack: () -> Unit) {
                 )
                 Spacer(Modifier.height(4.dp))
                 Text(withItalics(stringResource(part.text)), style = body)
-                part.link?.let { (label, url) ->
-                    Text(
-                        stringResource(label),
-                        style = body.copy(textDecoration = TextDecoration.Underline),
-                        color = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier
-                            .clickable { context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url))) }
-                            .padding(vertical = 8.dp),
-                    )
-                }
+                part.link?.let { (label, url) -> Link(label, url) }
             }
             Spacer(Modifier.height(32.dp))
         }
     }
+}
+
+/** A link to a website, opened in the browser */
+@Composable
+private fun Link(label: Int, url: String) {
+    val context = LocalContext.current
+
+    Text(
+        stringResource(label),
+        style = MaterialTheme.typography.bodyLarge.copy(textDecoration = TextDecoration.Underline),
+        color = MaterialTheme.colorScheme.primary,
+        modifier = Modifier
+            .clickable { context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url))) }
+            .padding(vertical = 8.dp),
+    )
 }
