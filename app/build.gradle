@@ -20,12 +20,20 @@ android {
         versionName = "0.1"
     }
 
-   signingConfigs {
-        release {
-            storeFile = file(RELEASE_STORE_FILE)
-            storePassword = RELEASE_STORE_PASSWORD
-            keyAlias = RELEASE_KEY_ALIAS
-            keyPassword = RELEASE_KEY_PASSWORD
+    /* The key, if there is one: the RELEASE_* properties in
+     * ~/.gradle/gradle.properties. Without it (F-Droid, a fresh clone),
+     * the release is built unsigned. */
+    def releaseStoreFile = findProperty('RELEASE_STORE_FILE')
+    def hasReleaseKey = releaseStoreFile != null && file(releaseStoreFile).exists()
+
+    signingConfigs {
+        if (hasReleaseKey) {
+            release {
+                storeFile = file(releaseStoreFile)
+                storePassword = findProperty('RELEASE_STORE_PASSWORD')
+                keyAlias = findProperty('RELEASE_KEY_ALIAS')
+                keyPassword = findProperty('RELEASE_KEY_PASSWORD')
+            }
         }
     }
 
@@ -35,7 +43,8 @@ android {
 
     buildTypes {
         release {
-            signingConfig = signingConfigs.release
+            if (hasReleaseKey)
+                signingConfig = signingConfigs.release
             minifyEnabled = false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
