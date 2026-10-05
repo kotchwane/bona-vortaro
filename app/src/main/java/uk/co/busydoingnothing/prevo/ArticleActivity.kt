@@ -19,6 +19,7 @@
 package uk.co.busydoingnothing.prevo
 
 import android.content.ActivityNotFoundException
+import android.content.Context
 import android.content.Intent
 import androidx.compose.foundation.layout.height
 import androidx.compose.material3.rememberModalBottomSheetState
@@ -312,6 +313,12 @@ private fun ArticleScreen(
     val listState = rememberLazyListState()
     val scope = rememberCoroutineScope()
     var actionsFor by remember { mutableStateOf<ArticleSection?>(null) }
+    /* Read with the article, so that they are there before the end of it
+     * can be reached */
+    val context = LocalContext.current
+    val neighbours by produceState<List<Neighbour?>?>(null, articleNumber) {
+        value = withContext(Dispatchers.IO) { loadNeighbours(context, articleNumber) }
+    }
     /* The word pressed in the text, and its language */
     var wordFor by remember { mutableStateOf<Pair<String, String>?>(null) }
 
@@ -427,9 +434,11 @@ private fun ArticleScreen(
             items(layout?.otherTranslations ?: emptyList()) { section ->
                 Section(section, textSize, onLongPress = { actionsFor = section })
             }
-            /* The roots before and after, once the article is there */
-            if (layout != null)
-                item(key = "neighbours") { NeighbourRoots(articleNumber, onOpenNeighbour) }
+            /* The roots before and after, once the article is there, and
+             * whole: if it grew after a scroll reached the end, the cards
+             * would be left below the screen */
+            if (layout != null && neighbours != null)
+                item(key = "neighbours") { NeighbourRoots(neighbours!!, onOpenNeighbour) }
         }
     }
 
@@ -629,29 +638,27 @@ private fun DefinitionActions(
 /** An article next to this one, in the order of the dictionary */
 private class Neighbour(val number: Int, val root: String, val definition: String)
 
+/** The articles before and after one, null where there is none: before
+ * the first article, and after the last. Disk access. */
+private fun loadNeighbours(context: Context, articleNumber: Int): List<Neighbour?> =
+    listOf(articleNumber - 1, articleNumber + 1).map { number ->
+        if (number < 0) return@map null
+        try {
+            val article = ArticleLoader.load(context, number, onShowSection = {}, quoteColor = 0)
+            Neighbour(
+                number,
+                splitOfficial(article.title).second.toString(),
+                previewOf(article, 0)?.definition.orEmpty(),
+            )
+        } catch (e: IOException) {
+            null
+        }
+    }
+
 /** The roots just before and after this one, as on the page of a printed
  * dictionary, to read on from one to the next. A tap opens it. */
 @Composable
-private fun NeighbourRoots(articleNumber: Int, onOpen: (Int) -> Unit) {
-    val context = LocalContext.current
-    val neighbours by produceState<List<Neighbour?>>(listOf(null, null), articleNumber) {
-        value = withContext(Dispatchers.IO) {
-            listOf(articleNumber - 1, articleNumber + 1).map { number ->
-                /* None before the first article, nor after the last */
-                if (number < 0) return@map null
-                try {
-                    val article = ArticleLoader.load(context, number, onShowSection = {}, quoteColor = 0)
-                    Neighbour(
-                        number,
-                        splitOfficial(article.title).second.toString(),
-                        previewOf(article, 0)?.definition.orEmpty(),
-                    )
-                } catch (e: IOException) {
-                    null
-                }
-            }
-        }
-    }
+private fun NeighbourRoots(neighbours: List<Neighbour?>, onOpen: (Int) -> Unit) {
     val muted = MaterialTheme.colorScheme.onSurfaceVariant
 
     Column(Modifier.fillMaxWidth().padding(top = 14.dp)) {
