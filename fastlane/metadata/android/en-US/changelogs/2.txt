@@ -1,0 +1,2 @@
+Fix: in the translations of "korupteco" (in nine languages), the label was missing and its link was broken.
+The dictionary is now always built the same, byte for byte, so F-Droid can check that the app is its author's.
