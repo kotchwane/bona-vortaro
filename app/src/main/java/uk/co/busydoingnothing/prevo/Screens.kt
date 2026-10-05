@@ -29,7 +29,9 @@ object Screens {
         Intent(context, SearchActivity::class.java)
             .putExtra(SearchActivity.EXTRA_LANGUAGE, language)
 
-    /** The search, in the language used last. */
+    /** The search, in the language used last: the one already open if
+     * there is one, closing the articles above it, so that it is one tap
+     * away however many roots were read since. */
     fun goSearch(context: Context) {
         val language = BonaSettings.getLastLanguage(context)
             /* The language may have disappeared in an update of the
@@ -37,7 +39,10 @@ object Screens {
             ?.takeIf { LanguageList.getDefault(context).hasLanguage(it) }
             ?: "eo"
 
-        context.startActivity(searchIntent(context, language))
+        context.startActivity(
+            searchIntent(context, language)
+                .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP)
+        )
     }
 
     fun goPreferences(context: Context) {

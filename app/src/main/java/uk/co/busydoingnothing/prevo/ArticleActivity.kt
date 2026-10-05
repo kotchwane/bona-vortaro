@@ -149,8 +149,8 @@ class ArticleActivity : BonaActivity() {
                     onFlashcard = ::createFlashcard,
                     onLookUpInPiv = ::lookUpInPiv,
                     onShare = ::share,
-                    onOpenNeighbour = ::openNeighbour,
-                    onOpenRandom = ::openRandom,
+                    onOpenNeighbour = ::openRoot,
+                    onOpenRandom = ::openRoot,
                     onOpenEntry = ::openEntry,
                     onCopyWord = ::copyWord,
                 )
@@ -263,11 +263,10 @@ class ArticleActivity : BonaActivity() {
         }
     }
 
-    /* The next or previous root replaces this one, as a page is turned:
-     * back then returns to where the reading started */
-    private fun openNeighbour(number: Int) {
+    /* The previous, next or random root goes on top of this one: back
+     * returns to it, and the search, at the top left, to the search at once */
+    private fun openRoot(number: Int) {
         startActivity(Intent(this, ArticleActivity::class.java).putExtra(EXTRA_ARTICLE_NUMBER, number))
-        finish()
     }
 
     /* An entry found from a word of the text, on top of this article,
@@ -282,12 +281,6 @@ class ArticleActivity : BonaActivity() {
 
     private fun copyWord(word: String) {
         SpannedCopy.copyText(this, getText(R.string.word_label), word)
-    }
-
-    /* A root at random goes on top of this one, unlike the next roots: it
-     * is a jump, not a page turned, and back returns to the root before */
-    private fun openRandom(number: Int) {
-        startActivity(Intent(this, ArticleActivity::class.java).putExtra(EXTRA_ARTICLE_NUMBER, number))
     }
 
     private fun share(section: ArticleSection) {
