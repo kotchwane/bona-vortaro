@@ -87,7 +87,7 @@
     <item>aspirino, satelito, testi, viruso</item>
     <item>Ateno, Danubo, Helsinko, Kopenhago</item>
   </string-array>
-  <string name="neighbours_title">En la vortaro</string>
+  <string name="neighbours_title">Foliumi la vortaron</string>
   <string name="neighbour_previous">‹ antaŭa radiko</string>
   <string name="neighbour_next">sekva radiko ›</string>
   <string name="guide_title">Kiel uzi la apon</string>
