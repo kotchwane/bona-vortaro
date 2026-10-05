@@ -150,6 +150,7 @@ class ArticleActivity : BonaActivity() {
                     onLookUpInPiv = ::lookUpInPiv,
                     onShare = ::share,
                     onOpenNeighbour = ::openNeighbour,
+                    onOpenRandom = ::openRandom,
                     onOpenEntry = ::openEntry,
                     onCopyWord = ::copyWord,
                 )
@@ -283,6 +284,12 @@ class ArticleActivity : BonaActivity() {
         SpannedCopy.copyText(this, getText(R.string.word_label), word)
     }
 
+    /* A root at random goes on top of this one, unlike the next roots: it
+     * is a jump, not a page turned, and back returns to the root before */
+    private fun openRandom(number: Int) {
+        startActivity(Intent(this, ArticleActivity::class.java).putExtra(EXTRA_ARTICLE_NUMBER, number))
+    }
+
     private fun share(section: ArticleSection) {
         val intent = Intent(Intent.ACTION_SEND)
             .setType("text/plain")
@@ -313,6 +320,7 @@ private fun ArticleScreen(
     onLookUpInPiv: (CharSequence) -> Unit,
     onShare: (ArticleSection) -> Unit,
     onOpenNeighbour: (Int) -> Unit,
+    onOpenRandom: (Int) -> Unit,
     onOpenEntry: (SearchResult) -> Unit,
     onCopyWord: (String) -> Unit,
 ) {
@@ -451,7 +459,7 @@ private fun ArticleScreen(
                     NeighbourRoots(
                         neighbours!!,
                         onOpen = onOpenNeighbour,
-                        onRandom = { scope.launch { onOpenNeighbour(withContext(Dispatchers.IO) { RandomRoot.pick(context) }) } },
+                        onRandom = { scope.launch { onOpenRandom(withContext(Dispatchers.IO) { RandomRoot.pick(context) }) } },
                     )
                 }
         }
