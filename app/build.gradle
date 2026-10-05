@@ -2,7 +2,7 @@ apply plugin: 'com.android.application'
 apply plugin: 'org.jetbrains.kotlin.plugin.compose'
 
 android {
-    namespace = "uk.co.busydoingnothing.prevo"
+    namespace = "io.github.kotchwane.bonavortaro"
 
     compileSdk = 37
 
