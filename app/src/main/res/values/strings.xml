@@ -87,6 +87,9 @@
     <item>aspirino, satelito, testi, viruso</item>
     <item>Ateno, Danubo, Helsinko, Kopenhago</item>
   </string-array>
+  <string name="random_root">Hazarda radiko</string>
+  <string name="random_root_summary">Malkovru vorton, kiun vi ne serĉis</string>
+  <string name="random_root_short">hazarda radiko</string>
   <string name="neighbours_title">Foliumi la vortaron</string>
   <string name="neighbour_previous">‹ antaŭa radiko</string>
   <string name="neighbour_next">sekva radiko ›</string>

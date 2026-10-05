@@ -136,6 +136,7 @@ class SearchActivity : BonaActivity() {
                     onLanguageChosen = ::chooseLanguage,
                     onResultClick = ::openArticle,
                     onChooseLanguage = { SelectLanguageActivity.open(this) },
+                    onRandomRoot = ::openRandomRoot,
                     onPreferences = { Screens.goPreferences(this) },
                     recent = recent,
                     keepHistory = keepHistory,
@@ -200,6 +201,17 @@ class SearchActivity : BonaActivity() {
 
     /** Opens the article of a result, found in the given language, and
      * keeps the word in the history. */
+    /* Not a search: not kept in the history */
+    private fun openRandomRoot() {
+        lifecycleScope.launch {
+            val number = withContext(Dispatchers.IO) { RandomRoot.pick(applicationContext) }
+            startActivity(
+                Intent(this@SearchActivity, ArticleActivity::class.java)
+                    .putExtra(ArticleActivity.EXTRA_ARTICLE_NUMBER, number)
+            )
+        }
+    }
+
     private fun openArticle(result: SearchResult, language: String) {
         if (keepHistory) {
             val entry = HistoryEntry(language, result.word)
@@ -222,6 +234,7 @@ private fun SearchScreen(
     onLanguageChosen: (String) -> Unit,
     onResultClick: (SearchResult, String) -> Unit,
     onChooseLanguage: () -> Unit,
+    onRandomRoot: () -> Unit,
     onPreferences: () -> Unit,
     recent: List<RecentSearch>?,
     keepHistory: Boolean,
@@ -286,6 +299,8 @@ private fun SearchScreen(
         val current = outcome
 
         if (query.isBlank()) {
+          Column(Modifier.padding(padding).consumeWindowInsets(padding).imePadding()) {
+            RandomRootButton(onClick = { editing = false; onRandomRoot() })
             RecentSearches(
                 recent = recent,
                 keepHistory = keepHistory,
@@ -294,8 +309,9 @@ private fun SearchScreen(
                 textSize = textSize,
                 onOpen = { editing = false; onResultClick(it.result, it.entry.language) },
                 onRemove = { offerUndo(removed, onRemoveRecent(it)) },
-                modifier = Modifier.padding(padding).consumeWindowInsets(padding).imePadding(),
+                modifier = Modifier.weight(1f),
             )
+          }
         } else if (current != null && current.results.isEmpty()) {
             Box(
                 Modifier.fillMaxSize().padding(padding).consumeWindowInsets(padding).imePadding(),
