@@ -12,7 +12,7 @@ android {
          * its package (the namespace above). */
         applicationId = "io.github.kotchwane.bonavortaro"
         minSdk = 23
-        targetSdk = 34
+        targetSdk = 36
         /* Bona vortaro starts again from 0.1, like PReVo did in 2012:
          * it is a new app for Android, with its own ID. The code must go
          * up with every version given to anyone. */
