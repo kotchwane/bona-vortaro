@@ -83,12 +83,14 @@ fun BonaTopBar(
     title: @Composable () -> Unit,
     onBack: (() -> Unit)?,
     actions: @Composable RowScope.() -> Unit = {},
+    navigation: (@Composable () -> Unit)? = null,
 ) {
     TopAppBar(
         colors = bonaTopBarColors(),
         title = title,
         navigationIcon = {
-            if (onBack != null)
+            if (navigation != null) navigation()
+            else if (onBack != null)
                 IconButton(onClick = onBack) {
                     Icon(Icons.AutoMirrored.Filled.ArrowBack, stringResource(R.string.back))
                 }

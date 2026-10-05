@@ -21,6 +21,7 @@ package uk.co.busydoingnothing.prevo
 import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
+import androidx.compose.foundation.layout.size
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -403,13 +404,16 @@ private fun ArticleScreen(
                             OfficialBadge(mark, Modifier.padding(start = 8.dp))
                     }
                 },
-                /* No back arrow: the back of the phone does it, and the
-                 * root needs the room */
+                /* No back arrow, which the back of the phone does: in its
+                 * place, the search, where the way back usually is and away
+                 * from the settings; larger, as it is the main way back */
                 onBack = null,
-                actions = {
-                    IconButton(onClick = onSearch) {
-                        Icon(Icons.Default.Search, stringResource(R.string.menu_search))
+                navigation = {
+                    IconButton(onClick = onSearch, modifier = Modifier.size(56.dp)) {
+                        Icon(Icons.Default.Search, stringResource(R.string.menu_search), Modifier.size(28.dp))
                     }
+                },
+                actions = {
                     IconButton(onClick = onPreferences) {
                         Icon(Icons.Default.Settings, stringResource(R.string.preferences))
                     }
