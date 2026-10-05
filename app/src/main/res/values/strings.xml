@@ -144,9 +144,7 @@
   <string name="my_search_languages">Miaj serĉlingvoj</string>
   <string name="my_languages_help">La lingvoj, en kiuj vi serĉas vortojn. Tuŝu lingvon por aldoni aŭ forigi ĝin.</string>
   <string name="welcome_search_languages">Bonvenon! En kiuj lingvoj vi volas serĉi vortojn? Tuŝu unu aŭ plurajn lingvojn, poste „Daŭrigi“.</string>
-  <string name="first_translations_same">La artikoloj montros la tradukojn en la samaj lingvoj. Vi povos ŝanĝi ambaŭ iam ajn en la agordoj.</string>
-  <string name="first_translations_all">La artikoloj montros la tradukojn en ĉiuj lingvoj. Vi povos ŝanĝi tion iam ajn en la agordoj.</string>
-  <string name="search_languages_order_help">Ili aperas super la serĉrezultoj en ĉi tiu ordo. Tenu lingvon premita por movi ĝin.</string>
+  <string name="search_languages_order_help">Movu ilin por ŝanĝi ilian ordon.</string>
   <string name="continue_to_search">Daŭrigi</string>
   <string name="one_language_needed">Necesas almenaŭ unu serĉlingvo.</string>
   <string name="about_section">Pri</string>

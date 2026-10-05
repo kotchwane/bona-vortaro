@@ -149,27 +149,15 @@ class SelectLanguageActivity : BonaActivity() {
             bottomBar = {
                 if (firstStart)
                     Surface(color = MaterialTheme.colorScheme.surfaceContainer) {
-                        Column(Modifier.navigationBarsPadding()) {
-                            /* What the choice also does to the articles */
-                            if (chosen.isNotEmpty())
-                                Text(
-                                    stringResource(
-                                        if (chosen.any { it != "eo" }) R.string.first_translations_same
-                                        else R.string.first_translations_all
-                                    ),
-                                    style = MaterialTheme.typography.bodySmall,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                    modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 10.dp),
-                                )
-                            Button(
-                                onClick = onContinue,
-                                enabled = chosen.isNotEmpty(),
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(horizontal = 16.dp, vertical = 10.dp),
-                            ) {
-                                Text(stringResource(R.string.continue_to_search))
-                            }
+                        Button(
+                            onClick = onContinue,
+                            enabled = chosen.isNotEmpty(),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .navigationBarsPadding()
+                                .padding(horizontal = 16.dp, vertical = 10.dp),
+                        ) {
+                            Text(stringResource(R.string.continue_to_search))
                         }
                     }
             },
