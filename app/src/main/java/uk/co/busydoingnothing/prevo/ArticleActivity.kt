@@ -449,7 +449,6 @@ private fun ArticleScreen(
             onDismiss = { wordFor = null },
             onOpen = onOpenEntry,
             onCopy = { onCopyWord(word) },
-            onLookUpInPiv = onLookUpInPiv,
         )
     }
 
@@ -518,8 +517,9 @@ private fun Section(section: ArticleSection, textSize: Int, onLongPress: () -> U
 
 /** What can be done with a word of the text, shown on a long press: its
  * entries in the dictionary, found from the form it has in the text
- * ("arbojn" → arbo), each with the start of its definition, then copy it,
- * or look it up in PIV. */
+ * ("arbojn" → arbo), each with the start of its definition, then copy
+ * it. Vortaro.net stays in the menu of the headword: this one keeps to
+ * the dictionary. */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun WordActions(
@@ -528,7 +528,6 @@ private fun WordActions(
     onDismiss: () -> Unit,
     onOpen: (SearchResult) -> Unit,
     onCopy: () -> Unit,
-    onLookUpInPiv: (CharSequence) -> Unit,
 ) {
     val context = LocalContext.current
     val muted = MaterialTheme.colorScheme.onSurfaceVariant
@@ -585,15 +584,6 @@ private fun WordActions(
             headlineContent = { Text(stringResource(R.string.copy_word)) },
             modifier = Modifier.clickable { onDismiss(); onCopy() },
         )
-        /* PIV is a dictionary of Esperanto */
-        if (language == "eo")
-            ListItem(
-                headlineContent = { Text(stringResource(R.string.menu_look_up_in_piv)) },
-                modifier = Modifier.clickable {
-                    onDismiss()
-                    onLookUpInPiv(entries?.firstOrNull()?.first?.word ?: word)
-                },
-            )
         Spacer(Modifier.height(16.dp))
     }
 }
