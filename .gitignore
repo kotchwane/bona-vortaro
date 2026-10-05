@@ -11,3 +11,7 @@ local.properties
 /app/src/main/assets/indices/index-*.bin
 /app/src/main/assets/officiality.txt
 /app/src/main/res/xml/languages.xml
+
+# Written by Android Studio: it would make Gradle download a JDK,
+# which the build servers (F-Droid) do not do
+/gradle/gradle-daemon-jvm.properties
