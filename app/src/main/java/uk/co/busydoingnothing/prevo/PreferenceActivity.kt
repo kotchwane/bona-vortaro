@@ -306,7 +306,6 @@ private fun MainSettings(
 ) {
     var showTheme by remember { mutableStateOf(false) }
     var showTextSize by remember { mutableStateOf(false) }
-    var showAbout by remember { mutableStateOf(false) }
     var showClearHistory by remember { mutableStateOf(false) }
     val context = LocalContext.current
     val themeNames = mapOf(
@@ -378,7 +377,7 @@ private fun MainSettings(
             SettingRow(
                 stringResource(R.string.about_app),
                 stringResource(R.string.version, version),
-            ) { showAbout = true }
+            ) { AboutActivity.open(context) }
         }
     }
 
@@ -419,8 +418,6 @@ private fun MainSettings(
         }
     }
 
-    if (showAbout)
-        AboutDialog(onDismiss = { showAbout = false })
 
     if (showClearHistory)
         AlertDialog(

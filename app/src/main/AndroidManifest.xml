@@ -57,6 +57,9 @@
     <activity android:name="GuideActivity"
               android:configChanges="uiMode"
               android:exported="false" />
+    <activity android:name="AboutActivity"
+              android:configChanges="uiMode"
+              android:exported="false" />
     <activity android:name="NameActivity"
               android:configChanges="uiMode"
               android:label="@string/name_title"

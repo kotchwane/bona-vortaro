@@ -149,6 +149,23 @@
   <string name="one_language_needed">Necesas almenaŭ unu serĉlingvo.</string>
   <string name="about_section">Pri</string>
   <string name="about_app">Pri Bona vortaro</string>
+  <string name="about_version">Versio %1$s</string>
+  <string name="about_intro">*Bona vortaro* estas vortaro de Esperanto por Android. Ĝi enhavas la tutan Retan Vortaron, kun ĝiaj tradukoj en pli ol 170 lingvojn.</string>
+  <string name="about_free_title">Libera programaro</string>
+  <string name="about_free">*Bona vortaro* estas libera programaro: ĉiu rajtas uzi, studi, kunhavigi kaj ŝanĝi ĝin, laŭ la GNUa Ĝenerala Publika Permesilo (GPL), versio 2. Ĝia tuta fontkodo estas publika.</string>
+  <string name="about_source_link">La fontkodo ĉe GitHub</string>
+  <string name="about_offline_title">Tute sen interreto</string>
+  <string name="about_offline">La tuta vortaro estas en via telefono. La apo eĉ ne povas aliri la interreton: nenio, kion vi serĉas aŭ legas, forlasas vian telefonon. Nur la ligiloj al retejoj, se vi tuŝas ilin, malfermiĝas en via retumilo.</string>
+  <string name="about_permissions_title">Neniu permeso</string>
+  <string name="about_permissions">La apo petas neniun permeson de via telefono: nek la interreton, nek viajn dosierojn, kontaktojn, lokon, mikrofonon aŭ fotilon. Viaj lastaj serĉoj restas en la telefono, kaj eĉ ne iras en ĝiajn savkopiojn.</string>
+  <string name="about_data_title">La vortaro</string>
+  <string name="about_data">La difinoj kaj la tradukoj estas tiuj de la Reta Vortaro (ReVo), verkitaj de ĝiaj redaktantoj kaj publikigitaj laŭ la GPL, versio 2.</string>
+  <string name="about_data_link">La Reta Vortaro</string>
+  <string name="about_copyright_title">Kopirajto</string>
+  <string name="about_copyright">© 2026 kotchwane. *Bona vortaro* naskiĝis el PReVo kaj el ĝia ilo prevodb, de Neil Roberts: © 2012, 2013, 2016, 2017, 2018, 2019, 2020 Neil Roberts.</string>
+  <string name="about_warranty_title">Neniu garantio</string>
+  <string name="about_warranty">Ĉi tiu programo venas kun ABSOLUTE NENIA GARANTIO. Ĝi estas libera programaro, kaj vi rajtas redisdoni ĝin laŭ certaj kondiĉoj, priskribitaj en la permesilo.</string>
+  <string name="about_license_link">La permesilo (GPL, versio 2)</string>
   <string name="version">Versio %1$s</string>
   <string name="text_size_value">%1$d %%</string>
   <string name="text_size_default_value">Defaŭlta (%1$d %%)</string>
@@ -188,13 +205,4 @@
   <string name="keep_history_summary">La vortoj, kiujn vi malfermas el la serĉo, aperas sub „Lastaj serĉoj“. Malŝalti ĝin ankaŭ forviŝas ĝin.</string>
   <string name="clear_history_question">Ĉu forviŝi la tutan historion?</string>
   <string name="cancel">Nuligi</string>
-  <string name="about_message">
-<b>Bona vortaro @VERSION@</b>\n
-\nModifita versio de PReVo. PReVo: Copyright © 2012, 2013, 2016, 2017, 2018, 2019, 2020 Neil Roberts\n
-\nModifoj: © 2026 kotchwane, kun la nova aspekto, la novaj funkcioj kaj la ĝisdatigitaj datumoj. github.com/kotchwane/prevo\n
-\nLa datumoj por la vortaro venas de Reta Vortaro.\n
-\nThis program comes with ABSOLUTELY NO WARRANTY. This is free
-software and you are welcome to redistribute it under certain
-conditions. Click here for details.
-  </string>
 </resources>
