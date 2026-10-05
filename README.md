@@ -31,7 +31,7 @@
 **Bona vortaro** estas vortaro de Esperanto por Android. Ĝi enhavas la tutan
 [Retan Vortaron](https://reta-vortaro.de/) (ReVo), la liberan vortaron de
 Esperanto, kun ĝiaj tradukoj en pli ol 170 lingvojn. Ĉio estas en la telefono:
-ĝi funkcias sen interreto.
+ĝi funkcias sen interreto, kaj petas neniun permeson de la telefono.
 
 ### Kion ĝi faras
 
@@ -54,12 +54,12 @@ Esperanto, kun ĝiaj tradukoj en pli ol 170 lingvojn. Ĉio estas en la telefono:
 
 La nomo omaĝas al [*La bona lingvo*](http://claudepiron.free.fr/livres/bonalingvo.htm)
 de Claude Piron. En ĝi li montras, ke Esperanto estas plej klara kaj plej bela,
-kiam oni uzas ĝiajn simplajn radikojn kaj ĝian riĉan vortfaradon. Bona vortaro
+kiam oni uzas ĝiajn simplajn radikojn kaj ĝian riĉan vortfaradon. *Bona vortaro*
 volas esti same: simpla, klara, kaj agrabla por uzi.
 
 ### Deveno
 
-Bona vortaro baziĝas sur [PReVo](https://github.com/bpeel/prevo) de Neil Roberts,
+*Bona vortaro* baziĝas sur [PReVo](https://github.com/bpeel/prevo) de Neil Roberts,
 kies historio estas konservita en ĉi tiu deponejo. Ĝi havas novan interfacon
 (Jetpack Compose), novan aspekton kaj novajn funkciojn. La datumoj venas de la
 redaktoroj de [Reta Vortaro](https://github.com/revuloj/revo-fonto).
@@ -98,7 +98,7 @@ tutan vortaron.
 
 ### Permesilo
 
-Bona vortaro estas libera programaro, laŭ la GNU General Public License,
+*Bona vortaro* estas libera programaro, laŭ la GNU General Public License,
 versio 2 (vidu [`COPYING`](COPYING)), kiel PReVo.
 
 ---
@@ -108,7 +108,8 @@ versio 2 (vidu [`COPYING`](COPYING)), kiel PReVo.
 **Bona vortaro** ("good dictionary") is an Esperanto dictionary for Android.
 It contains the whole [Reta Vortaro](https://reta-vortaro.de/) (ReVo), the free
 Esperanto dictionary, with its translations into more than 170 languages.
-Everything is on the phone: it works without Internet access.
+Everything is on the phone: it works without Internet access, and asks
+for no permission at all.
 
 ### What it does
 
@@ -134,11 +135,11 @@ The interface is in Esperanto.
 The name is a tribute to [*La bona lingvo*](http://claudepiron.free.fr/livres/bonalingvo.htm)
 ("The good language") by Claude Piron, who shows that Esperanto is at its
 clearest and most beautiful when it uses its simple roots and its rich word
-building. Bona vortaro aims to be the same: simple, clear, and pleasant to use.
+building. *Bona vortaro* aims to be the same: simple, clear, and pleasant to use.
 
 ### Origins
 
-Bona vortaro is based on [PReVo](https://github.com/bpeel/prevo) by Neil Roberts,
+*Bona vortaro* is based on [PReVo](https://github.com/bpeel/prevo) by Neil Roberts,
 whose history is kept in this repository. It has a new interface (Jetpack
 Compose), a new look and new features. The data comes from the editors of
 [Reta Vortaro](https://github.com/revuloj/revo-fonto).
@@ -177,5 +178,5 @@ dictionary.
 
 ### License
 
-Bona vortaro is free software under the GNU General Public License, version 2
+*Bona vortaro* is free software under the GNU General Public License, version 2
 (see [`COPYING`](COPYING)), like PReVo.
