@@ -57,6 +57,7 @@ import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
@@ -133,9 +134,9 @@ fun RoundedSearchField(
 fun SectionTitle(title: String, modifier: Modifier = Modifier) {
     Text(
         title,
-        style = MaterialTheme.typography.labelLarge,
+        style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
         color = MaterialTheme.colorScheme.primary,
-        modifier = modifier.padding(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 4.dp),
+        modifier = modifier.padding(start = 16.dp, end = 16.dp, top = 20.dp, bottom = 4.dp),
     )
 }
 
