@@ -15,3 +15,6 @@ local.properties
 # Written by Android Studio: it would make Gradle download a JDK,
 # which the build servers (F-Droid) do not do
 /gradle/gradle-daemon-jvm.properties
+
+# Backups that autotools leaves in prevodb
+/prevodb/*~
