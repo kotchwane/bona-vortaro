@@ -21,6 +21,11 @@ package uk.co.busydoingnothing.prevo
 import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.foundation.layout.Spacer
@@ -438,7 +443,13 @@ private fun ArticleScreen(
              * whole: if it grew after a scroll reached the end, the cards
              * would be left below the screen */
             if (layout != null && neighbours != null)
-                item(key = "neighbours") { NeighbourRoots(neighbours!!, onOpenNeighbour) }
+                item(key = "neighbours") {
+                    NeighbourRoots(
+                        neighbours!!,
+                        onOpen = onOpenNeighbour,
+                        onRandom = { scope.launch { onOpenNeighbour(withContext(Dispatchers.IO) { RandomRoot.pick(context) }) } },
+                    )
+                }
         }
     }
 
@@ -646,9 +657,10 @@ private fun loadNeighbours(context: Context, articleNumber: Int): List<Neighbour
     }
 
 /** The roots just before and after this one, as on the page of a printed
- * dictionary, to read on from one to the next. A tap opens it. */
+ * dictionary, to read on from one to the next, and between them a root
+ * drawn at random. A tap opens it. */
 @Composable
-private fun NeighbourRoots(neighbours: List<Neighbour?>, onOpen: (Int) -> Unit) {
+private fun NeighbourRoots(neighbours: List<Neighbour?>, onOpen: (Int) -> Unit, onRandom: () -> Unit) {
     val muted = MaterialTheme.colorScheme.onSurfaceVariant
 
     Column(Modifier.fillMaxWidth().padding(top = 14.dp)) {
@@ -662,9 +674,15 @@ private fun NeighbourRoots(neighbours: List<Neighbour?>, onOpen: (Int) -> Unit) 
             )
             HorizontalDivider(Modifier.weight(1f), color = muted.copy(alpha = 0.4f))
         }
-        Row(horizontalArrangement = Arrangement.spacedBy(10.dp), modifier = Modifier.padding(top = 6.dp)) {
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            /* The three cards as high as the highest */
+            modifier = Modifier.padding(top = 6.dp).height(IntrinsicSize.Min),
+        ) {
             for ((index, neighbour) in neighbours.withIndex()) {
                 val before = index == 0
+                if (index == 1)
+                    RandomRootCard(onRandom, Modifier.width(84.dp).fillMaxHeight())
                 if (neighbour == null) {
                     Spacer(Modifier.weight(1f))
                     continue
@@ -674,10 +692,10 @@ private fun NeighbourRoots(neighbours: List<Neighbour?>, onOpen: (Int) -> Unit) 
                     shape = RoundedCornerShape(12.dp),
                     color = MaterialTheme.colorScheme.surfaceContainerLow,
                     border = BorderStroke(1.dp, muted.copy(alpha = 0.3f)),
-                    modifier = Modifier.weight(1f),
+                    modifier = Modifier.weight(1f).fillMaxHeight(),
                 ) {
                     Column(
-                        Modifier.padding(horizontal = 14.dp, vertical = 12.dp),
+                        Modifier.padding(horizontal = 12.dp, vertical = 12.dp),
                         horizontalAlignment = if (before) Alignment.Start else Alignment.End,
                     ) {
                         Text(
@@ -704,6 +722,36 @@ private fun NeighbourRoots(neighbours: List<Neighbour?>, onOpen: (Int) -> Unit) 
                     }
                 }
             }
+        }
+    }
+}
+
+/** The card between the previous and the next roots: a root at random */
+@Composable
+private fun RandomRootCard(onClick: () -> Unit, modifier: Modifier = Modifier) {
+    val muted = MaterialTheme.colorScheme.onSurfaceVariant
+    val label = stringResource(R.string.random_root)
+
+    Surface(
+        onClick = onClick,
+        shape = RoundedCornerShape(12.dp),
+        color = MaterialTheme.colorScheme.surfaceContainerLow,
+        border = BorderStroke(1.dp, muted.copy(alpha = 0.3f)),
+        modifier = modifier.semantics { contentDescription = label },
+    ) {
+        Column(
+            Modifier.padding(horizontal = 6.dp, vertical = 12.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center,
+        ) {
+            Dice(bonaDesign.headword, size = 30.dp)
+            Text(
+                stringResource(R.string.random_root_short),
+                style = MaterialTheme.typography.labelMedium,
+                color = muted,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.padding(top = 8.dp),
+            )
         }
     }
 }
