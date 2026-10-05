@@ -1,1 +1,10 @@
-PReVo is a portable version of Reta Vortaro (the free and libre Esperanto dictionary) for Android. It’s usable without Internet access and is quickly searched with the keyboard.
+Bona vortaro is an Esperanto dictionary for Android. It contains the whole <a href="https://reta-vortaro.de/">Reta Vortaro</a> (ReVo), the free Esperanto dictionary, with its translations into more than 170 languages, and works without Internet access.
+
+• Search in Esperanto and in your other languages, with or without accents (cx → ĉ), and with wildcards (*ologio).
+• Read clear articles: definitions, examples, remarks, links between words, and the translations in your languages.
+• See which words are official (Fundamento, Official Additions), and browse the list of each Addition.
+• Long-press a word to look it up, whatever its form: "arbojn" finds "arbo".
+• Leaf through the dictionary from root to root, or discover a random root.
+• Your recent searches, day and night colours, text size.
+
+The name is a tribute to "La bona lingvo" by Claude Piron. Bona vortaro is based on PReVo by Neil Roberts.

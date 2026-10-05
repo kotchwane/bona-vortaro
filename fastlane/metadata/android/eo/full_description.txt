@@ -1,1 +1,10 @@
-PReVo estas portebla versio de <a href="http://www.reta-vortaro.de/">Reta Vortaro</a> (la libera interreta esperanta vortaro) por Android. Ĝi estas uzebla sen retkonekto kaj ĝi estas rapide serĉebla per la klavaro. Aldone al difinoj de vortoj en Esperanto, la vortaro ankaŭ liveras tradukojn al diversaj aliaj lingvoj.
+Bona vortaro estas vortaro de Esperanto por Android. Ĝi enhavas la tutan <a href="https://reta-vortaro.de/">Retan Vortaron</a> (ReVo), la liberan vortaron de Esperanto, kun ĝiaj tradukoj en pli ol 170 lingvojn, kaj funkcias sen interreto.
+
+• Serĉu en Esperanto kaj en viaj aliaj lingvoj, kun aŭ sen supersignoj (cx → ĉ), kaj per ĵokeroj (*ologio).
+• Legu klarajn artikolojn: difinoj, ekzemploj, rimarkoj, ligiloj inter la vortoj, kaj la tradukoj en viaj lingvoj.
+• Vidu, kiuj vortoj estas oficialaj (Fundamento, Oficialaj Aldonoj), kaj foliumu la liston de ĉiu Aldono.
+• Tenu vorton premita por trovi ĝin, kiel ajn ĝi estas skribita: „arbojn“ trovas „arbo“.
+• Foliumu la vortaron de radiko al radiko, aŭ malkovru hazardan radikon.
+• Viaj lastaj serĉoj, tagaj kaj noktaj koloroj, la grandeco de la teksto.
+
+La nomo omaĝas al „La bona lingvo“ de Claude Piron. Bona vortaro baziĝas sur PReVo de Neil Roberts.
