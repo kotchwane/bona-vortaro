@@ -31,7 +31,8 @@
 **Bona vortaro** estas vortaro de Esperanto por Android. Ĝi enhavas la tutan
 [Retan Vortaron](https://reta-vortaro.de/) (ReVo), la liberan vortaron de
 Esperanto, kun ĝiaj tradukoj en pli ol 170 lingvojn. Ĉio estas en la telefono:
-ĝi funkcias sen interreto, kaj petas neniun permeson de la telefono.
+ĝi funkcias sen interreto, kaj petas neniun permeson de la telefono. Ĝi naskiĝis
+el [PReVo](https://github.com/bpeel/prevo), la vortaro de Neil Roberts.
 
 ### Kion ĝi faras
 
@@ -109,7 +110,8 @@ versio 2 (vidu [`COPYING`](COPYING)), kiel PReVo.
 It contains the whole [Reta Vortaro](https://reta-vortaro.de/) (ReVo), the free
 Esperanto dictionary, with its translations into more than 170 languages.
 Everything is on the phone: it works without Internet access, and asks
-for no permission at all.
+for no permission at all. It grew out of [PReVo](https://github.com/bpeel/prevo),
+Neil Roberts' dictionary.
 
 ### What it does
 
