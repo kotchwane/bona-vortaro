@@ -39,6 +39,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.LinkAnnotation
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.TextLinkStyles
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
@@ -110,11 +115,10 @@ private fun AboutPage(onBack: () -> Unit) {
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
             Spacer(Modifier.height(8.dp))
-            Text(withItalics(stringResource(R.string.about_intro)), style = body)
+            Text(withLinks(stringResource(R.string.about_intro), "Retan Vortaron" to RETA_VORTARO_URL), style = body)
             /* Where it comes from, at once: PReVo is its starting point */
             Spacer(Modifier.height(8.dp))
-            Text(withItalics(stringResource(R.string.about_origin)), style = body)
-            Link(R.string.about_origin_link, PREVO_URL)
+            Text(withLinks(stringResource(R.string.about_origin), "PReVo" to PREVO_URL), style = body)
 
             for (part in PARTS) {
                 Spacer(Modifier.height(20.dp))
@@ -130,6 +134,23 @@ private fun AboutPage(onBack: () -> Unit) {
             }
             Spacer(Modifier.height(32.dp))
         }
+    }
+}
+
+/** The text with its italics, and a word of it as a link to a website */
+@Composable
+private fun withLinks(text: String, link: Pair<String, String>): AnnotatedString {
+    val style = TextLinkStyles(
+        SpanStyle(color = MaterialTheme.colorScheme.primary, textDecoration = TextDecoration.Underline)
+    )
+    val italics = withItalics(text)
+
+    return buildAnnotatedString {
+        append(italics)
+        val (label, url) = link
+        val start = italics.text.indexOf(label)
+        if (start >= 0)
+            addLink(LinkAnnotation.Url(url, style), start, start + label.length)
     }
 }
 
