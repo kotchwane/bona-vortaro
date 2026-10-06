@@ -184,6 +184,7 @@ class ArticleActivity : BonaActivity() {
                     onOpenEntry = ::openEntry,
                     onCopyWord = ::copyWord,
                     loadArticle = ::loadCachedArticle,
+                    peekArticle = { articleCache.get(it) },
                 )
               }
 
@@ -372,6 +373,8 @@ private fun ArticleScreen(
     onOpenEntry: (SearchResult) -> Unit,
     onCopyWord: (String) -> Unit,
     loadArticle: (Int) -> Article,
+    /** An article only if it is in the cache, without reading it */
+    peekArticle: (Int) -> Article?,
 ) {
     val listState = rememberLazyListState()
     val scope = rememberCoroutineScope()
@@ -379,8 +382,12 @@ private fun ArticleScreen(
     /* Read with the article, so that they are there before the end of it
      * can be reached */
     val context = LocalContext.current
-    val neighbours by produceState<List<Neighbour?>?>(null, articleNumber) {
-        value = withContext(Dispatchers.IO) { loadNeighbours(loadArticle, articleNumber) }
+    /* Coming back to a root, its neighbours are in the cache: shown at
+     * once, the list has its whole length when its scroll is restored,
+     * down to the cards */
+    val neighbours by produceState(cachedNeighbours(peekArticle, articleNumber), articleNumber) {
+        if (value == null)
+            value = withContext(Dispatchers.IO) { loadNeighbours(loadArticle, articleNumber) }
     }
     /* The word pressed in the text, and its language */
     var wordFor by remember { mutableStateOf<Pair<String, String>?>(null) }
@@ -704,6 +711,14 @@ private fun DefinitionActions(
 
 /** An article next to this one, in the order of the dictionary */
 private class Neighbour(val number: Int, val root: String, val definition: String)
+
+/** The neighbours of an article if both are in the cache, else null */
+private fun cachedNeighbours(peekArticle: (Int) -> Article?, articleNumber: Int): List<Neighbour?>? {
+    val numbers = listOf(articleNumber - 1, articleNumber + 1)
+    if (numbers.any { it >= 0 && peekArticle(it) == null })
+        return null
+    return loadNeighbours({ peekArticle(it)!! }, articleNumber)
+}
 
 /** The articles before and after one, null where there is none: before
  * the first article, and after the last. They are read as the article
