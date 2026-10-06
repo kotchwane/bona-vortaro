@@ -220,7 +220,22 @@ fun splitOfficial(header: Spanned): Pair<List<String>, CharSequence> {
         position = end
     }
 
-    return marks to header.subSequence(position, header.length).trimStart()
+    /* A mark before a variant that repeats one of the title ("Manjo,
+     * *Marinjo", both in the Fundamento) says nothing more: removed. A
+     * different one (the 8th Aldono before "monark/o") stays. Only marks
+     * just before a letter: a superscript after a word is a number of
+     * homonym */
+    val rest = SpannableStringBuilder(header.subSequence(position, header.length).trimStart())
+    for (span in rest.getSpans(0, rest.length, SuperscriptSpan::class.java).sortedByDescending { rest.getSpanStart(it) }) {
+        val start = rest.getSpanStart(span)
+        val end = rest.getSpanEnd(span)
+        if (start < 0 || end >= rest.length || !rest[end].isLetter())
+            continue
+        if (rest.subSequence(start, end).toString().trim() in marks)
+            rest.delete(start, end)
+    }
+
+    return marks to rest
 }
 
 /** Splits the content into text and remarks. prevodb writes a remark as a
