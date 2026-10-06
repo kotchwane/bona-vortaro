@@ -50,6 +50,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import java.io.IOException
+import java.util.Locale
 
 /** A word of the history, found again in the index of its language. */
 class RecentSearch(val entry: HistoryEntry, val result: SearchResult)
@@ -69,9 +70,13 @@ fun findRecentSearches(context: Context, entries: List<HistoryEntry>): List<Rece
             Log.w(TAG, "Failed to load the index for ${entry.language}")
             return@mapNotNull null
         }
-        val count = trie.search(entry.word, results)
-        results.take(count).filterNotNull()
-            .firstOrNull { it.word == entry.word }
+        /* The index is in lowercase, the words as shown are not: "Mario"
+         * is found under "mario" */
+        fun find(key: String): SearchResult? {
+            val count = trie.search(key, results)
+            return results.take(count).filterNotNull().firstOrNull { it.word == entry.word }
+        }
+        (find(entry.word) ?: find(entry.word.lowercase(Locale.ROOT)))
             ?.let { RecentSearch(entry, it) }
     }
 }
