@@ -45,7 +45,9 @@ android {
         release {
             if (hasReleaseKey)
                 signingConfig = signingConfigs.release
-            minifyEnabled = false
+            /* R8: shrinks and optimises the code (asked by F-Droid). The
+             * libraries bring their own rules; ours are in proguard-rules.pro */
+            minifyEnabled = true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
