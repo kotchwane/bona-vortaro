@@ -50,8 +50,12 @@ android {
 
     buildTypes {
         release {
-            if (hasReleaseKey)
+            /* In braces: F-Droid deletes the lines with "signingConfig",
+             * and without them the next statement would become the
+             * body of the "if" (minifyEnabled, then off on its side) */
+            if (hasReleaseKey) {
                 signingConfig = signingConfigs.release
+            }
             /* R8: shrinks and optimises the code (asked by F-Droid). The
              * libraries bring their own rules; ours are in proguard-rules.pro */
             minifyEnabled = true
