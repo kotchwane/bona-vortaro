@@ -45,6 +45,13 @@ typedef enum
    * word instead of the symbol, which is ambiguous: "↘" is both "sub"
    * and "prt". */
   PDB_SPAN_LINK_TYPE,
+  /* An abbreviation or a code given for the word (<mlg>), eg. "DE" for
+   * Germanujo. data1 is its kind, from the "kod" attribute of ReVo:
+   * 0 an abbreviation (no kod), 1 a country code (ISO 3166), 2 the
+   * symbol of a chemical element (IUPAC), 3 the symbol of a unit (SI,
+   * CGS), 4 a currency code (ISO 4217), 5 a language code (ISO 639),
+   * 6 the number of a food additive (E) */
+  PDB_SPAN_ABBREVIATION,
   PDB_SPAN_NONE
 } PdbSpanType;
 
