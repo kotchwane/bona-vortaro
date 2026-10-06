@@ -2156,6 +2156,57 @@ pdb_db_handle_uzo (PdbDb *db,
   return TRUE;
 }
 
+/* The kind of an abbreviation, from the kod attribute of its <mlg> tag,
+ * as stored in the data1 of its span (see PDB_SPAN_ABBREVIATION). ReVo
+ * writes some codes in several ways ("ISO-3166", "IS-3166", "ISO 3166",
+ * "ISO-3166-1"; "ISO-4217", "4217"; "Co" for IUPAC once) */
+static int
+pdb_db_get_abbreviation_kind (const char *kod)
+{
+  if (kod == NULL)
+    return 0;
+  if (strstr (kod, "3166"))
+    return 1;
+  if (!strcmp (kod, "IUPAC") || !strcmp (kod, "Co"))
+    return 2;
+  if (!strcmp (kod, "SI") || !strcmp (kod, "CGS"))
+    return 3;
+  if (strstr (kod, "4217"))
+    return 4;
+  if (strstr (kod, "639"))
+    return 5;
+  if (!strcmp (kod, "E"))
+    return 6;
+  return 0;
+}
+
+/* Writes an abbreviation in a span of its own, with its kind, so that
+ * applications can tell what it is: "DE" alone says little */
+static gboolean
+pdb_db_handle_mlg (PdbDb *db,
+                   PdbDbParseState *state,
+                   PdbDocElementNode *element,
+                   PdbSpan *span,
+                   GError **error)
+{
+  GString *text = g_string_new (NULL);
+  PdbSpan *abbreviation;
+
+  pdb_doc_append_element_text (element, text);
+  pdb_trim_buf (text);
+
+  pdb_db_start_text (state);
+  abbreviation = pdb_db_start_span (state, PDB_SPAN_ABBREVIATION);
+  abbreviation->data1 =
+    pdb_db_get_abbreviation_kind (pdb_doc_get_attribute (element, "kod"));
+  g_string_append (state->buf, text->str);
+
+  g_string_free (text, TRUE);
+  state->skip_children = TRUE;
+
+  return TRUE;
+}
+
 static gboolean
 pdb_db_handle_ekz (PdbDb *db,
                    PdbDbParseState *state,
@@ -2229,6 +2280,7 @@ pdb_db_element_spans[] =
     { .name = "em", .type = PDB_SPAN_BOLD, },
     { .name = "aut", .type = PDB_SPAN_NONE, .handler = pdb_db_handle_aut },
     { .name = "uzo", .type = PDB_SPAN_NONE, .handler = pdb_db_handle_uzo },
+    { .name = "mlg", .type = PDB_SPAN_NONE, .handler = pdb_db_handle_mlg },
     { .name = "fnt", .type = PDB_SPAN_NONE, .handler = pdb_db_handle_fnt },
     {
       .name = "vspec",

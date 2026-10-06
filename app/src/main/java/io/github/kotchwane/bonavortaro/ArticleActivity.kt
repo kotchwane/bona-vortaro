@@ -18,6 +18,7 @@
 
 package io.github.kotchwane.bonavortaro
 
+import androidx.compose.ui.res.stringArrayResource
 import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
@@ -395,11 +396,13 @@ private fun ArticleScreen(
     /* One card per word, with its translations */
     val colors = MaterialTheme.colorScheme
     val density = LocalDensity.current.density
+    val abbreviationKinds = stringArrayResource(R.array.abbreviation_kinds).toList()
     val layout = remember(article, preferredLanguages, colors) {
         article?.let {
             layoutArticle(
                 it,
                 preferredLanguages,
+                abbreviationKinds = abbreviationKinds,
                 markLabel = {
                     InlineLabelSpan(
                         background = colors.secondaryContainer.toArgb(),

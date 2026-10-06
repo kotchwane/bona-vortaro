@@ -17,6 +17,7 @@
 
 package io.github.kotchwane.bonavortaro
 
+import androidx.compose.ui.res.stringArrayResource
 import android.graphics.Canvas
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.input.pointer.pointerInput
@@ -298,7 +299,10 @@ private fun LabelChip(label: Label, modifier: Modifier = Modifier) {
         border = if (label.isField) null else BorderStroke(1.dp, colors.outlineVariant),
     ) {
         Text(
-            label.text,
+            /* "landokodo: DE": an abbreviation says what it is */
+            if (label.abbreviation < 0) label.text
+            else stringArrayResource(R.array.abbreviation_kinds).getOrElse(label.abbreviation) { "" }
+                .let { kind -> if (kind.isEmpty()) label.text else "$kind: ${label.text}" },
             style = MaterialTheme.typography.labelMedium,
             modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp),
         )
