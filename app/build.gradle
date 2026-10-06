@@ -55,6 +55,18 @@ android {
             minifyEnabled = false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
+
+        /* Built like the release, to test its speed from Android Studio:
+         * signed with the debug key, so that the Run button works without
+         * the release key, and installed next to the app, not over it */
+        profile {
+            initWith release
+            signingConfig = signingConfigs.debug
+            applicationIdSuffix = ".profile"
+            versionNameSuffix = "-profile"
+            matchingFallbacks = ['release']
+            profileable = true
+        }
     }
 }
 
