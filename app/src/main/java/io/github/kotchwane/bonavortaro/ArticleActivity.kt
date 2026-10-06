@@ -458,7 +458,8 @@ private fun ArticleScreen(
         topBar = {
             BonaTopBar(
                 title = {
-                    val (marks, title) = article?.title?.let { splitOfficial(it) } ?: (emptyList<String>() to "")
+                    val official = article?.title?.let { parseOfficial(it) }
+                    val first = official?.forms?.firstOrNull()
 
                     /* The officiality of the root of the article, which
                      * the words of the article share */
@@ -467,16 +468,22 @@ private fun ArticleScreen(
                          * ⁸monark/o"): the variants, with their own marks,
                          * are in the card below, which has the room */
                         Text(
-                            title.toString().substringBefore(',').trim(),
+                            first?.text.orEmpty(),
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis,
                             modifier = Modifier.weight(1f, fill = false),
                         )
                         /* The oldest officiality only, with the number of
                          * the others: the root keeps its room */
-                        val levels = marks.distinct().sortedBy { officialLevel(it) ?: Int.MAX_VALUE }
+                        val levels = first?.marks.orEmpty().distinct().sortedBy { officialLevel(it) ?: Int.MAX_VALUE }
                         levels.firstOrNull()?.let {
-                            OfficialBadge(it, others = levels.drop(1), showOthers = true, modifier = Modifier.padding(start = 8.dp))
+                            OfficialBadge(
+                                it,
+                                others = levels.drop(1),
+                                showOthers = true,
+                                forms = official,
+                                modifier = Modifier.padding(start = 8.dp),
+                            )
                         }
                     }
                 },
