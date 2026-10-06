@@ -53,7 +53,12 @@ sealed class ContentBlock(val text: CharSequence) {
 
 /** A label of the whole word: its field ("matematiko") or its kind
  * ("transitiva"). */
-class Label(val isField: Boolean, val text: String)
+class Label(
+    val isField: Boolean,
+    val text: String,
+    /** For an abbreviation, its kind (R.array.abbreviation_kinds), else -1 */
+    val abbreviation: Int = -1,
+)
 
 class Translation(val language: String, val text: String)
 
@@ -108,6 +113,8 @@ fun layoutArticle(
     preferredLanguages: List<String>,
     markLabel: () -> Any,
     markLinkType: (LinkType, String) -> Any,
+    /** The words for the kinds of abbreviations (R.array.abbreviation_kinds) */
+    abbreviationKinds: List<String> = emptyList(),
 ): ArticleLayout {
     /* For each word and language, the translations with their sense */
     val translations = mutableMapOf<Int, MutableMap<String, MutableList<Pair<String, String>>>>()
@@ -144,7 +151,7 @@ fun layoutArticle(
             forms = official,
             title = official.text,
             labels = labels,
-            blocks = splitBlocks(markLinkTypes(markInlineLabels(content, markLabel), markLinkType)),
+            blocks = splitBlocks(markLinkTypes(markInlineLabels(content, markLabel, abbreviationKinds), markLinkType)),
             translations = byLanguage.entries
                 /* The user's languages first, in their order, then the
                  * others in the order of the article */
@@ -413,8 +420,8 @@ private fun splitLabels(content: Spanned): Pair<List<Label>, Spanned> {
         if (rest.trim(' ', ',', ';', '(', ')').isNotEmpty())
             break
 
-        for ((isField, s, e) in spans)
-            labels.add(Label(isField, text.substring(s, e).trim()))
+        for (span in spans)
+            labels.add(Label(span.isField, text.substring(span.start, span.end).trim(), span.abbreviation))
         start = end
     }
 
@@ -423,26 +430,68 @@ private fun splitLabels(content: Spanned): Pair<List<Label>, Spanned> {
 
 /** The fields and kinds of word in a part of the content: whether it is a
  * field, its start and its end. */
-private fun labelSpans(content: Spanned, start: Int, end: Int): List<Triple<Boolean, Int, Int>> {
-    val fields = content.getSpans(start, end, FieldSpan::class.java)
-        .map { Triple(true, content.getSpanStart(it), content.getSpanEnd(it)) }
-    val grammar = content.getSpans(start, end, GrammarSpan::class.java)
-        .map { Triple(false, content.getSpanStart(it), content.getSpanEnd(it)) }
-
-    return (fields + grammar)
-        .filter { (_, s, e) -> s >= start && e <= end }
-        .sortedBy { it.second }
+/** A label found in the text: a field, a kind of word or an
+ * abbreviation, and where it is */
+private class LabelSpan(val isField: Boolean, val start: Int, val end: Int, val abbreviation: Int = -1) {
+    operator fun component1() = isField
+    operator fun component2() = start
+    operator fun component3() = end
 }
 
-/** Shows the fields and kinds of word left within the text as labels. */
-private fun markInlineLabels(content: Spanned, markLabel: () -> Any): Spanned {
-    val spans = labelSpans(content, 0, content.length)
+private fun labelSpans(content: Spanned, start: Int, end: Int): List<LabelSpan> {
+    val fields = content.getSpans(start, end, FieldSpan::class.java)
+        .map { LabelSpan(true, content.getSpanStart(it), content.getSpanEnd(it)) }
+    val grammar = content.getSpans(start, end, GrammarSpan::class.java)
+        .map { LabelSpan(false, content.getSpanStart(it), content.getSpanEnd(it)) }
+    /* "DE" for Germanujo: shown as "landokodo: DE" */
+    val abbreviations = content.getSpans(start, end, AbbreviationSpan::class.java)
+        .map { LabelSpan(false, content.getSpanStart(it), content.getSpanEnd(it), it.kind) }
+
+    return (fields + grammar + abbreviations)
+        .filter { it.start >= start && it.end <= end }
+        .sortedBy { it.start }
+}
+
+/** The abbreviations at the start of a paragraph, after its labels
+ * only: "PLN" in "ekonomiko PLN Monunuo de Pollando" */
+private fun leadingAbbreviations(content: Spanned, spans: List<LabelSpan>): List<LabelSpan> {
+    val text = content.toString()
+
+    return spans.filter { abbreviation ->
+        if (abbreviation.abbreviation < 0)
+            return@filter false
+        val paragraph = text.lastIndexOf("\n\n", abbreviation.start).let { if (it < 0) 0 else it + 2 }
+        var before = text.substring(paragraph, abbreviation.start)
+        for (label in spans)
+            if (label.abbreviation < 0 && label.start >= paragraph && label.end <= abbreviation.start)
+                before = before.replace(text.substring(label.start, label.end), "")
+        before.trim(' ', ',', ';', '(', ')', '\n').isEmpty()
+    }
+}
+
+/** Shows the fields and kinds of word left within the text as labels,
+ * and an abbreviation right after them as one too, with its kind
+ * ("valutokodo: PLN"). An abbreviation within a sentence ("(atm)")
+ * stays text. */
+private fun markInlineLabels(content: Spanned, markLabel: () -> Any, abbreviationKinds: List<String>): Spanned {
+    val all = labelSpans(content, 0, content.length)
+    val spans = all.filter { it.abbreviation < 0 } + leadingAbbreviations(content, all)
     if (spans.isEmpty())
         return content
 
+    /* From the end, so that the words added for the abbreviations don't
+     * move the spans still to mark */
     val marked = SpannableStringBuilder(content)
-    for ((_, s, e) in spans)
-        marked.setSpan(markLabel(), s, e, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+    for (span in spans.sortedByDescending { it.start }) {
+        var end = span.end
+        val kind = abbreviationKinds.getOrNull(span.abbreviation)
+        if (kind != null) {
+            val label = "$kind: ${content.subSequence(span.start, span.end)}"
+            marked.replace(span.start, span.end, label)
+            end = span.start + label.length
+        }
+        marked.setSpan(markLabel(), span.start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+    }
     return marked
 }
 
@@ -479,7 +528,9 @@ fun previewOf(article: Article, mark: Int): WordPreview? {
      * which would read as "trovi1" in plain text */
     val superscripts = content.getSpans(0, content.length, SuperscriptSpan::class.java)
         .map { content.getSpanStart(it) to content.getSpanEnd(it) }
-    val removed = (labelSpans(content, 0, content.length).map { (_, start, end) -> start to end } + superscripts)
+    val labels = labelSpans(content, 0, content.length)
+    val removed = ((labels.filter { it.abbreviation < 0 } + leadingAbbreviations(content, labels))
+        .map { (_, start, end) -> start to end } + superscripts)
         .sortedBy { it.first }
         /* Merged where they overlap, so that nothing is deleted twice */
         .fold(mutableListOf<Pair<Int, Int>>()) { ranges, range ->

@@ -50,6 +50,16 @@
   <string name="name_examples">En la artikoloj, la rimarkoj „Laŭ vortoj de la bona lingvo“ venas el la sama spirito: anstataŭ novajn radikojn, ili proponas vortojn faritajn el jam konataj, ekzemple *sinĝenema* aŭ *malaplomba* por *timida*, *manĝbastoneto* por *haŝio*, *ŝatokupo* por *hobio*, *memlernanto* por *aŭtodidakto*, *flugroboto* por *droneo*.</string>
   <string name="name_read_book">Legi *La bonan lingvon*</string>
   <string name="name_read_book_where">La tuta libro, en la retejo de Claude Piron</string>
+  <!-- The kinds of the abbreviations of ReVo (<mlg>), in the order of prevodb's PDB_SPAN_ABBREVIATION -->
+  <string-array name="abbreviation_kinds">
+    <item>mallongigo</item>
+    <item>landokodo</item>
+    <item>kemia simbolo</item>
+    <item>simbolo</item>
+    <item>valutokodo</item>
+    <item>lingvokodo</item>
+    <item>E-numero</item>
+  </string-array>
   <string name="official_form_unofficial">ne oficiala</string>
   <string name="official_lists_title">La oficialaj listoj</string>
   <string name="roots">%1$d radikoj</string>

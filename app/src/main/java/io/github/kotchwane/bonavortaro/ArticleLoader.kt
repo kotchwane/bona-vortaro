@@ -50,6 +50,10 @@ class ExampleSpan
  * prevodb (see LinkType). */
 class LinkTypeSpan(val type: Int)
 
+/** An abbreviation or a code given for the word ("DE" for Germanujo),
+ * with its kind: the index in R.array.abbreviation_kinds */
+class AbbreviationSpan(val kind: Int)
+
 /** A link to another section of the same article. The translations use
  * them to point back to the word they translate. */
 class SectionLinkSpan(val section: Int, private val onShowSection: (Int) -> Unit) : ClickableSpan() {
@@ -76,6 +80,7 @@ object ArticleLoader {
     private const val SPAN_FIELD = 6
     private const val SPAN_EXAMPLE = 7
     private const val SPAN_LINK_TYPE = 8
+    private const val SPAN_ABBREVIATION = 9
 
     /**
      * Loads an article, keeping only the sections of the languages shown
@@ -200,6 +205,7 @@ object ArticleLoader {
                 SPAN_FIELD -> listOf(FieldSpan())
                 SPAN_EXAMPLE -> listOf(ExampleSpan())
                 SPAN_LINK_TYPE -> listOf(LinkTypeSpan(data1))
+                SPAN_ABBREVIATION -> listOf(AbbreviationSpan(data1))
                 else -> emptyList()
             }
     }
