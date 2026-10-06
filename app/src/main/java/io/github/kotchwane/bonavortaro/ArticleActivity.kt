@@ -21,6 +21,11 @@ package io.github.kotchwane.bonavortaro
 import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.saveable.rememberSaveableStateHolder
+import androidx.compose.runtime.mutableStateListOf
+import androidx.activity.compose.BackHandler
+import android.util.LruCache
 import androidx.compose.foundation.layout.size
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.contentDescription
@@ -106,9 +111,18 @@ class ArticleActivity : BonaActivity() {
         const val TARGET_TEXT = "TARGET_TEXT"
 
         private const val TAG = "bonaarticle"
+        private const val STATE_ROOTS = "roots"
     }
 
-    private var articleNumber = -1
+    /* The roots read on this screen, the one shown last: the previous,
+     * next and random roots are added to it, in place, and back takes
+     * them off again, root by root */
+    private val roots = mutableStateListOf<Int>()
+    private val articleNumber get() = roots.lastOrNull() ?: -1
+
+    /* The articles already read: those of the cards of the previous and
+     * next roots, and those of the roots before, for back */
+    private val articleCache = LruCache<Int, Article>(16)
     private var article by mutableStateOf<Article?>(null)
     private var textSize by mutableIntStateOf(BonaSettings.DEFAULT_TEXT_SIZE)
     private var unfoldExamples by mutableStateOf(false)
@@ -129,11 +143,26 @@ class ArticleActivity : BonaActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        articleNumber = intent.getIntExtra(EXTRA_ARTICLE_NUMBER, -1)
+        roots.addAll(
+            savedInstanceState?.getIntArray(STATE_ROOTS)?.toList()
+                ?: listOf(intent.getIntExtra(EXTRA_ARTICLE_NUMBER, -1))
+        )
         val mark = intent.getIntExtra(EXTRA_MARK_NUMBER, -1)
 
         setContent {
+            /* Each root read keeps its own state, its scroll above all,
+             * to find it as it was left on the way back */
+            val rootStates = rememberSaveableStateHolder()
+            val depth = roots.size
+
+            BackHandler(enabled = depth > 1) {
+                rootStates.removeState(rootKey(depth))
+                roots.removeAt(roots.lastIndex)
+                showCurrentRoot()
+            }
+
             BonaTheme {
+              rootStates.SaveableStateProvider(rootKey(depth)) {
                 ArticleScreen(
                     articleNumber = articleNumber,
                     article = article,
@@ -141,7 +170,8 @@ class ArticleActivity : BonaActivity() {
                     unfoldExamples = unfoldExamples,
                     foldTranslations = foldTranslations,
                     preferredLanguages = preferredLanguages,
-                    initialSection = if (savedInstanceState == null) mark else -1,
+                    /* The section of the intent, for the root it opened */
+                    initialSection = if (savedInstanceState == null && depth == 1) mark else -1,
                     sectionRequests = sectionRequests,
                     onSearch = { Screens.goSearch(this) },
                     onPreferences = { Screens.goPreferences(this) },
@@ -153,7 +183,9 @@ class ArticleActivity : BonaActivity() {
                     onOpenRandom = ::openRoot,
                     onOpenEntry = ::openEntry,
                     onCopyWord = ::copyWord,
+                    loadArticle = ::loadCachedArticle,
                 )
+              }
 
                 if (showNoFlashcard) {
                     AlertDialog(
@@ -184,7 +216,10 @@ class ArticleActivity : BonaActivity() {
          * are shown: the ones the user chose are all shown */
         foldTranslations = translations.size == LanguageList.getDefault(this).allLanguages.size
         if (article == null || translations != loadedTranslations) {
-            loadArticle()
+            /* The articles read before show other translations */
+            if (translations != loadedTranslations)
+                articleCache.evictAll()
+            showCurrentRoot()
             loadedTranslations = translations
         }
     }
@@ -205,19 +240,36 @@ class ArticleActivity : BonaActivity() {
         return BonaSettings.getTranslationLanguages(this, languages).toSet()
     }
 
-    private fun loadArticle() {
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putIntArray(STATE_ROOTS, roots.toIntArray())
+    }
+
+    /* The key of the state of the root at a depth: the same root read
+     * twice in a row has two states */
+    private fun rootKey(depth: Int) = "$depth:${roots.getOrNull(depth - 1)}"
+
+    /** An article, from the cache if it was read already. Disk access
+     * otherwise. */
+    @Throws(IOException::class)
+    private fun loadCachedArticle(number: Int): Article =
+        articleCache.get(number)
+            ?: ArticleLoader.load(
+                this,
+                number,
+                onShowSection = { sectionRequests.tryEmit(it) },
+                quoteColor = QUOTE_COLOR,
+            ).also { articleCache.put(number, it) }
+
+    private fun showCurrentRoot() {
         if (articleNumber < 0)
             return
 
-        try {
-            article = ArticleLoader.load(
-                this,
-                articleNumber,
-                onShowSection = { sectionRequests.tryEmit(it) },
-                quoteColor = QUOTE_COLOR,
-            )
+        article = try {
+            loadCachedArticle(articleNumber)
         } catch (e: IOException) {
             Log.wtf(TAG, "Error while loading an asset", e)
+            null
         }
     }
 
@@ -263,10 +315,13 @@ class ArticleActivity : BonaActivity() {
         }
     }
 
-    /* The previous, next or random root goes on top of this one: back
-     * returns to it, and the search, at the top left, to the search at once */
+    /* The previous, next or random root replaces this one on the same
+     * screen, at once, without the animation of a new screen. Back
+     * returns to this one, where it was left; the search, at the top
+     * left, to the search at once */
     private fun openRoot(number: Int) {
-        startActivity(Intent(this, ArticleActivity::class.java).putExtra(EXTRA_ARTICLE_NUMBER, number))
+        roots.add(number)
+        showCurrentRoot()
     }
 
     /* An entry found from a word of the text, on top of this article,
@@ -316,6 +371,7 @@ private fun ArticleScreen(
     onOpenRandom: (Int) -> Unit,
     onOpenEntry: (SearchResult) -> Unit,
     onCopyWord: (String) -> Unit,
+    loadArticle: (Int) -> Article,
 ) {
     val listState = rememberLazyListState()
     val scope = rememberCoroutineScope()
@@ -324,7 +380,7 @@ private fun ArticleScreen(
      * can be reached */
     val context = LocalContext.current
     val neighbours by produceState<List<Neighbour?>?>(null, articleNumber) {
-        value = withContext(Dispatchers.IO) { loadNeighbours(context, articleNumber) }
+        value = withContext(Dispatchers.IO) { loadNeighbours(loadArticle, articleNumber) }
     }
     /* The word pressed in the text, and its language */
     var wordFor by remember { mutableStateOf<Pair<String, String>?>(null) }
@@ -371,9 +427,14 @@ private fun ArticleScreen(
         layout?.words?.mapIndexed { position, word -> word.section to position }?.toMap() ?: emptyMap()
     }
 
-    /* Show the section the article was opened at, once it is loaded */
+    /* Show the section the article was opened at, once it is loaded, and
+     * only once: coming back to this root, its own scroll is restored */
+    var showedSection by rememberSaveable { mutableStateOf(false) }
     LaunchedEffect(layout != null) {
-        positions[initialSection]?.let { listState.scrollToItem(it) }
+        if (layout != null && !showedSection) {
+            positions[initialSection]?.let { listState.scrollToItem(it) }
+            showedSection = true
+        }
     }
 
     /* Links to another section of the same article. This keeps running,
@@ -645,12 +706,14 @@ private fun DefinitionActions(
 private class Neighbour(val number: Int, val root: String, val definition: String)
 
 /** The articles before and after one, null where there is none: before
- * the first article, and after the last. Disk access. */
-private fun loadNeighbours(context: Context, articleNumber: Int): List<Neighbour?> =
+ * the first article, and after the last. They are read as the article
+ * itself, into its cache, so that opening them reads nothing more. Disk
+ * access. */
+private fun loadNeighbours(loadArticle: (Int) -> Article, articleNumber: Int): List<Neighbour?> =
     listOf(articleNumber - 1, articleNumber + 1).map { number ->
         if (number < 0) return@map null
         try {
-            val article = ArticleLoader.load(context, number, onShowSection = {}, quoteColor = 0)
+            val article = loadArticle(number)
             Neighbour(
                 number,
                 splitOfficial(article.title).second.toString(),
