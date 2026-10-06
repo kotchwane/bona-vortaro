@@ -137,12 +137,17 @@ fun WordCard(
                     onLongPress = { onLongPress() },
                     modifier = Modifier.align(Alignment.CenterVertically),
                 )
-                for (official in entry.official)
+                /* One badge, the oldest, with the number of the others; the
+                 * panel tells which form has which */
+                entry.official.firstOrNull()?.let {
                     OfficialBadge(
-                        official,
+                        it,
                         Modifier.align(Alignment.CenterVertically),
-                        others = entry.official - official,
+                        others = entry.official.drop(1),
+                        showOthers = true,
+                        forms = entry.forms,
                     )
+                }
                 for (label in entry.labels)
                     LabelChip(label, Modifier.align(Alignment.CenterVertically))
             }
@@ -429,6 +434,8 @@ fun OfficialBadge(
     others: List<String> = emptyList(),
     /** Whether the label counts them: "Fundamento +1" */
     showOthers: Boolean = false,
+    /** The forms of the title, for the panel to tell which has which */
+    forms: OfficialTitle? = null,
 ) {
     val level = officialLevel(official)
     val name = when (level) {
@@ -462,7 +469,12 @@ fun OfficialBadge(
     }
 
     if (explain && level != null)
-        OfficialSheet(level, also = others.mapNotNull { officialLevel(it) }.toSet(), onDismiss = { explain = false })
+        OfficialSheet(
+            level,
+            also = others.mapNotNull { officialLevel(it) }.toSet(),
+            forms = forms?.takeIf { it.formsDiffer }?.forms.orEmpty(),
+            onDismiss = { explain = false },
+        )
 }
 
 /** A remark, in a tinted box with its title. */

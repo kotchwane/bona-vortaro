@@ -211,6 +211,8 @@ fun OfficialSheet(
     onDismiss: () -> Unit,
     /** The other levels of the same word, highlighted in the timeline */
     also: Set<Int> = emptySet(),
+    /** The forms of the title, when they don't all have the same levels */
+    forms: List<OfficialForm> = emptyList(),
 ) {
     val context = LocalContext.current
     var shown by rememberSaveable { mutableIntStateOf(level) }
@@ -227,6 +229,23 @@ fun OfficialSheet(
                 color = MaterialTheme.colorScheme.primary,
                 fontWeight = FontWeight.Bold,
             )
+            /* Which form has which level: "monarĥo — Fundamento (1905)",
+             * "monarko — 8a Oficiala Aldono (1974)" */
+            if (forms.isNotEmpty()) {
+                Spacer(Modifier.height(10.dp))
+                for (form in forms) {
+                    val levels = form.marks.mapNotNull { officialLevel(it) }.distinct().sorted()
+                    Row(Modifier.padding(vertical = 2.dp)) {
+                        Text(form.text, style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.Bold, color = bonaDesign.headword)
+                        Text(
+                            " — " + if (levels.isEmpty()) stringResource(R.string.official_form_unofficial)
+                            else levels.map { "${levelName(it)} (${OFFICIAL_YEARS[it]})" }.joinToString(", "),
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    }
+                }
+            }
             Spacer(Modifier.height(12.dp))
             AdditionAbout(shown, examples = true)
             Spacer(Modifier.height(20.dp))
@@ -236,7 +255,9 @@ fun OfficialSheet(
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
             Spacer(Modifier.height(8.dp))
-            OfficialTimeline(shown, onSelect = { shown = it }, marked = also + level)
+            /* All the levels of the word, of all its forms */
+            val marked = also + level + forms.flatMap { form -> form.marks.mapNotNull { officialLevel(it) } }
+            OfficialTimeline(shown, onSelect = { shown = it }, marked = marked)
             Spacer(Modifier.height(20.dp))
             Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                 FilledTonalButton(

@@ -61,8 +61,10 @@ class WordEntry(
     /** Index of the section in the article, as used by the links */
     val section: Int,
     val source: ArticleSection,
-    /** The officiality marks of the word ("*", "1"…) */
+    /** The officiality marks of the word ("*", "1"…), the oldest first */
     val official: List<String>,
+    /** Its forms, and which marks each has */
+    val forms: OfficialTitle,
     /** The header without its officiality mark */
     val title: CharSequence,
     val labels: List<Label>,
@@ -131,15 +133,16 @@ fun layoutArticle(
 
     val words = wordSections.sorted().map { index ->
         val section = article.sections[index]
-        val (official, title) = splitOfficial(section.header)
+        val official = parseOfficial(section.header)
         val (labels, content) = splitLabels(section.content)
         val byLanguage = translations[index] ?: emptyMap<String, List<Pair<String, String>>>()
 
         WordEntry(
             section = index,
             source = section,
-            official = official,
-            title = title,
+            official = official.marks,
+            forms = official,
+            title = official.text,
             labels = labels,
             blocks = splitBlocks(markLinkTypes(markInlineLabels(content, markLabel), markLinkType)),
             translations = byLanguage.entries
@@ -201,42 +204,86 @@ private fun splitTranslations(content: Spanned): List<Triple<Int, String, String
     }
 }
 
-/** Separates the officiality marks ("*" for the Fundamento, a number for
- * an Official Addition), written as superscripts at the start of the
- * header, from the rest of the header. A word can have several, eg.
- * "*" and "7" when one of its senses came with the 7th addition. */
-fun splitOfficial(header: Spanned): Pair<List<String>, CharSequence> {
+/** A form of a title ("monark/o" in "monarĥ/o, monark/o"), and the
+ * officiality marks put before it ("*", "8"…). */
+class OfficialForm(val text: String, val marks: List<String>)
+
+/** A title without its officiality marks, and its forms with theirs. */
+class OfficialTitle(val text: CharSequence, val forms: List<OfficialForm>) {
+    /** The marks of all the forms, once each, the oldest first */
+    val marks: List<String>
+        get() = forms.flatMap { it.marks }.distinct().sortedBy { officialLevel(it) ?: Int.MAX_VALUE }
+
+    /** Whether the forms don't all have the same marks: then only the
+     * panel can tell which has which */
+    val formsDiffer: Boolean
+        get() = forms.size > 1 && forms.map { it.marks.toSet() }.distinct().size > 1
+}
+
+/** Reads the officiality marks of a title: superscripts made of "*" or of
+ * a number, before a word (after its start, a space or another mark, and
+ * before a letter, maybe after spaces or other marks). A superscript
+ * right after a word is a number of homonym, and stays. ReVo puts them
+ * at the start ("*7Mari/o", "* 7germano") and before variants
+ * ("monarĥ/o, 8monark/o"). */
+fun parseOfficial(header: Spanned): OfficialTitle {
     val superscripts = header.getSpans(0, header.length, SuperscriptSpan::class.java)
         .map { header.getSpanStart(it) to header.getSpanEnd(it) }
-    val marks = mutableListOf<String>()
-    var position = 0
+        .distinct()
+        .filter { (start, end) ->
+            val text = header.subSequence(start, end).toString().trim()
+            text == "*" || (text.isNotEmpty() && text.all { it.isDigit() })
+        }
+        .sortedBy { it.first }
 
-    while (true) {
-        val end = superscripts.filter { it.first == position }.maxOfOrNull { it.second } ?: break
-        val mark = header.subSequence(position, end).toString().trim()
-        if (mark.isEmpty() || !(mark == "*" || mark.all { it.isDigit() }))
-            break
-        marks.add(mark)
-        position = end
+    val marks = superscripts.filter { (start, end) ->
+        /* Not right after a letter */
+        if (start > 0 && header[start - 1].isLetter())
+            return@filter false
+        /* Before a letter, through spaces and other marks */
+        var next = end
+        while (next < header.length) {
+            if (header[next].isWhitespace())
+                next++
+            else
+                next = superscripts.firstOrNull { it.first == next }?.second ?: break
+        }
+        next < header.length && header[next].isLetter()
     }
 
-    /* A mark before a variant that repeats one of the title ("Manjo,
-     * *Marinjo", both in the Fundamento) says nothing more: removed. A
-     * different one (the 8th Aldono before "monark/o") stays. Only marks
-     * just before a letter: a superscript after a word is a number of
-     * homonym */
-    val rest = SpannableStringBuilder(header.subSequence(position, header.length).trimStart())
-    for (span in rest.getSpans(0, rest.length, SuperscriptSpan::class.java).sortedByDescending { rest.getSpanStart(it) }) {
-        val start = rest.getSpanStart(span)
-        val end = rest.getSpanEnd(span)
-        if (start < 0 || end >= rest.length || !rest[end].isLetter())
-            continue
-        if (rest.subSequence(start, end).toString().trim() in marks)
-            rest.delete(start, end)
+    /* The forms, separated by commas, with the marks inside each */
+    val forms = mutableListOf<OfficialForm>()
+    var formStart = 0
+    for (formEnd in header.indices.filter { header[it] == ',' } + header.length) {
+        val inForm = marks.filter { it.first in formStart until formEnd }
+        val text = StringBuilder()
+        var position = formStart
+        for ((start, end) in inForm) {
+            text.append(header, position, start)
+            position = end
+        }
+        text.append(header, position, formEnd)
+        val formText = text.toString().replace(Regex("\\s+"), " ").trim()
+        if (formText.isNotEmpty())
+            forms.add(OfficialForm(formText, inForm.map { header.subSequence(it.first, it.second).toString().trim() }))
+        formStart = formEnd + 1
     }
 
-    return marks to rest
+    /* The title without the marks, nor the spaces after them */
+    val text = SpannableStringBuilder(header)
+    for ((start, end) in marks.sortedByDescending { it.first }) {
+        var after = end
+        while (after < text.length && text[after] == ' ')
+            after++
+        text.delete(start, after)
+    }
+
+    return OfficialTitle(text.trim() as CharSequence, forms)
 }
+
+/** The marks of a title, the oldest first, and the title without them. */
+fun splitOfficial(header: Spanned): Pair<List<String>, CharSequence> =
+    parseOfficial(header).let { it.marks to it.text }
 
 /** Splits the content into text and remarks. prevodb writes a remark as a
  * "quotation" span starting with "Rim.". */
