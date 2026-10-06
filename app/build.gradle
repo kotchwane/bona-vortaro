@@ -41,6 +41,13 @@ android {
         compose = true
     }
 
+    /* No encrypted list of the libraries, readable only by Google, in the
+     * signature of the APKs: F-Droid refuses it. The bundle for Google
+     * Play keeps it, Google reads it there */
+    dependenciesInfo {
+        includeInApk = false
+    }
+
     buildTypes {
         release {
             if (hasReleaseKey)
