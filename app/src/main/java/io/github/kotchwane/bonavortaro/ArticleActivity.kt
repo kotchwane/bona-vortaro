@@ -463,14 +463,21 @@ private fun ArticleScreen(
                     /* The officiality of the root of the article, which
                      * the words of the article share */
                     Row(verticalAlignment = Alignment.CenterVertically) {
+                        /* The first form only ("monarĥ/o" for "monarĥ/o,
+                         * ⁸monark/o"): the variants, with their own marks,
+                         * are in the card below, which has the room */
                         Text(
-                            title.toString(),
+                            title.toString().substringBefore(',').trim(),
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis,
                             modifier = Modifier.weight(1f, fill = false),
                         )
-                        for (mark in marks)
-                            OfficialBadge(mark, Modifier.padding(start = 8.dp))
+                        /* The oldest officiality only, with the number of
+                         * the others: the root keeps its room */
+                        val levels = marks.distinct().sortedBy { officialLevel(it) ?: Int.MAX_VALUE }
+                        levels.firstOrNull()?.let {
+                            OfficialBadge(it, others = levels.drop(1), showOthers = true, modifier = Modifier.padding(start = 8.dp))
+                        }
                     }
                 },
                 /* No back arrow, which the back of the phone does: in its

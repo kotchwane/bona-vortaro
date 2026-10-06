@@ -138,7 +138,11 @@ fun WordCard(
                     modifier = Modifier.align(Alignment.CenterVertically),
                 )
                 for (official in entry.official)
-                    OfficialBadge(official, Modifier.align(Alignment.CenterVertically))
+                    OfficialBadge(
+                        official,
+                        Modifier.align(Alignment.CenterVertically),
+                        others = entry.official - official,
+                    )
                 for (label in entry.labels)
                     LabelChip(label, Modifier.align(Alignment.CenterVertically))
             }
@@ -418,13 +422,21 @@ class LinkTypeLabelSpan(
 /** "Fundamento" for "*", "n-a Oficiala Aldono" for a number. A tap
  * explains what it means, with a small ⓘ to show that it can be tapped. */
 @Composable
-fun OfficialBadge(official: String, modifier: Modifier = Modifier) {
+fun OfficialBadge(
+    official: String,
+    modifier: Modifier = Modifier,
+    /** The other officialities of the same word, shown in its panel */
+    others: List<String> = emptyList(),
+    /** Whether the label counts them: "Fundamento +1" */
+    showOthers: Boolean = false,
+) {
     val level = officialLevel(official)
-    val label = when (level) {
+    val name = when (level) {
         null -> official
         0 -> stringResource(R.string.official_fundamento)
         else -> stringResource(R.string.official_addition, level)
     }
+    val label = if (showOthers && others.isNotEmpty()) "$name +${others.size}" else name
     var explain by rememberSaveable { mutableStateOf(false) }
 
     Surface(
@@ -450,7 +462,7 @@ fun OfficialBadge(official: String, modifier: Modifier = Modifier) {
     }
 
     if (explain && level != null)
-        OfficialSheet(level, onDismiss = { explain = false })
+        OfficialSheet(level, also = others.mapNotNull { officialLevel(it) }.toSet(), onDismiss = { explain = false })
 }
 
 /** A remark, in a tinted box with its title. */

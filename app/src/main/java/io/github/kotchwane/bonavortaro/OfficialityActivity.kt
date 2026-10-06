@@ -206,7 +206,12 @@ private fun Paragraph(title: Int, text: Int, link: String) {
  * page with more. */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun OfficialSheet(level: Int, onDismiss: () -> Unit) {
+fun OfficialSheet(
+    level: Int,
+    onDismiss: () -> Unit,
+    /** The other levels of the same word, highlighted in the timeline */
+    also: Set<Int> = emptySet(),
+) {
     val context = LocalContext.current
     var shown by rememberSaveable { mutableIntStateOf(level) }
 
@@ -231,7 +236,7 @@ fun OfficialSheet(level: Int, onDismiss: () -> Unit) {
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
             Spacer(Modifier.height(8.dp))
-            OfficialTimeline(shown, onSelect = { shown = it })
+            OfficialTimeline(shown, onSelect = { shown = it }, marked = also + level)
             Spacer(Modifier.height(20.dp))
             Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                 FilledTonalButton(
@@ -308,12 +313,17 @@ fun countsText(roots: Int, words: Int): String {
  * 2… The given level is highlighted, and the earlier ones tinted. A tap
  * on a circle selects its level. */
 @Composable
-fun OfficialTimeline(level: Int?, onSelect: ((Int) -> Unit)? = null) {
+fun OfficialTimeline(
+    level: Int?,
+    onSelect: ((Int) -> Unit)? = null,
+    /** Levels shown as the word's own, besides the current one */
+    marked: Set<Int> = emptySet(),
+) {
     val colors = MaterialTheme.colorScheme
 
     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
         for ((index, year) in OFFICIAL_YEARS.withIndex()) {
-            val current = index == level
+            val current = index == level || index in marked
             val earlier = level != null && index < level
 
             Column(
