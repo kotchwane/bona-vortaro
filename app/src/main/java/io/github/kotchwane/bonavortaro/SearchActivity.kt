@@ -97,6 +97,8 @@ class SearchActivity : BonaActivity() {
     companion object {
         const val EXTRA_LANGUAGE = "io.github.kotchwane.bonavortaro.Language"
         const val EXTRA_SEARCH_TERM = "io.github.kotchwane.bonavortaro.SearchTerm"
+        /** Coming back with the magnifier: the query is cleared */
+        const val EXTRA_NEW_SEARCH = "io.github.kotchwane.bonavortaro.NewSearch"
 
         private const val STATE_SELECTED = "selected"
     }
@@ -114,6 +116,8 @@ class SearchActivity : BonaActivity() {
      * they are read. Re-read when coming back from an article. */
     private var recent by mutableStateOf<List<RecentSearch>?>(null)
     private var keepHistory by mutableStateOf(true)
+    /* Counts the new searches asked for with the magnifier of an article */
+    private var newSearch by mutableIntStateOf(0)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -133,6 +137,7 @@ class SearchActivity : BonaActivity() {
                     selected = selected,
                     textSize = textSize,
                     initialQuery = initialQuery,
+                    newSearch = newSearch,
                     onLanguageChosen = ::chooseLanguage,
                     onResultClick = ::openArticle,
                     onChooseLanguage = { SelectLanguageActivity.open(this) },
@@ -145,6 +150,14 @@ class SearchActivity : BonaActivity() {
                 )
             }
         }
+    }
+
+    /* The search is already open, brought back by the magnifier of an
+     * article: a new search, empty, with the keyboard */
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        if (intent.getBooleanExtra(EXTRA_NEW_SEARCH, false))
+            newSearch++
     }
 
     override fun onStart() {
@@ -231,6 +244,8 @@ private fun SearchScreen(
     selected: String,
     textSize: Int,
     initialQuery: String,
+    /** Raised for each new search asked for */
+    newSearch: Int,
     onLanguageChosen: (String) -> Unit,
     onResultClick: (SearchResult, String) -> Unit,
     onChooseLanguage: () -> Unit,
@@ -243,6 +258,10 @@ private fun SearchScreen(
 ) {
     val context = LocalContext.current
     var query by rememberSaveable { mutableStateOf(initialQuery) }
+    LaunchedEffect(newSearch) {
+        if (newSearch > 0)
+            query = ""
+    }
     /* The bins of the history: any action but removing or scrolling
      * ends them */
     var editing by remember { mutableStateOf(false) }
@@ -282,6 +301,7 @@ private fun SearchScreen(
             Column(Modifier.windowInsetsPadding(WindowInsets.statusBars)) {
                 Wordmark()
                 SearchField(
+                    newSearch = newSearch,
                     query = query,
                     onQueryChange = { editing = false; query = it },
                     onPreferences = { editing = false; onPreferences() },
@@ -361,6 +381,7 @@ private fun Wordmark() {
 
 @Composable
 private fun SearchField(
+    newSearch: Int,
     query: String,
     onQueryChange: (String) -> Unit,
     onPreferences: () -> Unit,
@@ -370,8 +391,9 @@ private fun SearchField(
     val focusRequester = remember { FocusRequester() }
     val keyboard = LocalSoftwareKeyboardController.current
 
-    /* Like the original search screen, start with the keyboard open */
-    LaunchedEffect(Unit) {
+    /* Like the original search screen, start with the keyboard open, and
+     * again for each new search */
+    LaunchedEffect(newSearch) {
         focusRequester.requestFocus()
         keyboard?.show()
     }

@@ -41,6 +41,8 @@ object Screens {
 
         context.startActivity(
             searchIntent(context, language)
+                /* A new search: the query of the last one is cleared */
+                .putExtra(SearchActivity.EXTRA_NEW_SEARCH, true)
                 .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP)
         )
     }
