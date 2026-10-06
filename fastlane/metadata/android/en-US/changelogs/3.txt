@@ -1,0 +1,6 @@
+• The previous, next and random roots appear at once, and "back" returns where you were.
+• The magnifier clears the search.
+• Capitalised words (Mario, Parizo…) stay in the recent searches.
+• Several officialities in one badge ("Fundamento +1"); the panel tells which form has which.
+• Abbreviations explained: "landokodo: DE", "kemia simbolo: Fe"…
+• A lighter and faster app.
