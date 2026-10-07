@@ -52,10 +52,12 @@ private const val PREVO_URL = "https://github.com/bpeel/prevo"
 private const val SOURCE_URL = "https://github.com/kotchwane/bona-vortaro"
 private const val RETA_VORTARO_URL = "https://reta-vortaro.de/"
 private const val LICENSE_URL = "https://www.gnu.org/licenses/old-licenses/gpl-2.0-standalone.html"
+private const val PRIVACY_URL = "https://kotchwane.github.io/bona-vortaro/privacy"
 
 /** About the app: what it is, that it is free software, works without
- * internet and asks for no permission, where its data comes from, its
- * copyright, and that it comes with no warranty. */
+ * internet, asks for no permission and collects nothing (with a link to
+ * its privacy policy, which Google Play requires), where its data comes
+ * from, its copyright, and that it comes with no warranty. */
 class AboutActivity : BonaActivity() {
 
     companion object {
@@ -80,6 +82,7 @@ private val PARTS = listOf(
     AboutPart(R.string.about_free_title, R.string.about_free, R.string.about_source_link to SOURCE_URL),
     AboutPart(R.string.about_offline_title, R.string.about_offline),
     AboutPart(R.string.about_permissions_title, R.string.about_permissions),
+    AboutPart(R.string.about_privacy_title, R.string.about_privacy, R.string.about_privacy_link to PRIVACY_URL),
     AboutPart(R.string.about_data_title, R.string.about_data, R.string.about_data_link to RETA_VORTARO_URL),
     AboutPart(R.string.about_copyright_title, R.string.about_copyright),
     AboutPart(R.string.about_warranty_title, R.string.about_warranty, R.string.about_license_link to LICENSE_URL),

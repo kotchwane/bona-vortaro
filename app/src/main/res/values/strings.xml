@@ -170,6 +170,9 @@
   <string name="about_offline">La tuta vortaro estas en via telefono. La apo eĉ ne povas aliri la interreton: nenio, kion vi serĉas aŭ legas, forlasas vian telefonon. Nur la ligiloj al retejoj, se vi tuŝas ilin, malfermiĝas en via retumilo.</string>
   <string name="about_permissions_title">Neniu permeso</string>
   <string name="about_permissions">La apo petas neniun permeson de via telefono: nek la interreton, nek viajn dosierojn, kontaktojn, lokon, mikrofonon aŭ fotilon. Viaj lastaj serĉoj restas en la telefono, kaj eĉ ne iras en ĝiajn savkopiojn.</string>
+  <string name="about_privacy_title">Privateco</string>
+  <string name="about_privacy">La apo kolektas neniujn datumojn pri vi, kaj kunhavigas nenion. Ĝia politiko pri privateco diras ĝin detale, en Esperanto kaj en la angla.</string>
+  <string name="about_privacy_link">La politiko pri privateco</string>
   <string name="about_data_title">La vortaro</string>
   <string name="about_data">La difinoj kaj la tradukoj estas tiuj de la Reta Vortaro (ReVo), verkitaj de ĝiaj redaktantoj kaj publikigitaj laŭ la GPL, versio 2.</string>
   <string name="about_data_link">La Reta Vortaro</string>
