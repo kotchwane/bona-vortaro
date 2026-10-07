@@ -507,39 +507,47 @@ private fun ArticleScreen(
             )
         },
     ) { padding ->
-        LazyColumn(
-            state = listState,
-            modifier = Modifier.fillMaxSize(),
-            contentPadding = PaddingValues(
-                start = 12.dp,
-                end = 12.dp,
-                top = padding.calculateTopPadding() + 4.dp,
-                bottom = padding.calculateBottomPadding() + 16.dp,
-            ),
-            verticalArrangement = Arrangement.spacedBy(10.dp),
-        ) {
-            items(layout?.words ?: emptyList(), key = { it.section }) { word ->
-                WordCard(
-                    word, textSize, unfoldExamples, foldTranslations,
-                    onLongPress = { actionsFor = word.source },
-                    onLongPressWord = { pressed, language -> wordFor = pressed to language },
-                )
-            }
-            /* Translations that couldn't be given to a word, if any */
-            items(layout?.otherTranslations ?: emptyList()) { section ->
-                Section(section, textSize, onLongPress = { actionsFor = section })
-            }
-            /* The roots before and after, once the article is there, and
-             * whole: if it grew after a scroll reached the end, the cards
-             * would be left below the screen */
-            if (layout != null && neighbours != null)
-                item(key = "neighbours") {
-                    NeighbourRoots(
-                        neighbours!!,
-                        onOpen = onOpenNeighbour,
-                        onRandom = { scope.launch { onOpenRandom(withContext(Dispatchers.IO) { RandomRoot.pick(context) }) } },
+        /* What is read at the text size of the settings; the bar above
+         * stays as it is */
+        ScaledText(textSize) {
+            LazyColumn(
+                state = listState,
+                modifier = Modifier.fillMaxSize(),
+                contentPadding = PaddingValues(
+                    start = 12.dp,
+                    end = 12.dp,
+                    top = padding.calculateTopPadding() + 4.dp,
+                    bottom = padding.calculateBottomPadding() + 16.dp,
+                ),
+                verticalArrangement = Arrangement.spacedBy(10.dp),
+            ) {
+                items(layout?.words ?: emptyList(), key = { it.section }) { word ->
+                    WordCard(
+                        word, unfoldExamples, foldTranslations,
+                        onLongPress = { actionsFor = word.source },
+                        onLongPressWord = { pressed, language -> wordFor = pressed to language },
                     )
                 }
+                /* Translations that couldn't be given to a word, if any */
+                items(layout?.otherTranslations ?: emptyList()) { section ->
+                    Section(section, onLongPress = { actionsFor = section })
+                }
+                /* The roots before and after, once the article is there, and
+                 * whole: if it grew after a scroll reached the end, the cards
+                 * would be left below the screen. A way to move on, not text
+                 * to read: at the size of the controls, where its three
+                 * narrow cards keep their words whole */
+                if (layout != null && neighbours != null)
+                    item(key = "neighbours") {
+                        UnscaledText {
+                            NeighbourRoots(
+                                neighbours!!,
+                                onOpen = onOpenNeighbour,
+                                onRandom = { scope.launch { onOpenRandom(withContext(Dispatchers.IO) { RandomRoot.pick(context) }) } },
+                            )
+                        }
+                    }
+            }
         }
     }
 
@@ -573,11 +581,13 @@ private fun ArticleScreen(
  * TextViews, which already handle the spans of the articles (links,
  * superscripts, quotations…). */
 @Composable
-private fun Section(section: ArticleSection, textSize: Int, onLongPress: () -> Unit) {
-    val scale = BonaSettings.textScale(textSize)
+private fun Section(section: ArticleSection, onLongPress: () -> Unit) {
     val colors = MaterialTheme.colorScheme
-    val headerSize = MaterialTheme.typography.titleSmall.fontSize.value * scale
-    val bodySize = MaterialTheme.typography.bodyLarge.fontSize.value * scale
+    /* In pixels, with the text size of the settings that the density
+     * carries */
+    val (headerSize, bodySize) = with(LocalDensity.current) {
+        MaterialTheme.typography.titleSmall.fontSize.toPx() to MaterialTheme.typography.bodyLarge.fontSize.toPx()
+    }
 
     Column(Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp)) {
         AndroidView(
@@ -590,7 +600,7 @@ private fun Section(section: ArticleSection, textSize: Int, onLongPress: () -> U
             update = { view ->
                 view.text = section.header
                 view.setTextColor(colors.primary.toArgb())
-                view.setTextSize(TypedValue.COMPLEX_UNIT_SP, headerSize)
+                view.setTextSize(TypedValue.COMPLEX_UNIT_PX, headerSize)
             },
             modifier = Modifier.fillMaxWidth().padding(top = 8.dp, bottom = 4.dp),
         )
@@ -605,7 +615,7 @@ private fun Section(section: ArticleSection, textSize: Int, onLongPress: () -> U
                 view.setText(section.content, TextView.BufferType.SPANNABLE)
                 view.setTextColor(colors.onSurface.toArgb())
                 view.setLinkTextColor(colors.primary.toArgb())
-                view.setTextSize(TypedValue.COMPLEX_UNIT_SP, bodySize)
+                view.setTextSize(TypedValue.COMPLEX_UNIT_PX, bodySize)
                 view.setOnLongClickListener {
                     onLongPress()
                     true

@@ -71,7 +71,9 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import kotlin.math.ceil
 import kotlin.math.floor
@@ -96,7 +98,6 @@ private const val SHOWN_EXAMPLES_LENGTH = 120
 @Composable
 fun WordCard(
     entry: WordEntry,
-    textSize: Int,
     unfoldExamples: Boolean,
     foldTranslations: Boolean,
     /** A long press on the headword, or where there is no word */
@@ -105,7 +106,6 @@ fun WordCard(
     onLongPressWord: (word: String, language: String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val scale = BonaSettings.textScale(textSize)
     val onLongPressText: (String?) -> Unit = { word ->
         if (word != null) onLongPressWord(word, "eo") else onLongPress()
     }
@@ -132,7 +132,7 @@ fun WordCard(
             ) {
                 SpannedText(
                     entry.title,
-                    style = MaterialTheme.typography.titleLarge.scaled(scale)
+                    style = MaterialTheme.typography.titleLarge
                         .copy(fontWeight = FontWeight.Bold),
                     color = bonaDesign.headword,
                     onLongPress = { onLongPress() },
@@ -160,24 +160,24 @@ fun WordCard(
                     is BlockGroup.Single -> when (val block = group.block) {
                         is ContentBlock.Text -> SpannedText(
                             block.text,
-                            style = MaterialTheme.typography.bodyLarge.scaled(scale),
+                            style = MaterialTheme.typography.bodyLarge,
                             color = MaterialTheme.colorScheme.onSurface,
                             onLongPress = onLongPressText,
                             modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
                         )
-                        is ContentBlock.Example -> ExampleLine(block.text, scale, onLongPressText)
-                        is ContentBlock.Note -> NoteBox(block.text, scale, onLongPressText)
+                        is ContentBlock.Example -> ExampleLine(block.text, onLongPressText)
+                        is ContentBlock.Note -> NoteBox(block.text, onLongPressText)
                     }
                     is BlockGroup.Examples ->
-                        FoldedExamples(group.examples, scale, onLongPressText, key = "${entry.section}-$index", unfolded = unfoldExamples)
+                        FoldedExamples(group.examples, onLongPressText, key = "${entry.section}-$index", unfolded = unfoldExamples)
                     is BlockGroup.ShortExamples ->
                         for (example in group.examples)
-                            ExampleLine(example.text, scale, onLongPressText)
+                            ExampleLine(example.text, onLongPressText)
                 }
             }
 
             if (entry.translations.isNotEmpty())
-                TranslationsBox(entry.translations, scale, foldTranslations, onLongPressWord)
+                TranslationsBox(entry.translations, foldTranslations, onLongPressWord)
         }
     }
 }
@@ -239,12 +239,12 @@ private fun withExample(text: CharSequence, example: CharSequence, color: Int): 
 
 /** An example on its own line, with a bar on its left. */
 @Composable
-private fun ExampleLine(text: CharSequence, scale: Float, onLongPress: (String?) -> Unit) {
+private fun ExampleLine(text: CharSequence, onLongPress: (String?) -> Unit) {
     val bar = MaterialTheme.colorScheme.outlineVariant
 
     SpannedText(
         text,
-        style = MaterialTheme.typography.bodyMedium.scaled(scale),
+        style = MaterialTheme.typography.bodyMedium,
         color = MaterialTheme.colorScheme.onSurfaceVariant,
         onLongPress = onLongPress,
         modifier = Modifier
@@ -259,7 +259,6 @@ private fun ExampleLine(text: CharSequence, scale: Float, onLongPress: (String?)
 @Composable
 private fun FoldedExamples(
     examples: List<ContentBlock.Example>,
-    scale: Float,
     onLongPress: (String?) -> Unit,
     key: String,
     unfolded: Boolean,
@@ -282,7 +281,7 @@ private fun FoldedExamples(
 
     if (expanded) {
         for (example in examples)
-            ExampleLine(example.text, scale, onLongPress)
+            ExampleLine(example.text, onLongPress)
     }
 }
 
@@ -467,23 +466,25 @@ fun OfficialBadge(
                 Icon(
                     Icons.Outlined.Info,
                     contentDescription = stringResource(R.string.official_explain),
-                    modifier = Modifier.padding(start = 3.dp).size(13.dp),
+                    modifier = Modifier.padding(start = 3.dp).size(with(LocalDensity.current) { 13.sp.toDp() }),
                 )
         }
     }
 
-    if (explain && level != null)
+    /* The panel at the size of the other panels, not of the text */
+    if (explain && level != null) UnscaledText {
         OfficialSheet(
             level,
             also = others.mapNotNull { officialLevel(it) }.toSet(),
             forms = forms?.takeIf { it.formsDiffer }?.forms.orEmpty(),
             onDismiss = { explain = false },
         )
+    }
 }
 
 /** A remark, in a tinted box with its title. */
 @Composable
-private fun NoteBox(text: CharSequence, scale: Float, onLongPress: (String?) -> Unit) {
+private fun NoteBox(text: CharSequence, onLongPress: (String?) -> Unit) {
     Surface(
         modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
         shape = RoundedCornerShape(10.dp),
@@ -497,7 +498,7 @@ private fun NoteBox(text: CharSequence, scale: Float, onLongPress: (String?) -> 
             )
             SpannedText(
                 text,
-                style = MaterialTheme.typography.bodyMedium.scaled(scale),
+                style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurface,
                 onLongPress = onLongPress,
                 modifier = Modifier.fillMaxWidth(),
@@ -511,14 +512,13 @@ private fun NoteBox(text: CharSequence, scale: Float, onLongPress: (String?) -> 
 @Composable
 private fun TranslationsBox(
     translations: List<Translation>,
-    scale: Float,
     foldable: Boolean,
     onLongPressWord: (word: String, language: String) -> Unit,
 ) {
     var expanded by rememberSaveable { mutableStateOf(false) }
     val folded = foldable && !expanded
     val shown = if (folded) translations.take(SHOWN_TRANSLATIONS) else translations
-    val body = MaterialTheme.typography.bodyMedium.scaled(scale)
+    val body = MaterialTheme.typography.bodyMedium
 
     /* Outlined, to be told apart from the filled box of the remarks */
     Surface(
@@ -536,7 +536,8 @@ private fun TranslationsBox(
             for (translation in shown) {
                 Row(Modifier.padding(vertical = 3.dp)) {
                     /* The code of the language in a small pill */
-                    Box(Modifier.width(38.dp).padding(top = 2.dp)) {
+                    /* Its column grows with the text */
+                    Box(Modifier.width(with(LocalDensity.current) { 38.sp.toDp() }).padding(top = 2.dp)) {
                         Surface(
                             shape = RoundedCornerShape(50),
                             color = MaterialTheme.colorScheme.secondaryContainer,
@@ -594,6 +595,9 @@ fun SpannedText(
     onLongPress: ((String?) -> Unit)? = null,
 ) {
     val linkColor = MaterialTheme.colorScheme.primary
+    /* In pixels: the TextView would only apply the font size of Android,
+     * not the text size of the settings that the density carries */
+    val size = with(LocalDensity.current) { style.fontSize.toPx() }
 
     AndroidView(
         factory = { context ->
@@ -606,7 +610,7 @@ fun SpannedText(
             view.setText(text, TextView.BufferType.SPANNABLE)
             view.setTextColor(color.toArgb())
             view.setLinkTextColor(linkColor.toArgb())
-            view.setTextSize(TypedValue.COMPLEX_UNIT_SP, style.fontSize.value)
+            view.setTextSize(TypedValue.COMPLEX_UNIT_PX, size)
             /* Serif, like the rest of the design */
             view.typeface = android.graphics.Typeface.create(
                 android.graphics.Typeface.SERIF,
@@ -635,5 +639,3 @@ fun SpannedText(
     )
 }
 
-private fun TextStyle.scaled(scale: Float) =
-    copy(fontSize = fontSize * scale, lineHeight = lineHeight * scale)

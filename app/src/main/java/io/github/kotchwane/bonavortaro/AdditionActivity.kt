@@ -102,6 +102,7 @@ private fun AdditionPage(initialLevel: Int, onOpen: (OfficialEntry) -> Unit, onB
     var query by rememberSaveable(level) { mutableStateOf("") }
     val listState = rememberLazyListState()
     val scope = rememberCoroutineScope()
+    val textSize = remember { BonaSettings.getTextSize(context) }
 
     val all by produceState<List<OfficialEntry>?>(null) {
         value = withContext(Dispatchers.IO) { OfficialLists.get(context) }
@@ -176,7 +177,9 @@ private fun AdditionPage(initialLevel: Int, onOpen: (OfficialEntry) -> Unit, onB
                 }
 
             items(shown.orEmpty(), key = { "${it.title}\t${it.root?.article ?: it.words.first().article}\t${it.words.firstOrNull()?.section}" }) { group ->
-                OfficialGroupRow(group, onOpen)
+                /* The words at the text size of the settings, the
+                 * controls above them as they are */
+                ScaledText(textSize) { OfficialGroupRow(group, onOpen) }
                 HorizontalDivider(
                     Modifier.padding(horizontal = 20.dp),
                     color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.25f),

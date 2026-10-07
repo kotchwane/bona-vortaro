@@ -479,48 +479,45 @@ private fun ResultList(
     modifier: Modifier = Modifier,
 ) {
     val context = LocalContext.current
-    val scale = BonaSettings.textScale(textSize)
-    val title = MaterialTheme.typography.titleMedium
-    val wordStyle = title.copy(
-        fontSize = title.fontSize * scale,
-        lineHeight = title.lineHeight * scale,
-        fontWeight = FontWeight.Bold,
-    )
+    val wordStyle = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
     val rule = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.25f)
 
-    LazyColumn(modifier.fillMaxSize(), contentPadding = PaddingValues(bottom = 12.dp)) {
-        /* Explain when the words come from another language than the
-         * selected one */
-        if (outcome.languageIndex > 0) {
-            item {
-                val languageList = LanguageList.getDefault(context)
-                Text(
-                    stringResource(
-                        R.string.other_language_note,
-                        languageList.getLanguageName(searchOrder[0], true),
-                        languageList.getLanguageName(searchOrder[outcome.languageIndex], true),
-                    ),
-                    style = MaterialTheme.typography.bodyMedium.copy(fontStyle = FontStyle.Italic),
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.padding(horizontal = 20.dp, vertical = 8.dp),
-                )
+    /* The words at the text size of the settings */
+    ScaledText(textSize) {
+        LazyColumn(modifier.fillMaxSize(), contentPadding = PaddingValues(bottom = 12.dp)) {
+            /* Explain when the words come from another language than the
+             * selected one */
+            if (outcome.languageIndex > 0) {
+                item {
+                    val languageList = LanguageList.getDefault(context)
+                    Text(
+                        stringResource(
+                            R.string.other_language_note,
+                            languageList.getLanguageName(searchOrder[0], true),
+                            languageList.getLanguageName(searchOrder[outcome.languageIndex], true),
+                        ),
+                        style = MaterialTheme.typography.bodyMedium.copy(fontStyle = FontStyle.Italic),
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.padding(horizontal = 20.dp, vertical = 8.dp),
+                    )
+                }
             }
-        }
 
-        item { RunningHead(outcome.results.first().word, outcome.results.last().word) }
+            item { RunningHead(outcome.results.first().word, outcome.results.last().word) }
 
-        /* For a search in another language, the preview starts with the
-         * Esperanto word that the result translates */
-        /* The language where the words were found, kept with them in the
-         * history */
-        val language = searchOrder[outcome.languageIndex]
-        val inEsperanto = language == "eo"
-        val last = outcome.results.lastIndex
+            /* For a search in another language, the preview starts with the
+             * Esperanto word that the result translates */
+            /* The language where the words were found, kept with them in the
+             * history */
+            val language = searchOrder[outcome.languageIndex]
+            val inEsperanto = language == "eo"
+            val last = outcome.results.lastIndex
 
-        itemsIndexed(outcome.results) { index, result ->
-            ResultRow(result, wordStyle, scale, inEsperanto, onClick = { onResultClick(result, language) })
-            if (index != last)
-                HorizontalDivider(Modifier.padding(horizontal = 20.dp), color = rule)
+            itemsIndexed(outcome.results) { index, result ->
+                ResultRow(result, wordStyle, inEsperanto, onClick = { onResultClick(result, language) })
+                if (index != last)
+                    HorizontalDivider(Modifier.padding(horizontal = 20.dp), color = rule)
+            }
         }
     }
 }
@@ -555,7 +552,6 @@ private fun RunningHead(first: String, last: String) {
 internal fun ResultRow(
     result: SearchResult,
     wordStyle: TextStyle,
-    scale: Float,
     inEsperanto: Boolean,
     onClick: () -> Unit,
     /** Shown small at the right of the word, eg. the language "FR" */
@@ -600,11 +596,7 @@ internal fun ResultRow(
             /* Keep the height of the row while the preview is loading */
             Text(
                 text ?: "",
-                style = small.copy(
-                    fontSize = small.fontSize * scale,
-                    lineHeight = small.lineHeight * scale,
-                    fontStyle = FontStyle.Italic,
-                ),
+                style = small.copy(fontStyle = FontStyle.Italic),
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,

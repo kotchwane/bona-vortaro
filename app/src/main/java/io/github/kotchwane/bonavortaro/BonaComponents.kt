@@ -56,7 +56,11 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.ImeAction
@@ -140,10 +144,36 @@ fun SectionTitle(title: String, modifier: Modifier = Modifier) {
     )
 }
 
-/** The text size of the articles, with a slider and a preview. */
+/** What is read (the articles, the lists of words) at the text size of
+ * the settings: every text in it is scaled, on top of the font size of
+ * Android, its labels and buttons included, so that they keep their
+ * proportions. The controls around it (bars, search field, tabs,
+ * settings) follow the font size of Android only. */
+@Composable
+fun ScaledText(textSize: Int, content: @Composable () -> Unit) {
+    val density = LocalDensity.current
+    CompositionLocalProvider(
+        LocalDensity provides Density(density.density, density.fontScale * BonaSettings.textScale(textSize)),
+        LocalUnscaledDensity provides density,
+        content = content,
+    )
+}
+
+/** The density without the text size of the settings, for what is opened
+ * from the text but isn't read there (eg. a panel) */
+private val LocalUnscaledDensity = compositionLocalOf<Density?> { null }
+
+/** Back to the font size of Android only, inside [ScaledText]. */
+@Composable
+fun UnscaledText(content: @Composable () -> Unit) {
+    val density = LocalUnscaledDensity.current ?: LocalDensity.current
+    CompositionLocalProvider(LocalDensity provides density, content = content)
+}
+
+/** The text size of the articles and the lists, with a slider and a
+ * preview. */
 @Composable
 fun TextSizeSetting(textSize: Int, onTextSizeChange: (Int) -> Unit) {
-    val scale = BonaSettings.textScale(textSize)
     val body = MaterialTheme.typography.bodyLarge
 
     Column {
@@ -166,12 +196,15 @@ fun TextSizeSetting(textSize: Int, onTextSizeChange: (Int) -> Unit) {
             steps = BonaSettings.MAX_TEXT_SIZE - BonaSettings.MIN_TEXT_SIZE - 1,
             modifier = Modifier.padding(horizontal = 16.dp),
         )
-        /* A preview at the size the articles will use */
-        Text(
-            stringResource(R.string.text_size_sample),
-            style = body.copy(fontSize = body.fontSize * scale, lineHeight = body.lineHeight * scale),
-            modifier = Modifier.padding(horizontal = 16.dp),
-        )
+        /* A preview at the size the articles will use, with the six
+         * letters with a hat */
+        ScaledText(textSize) {
+            Text(
+                stringResource(R.string.text_size_sample),
+                style = body,
+                modifier = Modifier.padding(horizontal = 16.dp),
+            )
+        }
         TextButton(
             onClick = { onTextSizeChange(BonaSettings.DEFAULT_TEXT_SIZE) },
             enabled = textSize != BonaSettings.DEFAULT_TEXT_SIZE,

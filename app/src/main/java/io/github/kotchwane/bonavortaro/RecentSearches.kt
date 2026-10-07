@@ -96,13 +96,7 @@ fun RecentSearches(
     onRemove: (RecentSearch) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val scale = BonaSettings.textScale(textSize)
-    val title = MaterialTheme.typography.titleMedium
-    val wordStyle = title.copy(
-        fontSize = title.fontSize * scale,
-        lineHeight = title.lineHeight * scale,
-        fontWeight = FontWeight.Bold,
-    )
+    val wordStyle = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
     val muted = MaterialTheme.colorScheme.onSurfaceVariant
     val rule = muted.copy(alpha = 0.25f)
 
@@ -110,57 +104,59 @@ fun RecentSearches(
     val focusManager = LocalFocusManager.current
     BackHandler(enabled = showBins) { onEditingChange(false) }
 
-    LazyColumn(
-        modifier
-            .fillMaxSize()
-            /* A tap where there is nothing to tap ends the editing; the
-             * words, the bins and the scrolling are left alone */
-            .pointerInput(showBins) {
-                if (showBins)
-                    detectTapGestures { onEditingChange(false) }
-            },
-        contentPadding = PaddingValues(bottom = 12.dp),
-    ) {
-        item {
-            RunningHeadText(stringResource(R.string.recent_searches)) {
-                if (showBins)
-                    TextButton(onClick = { onEditingChange(false) }) { Text(stringResource(R.string.done)) }
+    /* The words at the text size of the settings */
+    ScaledText(textSize) {
+        LazyColumn(
+            modifier
+                .fillMaxSize()
+                /* A tap where there is nothing to tap ends the editing; the
+                 * words, the bins and the scrolling are left alone */
+                .pointerInput(showBins) {
+                    if (showBins)
+                        detectTapGestures { onEditingChange(false) }
+                },
+            contentPadding = PaddingValues(bottom = 12.dp),
+        ) {
+            item {
+                RunningHeadText(stringResource(R.string.recent_searches)) {
+                    if (showBins)
+                        TextButton(onClick = { onEditingChange(false) }) { Text(stringResource(R.string.done)) }
+                }
             }
-        }
 
-        when {
-            /* Still being read */
-            recent == null -> {}
-            recent.isEmpty() || !keepHistory -> item { SearchTips(keepHistory) }
-            else -> {
-                itemsIndexed(recent, key = { _, it -> "${it.entry.language}\t${it.entry.word}" }) { index, search ->
-                    ResultRow(
-                        search.result,
-                        wordStyle,
-                        scale,
-                        inEsperanto = search.entry.language == "eo",
-                        onClick = { onOpen(search) },
-                        label = search.entry.language.uppercase(),
-                        onLongClick = {
-                            /* The keyboard closes, so that the back
-                             * button ends the editing at once */
-                            focusManager.clearFocus()
-                            onEditingChange(true)
-                        },
-                        action = if (!showBins) null else {
-                            {
-                                IconButton(onClick = { onRemove(search) }) {
-                                    Icon(
-                                        Icons.Default.Delete,
-                                        contentDescription = stringResource(R.string.remove_from_history),
-                                        tint = muted,
-                                    )
+            when {
+                /* Still being read */
+                recent == null -> {}
+                recent.isEmpty() || !keepHistory -> item { SearchTips(keepHistory) }
+                else -> {
+                    itemsIndexed(recent, key = { _, it -> "${it.entry.language}\t${it.entry.word}" }) { index, search ->
+                        ResultRow(
+                            search.result,
+                            wordStyle,
+                            inEsperanto = search.entry.language == "eo",
+                            onClick = { onOpen(search) },
+                            label = search.entry.language.uppercase(),
+                            onLongClick = {
+                                /* The keyboard closes, so that the back
+                                 * button ends the editing at once */
+                                focusManager.clearFocus()
+                                onEditingChange(true)
+                            },
+                            action = if (!showBins) null else {
+                                {
+                                    IconButton(onClick = { onRemove(search) }) {
+                                        Icon(
+                                            Icons.Default.Delete,
+                                            contentDescription = stringResource(R.string.remove_from_history),
+                                            tint = muted,
+                                        )
+                                    }
                                 }
-                            }
-                        },
-                    )
-                    if (index != recent.lastIndex)
-                        HorizontalDivider(Modifier.padding(horizontal = 20.dp), color = rule)
+                            },
+                        )
+                        if (index != recent.lastIndex)
+                            HorizontalDivider(Modifier.padding(horizontal = 20.dp), color = rule)
+                    }
                 }
             }
         }

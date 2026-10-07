@@ -473,6 +473,8 @@ private fun leadingAbbreviations(content: Spanned, spans: List<LabelSpan>): List
  * and an abbreviation right after them as one too, with its kind
  * ("valutokodo: PLN"). An abbreviation within a sentence ("(atm)")
  * stays text. */
+private val LABEL_SEPARATOR = Regex(""",\s*""")
+
 private fun markInlineLabels(content: Spanned, markLabel: () -> Any, abbreviationKinds: List<String>): Spanned {
     val all = labelSpans(content, 0, content.length)
     val spans = all.filter { it.abbreviation < 0 } + leadingAbbreviations(content, all)
@@ -489,6 +491,18 @@ private fun markInlineLabels(content: Spanned, markLabel: () -> Any, abbreviatio
             val label = "$kind: ${content.subSequence(span.start, span.end)}"
             marked.replace(span.start, span.end, label)
             end = span.start + label.length
+            marked.setSpan(markLabel(), span.start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+            continue
+        }
+        /* "hortikulturo, arbokulturo, silvikulturo": one label each,
+         * apart, so that they go to the next line instead of past the
+         * edge, which a label, drawn in one piece, would */
+        for (piece in LABEL_SEPARATOR.findAll(content.subSequence(span.start, span.end)).toList().reversed()) {
+            val at = span.start + piece.range.first
+            if (at + piece.value.length < end)
+                marked.setSpan(markLabel(), at + piece.value.length, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+            marked.replace(at, at + piece.value.length, " ")
+            end = at
         }
         marked.setSpan(markLabel(), span.start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
     }
