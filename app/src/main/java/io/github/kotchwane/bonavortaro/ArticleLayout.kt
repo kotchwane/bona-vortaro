@@ -385,6 +385,12 @@ private fun splitExamples(content: Spanned, start: Int, end: Int): List<ContentB
         if (s < position)
             continue
         addText(s)
+        /* "disbranĉiĝanta:" announced the examples on the same line, as
+         * in a printed dictionary; here they have their own lines, or are
+         * folded, and the definition ends with a period instead */
+        (blocks.lastOrNull() as? ContentBlock.Text)?.let { text ->
+            withFinalPeriod(text.text)?.let { blocks[blocks.lastIndex] = ContentBlock.Text(it) }
+        }
         val example = content.subSequence(s, e).trimBlankLines().trimEndPunctuation()
         if (example.isNotBlank())
             blocks.add(ContentBlock.Example(example))
@@ -393,6 +399,22 @@ private fun splitExamples(content: Spanned, start: Int, end: Int): List<ContentB
     addText(end)
 
     return blocks
+}
+
+/** The text with a period in place of the colon at its end, or null if it
+ * doesn't end with one. */
+private fun withFinalPeriod(text: CharSequence): CharSequence? {
+    var end = text.length
+    while (end > 0 && text[end - 1].isWhitespace()) end--
+    if (end == 0 || text[end - 1] != ':')
+        return null
+    end--
+    while (end > 0 && text[end - 1].isWhitespace()) end--
+    val sentence = SpannableStringBuilder(text.subSequence(0, end))
+    /* "k.t.p.:" has its period already */
+    if (end > 0 && text[end - 1] !in ".!?…")
+        sentence.append('.')
+    return sentence
 }
 
 /** Takes the labels given for the whole word out of the content: the
