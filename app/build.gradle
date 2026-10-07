@@ -16,8 +16,8 @@ android {
         /* Bona vortaro starts again from 0.1, like PReVo did in 2012:
          * it is a new app for Android, with its own ID. The code must go
          * up with every version given to anyone. */
-        versionCode = 3
-        versionName = "0.2"
+        versionCode = 4
+        versionName = "0.2.1"
     }
 
     /* The key, if there is one: the RELEASE_* properties in
