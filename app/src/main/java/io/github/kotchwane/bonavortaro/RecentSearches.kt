@@ -95,6 +95,8 @@ fun RecentSearches(
     onOpen: (RecentSearch) -> Unit,
     onRemove: (RecentSearch) -> Unit,
     modifier: Modifier = Modifier,
+    /** At the top of the list, scrolled away with it (eg. the random root) */
+    header: @Composable () -> Unit = {},
 ) {
     val wordStyle = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
     val muted = MaterialTheme.colorScheme.onSurfaceVariant
@@ -117,6 +119,8 @@ fun RecentSearches(
                 },
             contentPadding = PaddingValues(bottom = 12.dp),
         ) {
+            /* Not a word: at the size of the controls */
+            item { UnscaledText(header) }
             item {
                 RunningHeadText(stringResource(R.string.recent_searches)) {
                     if (showBins)

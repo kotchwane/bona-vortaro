@@ -320,7 +320,6 @@ private fun SearchScreen(
 
         if (query.isBlank()) {
           Column(Modifier.padding(padding).consumeWindowInsets(padding).imePadding()) {
-            RandomRootButton(onClick = { editing = false; onRandomRoot() })
             RecentSearches(
                 recent = recent,
                 keepHistory = keepHistory,
@@ -330,6 +329,9 @@ private fun SearchScreen(
                 onOpen = { editing = false; onResultClick(it.result, it.entry.language) },
                 onRemove = { offerUndo(removed, onRemoveRecent(it)) },
                 modifier = Modifier.weight(1f),
+                /* The random root scrolls away with the history, which
+                 * gets the room once scrolled */
+                header = { RandomRootButton(onClick = { editing = false; onRandomRoot() }) },
             )
           }
         } else if (current != null && current.results.isEmpty()) {
