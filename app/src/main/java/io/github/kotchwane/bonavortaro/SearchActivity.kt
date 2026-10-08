@@ -398,22 +398,27 @@ private fun SearchField(
         keyboard?.show()
     }
 
-    RoundedSearchField(
-        query = query,
-        onQueryChange = onQueryChange,
-        placeholder = stringResource(R.string.type_to_filter),
-        modifier = Modifier
-            .padding(start = 16.dp, end = 16.dp, top = 8.dp)
-            .focusRequester(focusRequester)
-            .onFocusChanged { if (it.isFocused) onFocused() },
-        imeAction = ImeAction.Search,
-        keyboardActions = KeyboardActions(onSearch = { keyboard?.hide() }),
-        extraButtons = {
-            IconButton(onClick = onPreferences) {
-                Icon(Icons.Default.Settings, contentDescription = stringResource(R.string.preferences))
-            }
-        },
-    )
+    /* The settings beside the field, not in it, where they would look
+     * like a setting of the search */
+    Row(
+        Modifier.padding(start = 16.dp, end = 4.dp, top = 8.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        RoundedSearchField(
+            query = query,
+            onQueryChange = onQueryChange,
+            placeholder = stringResource(R.string.type_to_filter),
+            modifier = Modifier
+                .weight(1f)
+                .focusRequester(focusRequester)
+                .onFocusChanged { if (it.isFocused) onFocused() },
+            imeAction = ImeAction.Search,
+            keyboardActions = KeyboardActions(onSearch = { keyboard?.hide() }),
+        )
+        IconButton(onClick = onPreferences) {
+            Icon(Icons.Default.Settings, contentDescription = stringResource(R.string.preferences))
+        }
+    }
 }
 
 /** The search languages, like the thumb index of a printed dictionary:
