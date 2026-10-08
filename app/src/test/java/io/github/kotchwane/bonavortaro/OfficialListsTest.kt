@@ -80,4 +80,13 @@ class OfficialListsTest {
             words.sortedBy { OfficialLists.sortKey(it) },
         )
     }
+
+    @Test
+    fun aWordIsListedUnderItsLetterWithItsHat() {
+        assertEquals("ĉ", OfficialLists.initial("ĉeval/o"))
+        assertEquals("c", OfficialLists.initial("cedr/o"))
+        assertEquals("ŭ", OfficialLists.initial("ŭa"))
+        assertEquals("s", OfficialLists.initial("-sufiks/o"))
+        assertEquals("a", OfficialLists.initial("Ann/o"))
+    }
 }

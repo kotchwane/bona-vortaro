@@ -133,7 +133,7 @@ private fun AdditionPage(initialLevel: Int, onOpen: (OfficialEntry) -> Unit, onB
     }
     /* The first line of each letter, for the letters above the list */
     val letters = remember(shown) {
-        shown?.mapIndexed { index, group -> OfficialLists.sortKey(group.title).take(1).let { it.ifEmpty { "#" } } to index }
+        shown?.mapIndexed { index, group -> OfficialLists.initial(group.title) to index }
             ?.distinctBy { it.first }.orEmpty()
     }
 
@@ -197,7 +197,7 @@ private fun AdditionPage(initialLevel: Int, onOpen: (OfficialEntry) -> Unit, onB
                                 ) {
                                     for ((letter, index) in letters)
                                         Text(
-                                            letter.replace("~", "̂").uppercase(),
+                                            letter.uppercase(),
                                             style = MaterialTheme.typography.titleSmall,
                                             color = bonaDesign.headword,
                                             modifier = Modifier
@@ -205,9 +205,12 @@ private fun AdditionPage(initialLevel: Int, onOpen: (OfficialEntry) -> Unit, onB
                                                 .padding(horizontal = 9.dp, vertical = 8.dp),
                                         )
                                 }
-                                /* A line under them once the words pass below */
-                                if (scrolled)
+                                /* A line under them once the words pass below, and
+                                 * some room before the first one */
+                                if (scrolled) {
                                     HorizontalDivider(color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.25f))
+                                    Spacer(Modifier.height(6.dp))
+                                }
                             }
                         }
                     }
@@ -243,8 +246,9 @@ private fun AdditionPage(initialLevel: Int, onOpen: (OfficialEntry) -> Unit, onB
     }
 }
 
-/* How many lines down the button back to the top appears */
-private const val FAR_FROM_TOP = 30
+/* How many lines down the button back to the top appears: as soon as
+ * the explanation and a few words have gone */
+private const val FAR_FROM_TOP = 6
 
 /** A root with the start of its definition, and under it the words its
  * entry lists; or a word alone, with the root of its article. */

@@ -128,4 +128,16 @@ object OfficialLists {
         }
         return key.toString()
     }
+
+    /** The letter of the alphabet a word is listed under: "ĉ" for
+     * "ĉevalo", "c" for "cedro", "#" for a word without letters. */
+    internal fun initial(text: String): String {
+        val key = sortKey(text)
+        if (key.isEmpty())
+            return "#"
+        /* The sort key writes "ĉ" as "c~", so that it comes after "c" */
+        return if (key.getOrNull(1) == '~') HATS[key[0]] ?: key.take(1) else key.take(1)
+    }
+
+    private val HATS = mapOf('c' to "ĉ", 'g' to "ĝ", 'h' to "ĥ", 'j' to "ĵ", 's' to "ŝ", 'u' to "ŭ")
 }
