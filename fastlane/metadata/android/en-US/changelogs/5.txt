@@ -1,0 +1,4 @@
+• The text size now applies to the whole article (labels, badges, "Ekzemploj") and to every list of words.
+• Long labels go to the next line instead of past the edge.
+• A definition ends with a period, not a colon, before its examples.
+• In the lists of the Fundamento and the Additions, the letters stay in view, and a button goes back to the top.

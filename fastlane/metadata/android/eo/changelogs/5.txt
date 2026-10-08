@@ -1,0 +1,4 @@
+• La grandeco de la teksto nun validas por la tuta artikolo (etikedoj, insignoj, „Ekzemploj“) kaj por ĉiuj listoj de vortoj.
+• Longaj etikedoj iras al la sekva linio anstataŭ preter la rando.
+• Difino finiĝas per punkto, ne per dupunkto, antaŭ siaj ekzemploj.
+• En la listoj de la Fundamento kaj de la Aldonoj, la literoj restas videblaj, kaj butono revenigas al la supro.
