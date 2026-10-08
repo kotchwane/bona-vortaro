@@ -70,16 +70,33 @@ fun findRecentSearches(context: Context, entries: List<HistoryEntry>): List<Rece
             Log.w(TAG, "Failed to load the index for ${entry.language}")
             return@mapNotNull null
         }
-        /* The index is in lowercase, the words as shown are not: "Mario"
-         * is found under "mario" */
         fun find(key: String): SearchResult? {
             val count = trie.search(key, results)
             return results.take(count).filterNotNull().firstOrNull { it.word == entry.word }
         }
-        (find(entry.word) ?: find(entry.word.lowercase(Locale.ROOT)))
+        historyKeys(entry.word).firstNotNullOfOrNull { find(it) }
             ?.let { RecentSearch(entry, it) }
     }
 }
+
+/** The keys a word of the history may be found under in its index, the
+ * likeliest first. The words as shown are not always the keys of the
+ * index:
+ * - the index is in lowercase: "Mario" is under "mario";
+ * - a clarification is only shown: "conscience (morale)" is under
+ *   "conscience";
+ * - an expression is under its main word: "prendre conscience" under
+ *   "conscience", "ouvrir les yeux" under "yeux".
+ * The longest words first: a short one ("les") has too many results for
+ * the expression to be among them. */
+internal fun historyKeys(word: String): List<String> {
+    val lower = word.lowercase(Locale.ROOT)
+    val withoutClarification = lower.substringBefore(" (").trim()
+    val words = withoutClarification.split(NOT_A_LETTER).filter { it.isNotEmpty() }.sortedByDescending { it.length }
+    return (listOf(word, lower, withoutClarification) + words).filter { it.isNotEmpty() }.distinct()
+}
+
+private val NOT_A_LETTER = Regex("""[^\p{L}\p{N}'’-]+""")
 
 /** What the search shows while nothing is typed: the words looked up
  * last, all of the languages together, the most recent first; or, while

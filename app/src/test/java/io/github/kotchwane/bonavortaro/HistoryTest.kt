@@ -62,4 +62,25 @@ class HistoryTest {
     fun anEmptyFileIsAnEmptyHistory() {
         assertEquals(emptyList<HistoryEntry>(), History.decode(""))
     }
+
+    @Test
+    fun aWordIsLookedUpAsShownFirst() {
+        assertEquals("arbaro", historyKeys("arbaro").first())
+    }
+
+    @Test
+    fun aCapitalisedWordIsAlsoLookedUpInLowercase() {
+        assertEquals(listOf("Mario", "mario"), historyKeys("Mario"))
+    }
+
+    @Test
+    fun aClarificationIsLeftOutOfTheKey() {
+        assertEquals(listOf("conscience (morale)", "conscience"), historyKeys("conscience (morale)"))
+    }
+
+    @Test
+    fun anExpressionIsLookedUpUnderItsWordsTheLongestFirst() {
+        assertEquals(listOf("prendre conscience", "conscience", "prendre"), historyKeys("prendre conscience"))
+        assertEquals(listOf("ouvrir les yeux", "ouvrir", "yeux", "les"), historyKeys("ouvrir les yeux"))
+    }
 }
