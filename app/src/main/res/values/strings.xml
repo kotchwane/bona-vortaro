@@ -115,7 +115,7 @@
   <string name="guide_typing_title">Tajpi</string>
   <string name="guide_typing">Vi povas tajpi „cx“ por „ĉ“ (same gx, hx, jx, sx, ux), kaj ignori la supersignojn: _cevalo_ trovas „ĉevalo“, kaj _eleve_ trovas la francan „élève“.</string>
   <string name="guide_wildcards_title">Ĵokeroj: * kaj ?</string>
-  <string name="guide_wildcards">La steleto * anstataŭas ajnajn literojn, eĉ neniun, kaj la demandosigno ? ĝuste unu literon. Tiel _*ologio_ trovas ĉiujn vortojn, kiuj finiĝas per „ologio“ (biologio, geologio…), kaj _?rbo_ trovas ĉiujn vortojn de kvar literoj, kiuj finiĝas per „rbo“, kiel „arbo“.</string>
+  <string name="guide_wildcards">La steleto „*“ anstataŭas ajnajn literojn, eĉ neniun, kaj la demandosigno „?“ ĝuste unu literon. Tiel _*ologio_ trovas ĉiujn vortojn, kiuj finiĝas per „ologio“ (biologio, geologio…), kaj _?rbo_ trovas ĉiujn vortojn de kvar literoj, kiuj finiĝas per „rbo“, kiel „arbo“.</string>
   <string name="guide_history_title">La lastaj serĉoj</string>
   <string name="guide_history">Kiam nenio estas tajpita, la serĉo montras la vortojn, kiujn vi laste malfermis. Tenu unu premita por forviŝi ĝin. En la agordoj vi povas malŝalti la historion.</string>
   <string name="guide_links_title">Ligiloj kaj ekzemploj</string>
