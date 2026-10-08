@@ -22,6 +22,21 @@ import android.content.Intent
 import android.os.Bundle
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.KeyboardArrowUp
+import androidx.compose.material3.Icon
+import androidx.compose.material3.SmallFloatingActionButton
+import androidx.compose.material3.Surface
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Column
@@ -95,6 +110,7 @@ class AdditionActivity : BonaActivity() {
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun AdditionPage(initialLevel: Int, onOpen: (OfficialEntry) -> Unit, onBack: () -> Unit) {
     val context = LocalContext.current
@@ -127,67 +143,108 @@ private fun AdditionPage(initialLevel: Int, onOpen: (OfficialEntry) -> Unit, onB
     val scrolled by remember { derivedStateOf { listState.firstVisibleItemIndex > 0 } }
     val toTop = { scope.launch { listState.scrollToItem(0) }; Unit }
     BackHandler(enabled = scrolled, onBack = toTop)
+    /* The button back to the top, once the top is a few screens away */
+    val far by remember { derivedStateOf { listState.firstVisibleItemIndex > FAR_FROM_TOP } }
+    /* The height of the letters, pinned at the top of the list: a jump to
+     * a letter puts its first line under them, not behind them */
+    var lettersHeight by remember { mutableIntStateOf(0) }
 
     BonaScaffold(
         topBar = { BonaTopBar(title = { Text(levelName(level)) }, onBack = if (scrolled) toTop else onBack) },
     ) { padding ->
-        LazyColumn(
+        Box(
             Modifier
                 .fillMaxSize()
                 .padding(padding)
                 .consumeWindowInsets(padding)
-                .imePadding(),
-            state = listState,
-            contentPadding = PaddingValues(bottom = 24.dp),
+                .imePadding()
         ) {
-            item {
-                Column(Modifier.padding(horizontal = 20.dp)) {
-                    OfficialTimeline(level, onSelect = { level = it; scope.launch { listState.scrollToItem(0) } })
-                    Spacer(Modifier.height(16.dp))
-                    AdditionAbout(level, examples = false)
-                    Spacer(Modifier.height(8.dp))
-                    RoundedSearchField(
-                        query = query,
-                        onQueryChange = { query = it },
-                        placeholder = stringResource(R.string.addition_filter),
-                        modifier = Modifier.padding(vertical = 8.dp),
+            LazyColumn(
+                Modifier.fillMaxSize(),
+                state = listState,
+                contentPadding = PaddingValues(bottom = 24.dp),
+            ) {
+                item {
+                    Column(Modifier.padding(horizontal = 20.dp)) {
+                        OfficialTimeline(level, onSelect = { level = it; scope.launch { listState.scrollToItem(0) } })
+                        Spacer(Modifier.height(16.dp))
+                        AdditionAbout(level, examples = false)
+                        Spacer(Modifier.height(8.dp))
+                        RoundedSearchField(
+                            query = query,
+                            onQueryChange = { query = it },
+                            placeholder = stringResource(R.string.addition_filter),
+                            modifier = Modifier.padding(vertical = 8.dp),
+                        )
+                    }
+                }
+
+                /* The letters, to jump in a long list. Pinned at the top once
+                 * the list is scrolled, so that any letter, the last one as the
+                 * first, stays one tap away */
+                if (letters.size > 5)
+                    stickyHeader(key = "letters") {
+                        Surface(
+                            color = MaterialTheme.colorScheme.background,
+                            modifier = Modifier.onSizeChanged { lettersHeight = it.height },
+                        ) {
+                            Column {
+                                Row(
+                                    Modifier
+                                        .fillMaxWidth()
+                                        .horizontalScroll(rememberScrollState())
+                                        .padding(horizontal = 12.dp),
+                                ) {
+                                    for ((letter, index) in letters)
+                                        Text(
+                                            letter.replace("~", "̂").uppercase(),
+                                            style = MaterialTheme.typography.titleSmall,
+                                            color = bonaDesign.headword,
+                                            modifier = Modifier
+                                                .clickable { scope.launch { listState.scrollToItem(index + 2, -lettersHeight) } }
+                                                .padding(horizontal = 9.dp, vertical = 8.dp),
+                                        )
+                                }
+                                /* A line under them once the words pass below */
+                                if (scrolled)
+                                    HorizontalDivider(color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.25f))
+                            }
+                        }
+                    }
+
+                items(shown.orEmpty(), key = { "${it.title}\t${it.root?.article ?: it.words.first().article}\t${it.words.firstOrNull()?.section}" }) { group ->
+                    /* The words at the text size of the settings, the
+                     * controls above them as they are */
+                    ScaledText(textSize) { OfficialGroupRow(group, onOpen) }
+                    HorizontalDivider(
+                        Modifier.padding(horizontal = 20.dp),
+                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.25f),
                     )
                 }
             }
 
-            /* The letters, to jump in a long list */
-            if (letters.size > 5)
-                item {
-                    Row(
-                        Modifier
-                            .fillMaxWidth()
-                            .horizontalScroll(rememberScrollState())
-                            .padding(horizontal = 12.dp),
-                    ) {
-                        for ((letter, index) in letters)
-                            Text(
-                                letter.replace("~", "̂").uppercase(),
-                                style = MaterialTheme.typography.titleSmall,
-                                color = bonaDesign.headword,
-                                modifier = Modifier
-                                    .clickable { scope.launch { listState.scrollToItem(index + 2) } }
-                                    .padding(horizontal = 9.dp, vertical = 8.dp),
-                            )
-                    }
+            /* Back to the top, to the other lists and the explanation, without
+             * scrolling back through a thousand words; a jump, as above */
+            AnimatedVisibility(
+                visible = far,
+                enter = fadeIn() + scaleIn(),
+                exit = fadeOut() + scaleOut(),
+                modifier = Modifier.align(Alignment.BottomEnd).padding(16.dp).navigationBarsPadding(),
+            ) {
+                SmallFloatingActionButton(
+                    onClick = toTop,
+                    containerColor = MaterialTheme.colorScheme.primaryContainer,
+                    contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                ) {
+                    Icon(Icons.Default.KeyboardArrowUp, contentDescription = stringResource(R.string.to_top))
                 }
-
-            items(shown.orEmpty(), key = { "${it.title}\t${it.root?.article ?: it.words.first().article}\t${it.words.firstOrNull()?.section}" }) { group ->
-                /* The words at the text size of the settings, the
-                 * controls above them as they are */
-                ScaledText(textSize) { OfficialGroupRow(group, onOpen) }
-                HorizontalDivider(
-                    Modifier.padding(horizontal = 20.dp),
-                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.25f),
-                )
             }
         }
     }
 }
+
+/* How many lines down the button back to the top appears */
+private const val FAR_FROM_TOP = 30
 
 /** A root with the start of its definition, and under it the words its
  * entry lists; or a word alone, with the root of its article. */

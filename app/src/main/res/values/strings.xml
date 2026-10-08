@@ -67,6 +67,7 @@
   <string name="words">%1$d vortoj</string>
   <string name="one_word">1 vorto</string>
   <string name="addition_counts">En ĉi tiu vortaro: %1$s.</string>
+  <string name="to_top">Al la supro</string>
   <string name="addition_filter">Serĉi en la listo</string>
   <string name="addition_from">el %1$s</string>
   <string name="addition_list">Vidi la liston</string>
