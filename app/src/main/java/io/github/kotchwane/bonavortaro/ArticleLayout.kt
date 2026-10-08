@@ -590,10 +590,16 @@ fun previewOf(article: Article, mark: Int): WordPreview? {
         .firstOrNull { it.length > 3 && !(it.startsWith("(") && it.endsWith(")")) }
         ?.removeSuffix(":")
         ?.trim()
+        ?.withoutFinalPeriod()
         ?: ""
 
     return WordPreview(title.toString(), definition)
 }
+
+/* A preview ends without a period, as most definitions do; the period of
+ * an abbreviation ("k.t.p.") stays */
+private fun String.withoutFinalPeriod(): String =
+    if (endsWith(".") && '.' !in substringAfterLast(' ').dropLast(1)) dropLast(1).trimEnd() else this
 
 /** Shows the symbols of the types of links as words: the plural when it
  * is followed by several links, up to the end of the group (";", ".") or
