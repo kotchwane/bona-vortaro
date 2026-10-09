@@ -47,6 +47,8 @@ import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
@@ -498,12 +500,20 @@ private fun NoteBox(text: CharSequence, key: String, unfolded: Boolean, onLongPr
      * the size it was measured with; null while it fits */
     var folded by remember(text) { mutableStateOf<FoldedNote?>(null) }
 
+    val isFolded = folded != null && !expanded
+
     Surface(
         modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
         shape = RoundedCornerShape(10.dp),
         color = MaterialTheme.colorScheme.surfaceContainerHigh,
     ) {
-        Column(Modifier.padding(horizontal = 10.dp, vertical = 8.dp)) {
+        /* Folded, the whole box unfolds it, its margins too: "legi plu" is
+         * on its last line, a small target for a finger */
+        Column(
+            Modifier
+                .clickable(enabled = isFolded) { expanded = true }
+                .padding(horizontal = 10.dp, vertical = 8.dp),
+        ) {
             Text(
                 stringResource(R.string.remark),
                 style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold),
@@ -516,6 +526,7 @@ private fun NoteBox(text: CharSequence, key: String, unfolded: Boolean, onLongPr
                 onLongPress = onLongPress,
                 /* Measured again when the width or the text size change,
                  * eg. when the phone is turned */
+                onClick = if (isFolded) ({ expanded = true }) else null,
                 onLayout = { view ->
                     val width = view.layout.width
                     val size = view.paint.textSize
@@ -529,7 +540,12 @@ private fun NoteBox(text: CharSequence, key: String, unfolded: Boolean, onLongPr
                     stringResource(R.string.note_less),
                     style = MaterialTheme.typography.labelLarge,
                     color = link,
-                    modifier = Modifier.clickable { expanded = false }.padding(top = 2.dp, bottom = 2.dp),
+                    /* A finger-sized target, without more room around it */
+                    modifier = Modifier
+                        .padding(top = 2.dp)
+                        .heightIn(min = 32.dp)
+                        .clickable { expanded = false }
+                        .wrapContentHeight(),
                 )
         }
     }
@@ -673,6 +689,8 @@ fun SpannedText(
     onLongPress: ((String?) -> Unit)? = null,
     /** Once laid out: the view, with its width and paint */
     onLayout: ((TextView) -> Unit)? = null,
+    /** A tap on the text, links aside */
+    onClick: (() -> Unit)? = null,
 ) {
     val linkColor = MaterialTheme.colorScheme.primary
     /* In pixels: the TextView would only apply the font size of Android,
@@ -693,6 +711,16 @@ fun SpannedText(
             view.setTextSize(TypedValue.COMPLEX_UNIT_PX, size)
             if (onLayout != null)
                 view.post { if (view.layout != null) onLayout(view) }
+            /* Only away from the links, which open their article */
+            if (onClick != null)
+                view.setOnClickListener {
+                    val tapped = view.text as? android.text.Spanned
+                    val onLink = tapped != null && view.selectionStart >= 0 &&
+                        tapped.getSpans(view.selectionStart, view.selectionEnd, android.text.style.ClickableSpan::class.java).isNotEmpty()
+                    if (!onLink) onClick()
+                }
+            else
+                view.setOnClickListener(null)
             /* Serif, like the rest of the design */
             view.typeface = android.graphics.Typeface.create(
                 android.graphics.Typeface.SERIF,
