@@ -1,0 +1,4 @@
+• Long remarks show their first lines; "legi plu" unfolds them.
+• The lists of the Fundamento and the Additions have the whole Esperanto alphabet (Ĉ, Ĝ, Ĥ, Ĵ, Ŝ, Ŭ).
+• Words such as "conscience (morale)" stay in the recent searches.
+• The settings are beside the search field, and the random root scrolls with the history.
