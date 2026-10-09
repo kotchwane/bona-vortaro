@@ -40,6 +40,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Icon
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
@@ -58,6 +59,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
@@ -166,7 +168,8 @@ fun WordCard(
                             modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
                         )
                         is ContentBlock.Example -> ExampleLine(block.text, onLongPressText)
-                        is ContentBlock.Note -> NoteBox(block.text, onLongPressText)
+                        is ContentBlock.Note ->
+                            NoteBox(block.text, key = "${entry.section}-note-$index", unfolded = unfoldExamples, onLongPressText)
                     }
                     is BlockGroup.Examples ->
                         FoldedExamples(group.examples, onLongPressText, key = "${entry.section}-$index", unfolded = unfoldExamples)
@@ -482,9 +485,19 @@ fun OfficialBadge(
     }
 }
 
-/** A remark, in a tinted box with its title. */
+/** A remark, in a tinted box with its title. A long one is folded to
+ * its first lines, which often say the main point, ending with
+ * "… legi plu ▾" where the reading stops; a short one, folded, would only
+ * cost a tap. */
 @Composable
-private fun NoteBox(text: CharSequence, onLongPress: (String?) -> Unit) {
+private fun NoteBox(text: CharSequence, key: String, unfolded: Boolean, onLongPress: (String?) -> Unit) {
+    val link = MaterialTheme.colorScheme.primary
+    var expanded by rememberSaveable(key, unfolded) { mutableStateOf(unfolded) }
+    val more = stringResource(R.string.note_more)
+    /* The text cut at the end of its last shown line, for the width and
+     * the size it was measured with; null while it fits */
+    var folded by remember(text) { mutableStateOf<FoldedNote?>(null) }
+
     Surface(
         modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
         shape = RoundedCornerShape(10.dp),
@@ -497,15 +510,80 @@ private fun NoteBox(text: CharSequence, onLongPress: (String?) -> Unit) {
                 color = MaterialTheme.colorScheme.primary,
             )
             SpannedText(
-                text,
+                folded?.takeIf { !expanded }?.text ?: text,
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurface,
                 onLongPress = onLongPress,
+                /* Measured again when the width or the text size change,
+                 * eg. when the phone is turned */
+                onLayout = { view ->
+                    val width = view.layout.width
+                    val size = view.paint.textSize
+                    if (folded?.width != width || folded?.size != size)
+                        folded = foldNote(text, view.paint, width, more, link.toArgb()) { expanded = true }
+                },
                 modifier = Modifier.fillMaxWidth(),
             )
+            if (expanded && folded != null)
+                Text(
+                    stringResource(R.string.note_less),
+                    style = MaterialTheme.typography.labelLarge,
+                    color = link,
+                    modifier = Modifier.clickable { expanded = false }.padding(top = 2.dp, bottom = 2.dp),
+                )
         }
     }
 }
+
+/** A remark cut to its first lines, and what it was measured for. */
+private class FoldedNote(val text: CharSequence, val width: Int, val size: Float)
+
+/** The remark cut at the end of its [FOLDED_NOTE_LINES]th line, between two
+ * words, with "… legi plu ▾" where it fits; null if it is not longer than
+ * [FOLD_NOTES_ABOVE] lines. Android draws no "…" itself on a text with
+ * links, so the text is cut here. */
+private fun foldNote(
+    text: CharSequence,
+    paint: android.text.TextPaint,
+    width: Int,
+    more: String,
+    linkColor: Int,
+    onMore: () -> Unit,
+): FoldedNote? {
+    val layout = android.text.StaticLayout.Builder.obtain(text, 0, text.length, paint, width)
+        .setLineSpacing(0f, 1.2f)
+        .build()
+    if (layout.lineCount <= FOLD_NOTES_ABOVE)
+        return null
+
+    val label = "… $more"
+    val last = FOLDED_NOTE_LINES - 1
+    var cut = layout.getOffsetForHorizontal(last, width - paint.measureText(label))
+        .coerceAtMost(layout.getLineEnd(last))
+    /* Between two words, not in one */
+    val space = text.subSequence(0, cut).indexOfLast { it.isWhitespace() }
+    if (space > layout.getLineStart(last))
+        cut = space
+
+    /* "deduktas…", not "deduktas,…" */
+    val cutText = android.text.SpannableStringBuilder(text.subSequence(0, cut).trimEnd { it.isWhitespace() || it in ",;:" })
+    /* "…" against the last word, "legi plu ▾" the link */
+    cutText.append("… ")
+    val start = cutText.length
+    cutText.append(more)
+    cutText.setSpan(object : android.text.style.ClickableSpan() {
+        override fun onClick(widget: android.view.View) = onMore()
+        override fun updateDrawState(ds: android.text.TextPaint) {
+            ds.color = linkColor
+            ds.isUnderlineText = false
+        }
+    }, start, cutText.length, android.text.Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+    return FoldedNote(cutText, width, paint.textSize)
+}
+
+/* A remark is folded beyond so many lines, to the first ones */
+private const val FOLD_NOTES_ABOVE = 8
+private const val FOLDED_NOTE_LINES = 5
 
 /** The translations of the word, the user's languages first. After a few
  * languages, the others are shown on demand. */
@@ -593,6 +671,8 @@ fun SpannedText(
     modifier: Modifier = Modifier,
     /** With the word pressed, or null if the press wasn't on a word */
     onLongPress: ((String?) -> Unit)? = null,
+    /** Once laid out: the view, with its width and paint */
+    onLayout: ((TextView) -> Unit)? = null,
 ) {
     val linkColor = MaterialTheme.colorScheme.primary
     /* In pixels: the TextView would only apply the font size of Android,
@@ -611,6 +691,8 @@ fun SpannedText(
             view.setTextColor(color.toArgb())
             view.setLinkTextColor(linkColor.toArgb())
             view.setTextSize(TypedValue.COMPLEX_UNIT_PX, size)
+            if (onLayout != null)
+                view.post { if (view.layout != null) onLayout(view) }
             /* Serif, like the rest of the design */
             view.typeface = android.graphics.Typeface.create(
                 android.graphics.Typeface.SERIF,
