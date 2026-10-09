@@ -7,4 +7,6 @@ Bona vortaro is an Esperanto dictionary for Android. It contains the whole <a hr
 • Leaf through the dictionary from root to root, or discover a random root.
 • Your recent searches, day and night colours, text size.
 
+The app's interface is in Esperanto. You can search, and read the translations, in any of the dictionary's 170+ languages.
+
 The name is a tribute to "La bona lingvo" by Claude Piron. Bona vortaro is based on PReVo by Neil Roberts.
