@@ -22,6 +22,7 @@
   <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/4.png" width="200" alt="La listo de Oficiala Aldono">
   <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/5.png" width="200" alt="Teni vorton premita">
   <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/6.png" width="200" alt="Foliumi la vortaron, nokte">
+  <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/7.png" width="200" alt="Vorto, kiu mankas en la vortaro">
 </p>
 
 ---
@@ -48,6 +49,9 @@ el [PReVo](https://github.com/bpeel/prevo), la vortaro de Neil Roberts.
   skribita: *arbojn* trovas *arbo*, *nomatajn* trovas *nomi*.
 - **Foliumi la vortaron** de radiko al radiko, kiel presitan vortaron, aŭ
   malkovri hazardan radikon.
+- **Diveni vortojn, kiuj mankas** en la vortaro: la serĉo proponas, el kiuj
+  radikoj kaj afiksoj ili eble konsistas (*malsanulejestrano*: malsanulej +
+  estr + ano).
 - La **lastaj serĉoj**, tagaj kaj noktaj koloroj („papero“ kaj „stelnokto“), la
   grandeco de la teksto, kaj gvidilo en la agordoj.
 
@@ -127,6 +131,9 @@ Neil Roberts' dictionary.
   *nomatajn* finds *nomi*.
 - **Leaf through the dictionary** from root to root, like a printed one, or
   discover a random root.
+- **Guess missing words**: when a word isn't in the dictionary, the search
+  suggests the roots and affixes it may be built from (*malsanulejestrano*:
+  malsanulej + estr + ano).
 - **Recent searches**, day and night colours ("papero" and "stelnokto"), text
   size, and a guide in the settings.
 
