@@ -4,6 +4,7 @@ Bona vortaro estas vortaro de Esperanto por Android. Ĝi enhavas la tutan <a hre
 • Legu klarajn artikolojn: difinoj, ekzemploj, rimarkoj, ligiloj inter la vortoj, kaj la tradukoj en viaj lingvoj.
 • Vidu, kiuj vortoj estas oficialaj (Fundamento, Oficialaj Aldonoj), kaj foliumu la liston de ĉiu Aldono.
 • Tenu vorton premita por trovi ĝin, kiel ajn ĝi estas skribita: „arbojn“ trovas „arbo“.
+• Vorto, kiu mankas en la vortaro? La serĉo proponas, el kiuj radikoj kaj afiksoj ĝi eble konsistas: „malsanulejestrano“ = malsanulej + estr + ano.
 • Foliumu la vortaron de radiko al radiko, aŭ malkovru hazardan radikon.
 • Viaj lastaj serĉoj, tagaj kaj noktaj koloroj, la grandeco de la teksto.
 
