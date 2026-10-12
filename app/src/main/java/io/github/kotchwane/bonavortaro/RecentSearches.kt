@@ -45,6 +45,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -187,7 +188,11 @@ fun RecentSearches(
 /** A title between two rules, like the running head of the results,
  * and optionally a button after it. */
 @Composable
-private fun RunningHeadText(text: String, trailing: @Composable () -> Unit = {}) {
+internal fun RunningHeadText(
+    text: String,
+    style: TextStyle = MaterialTheme.typography.bodySmall,
+    trailing: @Composable () -> Unit = {},
+) {
     val rule = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.4f)
 
     Row(
@@ -197,7 +202,7 @@ private fun RunningHeadText(text: String, trailing: @Composable () -> Unit = {})
         HorizontalDivider(Modifier.weight(1f), color = rule)
         Text(
             text,
-            style = MaterialTheme.typography.bodySmall.copy(fontStyle = FontStyle.Italic),
+            style = style.copy(fontStyle = FontStyle.Italic),
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.padding(horizontal = 10.dp),
         )

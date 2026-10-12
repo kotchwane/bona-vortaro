@@ -56,6 +56,8 @@ import android.view.KeyEvent
 import android.widget.TextView
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -648,54 +650,75 @@ private fun WordActions(
             WordLookup.find(context, word, language).map { it to SearchPreviews.get(context, it) }
         }
     }
+    /* A word of Esperanto missing from the dictionary: how it may be built.
+     * Not with a capital, most often a name ("Paris", "Seneca"), even if
+     * the first word of a sentence is left out with them */
+    val analysis by produceState<ShownAnalysis?>(null, entries) {
+        if (entries?.isEmpty() == true && language == "eo" && !word.first().isUpperCase() &&
+            BonaSettings.getGuessWords(context))
+            value = withContext(Dispatchers.IO) { WordAnalyses.find(context, word, needsEnding = true) }
+    }
 
     ModalBottomSheet(
         onDismissRequest = onDismiss,
         sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
     ) {
-        Text(
-            if (language == "eo") word
-            else "$word (${LanguageList.getDefault(context).getLanguageName(language)})",
-            style = MaterialTheme.typography.titleMedium,
-            color = MaterialTheme.colorScheme.primary,
-            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
-        )
-        when {
-            entries == null -> {}
-            entries!!.isEmpty() -> Text(
-                stringResource(R.string.word_not_found, word),
-                style = MaterialTheme.typography.bodyMedium.copy(fontStyle = FontStyle.Italic),
-                color = muted,
+        /* Scrolled when it is taller than the screen, as with the
+         * analysis of a long word in landscape */
+        Column(Modifier.verticalScroll(rememberScrollState())) {
+            Text(
+                if (language == "eo") word
+                else "$word (${LanguageList.getDefault(context).getLanguageName(language)})",
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.primary,
                 modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
             )
-            else -> for ((entry, preview) in entries!!)
-                ListItem(
-                    headlineContent = {
-                        Text(
-                            preview?.title ?: entry.word,
-                            fontWeight = FontWeight.Bold,
-                            color = bonaDesign.headword,
+            when {
+                entries == null -> {}
+                entries!!.isEmpty() -> {
+                    Text(
+                        stringResource(R.string.word_not_found, word),
+                        style = MaterialTheme.typography.bodyMedium.copy(fontStyle = FontStyle.Italic),
+                        color = muted,
+                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
+                    )
+                    analysis?.let {
+                        WordAnalysisView(
+                            it,
+                            onOpen = { entry -> onDismiss(); onOpen(entry) },
+                            modifier = Modifier.padding(horizontal = 0.dp),
                         )
-                    },
-                    supportingContent = preview?.let {
-                        {
+                    }
+                }
+                else -> for ((entry, preview) in entries!!)
+                    ListItem(
+                        headlineContent = {
                             Text(
-                                it.definition,
-                                style = MaterialTheme.typography.bodyMedium.copy(fontStyle = FontStyle.Italic),
-                                maxLines = 2,
-                                overflow = TextOverflow.Ellipsis,
+                                preview?.title ?: entry.word,
+                                fontWeight = FontWeight.Bold,
+                                color = bonaDesign.headword,
                             )
-                        }
-                    },
-                    modifier = Modifier.clickable { onDismiss(); onOpen(entry) },
-                )
+                        },
+                        supportingContent = preview?.let {
+                            {
+                                Text(
+                                    it.definition,
+                                    style = MaterialTheme.typography.bodyMedium.copy(fontStyle = FontStyle.Italic),
+                                    maxLines = 2,
+                                    overflow = TextOverflow.Ellipsis,
+                                )
+                            }
+                        },
+                        modifier = Modifier.clickable { onDismiss(); onOpen(entry) },
+                    )
+            }
+            HorizontalDivider(Modifier.padding(horizontal = 16.dp, vertical = 4.dp), color = muted.copy(alpha = 0.25f))
+            ListItem(
+                headlineContent = { Text(stringResource(R.string.copy_word)) },
+                modifier = Modifier.clickable { onDismiss(); onCopy() },
+            )
+            Spacer(Modifier.height(16.dp))
         }
-        HorizontalDivider(Modifier.padding(horizontal = 16.dp, vertical = 4.dp), color = muted.copy(alpha = 0.25f))
-        ListItem(
-            headlineContent = { Text(stringResource(R.string.copy_word)) },
-            modifier = Modifier.clickable { onDismiss(); onCopy() },
-        )
-        Spacer(Modifier.height(16.dp))
     }
 }
 

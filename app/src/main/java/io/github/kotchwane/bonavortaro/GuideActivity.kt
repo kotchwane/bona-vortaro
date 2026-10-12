@@ -63,6 +63,7 @@ private val GUIDE = listOf(
         R.string.guide_languages_title to R.string.guide_languages,
         R.string.guide_typing_title to R.string.guide_typing,
         R.string.guide_wildcards_title to R.string.guide_wildcards,
+        R.string.guide_guess_title to R.string.guide_guess,
         R.string.guide_history_title to R.string.guide_history,
     ),
     R.string.guide_read to listOf(

@@ -88,6 +88,7 @@ class PreferenceActivity : BonaActivity() {
     private var translations by mutableStateOf(emptyList<String>())
     private var unfoldExamples by mutableStateOf(false)
     private var keepHistory by mutableStateOf(true)
+    private var guessWords by mutableStateOf(true)
 
     /** Every language that can be a translation, i.e. all but Esperanto */
     private lateinit var translationLanguages: List<Language>
@@ -126,6 +127,11 @@ class PreferenceActivity : BonaActivity() {
                             BonaSettings.setKeepHistory(this, it)
                         },
                         onClearHistory = { History.clear(this) },
+                        guessWords = guessWords,
+                        onGuessWordsChange = {
+                            guessWords = it
+                            BonaSettings.setGuessWords(this, it)
+                        },
                         unfoldExamples = unfoldExamples,
                         onUnfoldExamplesChange = {
                             unfoldExamples = it
@@ -165,6 +171,7 @@ class PreferenceActivity : BonaActivity() {
         textSize = BonaSettings.getTextSize(this)
         unfoldExamples = BonaSettings.getUnfoldExamples(this)
         keepHistory = BonaSettings.getKeepHistory(this)
+        guessWords = BonaSettings.getGuessWords(this)
         myLanguages = BonaSettings.getChosenSearchLanguages(this)
         translations = BonaSettings.getTranslationLanguages(this, translationLanguages)
     }
@@ -295,6 +302,8 @@ private fun MainSettings(
     keepHistory: Boolean,
     onKeepHistoryChange: (Boolean) -> Unit,
     onClearHistory: () -> Unit,
+    guessWords: Boolean,
+    onGuessWordsChange: (Boolean) -> Unit,
     unfoldExamples: Boolean,
     onUnfoldExamplesChange: (Boolean) -> Unit,
     translationsSummary: String,
@@ -343,7 +352,16 @@ private fun MainSettings(
             )
         }
 
-        bigTitle(R.string.history_section)
+        /* The search, and what it keeps */
+        bigTitle(R.string.search_section)
+        item {
+            SwitchRow(
+                stringResource(R.string.guess_words),
+                stringResource(R.string.guess_words_summary),
+                guessWords,
+                onGuessWordsChange,
+            )
+        }
         item {
             SwitchRow(
                 stringResource(R.string.keep_history),

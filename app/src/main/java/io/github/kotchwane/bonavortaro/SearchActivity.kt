@@ -91,6 +91,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.withContext
+import androidx.compose.foundation.verticalScroll
 
 class SearchActivity : BonaActivity() {
 
@@ -116,6 +117,7 @@ class SearchActivity : BonaActivity() {
      * they are read. Re-read when coming back from an article. */
     private var recent by mutableStateOf<List<RecentSearch>?>(null)
     private var keepHistory by mutableStateOf(true)
+    private var guessWords by mutableStateOf(true)
     /* Counts the new searches asked for with the magnifier of an article */
     private var newSearch by mutableIntStateOf(0)
 
@@ -145,6 +147,7 @@ class SearchActivity : BonaActivity() {
                     onPreferences = { Screens.goPreferences(this) },
                     recent = recent,
                     keepHistory = keepHistory,
+                    guessWords = guessWords,
                     onRemoveRecent = ::removeFromHistory,
                     onRestoreHistory = ::restoreHistory,
                 )
@@ -164,6 +167,7 @@ class SearchActivity : BonaActivity() {
         super.onStart()
         textSize = BonaSettings.getTextSize(this)
         keepHistory = BonaSettings.getKeepHistory(this)
+        guessWords = BonaSettings.getGuessWords(this)
         loadHistory()
     }
 
@@ -253,6 +257,7 @@ private fun SearchScreen(
     onPreferences: () -> Unit,
     recent: List<RecentSearch>?,
     keepHistory: Boolean,
+    guessWords: Boolean,
     onRemoveRecent: (RecentSearch) -> List<HistoryEntry>,
     onRestoreHistory: (List<HistoryEntry>) -> Unit,
 ) {
@@ -292,6 +297,20 @@ private fun SearchScreen(
         value = if (query.isBlank()) null else withContext(Dispatchers.Default) {
             DictionarySearch.search(context, searchOrder, query)
         }
+    }
+
+    /* When nothing is found in any of the languages, while searching in
+     * Esperanto: how the word may be built, as it is typed. Not on another
+     * tab, where a missing "bonjour" isn't Esperanto. The last one stays
+     * until the next is ready */
+    var analysis by remember { mutableStateOf<ShownAnalysis?>(null) }
+    val nothingFound = outcome?.results?.isEmpty() == true
+    LaunchedEffect(query, nothingFound, selected, guessWords) {
+        if (!nothingFound || selected != "eo" || isPattern(query) || query.isBlank() || !guessWords) {
+            analysis = null
+            return@LaunchedEffect
+        }
+        analysis = withContext(Dispatchers.IO) { WordAnalyses.find(context, normaliseQuery(query)) }
     }
 
     BonaScaffold(
@@ -334,6 +353,24 @@ private fun SearchScreen(
                 header = { RandomRootButton(onClick = { editing = false; onRandomRoot() }) },
             )
           }
+        } else if (current != null && current.results.isEmpty() && analysis != null) {
+            /* Nothing in any language: how the word may be built, if it
+             * is Esperanto */
+            Column(
+                Modifier
+                    .fillMaxSize()
+                    .padding(padding)
+                    .consumeWindowInsets(padding)
+                    .imePadding()
+                    .verticalScroll(rememberScrollState()),
+            ) {
+                /* What is said first, as large as when nothing follows */
+                RunningHeadText(stringResource(R.string.no_results), style = MaterialTheme.typography.bodyLarge)
+                /* The words at the text size of the settings, like the results */
+                ScaledText(textSize) {
+                    WordAnalysisView(analysis!!, onOpen = { onResultClick(it, "eo") })
+                }
+            }
         } else if (current != null && current.results.isEmpty()) {
             Box(
                 Modifier.fillMaxSize().padding(padding).consumeWindowInsets(padding).imePadding(),
