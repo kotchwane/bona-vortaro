@@ -42,6 +42,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Icon
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
@@ -74,7 +75,10 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -613,6 +617,22 @@ private fun TranslationsBox(
     val folded = foldable && !expanded
     val shown = if (folded) translations.take(SHOWN_TRANSLATIONS) else translations
     val body = MaterialTheme.typography.bodyMedium
+    val nameStyle = MaterialTheme.typography.bodySmall.copy(fontStyle = FontStyle.Italic)
+
+    /* The names of the languages, and a column as wide as the longest, up
+     * to a share of the box that grows with the text; a longer name, at a
+     * large text size or "internaci-signolingva", goes above its
+     * translation rather than being cut */
+    val context = LocalContext.current
+    val names = remember(translations) {
+        val list = LanguageList.getDefault(context)
+        translations.associate { it.language to list.getLanguageName(it.language) }
+    }
+    val measurer = rememberTextMeasurer()
+    val density = LocalDensity.current
+    val widths = remember(names, nameStyle, density) {
+        names.mapValues { (_, name) -> with(density) { measurer.measure(name, nameStyle).size.width.toDp() + 10.dp } }
+    }
 
     /* Outlined, to be told apart from the filled box of the remarks */
     Surface(
@@ -627,22 +647,31 @@ private fun TranslationsBox(
                 style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold),
                 color = MaterialTheme.colorScheme.primary,
             )
+            /* A third of the box at most for the names */
+            BoxWithConstraints {
+            val limit = maxWidth / 3
+            val nameWidth = widths.values.filter { it <= limit }.maxOrNull() ?: 0.dp
+            Column {
             for (translation in shown) {
+                val apart = widths.getValue(translation.language) > limit
+                if (apart)
+                    Text(
+                        names.getValue(translation.language),
+                        style = nameStyle,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.padding(top = 3.dp),
+                    )
                 Row(Modifier.padding(vertical = 3.dp)) {
-                    /* The code of the language in a small pill */
-                    /* Its column grows with the text */
-                    Box(Modifier.width(with(LocalDensity.current) { 38.sp.toDp() }).padding(top = 2.dp)) {
-                        Surface(
-                            shape = RoundedCornerShape(50),
-                            color = MaterialTheme.colorScheme.secondaryContainer,
-                            contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
-                        ) {
+                    /* The name of the language, in full like the rest of the
+                     * app, quiet beside the translation it introduces */
+                    Box(Modifier.width(nameWidth).padding(top = 2.dp)) {
+                        if (!apart)
                             Text(
-                                translation.language.uppercase(),
-                                style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold),
-                                modifier = Modifier.padding(horizontal = 6.dp, vertical = 1.dp),
+                                names.getValue(translation.language),
+                                style = nameStyle,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                maxLines = 1,
                             )
-                        }
                     }
                     /* A long press looks up the word under the finger in
                      * the language of the translation */
@@ -662,6 +691,8 @@ private fun TranslationsBox(
                             },
                     )
                 }
+            }
+            }
             }
             if (foldable && translations.size > SHOWN_TRANSLATIONS) {
                 TextButton(onClick = { expanded = !expanded }) {
@@ -748,4 +779,3 @@ fun SpannedText(
         modifier = modifier,
     )
 }
-
