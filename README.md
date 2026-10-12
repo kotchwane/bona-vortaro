@@ -10,6 +10,10 @@
 </p>
 
 <p align="center">
+  <a href="https://f-droid.org/packages/io.github.kotchwane.bonavortaro/"><img src="https://f-droid.org/badge/get-it-on-eo.png" height="80" alt="Elŝutu ĝin de F-Droid / Get it on F-Droid"></a>
+</p>
+
+<p align="center">
   <a href="#esperanto">Esperanto</a> · <a href="#english">English</a>
 </p>
 
