@@ -1,0 +1,2 @@
+• Guessing missing words: when a word isn't in the dictionary, the search suggests the roots and affixes it may be built from ("malsanulejestrano": malsanulej + estr + ano). Can be turned off in the settings.
+• The languages of the translations are named in full (angla, franca…), no longer by a code.
