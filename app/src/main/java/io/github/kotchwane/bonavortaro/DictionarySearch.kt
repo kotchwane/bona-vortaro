@@ -36,14 +36,14 @@ object DictionarySearch {
     private const val TAG = "bonasearch"
 
     /** Searches the languages in order and returns the results of the
-     * first one that has any. Typing the x-system is accepted (cx → ĉ), and
-     * the accents can be left out ("eleve" finds "élève"). With "*" (any
-     * letters) or "?" (one letter), the query is a pattern for whole words.
+     * first one that has any. Typing the x-system is accepted in Esperanto
+     * (cx → ĉ), and the accents can be left out ("eleve" finds "élève").
+     * With "*" (any letters) or "?" (one letter), the query is a pattern
+     * for whole words.
      * This does disk access, so it shouldn't run on the main thread. */
     fun search(context: Context, languages: List<String>, query: String): SearchOutcome {
-        val filter = normaliseQuery(query)
-
         for ((index, language) in languages.withIndex()) {
+            val filter = normaliseQuery(query, xSystem = language == "eo")
             val trie = try {
                 TrieCache.getTrie(context, language)
             } catch (e: IOException) {

@@ -71,9 +71,10 @@ import java.util.Locale
 import kotlin.math.roundToInt
 
 /** Normalises what was typed in a search field: trimmed, lowercase, and
- * x-system converted (cx → ĉ). */
-fun normaliseQuery(query: String): String =
-    Hats.removeHats(query.trim()).lowercase(Locale.ROOT)
+ * x-system converted (cx → ĉ), unless [xSystem] is false: in the other
+ * languages, "ux" is a word's ("heureux", "luxury"), not a "ŭ". */
+fun normaliseQuery(query: String, xSystem: Boolean = true): String =
+    query.trim().let { if (xSystem) Hats.removeHats(it) else it }.lowercase(Locale.ROOT)
 
 /** Whether the language matches a normalised filter: the start of any
  * word of its name, or its exact code. */
