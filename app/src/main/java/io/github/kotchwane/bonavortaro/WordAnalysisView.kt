@@ -81,7 +81,11 @@ object WordAnalyses {
         analysis.pieces.mapNotNull { piece ->
             when {
                 piece.entry != null -> index.result(piece.entry)?.let {
-                    ShownPiece(piece.entry, it, SearchPreviews.get(context, it)?.definition)
+                    /* A suffix by its word, like "ulo", even when that word
+                     * says nothing on its own (ejo) or only by the suffix
+                     * (igi): the word as label, the suffix's definition */
+                    val label = SUFFIX_WORDS[piece.text]?.takeIf { word -> index.result(word) != null }
+                    ShownPiece(label ?: piece.entry, it, SearchPreviews.get(context, it)?.definition)
                 }
                 piece.kind == WordPiece.Kind.ENDING && piece.text in VERB_ENDINGS ->
                     ShownPiece("-${piece.text}", null, null, ending = piece.text)
@@ -92,6 +96,7 @@ object WordAnalyses {
 }
 
 private val VERB_ENDINGS = setOf("as", "is", "os", "us", "u")
+private val SUFFIX_WORDS = mapOf("ej" to "ejo", "ig" to "igi", "iĝ" to "iĝi")
 
 /* The rows shown at first; the others on demand */
 private const val SHOWN_PIECES = 5
