@@ -29,6 +29,16 @@ class SearchOutcome(val results: List<SearchResult>, val languageIndex: Int)
 /** Whether a query is a pattern, with "*" or "?" in it */
 fun isPattern(query: String): Boolean = '*' in query || '?' in query
 
+/** What is searched in a language for a query: the x-system is read only
+ * in Esperanto, where "ux" is a "ŭ"; in French, "î" and "û" are searched
+ * as "i" and "u", which also find them, because Reta Vortaro has both
+ * spellings, "maître" and "maitre", but some words only in the 1990 one:
+ * "fraicheur", "ile". */
+fun searchFilter(query: String, language: String): String {
+    val filter = normaliseQuery(query, xSystem = language == "eo")
+    return if (language == "fr") filter.replace('î', 'i').replace('û', 'u') else filter
+}
+
 object DictionarySearch {
     private const val MAX_RESULTS = 128
     /* A pattern like "*o" can match most of the language */
@@ -43,7 +53,7 @@ object DictionarySearch {
      * This does disk access, so it shouldn't run on the main thread. */
     fun search(context: Context, languages: List<String>, query: String): SearchOutcome {
         for ((index, language) in languages.withIndex()) {
-            val filter = normaliseQuery(query, xSystem = language == "eo")
+            val filter = searchFilter(query, language)
             val trie = try {
                 TrieCache.getTrie(context, language)
             } catch (e: IOException) {

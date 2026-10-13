@@ -31,12 +31,35 @@ class SearchQueryTest {
     }
 
     @Test
-    fun aFrenchWordWithUxIsFound() {
+    fun theCircumflexIsBothSpellingsInFrench() {
+        assertEquals("fraicheur", searchFilter("Fraîcheur", "fr"))
+        assertEquals("ŝtono", searchFilter("sxtono", "eo"))
+    }
+
+    private fun french(): (String) -> List<String> {
         val file = File("src/main/assets/indices/index-fr.bin")
         assumeTrue("The dictionary hasn't been built", file.exists())
         val trie = file.inputStream().use { Trie(it) }
-        val results = arrayOfNulls<SearchResult>(32)
+        return { query ->
+            val results = arrayOfNulls<SearchResult>(128)
+            val count = trie.searchIgnoringAccents(searchFilter(query, "fr"), results)
+            results.take(count).map { it!!.word }
+        }
+    }
+
+    @Test
+    fun aFrenchWordWithUxIsFound() {
+        val search = french()
         for (word in listOf("heureux", "deux", "faux", "afflux"))
-            assertTrue(word, trie.searchIgnoringAccents(normaliseQuery(word, xSystem = false), results) > 0)
+            assertTrue(word, search(word).isNotEmpty())
+    }
+
+    @Test
+    fun aFrenchWordWithACircumflexIsFoundInBothSpellings() {
+        val search = french()
+        for (word in listOf("fraîcheur", "rafraîchir", "traîneau", "goûter"))
+            assertTrue(word, search(word).isNotEmpty())
+        assertTrue(search("maître").containsAll(listOf("maître", "maitre (titre univ.)")))
+        assertTrue(search("île").containsAll(listOf("ile", "Île de Man")))
     }
 }
