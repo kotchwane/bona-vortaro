@@ -82,6 +82,22 @@ class WordAnalysisIndexTest {
     }
 
     @Test
+    fun aRareSuffixDoesNotTakeThePlaceOfAPrefixAndARoot() {
+        assumeTrue("the dictionary isn't built", file.exists())
+        val index = IndexEntries(file.inputStream().use { Trie(it) })
+        /* The words themselves hidden, as if missing from the dictionary */
+        fun rebuilt(word: String): String {
+            val stem = word.dropLast(1)
+            val hidden = { form: String -> if (form.length == word.length && form.startsWith(stem)) null else index(form) }
+            return shown(WordAnalyser.analyse(word, hidden).first())
+        }
+        /* re·vid·o, not rev·id·o ("revo" + "-id-") */
+        assertEquals("re·vid·o", rebuilt("revido"))
+        /* A suffix may be the first root: estr·ad·o, not est·rad·o */
+        assertEquals("estr·ad·o", rebuilt("estrado"))
+    }
+
+    @Test
     fun aSuffixOpensItsOwnWordNotAnotherOne() {
         val analyse = analyser()
         /* "eta", small, not "eto", the Greek letter */

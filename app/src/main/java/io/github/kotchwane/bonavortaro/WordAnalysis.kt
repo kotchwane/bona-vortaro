@@ -226,10 +226,15 @@ object WordAnalyser {
                     ?.let { readings.add(WordPiece(text, WordPiece.Kind.PREFIX, it) to PIECE_COST) }
             /* A suffix only after a root */
             if (text in SUFFIXES && rootSeen && !afterPrefix)
-                suffixEntry(text)?.let { readings.add(WordPiece(text, WordPiece.Kind.SUFFIX, it) to SUFFIX_COST) }
+                suffixEntry(text)?.let {
+                    /* The rare ones dearer: re·vid·o, not rev·id·o */
+                    val cost = if (text in RARE_SUFFIXES) PIECE_COST + RARE_SUFFIX_COST else SUFFIX_COST
+                    readings.add(WordPiece(text, WordPiece.Kind.SUFFIX, it) to cost)
+                }
             /* "ĉiu·jara", "sia·parte", "du·loka": words that are their own root */
             val asItIs = if (text in WHOLE_WORDS) entry(text) else null
-            if (text.length >= 2 && text !in SUFFIXES)
+            /* A suffix is a root too where none came before: estr·ad·o */
+            if (text.length >= 2 && (text !in SUFFIXES || !rootSeen))
                 (asItIs ?: WORD_ENDINGS.firstNotNullOfOrNull { entry(text + it) })?.let {
                     var cost = PIECE_COST
                     if (text.length <= 2 && text !in SHORT_ROOTS && asItIs == null) cost += SHORT_ROOT_COST
@@ -254,6 +259,8 @@ object WordAnalyser {
     private const val PIECE_COST = 10
     /* An affix rather than a root, when both fit: pork·aĉ, not por·kaĉ */
     private const val SUFFIX_COST = 8
+    private const val RARE_SUFFIX_COST = 4
+    private val RARE_SUFFIXES = setOf("id", "on", "op", "um", "ing", "obl", "end")
     /* "el" in "akvobotelo" would be the letter L, "elo" */
     private const val SHORT_ROOT_COST = 20
     private const val CLOSE = 4
