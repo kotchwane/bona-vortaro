@@ -73,7 +73,7 @@ object History {
 
     /** One entry per line: the language, a tab, the word. */
     internal fun encode(entries: List<HistoryEntry>): String =
-        entries.joinToString("\n") { "${it.language}\t${it.word.replace(Regex("[\t\n]"), " ")}" }
+        entries.joinToString("\n") { "${it.language}\t${it.word.replace(Regex("[\t\n\r]"), " ")}" }
 
     /** Reads what [encode] writes, skipping the lines it can't read. */
     internal fun decode(text: String): List<HistoryEntry> =

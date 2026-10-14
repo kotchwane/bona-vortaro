@@ -54,6 +54,11 @@ class HistoryTest {
     }
 
     @Test
+    fun aCarriageReturnDoesntSplitAnEntry() {
+        assertEquals(listOf(HistoryEntry("fr", "w ord")), History.decode(History.encode(listOf(HistoryEntry("fr", "w\rord")))))
+    }
+
+    @Test
     fun theLinesThatCantBeReadAreSkipped() {
         assertEquals(listOf(arbaro), History.decode("garbage\n\tno language\nfr\t\neo\tarbaro\n"))
     }
