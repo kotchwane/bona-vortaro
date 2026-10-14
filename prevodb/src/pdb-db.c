@@ -2238,9 +2238,39 @@ pdb_db_handle_vspec (PdbDb *db,
   return TRUE;
 }
 
+static gboolean
+pdb_db_handle_var (PdbDb *db,
+                   PdbDbParseState *state,
+                   PdbDocElementNode *element,
+                   PdbSpan *span,
+                   GError **error)
+{
+  /* The forms of a headword are separated by commas, which ReVo
+   * mostly writes before a variant ("evolu<tld/>o, <var>…"), but not
+   * always ("sam<tld/>ano <var><kap>kun<tld/>ano…" in land.xml): add the
+   * missing one, so that the header reads "samlandano, kunlandano" */
+  PdbDocElementNode *parent = (PdbDocElementNode *) element->node.parent;
+  int end = state->buf->len;
+
+  if (parent == NULL || strcmp (parent->name, "kap"))
+    return TRUE;
+
+  while (end > 0 && g_ascii_isspace (state->buf->str[end - 1]))
+    end--;
+
+  if (end > 0 && state->buf->str[end - 1] != ',')
+    {
+      g_string_truncate (state->buf, end);
+      g_string_append_c (state->buf, ',');
+    }
+
+  return TRUE;
+}
+
 static PdbDbElementSpan
 pdb_db_element_spans[] =
   {
+    { .name = "var", .type = PDB_SPAN_NONE, .handler = pdb_db_handle_var },
     { .name = "ofc", .type = PDB_SPAN_SUPERSCRIPT },
     { .name = "ekz", .type = PDB_SPAN_ITALIC, .handler = pdb_db_handle_ekz },
     {
