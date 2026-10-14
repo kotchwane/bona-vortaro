@@ -35,7 +35,9 @@ fun isPattern(query: String): Boolean = '*' in query || '?' in query
  * spellings, "maître" and "maitre", but some words only in the 1990 one:
  * "fraicheur", "ile". */
 fun searchFilter(query: String, language: String): String {
-    val filter = normaliseQuery(query, xSystem = language == "eo")
+    /* The apostrophe typed as the straight one, which also finds the
+     * curly one */
+    val filter = normaliseQuery(query, xSystem = language == "eo").replace('’', '\'')
     return if (language == "fr") filter.replace('î', 'i').replace('û', 'u') else filter
 }
 

@@ -93,4 +93,12 @@ class SearchQueryTest {
         val c = results.take(trie.searchIgnoringAccents("c", results, true)).map { it!!.word.lowercase() }
         assertTrue(c.indexOfLast { it.startsWith("c") } < c.indexOfFirst { it.startsWith("ĉ") })
     }
+
+    @Test
+    fun eitherApostropheFindsBoth() {
+        val search = french()
+        val straight = search("aujourd'hui")
+        assertTrue(straight.toString(), straight.any { it.startsWith("aujourd") })
+        assertEquals(straight, search("aujourd’hui"))
+    }
 }

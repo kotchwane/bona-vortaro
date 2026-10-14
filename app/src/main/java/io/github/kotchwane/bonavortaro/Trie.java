@@ -369,7 +369,9 @@ public class Trie
           buf.append (ch);
       }
 
-    return buf.toString ().toLowerCase (Locale.ROOT);
+    /* The curly apostrophe of some keyboards, and of a few entries, is
+     * the straight one: "aujourd’hui" is "aujourd'hui" */
+    return buf.toString ().toLowerCase (Locale.ROOT).replace ('\u2019', '\'');
   }
 
   /* Finds the nodes whose path from the root matches the rest of the
