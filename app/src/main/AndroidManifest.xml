@@ -24,7 +24,9 @@
        light/dark setting of the phone or of the app. The screens handle
        a change of this setting themselves (configChanges="uiMode"):
        Compose redraws them with the new colours, which is much faster than
-       recreating them. -->
+       recreating them. Turning the phone too: recreated, a screen lost the
+       place of the cursor in the search field and the scroll of an
+       article. -->
   <application android:name=".BonaApplication"
                android:label="@string/app_name"
                android:icon="@mipmap/ic_launcher"
@@ -40,35 +42,35 @@
       </intent-filter>
     </activity>
     <activity android:name="SearchActivity"
-              android:configChanges="uiMode"
+              android:configChanges="uiMode|orientation|screenSize|screenLayout|smallestScreenSize"
               android:label="@string/search"
               android:exported="false" />
     <activity android:name="ArticleActivity"
-              android:configChanges="uiMode"
+              android:configChanges="uiMode|orientation|screenSize|screenLayout|smallestScreenSize"
               android:exported="false" />
     <activity android:name="SelectLanguageActivity"
-              android:configChanges="uiMode"
+              android:configChanges="uiMode|orientation|screenSize|screenLayout|smallestScreenSize"
               android:label="@string/my_search_languages"
               android:exported="false" />
     <activity android:name="PreferenceActivity"
-              android:configChanges="uiMode"
+              android:configChanges="uiMode|orientation|screenSize|screenLayout|smallestScreenSize"
               android:label="@string/preferences"
               android:exported="false" />
     <activity android:name="GuideActivity"
-              android:configChanges="uiMode"
+              android:configChanges="uiMode|orientation|screenSize|screenLayout|smallestScreenSize"
               android:exported="false" />
     <activity android:name="AboutActivity"
-              android:configChanges="uiMode"
+              android:configChanges="uiMode|orientation|screenSize|screenLayout|smallestScreenSize"
               android:exported="false" />
     <activity android:name="NameActivity"
-              android:configChanges="uiMode"
+              android:configChanges="uiMode|orientation|screenSize|screenLayout|smallestScreenSize"
               android:label="@string/name_title"
               android:exported="false" />
     <activity android:name="AdditionActivity"
-              android:configChanges="uiMode"
+              android:configChanges="uiMode|orientation|screenSize|screenLayout|smallestScreenSize"
               android:exported="false" />
     <activity android:name="OfficialityActivity"
-              android:configChanges="uiMode"
+              android:configChanges="uiMode|orientation|screenSize|screenLayout|smallestScreenSize"
               android:label="@string/officiality_title"
               android:exported="false" />
   </application>
