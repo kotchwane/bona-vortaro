@@ -21,6 +21,8 @@ package io.github.kotchwane.bonavortaro
 import android.content.Context
 import android.util.Log
 import java.io.IOException
+import java.util.Locale
+import java.text.Normalizer
 
 /** The result of a search: the matching words, and the index of the
  * language (in the list that was searched) where they were found. */
@@ -37,7 +39,11 @@ fun isPattern(query: String): Boolean = '*' in query || '?' in query
 fun searchFilter(query: String, language: String): String {
     /* The apostrophe typed as the straight one, which also finds the
      * curly one */
-    val filter = normaliseQuery(query, xSystem = language == "eo").replace('’', '\'')
+    val filter = Normalizer.normalize(normaliseQuery(query, xSystem = language == "eo"), Normalizer.Form.NFC)
+        .replace('’', '\'')
+        /* Non-breaking spaces as spaces; "œ" as "oe", which finds both */
+        .replace('\u00a0', ' ').replace('\u202f', ' ')
+        .replace("œ", "oe").replace("æ", "ae")
     return if (language == "fr") filter.replace('î', 'i').replace('û', 'u') else filter
 }
 
@@ -77,9 +83,31 @@ object DictionarySearch {
             }
 
             if (count > 0)
-                return SearchOutcome(results.take(count).filterNotNull(), index)
+                /* The index has some entries twice, the same word for the
+                 * same sense: once */
+                return SearchOutcome(results.take(count).filterNotNull().distinctBy { Triple(it.word, it.article, it.mark) }, index)
+            /* An Esperanto word with its endings, "hundoj", "kuris": its
+             * entries, as a long press finds them */
+            if (language == "eo" && !isPattern(filter)) {
+                val entries = inflected(trie, filter)
+                if (entries.isNotEmpty())
+                    return SearchOutcome(entries, index)
+            }
         }
 
         return SearchOutcome(emptyList(), 0)
+    }
+
+    /** The entries of the likeliest forms of an Esperanto word, other than
+     * as typed: "hundoj" as "hundo" */
+    private fun inflected(trie: Trie, word: String): List<SearchResult> {
+        val results = arrayOfNulls<SearchResult>(16)
+        for (form in WordLookup.candidates(word).drop(1)) {
+            val count = trie.search(form, results)
+            val found = results.take(count).filterNotNull().filter { it.word.lowercase(Locale.ROOT) == form }
+            if (found.isNotEmpty())
+                return found
+        }
+        return emptyList()
     }
 }

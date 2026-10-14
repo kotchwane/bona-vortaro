@@ -371,7 +371,11 @@ public class Trie
 
     /* The curly apostrophe of some keyboards, and of a few entries, is
      * the straight one: "aujourd’hui" is "aujourd'hui" */
-    return buf.toString ().toLowerCase (Locale.ROOT).replace ('\u2019', '\'');
+    /* The non-breaking spaces of some entries, "brr !", are spaces; the
+     * ligatures, in the order, their two letters */
+    return buf.toString ().toLowerCase (Locale.ROOT).replace ('\u2019', '\'')
+      .replace ('\u00a0', ' ').replace ('\u202f', ' ')
+      .replace ("\u0153", "oe").replace ("\u00e6", "ae");
   }
 
   /* Finds the nodes whose path from the root matches the rest of the
@@ -441,6 +445,28 @@ public class Trie
             findIgnoringAccents (child, prefix, letterEnd, path, nodes, paths);
             path.setLength (oldLength);
           }
+        /* "oe" typed also finds "œ", and "ae" "æ": "coeur" finds "cœur";
+         * an "o" at the end of what is typed, already "œ" */
+        else if (plain)
+          {
+            String ligature = childLetter.toLowerCase (Locale.ROOT);
+            String pair = ligature.equals ("\u0153") ? "oe" : ligature.equals ("\u00e6") ? "ae" : null;
+            if (pair != null && letter.equals (pair.substring (0, 1)))
+              {
+                int pairEnd = letterEnd;
+                if (letterEnd < prefix.length ()
+                    && prefix.substring (letterEnd, prefix.offsetByCodePoints (letterEnd, 1))
+                         .toLowerCase (Locale.ROOT).equals ("e"))
+                  pairEnd = prefix.offsetByCodePoints (letterEnd, 1);
+                else if (letterEnd < prefix.length ())
+                  continue;
+
+                int oldLength = path.length ();
+                path.append (childLetter);
+                findIgnoringAccents (child, prefix, pairEnd, path, nodes, paths);
+                path.setLength (oldLength);
+              }
+          }
       }
   }
 
@@ -487,10 +513,10 @@ public class Trie
         group.sort ();
 
         for (int i = 0; i < group.nodes.size (); i++)
-          numResults = addWordsOf (group.nodes.get (i),
-                                   group.paths.get (i),
-                                   results,
-                                   numResults);
+          numResults = addWordsExactFirst (group.nodes.get (i),
+                                           group.paths.get (i),
+                                           results,
+                                           numResults);
 
         TreeMap<String, Group> children = new TreeMap<String, Group> ();
         for (int i = 0; i < group.nodes.size (); i++)
@@ -607,6 +633,31 @@ public class Trie
     return child;
   }
 
+  /* Like addWordsOf, but the word itself before the expressions filed
+   * under it: "Amérique" before "Amérique du Nord", "cadre" before "dans
+   * le cadre de"; a word with a clarification, "comédie (théâtre)", is
+   * the word */
+  private int addWordsExactFirst (int node,
+                                  String path,
+                                  SearchResult[] results,
+                                  int numResults)
+  {
+    SearchResult[] words = new SearchResult[results.length - numResults];
+    int count = addWordsOf (node, path, words, 0);
+    String exact = path.toLowerCase (Locale.ROOT);
+
+    for (int pass = 0; pass < 2; pass++)
+      for (int i = 0; i < count; i++)
+        {
+          String word = words[i].word.toLowerCase (Locale.ROOT);
+          boolean isExact = word.equals (exact) || word.startsWith (exact + " (");
+          if (isExact == (pass == 0))
+            results[numResults++] = words[i];
+        }
+
+    return numResults;
+  }
+
   /* Adds the words that end on a node, whose path is 'path' */
   private int addWordsOf (int node,
                           String path,
@@ -658,7 +709,7 @@ public class Trie
                             int numResults)
   {
     if (numResults >= results.length ||
-        !visited.add (((long) node << 8) | patternOffset))
+        !visited.add (((long) node << 32) | patternOffset))
       return numResults;
 
     if (patternOffset >= pattern.length ())

@@ -101,4 +101,38 @@ class SearchQueryTest {
         assertTrue(straight.toString(), straight.any { it.startsWith("aujourd") })
         assertEquals(straight, search("aujourd’hui"))
     }
+
+    @Test
+    fun oeFindsTheLigature() {
+        val search = french()
+        assertTrue(search("coeur").toString(), search("coeur").any { it.startsWith("cœur") })
+        assertTrue(search("soeur").any { it.startsWith("sœur") })
+        /* And "œ" typed, the words written "oe" */
+        assertTrue(search("œcuménique").any { it.startsWith("oecuménique") })
+    }
+
+    @Test
+    fun theWordComesBeforeTheExpressionsFiledUnderIt() {
+        val search = french()
+        assertEquals("Amérique", search("amerique").first())
+        /* "rendre heureux" after "heureux" and "heureux (chanceux)" */
+        val heureux = search("heureux")
+        assertTrue(heureux.toString(), heureux.indexOf("rendre heureux") > heureux.lastIndexOf("heureux"))
+    }
+
+    @Test
+    fun theSameEntryIsListedOnce() {
+        val trie = index("fr")
+        val results = arrayOfNulls<SearchResult>(128)
+        val count = trie.searchIgnoringAccents(searchFilter("jambe", "fr"), results)
+        val entries = results.take(count).map { Triple(it!!.word, it.article, it.mark) }
+        /* The index has "jambe" twice for the same sense: the search keeps one */
+        assertTrue(entries.size > entries.distinct().size)
+    }
+
+    @Test
+    fun decomposedAccentsAndNonBreakingSpacesAreTheUsualOnes() {
+        assertEquals("élève", searchFilter("e\u0301le\u0300ve", "fr"))
+        assertEquals("brr !", searchFilter("brr\u00a0!", "fr"))
+    }
 }
