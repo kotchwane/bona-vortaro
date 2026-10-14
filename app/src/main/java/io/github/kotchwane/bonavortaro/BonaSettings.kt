@@ -118,6 +118,18 @@ object BonaSettings {
         editor.apply()
     }
 
+    /** Shows the translations in a language too, after the others, if the
+     * user chose some languages only: a language added to the search is
+     * likely one they want to read in the articles. */
+    fun addTranslationLanguage(context: Context, code: String) {
+        val stored = prefs(context).getString(PREF_TRANSLATION_LANGUAGES, null)
+            /* All of them are shown */
+            ?: return
+        val codes = stored.split(',').filter { it.isNotEmpty() }
+        if (code !in codes)
+            prefs(context).edit().putString(PREF_TRANSLATION_LANGUAGES, (codes + code).joinToString(",")).apply()
+    }
+
     /** The order of the translations in the articles: the one chosen by
      * the user, or else the languages they likely read first. */
     fun getTranslationOrder(context: Context): List<String> =

@@ -96,10 +96,16 @@ class SelectLanguageActivity : BonaActivity() {
     }
 
     private fun change(codes: List<String>) {
+        val added = codes - chosen.toSet()
         chosen = codes
-        /* Afterwards, each change is saved at once */
-        if (!firstStart)
+        /* Afterwards, each change is saved at once; a language added to
+         * the search is shown in the articles too, as at the first start
+         * (it can be removed there, then deliberately) */
+        if (!firstStart) {
             BonaSettings.setSearchLanguages(this, codes)
+            for (code in added - "eo")
+                BonaSettings.addTranslationLanguage(this, code)
+        }
     }
 
     /* At least one language is needed to search in */
