@@ -62,4 +62,35 @@ class SearchQueryTest {
         assertTrue(search("maître").containsAll(listOf("maître", "maitre (titre univ.)")))
         assertTrue(search("île").containsAll(listOf("ile", "Île de Man")))
     }
+
+    private fun index(language: String): Trie {
+        val file = File("src/main/assets/indices/index-$language.bin")
+        assumeTrue("The dictionary hasn't been built", file.exists())
+        return file.inputStream().use { Trie(it) }
+    }
+
+    @Test
+    fun theResultsAreInAlphabeticalOrderAccentsAside() {
+        val trie = index("fr")
+        /* The 128 that the search keeps */
+        val results = arrayOfNulls<SearchResult>(128)
+        val words = results.take(trie.searchIgnoringAccents("com", results)).map { it!!.word }
+        val comedie = words.indexOfFirst { it.startsWith("comédie") }
+        assertTrue(words.toString(), comedie > words.indexOfLast { it.startsWith("combustible") })
+        assertTrue(words.toString(), comedie < words.indexOf("comique"))
+    }
+
+    @Test
+    fun inEsperantoTheHattedLettersComeAfterTheirOwn() {
+        val trie = index("eo")
+        val results = arrayOfNulls<SearchResult>(5000)
+        val words = results.take(trie.searchIgnoringAccents("a", results, true)).map { it!!.word.lowercase() }
+        /* aĉ… after ac…, before ad… */
+        val hatted = words.indexOfFirst { it.startsWith("aĉ") }
+        assertTrue(hatted > words.indexOfLast { it.startsWith("ac") })
+        assertTrue(hatted < words.indexOfFirst { it.startsWith("ad") })
+        /* c… then ĉ…, as before */
+        val c = results.take(trie.searchIgnoringAccents("c", results, true)).map { it!!.word.lowercase() }
+        assertTrue(c.indexOfLast { it.startsWith("c") } < c.indexOfFirst { it.startsWith("ĉ") })
+    }
 }

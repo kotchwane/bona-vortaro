@@ -21,11 +21,13 @@ import java.io.FileInputStream;
 import java.io.InputStream;
 import java.io.IOException;
 import java.text.Normalizer;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.HashSet;
 import java.util.Locale;
+import java.util.TreeMap;
 
 class TrieStack
 {
@@ -442,32 +444,138 @@ public class Trie
 
   /* Like search, but ignoring the accents left out: "eleve" also finds
    * "élève", and "cevalo" "ĉevalo", but "ĉevalo" doesn't find "cevalo".
-   * The words that match the prefix exactly come first. */
+   * The words are in alphabetical order, accents and case aside, as in a
+   * printed dictionary: "com" finds "comédie" between "combustible" and
+   * "comique", where the order of the bytes of the index put it after
+   * "comme", beyond the results kept. A word without accent comes before
+   * the same with ("cote", "coté", "côte", "côté"), so the words that match
+   * the prefix exactly come first. In Esperanto, ĉ ĝ ĥ ĵ ŝ ŭ are letters
+   * of their own, after c g h j s u. */
   public int searchIgnoringAccents (String prefix,
-                                    SearchResult[] results)
+                                    SearchResult[] results,
+                                    boolean esperanto)
   {
     List<Integer> nodes = new ArrayList<Integer> ();
     List<String> paths = new ArrayList<String> ();
 
     findIgnoringAccents (0, prefix, 0, new StringBuilder (), nodes, paths);
 
-    /* Put the exact match first */
-    int exact = paths.indexOf (prefix);
-    if (exact > 0)
+    /* The nodes reached, in groups that are the same in the order, eg.
+     * "élève" and "eleve" */
+    TreeMap<String, Group> start = new TreeMap<String, Group> ();
+    for (int i = 0; i < nodes.size (); i++)
       {
-        nodes.add (0, nodes.remove (exact));
-        paths.add (0, paths.remove (exact));
+        String path = paths.get (i);
+        StringBuilder key = new StringBuilder ();
+        for (int at = 0; at < path.length (); at = path.offsetByCodePoints (at, 1))
+          key.append (orderOf (path.substring (at, path.offsetByCodePoints (at, 1)),
+                               esperanto));
+        groupIn (start, key.toString ()).add (nodes.get (i), path);
       }
+
+    ArrayDeque<Group> stack = new ArrayDeque<Group> ();
+    pushInOrder (stack, start);
 
     int numResults = 0;
 
-    for (int i = 0; i < nodes.size () && numResults < results.length; i++)
-      numResults = collect (nodes.get (i),
-                            new StringBuilder (paths.get (i)),
-                            results,
-                            numResults);
+    /* Depth first, each group of letters in order */
+    while (numResults < results.length && !stack.isEmpty ())
+      {
+        Group group = stack.pop ();
+        group.sort ();
+
+        for (int i = 0; i < group.nodes.size (); i++)
+          numResults = addWordsOf (group.nodes.get (i),
+                                   group.paths.get (i),
+                                   results,
+                                   numResults);
+
+        TreeMap<String, Group> children = new TreeMap<String, Group> ();
+        for (int i = 0; i < group.nodes.size (); i++)
+          {
+            int node = group.nodes.get (i);
+            int end = node + (extractInt (data, node) & 0x7fffffff);
+
+            for (int child = childrenOf (node);
+                 child < end;
+                 child += extractInt (data, child) & 0x7fffffff)
+              {
+                String letter = getCharacter (child + 4);
+                groupIn (children, orderOf (letter, esperanto))
+                  .add (child, group.paths.get (i) + letter);
+              }
+          }
+        pushInOrder (stack, children);
+      }
 
     return numResults;
+  }
+
+  /* The same, outside Esperanto */
+  public int searchIgnoringAccents (String prefix,
+                                    SearchResult[] results)
+  {
+    return searchIgnoringAccents (prefix, results, false);
+  }
+
+  /* Nodes reached by paths that are the same in the order of the results,
+   * accents aside */
+  private static final class Group
+  {
+    final List<Integer> nodes = new ArrayList<Integer> ();
+    final List<String> paths = new ArrayList<String> ();
+
+    void add (int node, String path)
+    {
+      nodes.add (node);
+      paths.add (path);
+    }
+
+    /* Without accent first: "cote", "coté", "côte", "côté" */
+    void sort ()
+    {
+      for (int i = 1; i < paths.size (); i++)
+        for (int j = i;
+             j > 0 && paths.get (j - 1).compareTo (paths.get (j)) > 0;
+             j--)
+          {
+            paths.add (j - 1, paths.remove (j));
+            nodes.add (j - 1, nodes.remove (j));
+          }
+    }
+  }
+
+  private static Group groupIn (TreeMap<String, Group> groups, String key)
+  {
+    Group group = groups.get (key);
+
+    if (group == null)
+      {
+        group = new Group ();
+        groups.put (key, group);
+      }
+
+    return group;
+  }
+
+  /* The first group on top */
+  private static void pushInOrder (ArrayDeque<Group> stack,
+                                   TreeMap<String, Group> groups)
+  {
+    for (Group group : groups.descendingMap ().values ())
+      stack.push (group);
+  }
+
+  /* The place of a letter in the order of the results: the letter without
+   * its accents and case; in Esperanto, ĉ ĝ ĥ ĵ ŝ ŭ right after c g h j s u */
+  private static String orderOf (String letter, boolean esperanto)
+  {
+    String folded = foldLetter (letter);
+
+    if (esperanto && !folded.equals (letter.toLowerCase (Locale.ROOT)))
+      return folded + '\uffff';
+
+    return folded;
   }
 
   /* Test program */

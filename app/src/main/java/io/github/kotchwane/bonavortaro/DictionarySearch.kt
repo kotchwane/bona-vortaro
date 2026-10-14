@@ -70,8 +70,8 @@ object DictionarySearch {
                 count = trie.searchPattern(filter, results)
             } else {
                 results = arrayOfNulls(MAX_RESULTS)
-                /* Ignoring the accents, the exact matches first */
-                count = trie.searchIgnoringAccents(filter, results)
+                /* Ignoring the accents, in alphabetical order */
+                count = trie.searchIgnoringAccents(filter, results, language == "eo")
             }
 
             if (count > 0)
