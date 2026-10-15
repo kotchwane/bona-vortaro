@@ -491,6 +491,7 @@ public class Trie
     /* The nodes reached, in groups that are the same in the order, eg.
      * "élève" and "eleve" */
     TreeMap<String, Group> start = new TreeMap<String, Group> ();
+    int typed = foldLetter (prefix).length ();
     for (int i = 0; i < nodes.size (); i++)
       {
         String path = paths.get (i);
@@ -498,7 +499,11 @@ public class Trie
         for (int at = 0; at < path.length (); at = path.offsetByCodePoints (at, 1))
           key.append (orderOf (path.substring (at, path.offsetByCodePoints (at, 1)),
                                esperanto));
-        groupIn (start, key.toString ()).add (nodes.get (i), path);
+        /* "co" reaches "cœ", whose "e" is still to come in the order */
+        if (!esperanto && key.length () > typed)
+          groupIn (start, key.substring (0, typed)).add (nodes.get (i), path, key.substring (typed));
+        else
+          groupIn (start, key.toString ()).add (nodes.get (i), path, "");
       }
 
     ArrayDeque<Group> stack = new ArrayDeque<Group> ();
@@ -513,15 +518,27 @@ public class Trie
         group.sort ();
 
         for (int i = 0; i < group.nodes.size (); i++)
-          numResults = addWordsExactFirst (group.nodes.get (i),
-                                           group.paths.get (i),
-                                           results,
-                                           numResults);
+          if (group.pending.get (i).isEmpty ())
+            numResults = addWordsExactFirst (group.nodes.get (i),
+                                             group.paths.get (i),
+                                             results,
+                                             numResults);
 
         TreeMap<String, Group> children = new TreeMap<String, Group> ();
         for (int i = 0; i < group.nodes.size (); i++)
           {
             int node = group.nodes.get (i);
+            String pending = group.pending.get (i);
+
+            /* A ligature's second letter, in the order: "œ" after "o"
+             * among the "e", "chœur" between "choéphore" and "chômer" */
+            if (!pending.isEmpty ())
+              {
+                groupIn (children, pending.substring (0, 1))
+                  .add (node, group.paths.get (i), pending.substring (1));
+                continue;
+              }
+
             int end = node + (extractInt (data, node) & 0x7fffffff);
 
             for (int child = childrenOf (node);
@@ -529,8 +546,14 @@ public class Trie
                  child += extractInt (data, child) & 0x7fffffff)
               {
                 String letter = getCharacter (child + 4);
-                groupIn (children, orderOf (letter, esperanto))
-                  .add (child, group.paths.get (i) + letter);
+                String key = orderOf (letter, esperanto);
+                String rest = "";
+                if (!esperanto && key.length () > 1)
+                  {
+                    rest = key.substring (1);
+                    key = key.substring (0, 1);
+                  }
+                groupIn (children, key).add (child, group.paths.get (i) + letter, rest);
               }
           }
         pushInOrder (stack, children);
@@ -552,11 +575,14 @@ public class Trie
   {
     final List<Integer> nodes = new ArrayList<Integer> ();
     final List<String> paths = new ArrayList<String> ();
+    /* The letters of the order a node is still ahead of: the "e" of "œ" */
+    final List<String> pending = new ArrayList<String> ();
 
-    void add (int node, String path)
+    void add (int node, String path, String rest)
     {
       nodes.add (node);
       paths.add (path);
+      pending.add (rest);
     }
 
     /* Without accent first: "cote", "coté", "côte", "côté" */
@@ -569,6 +595,7 @@ public class Trie
           {
             paths.add (j - 1, paths.remove (j));
             nodes.add (j - 1, nodes.remove (j));
+            pending.add (j - 1, pending.remove (j));
           }
     }
   }
@@ -635,8 +662,8 @@ public class Trie
 
   /* Like addWordsOf, but the word itself before the expressions filed
    * under it: "Amérique" before "Amérique du Nord", "cadre" before "dans
-   * le cadre de"; a word with a clarification, "comédie (théâtre)", is
-   * the word */
+   * le cadre de"; then the word with a clarification, "livre" before
+   * "livre (monnaie)", before the expressions */
   private int addWordsExactFirst (int node,
                                   String path,
                                   SearchResult[] results,
@@ -646,12 +673,12 @@ public class Trie
     int count = addWordsOf (node, path, words, 0);
     String exact = path.toLowerCase (Locale.ROOT);
 
-    for (int pass = 0; pass < 2; pass++)
+    for (int pass = 0; pass < 3; pass++)
       for (int i = 0; i < count; i++)
         {
           String word = words[i].word.toLowerCase (Locale.ROOT);
-          boolean isExact = word.equals (exact) || word.startsWith (exact + " (");
-          if (isExact == (pass == 0))
+          int kind = word.equals (exact) ? 0 : word.startsWith (exact + " (") ? 1 : 2;
+          if (kind == pass)
             results[numResults++] = words[i];
         }
 

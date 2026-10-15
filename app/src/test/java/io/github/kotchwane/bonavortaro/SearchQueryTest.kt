@@ -121,6 +121,22 @@ class SearchQueryTest {
     }
 
     @Test
+    fun theLigatureIsInTheOrderAsItsTwoLetters() {
+        /* "chœur" among the "choe…", not after "choyer" */
+        val cho = french()("cho")
+        assertTrue(cho.toString(), cho.indexOf("chœur (fig.)") in 0 until cho.indexOf("choyer"))
+        val co = french()("co")
+        assertTrue(co.toString(), co.any { it.startsWith("cœur") })
+    }
+
+    @Test
+    fun theWordComesBeforeItsClarifications() {
+        val livre = french()("livre")
+        assertEquals("livre", livre.first())
+        assertTrue(livre.toString(), livre.indexOf("livre (monnaie)") > 0)
+    }
+
+    @Test
     fun theSameEntryIsListedOnce() {
         val trie = index("fr")
         val results = arrayOfNulls<SearchResult>(128)
