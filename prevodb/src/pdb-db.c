@@ -176,6 +176,9 @@ typedef struct
    * section, followed by this number of the target sence in
    * superscript, is inserted in it once the link is resolved */
   char *sence_label;
+  /* For a <sncref>, the number of the target sence as it is shown,
+   * eg. “1a” for a subsence, if the target is in the same article */
+  char *snc_label;
 } PdbDbLink;
 
 /* PdbDbMark is only used as the value of the 'marks' hash table. This
@@ -329,6 +332,7 @@ pdb_db_link_free (PdbDbLink *link)
 {
   pdb_db_reference_free (link->reference);
   g_free (link->sence_label);
+  g_free (link->snc_label);
   g_slice_free (PdbDbLink, link);
 }
 
@@ -1359,18 +1363,24 @@ pdb_db_set_sncref (PdbDb *db,
       return;
     }
 
+  /* The number as the target shows it, “1a” for a subsence, rather
+   * than the number of its sence, “1” */
   char buf[16];
-  snprintf (buf, sizeof buf, "%i", sence_num);
+  if (link->snc_label && *link->snc_label)
+    g_strlcpy (buf, link->snc_label, sizeof buf);
+  else
+    snprintf (buf, sizeof buf, "%i", sence_num);
   int len = strlen (buf);
 
   PdbDbSpannableString *string = link->string;
   PdbSpan *span = link->span;
+  int pos = span->span_start;
   char *rep_text = g_malloc (string->length + len + 1);
-  memcpy (rep_text, string->text, span->span_start);
-  memcpy (rep_text + span->span_start, buf, len);
-  memcpy (rep_text + span->span_start + len,
-          string->text + span->span_start,
-          string->length - span->span_start);
+  memcpy (rep_text, string->text, pos);
+  memcpy (rep_text + pos, buf, len);
+  memcpy (rep_text + pos + len,
+          string->text + pos,
+          string->length - pos);
   rep_text[string->length + len] = '\0';
   g_free (string->text);
   string->text = rep_text;
@@ -1378,14 +1388,23 @@ pdb_db_set_sncref (PdbDb *db,
   span->span_length += len;
 
   PdbSpan *s;
+  gboolean after = FALSE;
 
   pdb_list_for_each (s, &string->spans, link)
     {
       if (s == span)
-        continue;
+        {
+          after = TRUE;
+          continue;
+        }
 
-      if (s->span_start > span->span_start)
+      /* The spans after the number move; those around it, eg. the
+       * whole remark, grow: they ended short of their text, by as
+       * many letters as numbers inserted */
+      if (s->span_start > pos || (s->span_start == pos && after))
         s->span_start += len;
+      else if (s->span_start + s->span_length > pos)
+        s->span_length += len;
     }
 }
 
@@ -1815,6 +1834,13 @@ pdb_db_get_sncref_ref (const PdbDocElementNode *element)
   return pdb_doc_get_attribute (parent, "cel");
 }
 
+static PdbDocElementNode *
+pdb_db_find_mark_element (PdbDocElementNode *element,
+                          const char *mrk);
+
+static char *
+pdb_db_get_sence_label (PdbDocElementNode *element);
+
 static gboolean
 pdb_db_handle_sncref (PdbDb *db,
                       PdbDbParseState *state,
@@ -1839,6 +1865,20 @@ pdb_db_handle_sncref (PdbDb *db,
 
   pdb_db_start_text (state);
   pdb_db_add_reference_span (db, state, PDB_SPAN_SUPERSCRIPT, ref);
+
+  /* The label of the target, when it is in this article */
+  PdbDocElementNode *root = element;
+
+  while (root->node.parent)
+    root = (PdbDocElementNode *) root->node.parent;
+
+  PdbDocElementNode *target = pdb_db_find_mark_element (root, ref);
+
+  if (target)
+    {
+      PdbDbLink *link = db->links->data;
+      link->snc_label = pdb_db_get_sence_label (target);
+    }
 
   return TRUE;
 }
