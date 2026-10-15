@@ -179,6 +179,14 @@ typedef struct
   /* For a <sncref>, the number of the target sence as it is shown,
    * eg. “1a” for a subsence, if the target is in the same article */
   char *snc_label;
+  /* Whether that number stands on its own, after “senco” or “kaj”, and
+   * is written as the sence is labelled, “a)”, rather than in
+   * superscript after a word, “konfuzi²” */
+  gboolean snc_plain;
+  /* …and between brackets, where a letter has no bracket of its own:
+   * “teni (1a, 1b, 2)” */
+  gboolean snc_in_brackets;
+  gboolean is_sncref;
 } PdbDbLink;
 
 /* PdbDbMark is only used as the value of the 'marks' hash table. This
@@ -1370,11 +1378,20 @@ pdb_db_set_sncref (PdbDb *db,
     g_strlcpy (buf, link->snc_label, sizeof buf);
   else
     snprintf (buf, sizeof buf, "%i", sence_num);
-  int len = strlen (buf);
+  /* On its own, a letter as the sence shows it: “la sencoj a) kaj b)” */
+  if (link->snc_plain && !link->snc_in_brackets && g_ascii_isalpha (buf[strlen (buf) - 1]))
+    g_strlcat (buf, ")", sizeof buf);
 
   PdbDbSpannableString *string = link->string;
   PdbSpan *span = link->span;
   int pos = span->span_start;
+
+  /* The space after it, which the text lost, the reference being
+   * empty until now: “a) kaj”, “b) (filozofia)” */
+  if (link->snc_plain && pos < string->length &&
+      !strchr (" ,.;:)\n", string->text[pos]))
+    g_strlcat (buf, " ", sizeof buf);
+  int len = strlen (buf);
   char *rep_text = g_malloc (string->length + len + 1);
   memcpy (rep_text, string->text, pos);
   memcpy (rep_text + pos, buf, len);
@@ -1405,6 +1422,13 @@ pdb_db_set_sncref (PdbDb *db,
         s->span_start += len;
       else if (s->span_start + s->span_length > pos)
         s->span_length += len;
+    }
+
+  /* Written as the rest of the text */
+  if (link->snc_plain)
+    {
+      pdb_list_remove (&span->link);
+      pdb_span_free (span);
     }
 }
 
@@ -1841,6 +1865,57 @@ pdb_db_find_mark_element (PdbDocElementNode *element,
 static char *
 pdb_db_get_sence_label (PdbDocElementNode *element);
 
+/* What comes before a reference to a sence: a word it is a sence of,
+ * eg. “<tld/>o <sncref/>”; a word that makes it stand on its own, eg.
+ * “la sencoj <sncref/>”; or a word that joins it to the reference
+ * before, eg. “kaj”, “aŭ”, “,” */
+typedef enum
+{
+  PDB_DB_BEFORE_SNCREF_WORD,
+  PDB_DB_BEFORE_SNCREF_SENCE,
+  PDB_DB_BEFORE_SNCREF_JOIN
+} PdbDbBeforeSncref;
+
+static PdbDbBeforeSncref
+pdb_db_before_sncref (const GString *buf)
+{
+  static const char *const sence_words[] =
+    {
+      "senco", "sencon", "sencoj", "sencojn", "signifo", "signifon",
+      "de", "sub", NULL
+    };
+  static const char *const join_words[] =
+    {
+      "kaj", "a\xc5\xad", "\xc4\x9dis", NULL
+    };
+  int end = buf->len;
+
+  while (end > 0 && buf->str[end - 1] == ' ')
+    end--;
+
+  if (end > 0 && buf->str[end - 1] == '(')
+    return PDB_DB_BEFORE_SNCREF_SENCE;
+  if (end > 0 && buf->str[end - 1] == ',')
+    return PDB_DB_BEFORE_SNCREF_JOIN;
+
+  int start = end;
+
+  while (start > 0 && buf->str[start - 1] != ' ' && buf->str[start - 1] != '\n')
+    start--;
+
+  for (int i = 0; sence_words[i]; i++)
+    if (strlen (sence_words[i]) == end - start &&
+        !g_ascii_strncasecmp (buf->str + start, sence_words[i], end - start))
+      return PDB_DB_BEFORE_SNCREF_SENCE;
+
+  for (int i = 0; join_words[i]; i++)
+    if (strlen (join_words[i]) == end - start &&
+        !g_ascii_strncasecmp (buf->str + start, join_words[i], end - start))
+      return PDB_DB_BEFORE_SNCREF_JOIN;
+
+  return PDB_DB_BEFORE_SNCREF_WORD;
+}
+
 static gboolean
 pdb_db_handle_sncref (PdbDb *db,
                       PdbDbParseState *state,
@@ -1859,8 +1934,38 @@ pdb_db_handle_sncref (PdbDb *db,
     }
 
   /* The number goes right after the word, even when the source has a
-   * space before the tag, eg. “<tld/>i <sncref …/> brutojn” */
-  if (state->queued_space == PDB_DB_QUEUED_SPACE_TYPE_SPACE)
+   * space before the tag, eg. “<tld/>i <sncref …/> brutojn”; but not
+   * after “senco” or “kaj”, where it stands on its own */
+  gboolean plain;
+
+  switch (pdb_db_before_sncref (state->buf))
+    {
+    case PDB_DB_BEFORE_SNCREF_SENCE:
+      plain = TRUE;
+      break;
+
+    case PDB_DB_BEFORE_SNCREF_JOIN:
+      /* As the reference before in this text: “la sencoj a) kaj b)”,
+       * “<tld/>o¹ aŭ²” */
+      plain = TRUE;
+      for (GList *l = db->links; l; l = l->next)
+        {
+          PdbDbLink *before = l->data;
+
+          if (before->string == state->string && before->is_sncref)
+            {
+              plain = before->snc_plain;
+              break;
+            }
+        }
+      break;
+
+    default:
+      plain = FALSE;
+      break;
+    }
+
+  if (!plain && state->queued_space == PDB_DB_QUEUED_SPACE_TYPE_SPACE)
     state->queued_space = PDB_DB_QUEUED_SPACE_TYPE_NONE;
 
   pdb_db_start_text (state);
@@ -1874,11 +1979,20 @@ pdb_db_handle_sncref (PdbDb *db,
 
   PdbDocElementNode *target = pdb_db_find_mark_element (root, ref);
 
+  PdbDbLink *link = db->links->data;
+  link->is_sncref = TRUE;
+  link->snc_plain = plain;
+
+  int depth = 0;
+  for (int i = 0; i < state->buf->len; i++)
+    if (state->buf->str[i] == '(')
+      depth++;
+    else if (state->buf->str[i] == ')' && depth > 0)
+      depth--;
+  link->snc_in_brackets = depth > 0;
+
   if (target)
-    {
-      PdbDbLink *link = db->links->data;
-      link->snc_label = pdb_db_get_sence_label (target);
-    }
+    link->snc_label = pdb_db_get_sence_label (target);
 
   return TRUE;
 }
