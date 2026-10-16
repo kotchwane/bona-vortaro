@@ -119,7 +119,7 @@ object Vikivortaro {
     /** The French words starting with the query that Reta Vortaro doesn't
      * have, each with its Esperanto word. Disk access: not on the main
      * thread. */
-    fun search(context: Context, query: String): List<VikiResult> {
+    fun search(context: Context, query: String, stopped: () -> Boolean = { false }): List<VikiResult> {
         val data = data(context)
         val prefix = key(query)
         if (prefix.isEmpty())
@@ -139,7 +139,8 @@ object Vikivortaro {
          * the words that don't match what was typed cost nothing: "â" finds
          * "âcreté" among all of "a…" */
         var looked = 0
-        while (i < data.keys.size && data.keys[i].startsWith(prefix) && results.size < MAX_RESULTS && looked < MAX_LOOKED_AT) {
+        while (i < data.keys.size && data.keys[i].startsWith(prefix) && results.size < MAX_RESULTS && looked < MAX_LOOKED_AT &&
+            (looked % 16 != 0 || !stopped())) {
             val (word, esperantoWord) = data.pairs[i++]
             if (!matches(typed, word))
                 continue
@@ -154,7 +155,7 @@ object Vikivortaro {
 
     /** The Esperanto words starting with the query that only Vikivortaro
      * has, with a page of their own. Disk access: not on the main thread. */
-    fun searchEsperanto(context: Context, query: String): List<VikiResult> {
+    fun searchEsperanto(context: Context, query: String, stopped: () -> Boolean = { false }): List<VikiResult> {
         val data = data(context)
         val typed = query.lowercase(Locale.ROOT).trim()
         val prefix = key(typed)
@@ -169,7 +170,8 @@ object Vikivortaro {
         while (i > 0 && data.esperantoKeys[i - 1].startsWith(prefix)) i--
         val results = mutableListOf<VikiResult>()
         var looked = 0
-        while (i < data.esperantoKeys.size && data.esperantoKeys[i].startsWith(prefix) && looked < MAX_LOOKED_AT) {
+        while (i < data.esperantoKeys.size && data.esperantoKeys[i].startsWith(prefix) && looked < MAX_LOOKED_AT &&
+            (looked % 16 != 0 || !stopped())) {
             val word = data.esperantoWords[i++]
             if (!matches(typed, word))
                 continue

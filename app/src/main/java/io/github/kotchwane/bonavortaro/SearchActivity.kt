@@ -90,6 +90,7 @@ import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.withContext
 import androidx.compose.foundation.verticalScroll
 
@@ -336,7 +337,9 @@ private fun SearchScreen(
     val outcome by produceState<SearchOutcome?>(null, query, selected, languages) {
         /* Nothing is searched while nothing is typed: the history shows */
         value = if (query.isBlank()) null else withContext(Dispatchers.Default) {
-            DictionarySearch.search(context, searchOrder, query)
+            /* Stopped when another key is typed: its words would come too
+             * late to be shown */
+            DictionarySearch.search(context, searchOrder, query) { !isActive }
         }
     }
 

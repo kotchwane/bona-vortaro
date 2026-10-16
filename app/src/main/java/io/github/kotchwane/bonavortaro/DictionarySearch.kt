@@ -148,7 +148,14 @@ object DictionarySearch {
      * With "*" (any letters) or "?" (one letter), the query is a pattern
      * for whole words.
      * This does disk access, so it shouldn't run on the main thread. */
-    fun search(context: Context, languages: List<String>, query: String): SearchOutcome {
+    fun search(
+        context: Context,
+        languages: List<String>,
+        query: String,
+        /** Whether the search isn't wanted any more, another key typed:
+         * it stops, its outcome unused */
+        stopped: () -> Boolean = { false },
+    ): SearchOutcome {
         for ((index, language) in languages.withIndex()) {
             val filter = searchFilter(query, language)
             val trie = try {
@@ -165,7 +172,9 @@ object DictionarySearch {
              * round, or without either: "petit dejeuner" is
              * "petit-déjeuner", "Porto-Riko" "Portoriko" */
             for (typed in spellings(filter)) {
-                val outcome = searchAs(context, trie, typed, language, esperanto)
+                if (stopped())
+                    return SearchOutcome(emptyList(), 0)
+                val outcome = searchAs(context, trie, typed, language, esperanto, stopped)
                 if (!outcome.isEmpty)
                     return SearchOutcome(outcome.results, index, outcome.wiktionary, typed, esperanto, language, outcome.lemmas)
             }
@@ -187,7 +196,14 @@ object DictionarySearch {
         if (isPattern(filter) || (' ' !in filter && '-' !in filter)) listOf(filter)
         else listOf(filter, filter.replace(' ', '-'), filter.replace('-', ' '), filter.replace(" ", "").replace("-", "")).distinct()
 
-    private fun searchAs(context: Context, trie: Trie, filter: String, language: String, esperanto: Boolean): Found {
+    private fun searchAs(
+        context: Context,
+        trie: Trie,
+        filter: String,
+        language: String,
+        esperanto: Boolean,
+        stopped: () -> Boolean,
+    ): Found {
         val count: Int
         val results: Array<SearchResult?>
         val limit: Int
@@ -211,8 +227,8 @@ object DictionarySearch {
          * it says of them only in the languages each reader chose */
         val wiktionary = when {
             isPattern(filter) -> emptyList()
-            language == "fr" -> Vikivortaro.search(context, filter)
-            esperanto -> Vikivortaro.searchEsperanto(context, filter)
+            language == "fr" -> Vikivortaro.search(context, filter, stopped)
+            esperanto -> Vikivortaro.searchEsperanto(context, filter, stopped)
             else -> emptyList()
         }
             /* When Reta Vortaro's words stop at the limit, those after the
@@ -275,8 +291,9 @@ object DictionarySearch {
         val results = arrayOfNulls<SearchResult>(16)
         for (form in WordLookup.candidates(word).drop(1)) {
             val count = trie.search(form, results)
+            /* The word itself before its examples in other articles */
             val revo = results.take(count).filterNotNull().filter { it.word.lowercase(Locale.ROOT) == form }
-                .distinctBy { Triple(it.word, it.article, it.mark) }
+                .distinctBy { Triple(it.word, it.article, it.mark) }.sortedBy { it.isExample }
             val viki = Vikivortaro.searchEsperanto(context, form).filter { it.esperanto.lowercase(Locale.ROOT) == form }
             if (revo.isNotEmpty() || viki.isNotEmpty())
                 return revo.map { FoundWord.InRevo(it) } + viki.map { FoundWord.InWiktionary(it) }
