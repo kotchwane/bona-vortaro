@@ -40,7 +40,7 @@ Esperanto, kun ĝiaj tradukoj en pli ol 170 lingvojn. Ĉio estas en la telefono:
 el [PReVo](https://github.com/bpeel/prevo), la vortaro de Neil Roberts.
 
 Por la franca, ĝi aldonas la tradukojn, kiujn Reta Vortaro ne havas, el
-[Vikivortaro](https://fr.wiktionary.org/), la franca Vikivortaro.
+[Vikivortaro](https://fr.wiktionary.org/).
 
 ### Kion ĝi faras
 
@@ -48,7 +48,8 @@ Por la franca, ĝi aldonas la tradukojn, kiujn Reta Vortaro ne havas, el
   (*cevalo* aŭ *cxevalo* trovas *ĉevalo*), kaj per ĵokeroj: *\*ologio* trovas
   ĉiujn vortojn, kiuj finiĝas per „ologio“, kaj *?rbo* trovas *arbo* kaj *urbo*.
 - **Legi** klarajn artikolojn: difinoj, ekzemploj, rimarkoj, ligiloj inter la
-  vortoj, kaj la tradukoj en la lingvoj, kiujn vi elektas, en via ordo.
+  vortoj, kaj la tradukoj en la lingvoj, kiujn vi elektas, en via ordo, ankaŭ
+  tiuj de la ekzemploj: *bonjour* trovas *saluton!* ĉe *saluto*.
 - **Scii, kiuj vortoj estas oficialaj**: la etikedoj „Fundamento“ kaj
   „9a Oficiala Aldono“ klarigas sin per unu tuŝo, kaj la listo de ĉiu Aldono
   estas foliumebla.
@@ -153,7 +154,8 @@ For French, it adds the translations that Reta Vortaro lacks, from the French
   (*cevalo* or *cxevalo* finds *ĉevalo*), and with wildcards: *\*ologio* finds
   every word ending in "ologio", and *?rbo* finds *arbo* and *urbo*.
 - **Read** clear articles: definitions, examples, remarks, links between words,
-  and the translations in the languages you choose, in your order.
+  and the translations in the languages you choose, in your order, the
+  examples' too: *bonjour* finds *saluton!* under *saluto*.
 - **Know which words are official**: the "Fundamento" and "9a Oficiala Aldono"
   badges explain themselves with a tap, and the list of each Official Addition
   can be browsed.
