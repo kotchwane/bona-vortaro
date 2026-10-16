@@ -331,9 +331,9 @@ public class Trie
                 else
                   word = stringBuf.toString ();
 
-                results[numResults++] = new SearchResult (word,
-                                                          article,
-                                                          mark);
+                results[numResults++] = SearchResult.fromIndex (word,
+                                                                article,
+                                                                mark);
               }
 
             offset &= 0x7fffffff;
@@ -718,7 +718,7 @@ public class Trie
             child += len + 1;
           }
 
-        results[numResults++] = new SearchResult (word, article, mark);
+        results[numResults++] = SearchResult.fromIndex (word, article, mark);
       }
 
     return numResults;

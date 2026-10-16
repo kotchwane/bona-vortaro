@@ -24,8 +24,17 @@ import java.io.File
  * as the index of that language has it, eg. "chercher" in French. Words,
  * not article numbers, which change with every update of the dictionary.
  * For a French word that only the French Wiktionary has, the Esperanto
- * word opened: "potiron" leads to "kukurbo" and to "potirono". */
-data class HistoryEntry(val language: String, val word: String, val wiktionary: String? = null)
+ * word opened: "potiron" leads to "kukurbo" and to "potirono". For one of
+ * Reta Vortaro found in several places, which: the file of the article,
+ * which updates keep ("salut"), and the section, as a hint ("bonjour" is
+ * in salut and bon; "korveto" the ship and the bird). */
+data class HistoryEntry(
+    val language: String,
+    val word: String,
+    val wiktionary: String? = null,
+    val file: String? = null,
+    val section: Int = -1,
+)
 
 /** The history of the searches: the words whose article was opened from
  * the search, the most recent first, each one once. It is kept in a
@@ -71,14 +80,21 @@ object History {
     /** The entries with a new one first, without its earlier occurrence,
      * and the oldest ones left out beyond [max]. */
     internal fun added(entries: List<HistoryEntry>, entry: HistoryEntry, max: Int = MAX_ENTRIES) =
-        (listOf(entry) + entries.filter { it != entry }).take(max)
+        (listOf(entry) + entries.filter { it != entry && !it.sameWordWithoutPlace(entry) }).take(max)
+
+    /* An entry written before the place was kept, for the same word: the
+     * new one replaces it */
+    private fun HistoryEntry.sameWordWithoutPlace(other: HistoryEntry) =
+        file == null && language == other.language && word == other.word && wiktionary == other.wiktionary
 
     /** One entry per line: the language, a tab, the word, and for a word
-     * of Wiktionary, another tab and its Esperanto word. */
+     * of Wiktionary, another tab and its Esperanto word; for its place,
+     * then (after an empty third column), the file and the section. */
     internal fun encode(entries: List<HistoryEntry>): String =
         entries.joinToString("\n") { entry ->
-            listOfNotNull(entry.language, entry.word, entry.wiktionary)
-                .joinToString("\t") { it.replace(Regex("[\t\n\r]"), " ") }
+            val columns = if (entry.file == null) listOfNotNull(entry.language, entry.word, entry.wiktionary)
+                else listOf(entry.language, entry.word, entry.wiktionary.orEmpty(), entry.file, entry.section.toString())
+            columns.joinToString("\t") { it.replace(Regex("[\t\n\r]"), " ") }
         }
 
     /** Reads what [encode] writes, skipping the lines it can't read. */
@@ -89,7 +105,13 @@ object History {
             else {
                 val rest = line.substring(tab + 1).split('\t')
                 if (rest[0].isEmpty()) null
-                else HistoryEntry(line.substring(0, tab), rest[0], rest.getOrNull(1)?.takeIf { it.isNotEmpty() })
+                else HistoryEntry(
+                    line.substring(0, tab),
+                    rest[0],
+                    rest.getOrNull(1)?.takeIf { it.isNotEmpty() },
+                    rest.getOrNull(2)?.takeIf { it.isNotEmpty() },
+                    rest.getOrNull(3)?.toIntOrNull() ?: -1,
+                )
             }
         }.toList()
 }

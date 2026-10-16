@@ -111,6 +111,12 @@ class ArticleActivity : BonaActivity() {
          * translates by the Esperanto word of [EXTRA_VIKI_WORD] */
         const val EXTRA_VIKI_FRENCH = "io.github.kotchwane.bonavortaro.VikiFrench"
         const val EXTRA_VIKI_WORD = "io.github.kotchwane.bonavortaro.VikiWord"
+        /** The translation of an example searched, or the example in
+         * Esperanto ("bonjour", "saluton!"): its line is shown */
+        const val EXTRA_EXAMPLE_WORD = "io.github.kotchwane.bonavortaro.ExampleWord"
+        /** The language it was searched in: its line only, all of them
+         * for Esperanto */
+        const val EXTRA_EXAMPLE_LANGUAGE = "io.github.kotchwane.bonavortaro.ExampleLanguage"
 
         /* http://www.openintents.org/en/node/720
          * This probably only works with AnkiDroid 2.0 */
@@ -132,6 +138,8 @@ class ArticleActivity : BonaActivity() {
      * next roots, and those of the roots before, for back */
     private val articleCache = LruCache<Int, Article>(16)
     private var article by mutableStateOf<Article?>(null)
+    /* The language of the example searched, if any */
+    private var exampleLanguage: String? = null
     private var textSize by mutableIntStateOf(BonaSettings.DEFAULT_TEXT_SIZE)
     private var unfoldExamples by mutableStateOf(false)
     private var foldTranslations by mutableStateOf(true)
@@ -161,6 +169,11 @@ class ArticleActivity : BonaActivity() {
         val vikiSearch = intent.getStringExtra(EXTRA_VIKI_FRENCH)?.let { french ->
             intent.getStringExtra(EXTRA_VIKI_WORD)?.let { VikiSearch(french, it) }
         }
+        /* Also when the activity comes back: whether it is still marked is
+         * kept with the card */
+        val searched = intent.getStringExtra(EXTRA_EXAMPLE_WORD)
+            ?.let { ExampleSearch(it, intent.getStringExtra(EXTRA_EXAMPLE_LANGUAGE) ?: "eo", mark) }
+        exampleLanguage = searched?.language
 
         setContent {
             /* Each root read keeps its own state, its scroll above all,
@@ -188,6 +201,7 @@ class ArticleActivity : BonaActivity() {
                     initialSection = if (savedInstanceState == null && depth == 1) mark else -1,
                     /* For the root the search opened */
                     vikiSearch = if (depth == 1) vikiSearch else null,
+                    searched = if (depth == 1) searched else null,
                     sectionRequests = sectionRequests,
                     onSearch = { Screens.goSearch(this) },
                     onPreferences = { Screens.goPreferences(this) },
@@ -270,14 +284,28 @@ class ArticleActivity : BonaActivity() {
     /** An article, from the cache if it was read already. Disk access
      * otherwise. */
     @Throws(IOException::class)
-    private fun loadCachedArticle(number: Int): Article =
-        articleCache.get(number)
+    private fun loadCachedArticle(number: Int): Article {
+        /* The article of an example searched in a language that isn't
+         * among the translations: with it, for the line of the example */
+        val extra = exampleLanguage?.takeIf { number == roots.firstOrNull() && !BonaSettings.translationFilter(this)(it) }
+        if (extra != null) {
+            val shown = BonaSettings.translationFilter(this)
+            return ArticleLoader.load(
+                this,
+                number,
+                onShowSection = { sectionRequests.tryEmit(it) },
+                quoteColor = QUOTE_COLOR,
+                languages = { shown(it) || it == extra },
+            )
+        }
+        return articleCache.get(number)
             ?: ArticleLoader.load(
                 this,
                 number,
                 onShowSection = { sectionRequests.tryEmit(it) },
                 quoteColor = QUOTE_COLOR,
             ).also { articleCache.put(number, it) }
+    }
 
     private fun showCurrentRoot() {
         if (articleNumber < 0)
@@ -380,6 +408,8 @@ private fun ArticleScreen(
     vikiShown: Boolean,
     initialSection: Int,
     vikiSearch: VikiSearch?,
+    /** The example searched, whose line is shown */
+    searched: ExampleSearch?,
     sectionRequests: MutableSharedFlow<Int>,
     onSearch: () -> Unit,
     onPreferences: () -> Unit,
@@ -468,6 +498,34 @@ private fun ArticleScreen(
         }
     }
 
+    /* The example searched: its line on its card, found in the layout, with
+     * only that line in the language searched if it isn't among the
+     * translations */
+    val example = remember(layout, searched) {
+        searched?.let { s ->
+            val entry = layout?.words?.firstOrNull { it.section == s.section } ?: return@let null
+            (exampleOf(entry, s.word, s.language, preferredLanguages)?.example ?: s.word.takeIf { s.language == "eo" })
+                ?.let { SearchedExample(it, s.language) }
+        }
+    }
+    val extraLanguage = remember(searched) {
+        searched?.language?.takeIf { it != "eo" && !BonaSettings.translationFilter(context)(it) }
+    }
+    val words = remember(layout, example, extraLanguage) {
+        layout?.words?.map { word ->
+            if (extraLanguage == null) word
+            else word.withTranslations(word.translations.mapNotNull { translation ->
+                when {
+                    translation.language != extraLanguage -> translation
+                    word.section == searched?.section && example != null ->
+                        Translation(translation.language, "", translation.examples.filter { it.example == example.example })
+                            .takeIf { it.examples.isNotEmpty() }
+                    else -> null
+                }
+            })
+        } ?: emptyList()
+    }
+
     /* Links to another section of the same article. This keeps running,
      * so it needs to see the current article, not the one it started
      * with. */
@@ -542,11 +600,13 @@ private fun ArticleScreen(
                 ),
                 verticalArrangement = Arrangement.spacedBy(10.dp),
             ) {
-                items(layout?.words ?: emptyList(), key = { it.section }) { word ->
+                items(words, key = { it.section }) { word ->
                     WordCard(
                         word, unfoldExamples, foldTranslations,
                         vikiSearch = vikiSearch,
                         vikiShown = vikiShown,
+                        example = example.takeIf { word.section == searched?.section },
+                        scrolled = showedSection,
                         onViki = { vikiSections[word.section] = it },
                         onLongPress = { actionsFor = word.source },
                         onLongPressWord = { pressed, language -> wordFor = pressed to language },

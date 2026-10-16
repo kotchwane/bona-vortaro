@@ -109,11 +109,37 @@ pdb_trie_new (PdbTrieFreeDataCb free_data_cb,
   return trie;
 }
 
+static void
+pdb_trie_add (PdbTrie *trie,
+              const char *word,
+              const char *display_word,
+              void *data,
+              gboolean last);
+
 void
 pdb_trie_add_word (PdbTrie *trie,
                    const char *word,
                    const char *display_word,
                    void *data)
+{
+  pdb_trie_add (trie, word, display_word, data, FALSE);
+}
+
+void
+pdb_trie_add_word_last (PdbTrie *trie,
+                        const char *word,
+                        const char *display_word,
+                        void *data)
+{
+  pdb_trie_add (trie, word, display_word, data, TRUE);
+}
+
+static void
+pdb_trie_add (PdbTrie *trie,
+              const char *word,
+              const char *display_word,
+              void *data,
+              gboolean last)
 {
   const char *p = word;
   PdbTrieNode *node = trie->root;
@@ -173,7 +199,13 @@ pdb_trie_add_word (PdbTrie *trie,
     article->display_word = g_strdup (display_word);
   else
     article->display_word = NULL;
-  node->articles = g_slist_prepend (node->articles, article);
+  /* The words are given in the reverse order they are added, the last
+   * ones after all of them: an example from another article after the
+   * word itself */
+  if (last)
+    node->articles = g_slist_append (node->articles, article);
+  else
+    node->articles = g_slist_prepend (node->articles, article);
 }
 
 static void
@@ -195,24 +227,46 @@ pdb_trie_compress_node (PdbTrie *trie,
                                      (char *) data->data + data->len - 6);
   g_byte_array_set_size (data, data->len - 6 + character_len);
 
-  /* Optionally add the articles */
+  /* Optionally add the articles, each once: the same word for the same
+   * section, eg. from the word and from one of its examples, only the
+   * first time */
+  GPtrArray *unique = g_ptr_array_new ();
+  GArray *nums = g_array_new (FALSE, FALSE, sizeof (int));
+
   for (l = node->articles; l; l = l->next)
     {
       PdbTrieArticle *article = l->data;
-      int article_num_val;
-      int mark_num_val;
-      guint16 article_num;
-      guint8 mark_num = article->mark_num;
+      int article_num_val, mark_num_val;
+      gboolean seen = FALSE;
 
       trie->get_reference_cb (article->data,
                               &article_num_val,
                               &mark_num_val,
                               trie->user_data);
 
-      article_num = article_num_val;
-      mark_num = mark_num_val;
+      for (guint i = 0; i < unique->len && !seen; i++)
+        {
+          PdbTrieArticle *other = g_ptr_array_index (unique, i);
+          seen = (g_array_index (nums, int, i * 2) == article_num_val &&
+                  g_array_index (nums, int, i * 2 + 1) == mark_num_val &&
+                  g_strcmp0 (other->display_word, article->display_word) == 0);
+        }
 
-      if (l->next != NULL)
+      if (!seen)
+        {
+          g_ptr_array_add (unique, article);
+          g_array_append_val (nums, article_num_val);
+          g_array_append_val (nums, mark_num_val);
+        }
+    }
+
+  for (guint i = 0; i < unique->len; i++)
+    {
+      PdbTrieArticle *article = g_ptr_array_index (unique, i);
+      guint16 article_num = g_array_index (nums, int, i * 2);
+      guint8 mark_num = g_array_index (nums, int, i * 2 + 1);
+
+      if (i + 1 < unique->len)
         article_num |= 0x8000;
       if (article->display_word)
         article_num |= 0x4000;
@@ -233,6 +287,9 @@ pdb_trie_compress_node (PdbTrie *trie,
                   len);
         }
     }
+
+  g_ptr_array_free (unique, TRUE);
+  g_array_free (nums, TRUE);
 
   /* Add all of the child nodes */
   for (l = node->children; l; l = l->next)

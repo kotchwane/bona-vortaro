@@ -262,14 +262,21 @@ class SearchActivity : BonaActivity() {
     }
 
     private fun openArticle(result: SearchResult, language: String) {
-        if (keepHistory) {
-            val entry = HistoryEntry(language, result.word)
-            lifecycleScope.launch(Dispatchers.IO) { History.add(applicationContext, entry) }
-        }
+        if (keepHistory)
+            lifecycleScope.launch(Dispatchers.IO) {
+                /* With its place, for a word found in several */
+                val entry = HistoryEntry(language, result.word, file = RevoFiles.fileOf(applicationContext, result.article), section = result.mark)
+                History.add(applicationContext, entry)
+            }
 
         val intent = Intent(this, ArticleActivity::class.java)
         intent.putExtra(ArticleActivity.EXTRA_ARTICLE_NUMBER, result.article)
         intent.putExtra(ArticleActivity.EXTRA_MARK_NUMBER, result.mark)
+        /* Found in an example: the article shows its line */
+        if (result.isExample) {
+            intent.putExtra(ArticleActivity.EXTRA_EXAMPLE_WORD, result.word)
+            intent.putExtra(ArticleActivity.EXTRA_EXAMPLE_LANGUAGE, language)
+        }
         startActivity(intent)
     }
 }
@@ -616,7 +623,7 @@ private fun ResultList(
             itemsIndexed(words) { index, found ->
                 when (found) {
                     is FoundWord.InRevo ->
-                        ResultRow(found.result, wordStyle, inEsperanto, onClick = { onResultClick(found.result, language) })
+                        ResultRow(found.result, wordStyle, inEsperanto, onClick = { onResultClick(found.result, language) }, language = language)
                     is FoundWord.InWiktionary ->
                         VikiResultRow(found.result, onClick = { onVikiClick(found.result) }, inFrench = inFrench)
                 }
@@ -676,6 +683,9 @@ internal fun ResultRow(
     onLongClick: (() -> Unit)? = null,
     /** A button at the right of the row, eg. to remove it */
     action: (@Composable () -> Unit)? = null,
+    /** The language of the search, to tell a translation of an example
+     * of the word from one of the word */
+    language: String? = null,
 ) {
     val context = LocalContext.current
     val preview by produceState<WordPreview?>(null, result) {
@@ -684,6 +694,17 @@ internal fun ResultRow(
         value = null
         value = withContext(Dispatchers.IO) { SearchPreviews.get(context, result) }
     }
+    /* Found in an example of the word: which, rather than the word's
+     * definition, "abunde — ekzemplo ĉe abunda" */
+    val example by produceState<ExamplePreview?>(null, result, language) {
+        value = null
+        if (language != null)
+            value = withContext(Dispatchers.IO) {
+                SearchPreviews.example(context, result, language, BonaSettings.getTranslationOrder(context))
+            }
+    }
+    val exampleOf = example?.let { stringResource(R.string.example_of, it.word) }
+    val languageName = example?.language?.let { LanguageList.getDefault(context).getLanguageName(it) }
     val small = MaterialTheme.typography.bodyMedium
 
     Row(
@@ -706,7 +727,12 @@ internal fun ResultRow(
                     )
             }
 
-            val text = preview?.let {
+            val text = if (example != null) {
+                val shown = example!!
+                if (inEsperanto)
+                    exampleOf + (shown.translation?.let { " — $languageName: " + (if (shown.language == "fr") frenchSpacing(it) else it) } ?: "")
+                else "${shown.example} — $exampleOf"
+            } else preview?.let {
                 when {
                     inEsperanto -> it.definition
                     it.definition.isEmpty() -> it.title

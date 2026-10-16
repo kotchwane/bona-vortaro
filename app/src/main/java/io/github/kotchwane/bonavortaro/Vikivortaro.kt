@@ -364,16 +364,20 @@ object Vikivortaro {
         val results = arrayOfNulls<SearchResult>(16)
         for (form in listOf(word, word.replace("-", "").replace(" ", "")).distinct()) {
             val count = index.search(form.lowercase(Locale.ROOT).replace('’', '\''), results)
-            results.take(count).firstOrNull { compact(it!!.word) == written }?.let { return it }
+            /* The word itself rather than an example of it in another
+             * article: "animo", not the example of "religio" */
+            val found = results.take(count).filterNotNull().filter { compact(it.word) == written }
+            (found.firstOrNull { !it.isExample } ?: found.firstOrNull())?.let { return it }
         }
         return null
     }
 
     /* A word as Reta Vortaro's may write it: the apostrophe straight, no
-     * hyphen nor space ("Porto-Riko", "Portoriko"; "-ej", "ej"), its first
-     * letter as it is, the others small */
+     * hyphen nor space ("Porto-Riko", "Portoriko"; "-ej", "ej"), nor the
+     * mark of an exclamation ("saluton!", an example), its first letter as
+     * it is, the others small */
     private fun compact(word: String): String {
-        val plain = word.replace('’', '\'').replace("-", "").replace(" ", "")
+        val plain = word.replace('’', '\'').replace("-", "").replace(" ", "").trimEnd('!', '?', '.')
         return plain.take(1) + plain.drop(1).lowercase(Locale.ROOT)
     }
 
@@ -394,7 +398,8 @@ object Vikivortaro {
         val count = index.search(word.lowercase(Locale.ROOT), results)
         /* Two entries of one article too: "miksilo" the whisk and the
          * mixing desk */
-        return results.take(count).filter { it!!.word == word }.map { it!!.article to it.mark }.distinct().size > 1
+        /* Not its examples in other articles: "animo" in "religio" */
+        return results.take(count).filter { it!!.word == word && !it.isExample }.map { it!!.article to it.mark }.distinct().size > 1
     }
 
     /** A word with the suffix -iĉ- of the reform, "katiĉo", for a root Reta
@@ -496,6 +501,16 @@ object Vikivortaro {
     /* Whether the word, after its article, is a name */
     private fun capital(word: String) =
         word.trim().replace(Regex("^(?i)(le |la |les |l'|l’)"), "").firstOrNull()?.isUpperCase() == true
+
+    /** The French words that Wiktionary gives for an example of Reta
+     * Vortaro that has no French there, "bonvolu" ("s'il vous plaît"),
+     * and that [revo], the French of its word, doesn't already say. Disk
+     * access: not on the main thread. */
+    fun frenchForExample(context: Context, example: String, revo: String?): List<String> {
+        val data = data(context)
+        val plain = example.trim().trimEnd('!', '?', '.', ' ')
+        return frenchFor(data.frenchOf[example].orEmpty() + data.frenchOf[plain].orEmpty(), revo)
+    }
 
     /** The French words that Wiktionary translates by an Esperanto word */
     fun frenchOf(context: Context, word: String): List<String> =

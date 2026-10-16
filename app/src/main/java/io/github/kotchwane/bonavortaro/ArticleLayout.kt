@@ -60,7 +60,15 @@ class Label(
     val abbreviation: Int = -1,
 )
 
-class Translation(val language: String, val text: String)
+class Translation(
+    val language: String,
+    val text: String,
+    /** The translations of the word's examples: "saluton!", "bonjour!, salut!" */
+    val examples: List<ExampleTranslation> = emptyList(),
+)
+
+/** A translation of an example of a word, after the word's own */
+class ExampleTranslation(val example: String, val text: String)
 
 class WordEntry(
     /** Index of the section in the article, as used by the links */
@@ -76,6 +84,14 @@ class WordEntry(
     val blocks: List<ContentBlock>,
     val translations: List<Translation>,
 )
+
+/** The same word with other translations */
+fun WordEntry.withTranslations(translations: List<Translation>) =
+    WordEntry(section, source, official, forms, title, labels, blocks, translations)
+
+/** An example searched: the word found ("bonjour", "saluton!"), its
+ * language, and the section of the word it is an example of */
+class ExampleSearch(val word: String, val language: String, val section: Int)
 
 class ArticleLayout(val words: List<WordEntry>, val otherTranslations: List<ArticleSection>)
 
@@ -116,8 +132,10 @@ fun layoutArticle(
     /** The words for the kinds of abbreviations (R.array.abbreviation_kinds) */
     abbreviationKinds: List<String> = emptyList(),
 ): ArticleLayout {
-    /* For each word and language, the translations with their sense */
+    /* For each word and language, the translations with their sense, and
+     * those of its examples */
     val translations = mutableMapOf<Int, MutableMap<String, MutableList<Pair<String, String>>>>()
+    val examples = mutableMapOf<Int, MutableMap<String, MutableList<ExampleTranslation>>>()
     val otherTranslations = mutableListOf<ArticleSection>()
     val wordSections = article.sections.indices.filter { article.sections[it].isWord() }.toSet()
 
@@ -126,15 +144,20 @@ fun layoutArticle(
             continue
 
         val attributed = splitTranslations(section.content)
-        if (attributed == null || attributed.any { it.first !in wordSections }) {
+        if (attributed == null || attributed.any { it.section !in wordSections }) {
             otherTranslations.add(section)
             continue
         }
 
-        for ((target, sense, text) in attributed) {
-            translations.getOrPut(target) { mutableMapOf() }
-                .getOrPut(section.language) { mutableListOf() }
-                .add(sense to text)
+        for (part in attributed) {
+            if (part.example != null)
+                examples.getOrPut(part.section) { mutableMapOf() }
+                    .getOrPut(section.language) { mutableListOf() }
+                    .add(ExampleTranslation(part.example, part.text))
+            else
+                translations.getOrPut(part.section) { mutableMapOf() }
+                    .getOrPut(section.language) { mutableListOf() }
+                    .add(part.sense to part.text)
         }
     }
 
@@ -143,6 +166,9 @@ fun layoutArticle(
         val official = parseOfficial(section.header)
         val (labels, content) = splitLabels(section.content)
         val byLanguage = translations[index] ?: emptyMap<String, List<Pair<String, String>>>()
+        val examplesOf = examples[index] ?: emptyMap<String, List<ExampleTranslation>>()
+        /* A language may have only translations of examples */
+        val languages = (byLanguage.keys + examplesOf.keys).distinct()
 
         WordEntry(
             section = index,
@@ -152,13 +178,15 @@ fun layoutArticle(
             title = official.text,
             labels = labels,
             blocks = splitBlocks(markLinkTypes(markInlineLabels(content, markLabel, abbreviationKinds), markLinkType)),
-            translations = byLanguage.entries
+            translations = languages
                 /* The user's languages first, in their order, then the
                  * others in the order of the article */
-                .sortedBy { (language, _) ->
+                .sortedBy { language ->
                     preferredLanguages.indexOf(language).let { if (it < 0) Int.MAX_VALUE else it }
                 }
-                .map { (language, texts) -> Translation(language, joinSenses(texts)) },
+                .map { language ->
+                    Translation(language, joinSenses(byLanguage[language].orEmpty()), examplesOf[language].orEmpty())
+                },
         )
     }
 
@@ -173,13 +201,20 @@ private fun joinSenses(texts: List<Pair<String, String>>): String =
         if (numbers.isEmpty()) text else "(${numbers.joinToString(", ")}) $text"
     }
 
+/** A part of the translations of an article: the section it points to,
+ * its sense ("" for the whole word), its text, and for a translation of
+ * an example, the example */
+private class TranslationPart(val section: Int, val sense: String, val text: String, val example: String? = null)
+
 /**
  * Splits "~o: topologie; ~a 1: topologique" into the section each part
  * points to, its sense ("" for the whole word) and its text:
- * [(0, "", "topologie"), (1, "1", "topologique")].
+ * [(0, "", "topologie"), (1, "1", "topologique")]. A translation of an
+ * example has the example first, in an example span: "~o: saluton!
+ * bonjour!, salut!".
  * Returns null if the text doesn't follow this structure.
  */
-private fun splitTranslations(content: Spanned): List<Triple<Int, String, String>>? {
+private fun splitTranslations(content: Spanned): List<TranslationPart>? {
     val links = content.getSpans(0, content.length, SectionLinkSpan::class.java)
         .sortedBy { content.getSpanStart(it) }
 
@@ -207,7 +242,14 @@ private fun splitTranslations(content: Spanned): List<Triple<Int, String, String
         val text = part.substring(colon + 1).trim()
         val sense = label.substringAfterLast(' ', "").takeIf { it.isNotEmpty() && it.all(Char::isDigit) } ?: ""
 
-        Triple(link.section, sense, text)
+        val example = content.getSpans(start, end, ExampleSpan::class.java)
+            .firstOrNull { content.getSpanStart(it) >= start + colon }
+        if (example != null) {
+            val phrase = content.subSequence(content.getSpanStart(example), content.getSpanEnd(example)).toString().trim()
+            val after = content.subSequence(content.getSpanEnd(example), end).toString().trim().removeSuffix(";").trim()
+            TranslationPart(link.section, sense, after, phrase)
+        } else
+            TranslationPart(link.section, sense, text)
     }
 }
 
@@ -631,4 +673,31 @@ private fun markLinkTypes(content: Spanned, markLinkType: (LinkType, String) -> 
     }
 
     return marked
+}
+
+private const val NARROW_NO_BREAK_SPACE = ' '
+
+/** French text as French typography writes it: a narrow no-break space
+ * before "!", "?", ";" and ":". The space that may be there is replaced by
+ * it, one already there kept: "bonjour!" and "bonjour !" are "bonjour !".
+ * Not between two marks ("?!"), at the start, after an opening bracket,
+ * nor in a time or an address ("10:30", "http://"). */
+fun frenchSpacing(text: String): String {
+    val out = StringBuilder(text.length + 4)
+    for ((i, c) in text.withIndex()) {
+        if (c in "!?;:" && out.isNotEmpty()) {
+            val next = text.getOrNull(i + 1)
+            var end = out.length
+            while (end > 0 && out[end - 1] == ' ') end--
+            val before = out.getOrNull(end - 1)
+            val inTime = c == ':' && before?.isDigit() == true && next?.isDigit() == true
+            val inAddress = c == ':' && next == '/'
+            if (before != null && before !in "!?;:(  \n" && !inTime && !inAddress) {
+                out.setLength(end)
+                out.append(NARROW_NO_BREAK_SPACE)
+            }
+        }
+        out.append(c)
+    }
+    return out.toString()
 }

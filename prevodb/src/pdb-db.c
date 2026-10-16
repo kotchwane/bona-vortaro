@@ -222,6 +222,10 @@ struct _PdbDb
    * code. This only contains anything while parsing an article */
   GHashTable *translations;
 
+  /* While the translations of an example are indexed: without the mark
+   * that ends them, "bonjour" for "bonjour!" */
+  gboolean in_example;
+
   GHashTable *marks;
 
   /* The names of the fields, indexed by their code, eg. "MAT" for
@@ -379,6 +383,14 @@ pdb_db_add_index_entry (PdbDb *db,
 
   trie = pdb_lang_get_trie (db->lang, lang);
 
+  /* An entry of an example is marked at the start of its display name, a
+   * character readers know to leave out: the word itself, "piedo", isn't
+   * its example "piedo" */
+  char *marked = NULL;
+
+  if (db->in_example)
+    display_name = marked = g_strdup_printf ("\x01%s", display_name ? display_name : name);
+
   if (trie)
     {
       PdbDbReference *entry =
@@ -407,21 +419,19 @@ pdb_db_add_index_entry (PdbDb *db,
               g_string_append_unichar (buf, ch);
             }
 
-          pdb_trie_add_word (trie,
-                             buf->str,
-                             display_name ? display_name : name,
-                             entry);
+          (db->in_example ? pdb_trie_add_word_last : pdb_trie_add_word)
+            (trie, buf->str, display_name ? display_name : name, entry);
 
           g_string_free (buf, TRUE);
         }
       else
         {
-          pdb_trie_add_word (trie,
-                             name,
-                             NULL,
-                             entry);
+          (db->in_example ? pdb_trie_add_word_last : pdb_trie_add_word)
+            (trie, name, NULL, entry);
         }
     }
+
+  g_free (marked);
 }
 
 static void
@@ -714,6 +724,19 @@ pdb_db_get_trd_link (PdbDb *db,
   /* Check that the parent is either <snc> or <subsnc> */
   parent = (PdbDocElementNode *) trd_elem->node.parent;
 
+  /* For the translation of an example, the sence or the word it is an
+   * example of, maybe in a remark */
+  if (!strcmp (trd_elem->name, "ekz"))
+    while (parent->node.parent &&
+           strcmp (parent->name, "dif") &&
+           strcmp (parent->name, "subsnc") &&
+           strcmp (parent->name, "snc") &&
+           strcmp (parent->name, "subdrv") &&
+           strcmp (parent->name, "subart") &&
+           strcmp (parent->name, "drv") &&
+           strcmp (parent->name, "art"))
+      parent = (PdbDocElementNode *) parent->node.parent;
+
   if (!strcmp (parent->name, "dif"))
     parent = (PdbDocElementNode *) parent->node.parent;
 
@@ -837,6 +860,29 @@ pdb_db_is_empty_translation (PdbDocElementNode *element)
   return TRUE;
 }
 
+/* Without the exclamation or question mark that ends a phrase, and the
+ * spaces before it */
+static void
+pdb_db_trim_final_mark (GString *buf)
+{
+  for (;;)
+    {
+      if (buf->len > 0 && strchr ("!? ", buf->str[buf->len - 1]))
+        g_string_truncate (buf, buf->len - 1);
+      /* A narrow or a no-break space before it: "merde !" */
+      else if (g_str_has_suffix (buf->str, "\xe2\x80\xaf"))
+        g_string_truncate (buf, buf->len - 3);
+      else if (g_str_has_suffix (buf->str, "\xc2\xa0"))
+        g_string_truncate (buf, buf->len - 2);
+      else
+        break;
+    }
+
+  /* And the mark that opens it in Spanish: "¡hola!", "¿qué?" */
+  if (g_str_has_prefix (buf->str, "\xc2\xa1") || g_str_has_prefix (buf->str, "\xc2\xbf"))
+    g_string_erase (buf, 0, 2);
+}
+
 static gboolean
 pdb_db_add_trd_index (PdbDb *db,
                       PdbDocElementNode *element,
@@ -854,6 +900,8 @@ pdb_db_add_trd_index (PdbDb *db,
                                            "ofc",
                                            NULL);
   pdb_trim_buf (display_name);
+  if (db->in_example)
+    pdb_db_trim_final_mark (display_name);
 
   if ((ind = pdb_doc_get_child_element (&element->node, "ind")))
     {
@@ -861,6 +909,8 @@ pdb_db_add_trd_index (PdbDb *db,
 
       pdb_doc_append_element_text (ind, real_name);
       pdb_trim_buf (real_name);
+      if (db->in_example)
+        pdb_db_trim_final_mark (real_name);
 
       pdb_db_add_index_entry (db,
                               lang_code,
@@ -868,6 +918,28 @@ pdb_db_add_trd_index (PdbDb *db,
                               display_name->str,
                               reference);
 
+      /* Also as it is written, from its start: "se confier à qn", filed
+       * under "confier", is found by "se confier" too */
+      GString *whole = g_string_new (NULL);
+
+      pdb_doc_append_element_text_with_ignore (element,
+                                               whole,
+                                               "ofc",
+                                               "klr",
+                                               NULL);
+      pdb_trim_buf (whole);
+      if (db->in_example)
+        pdb_db_trim_final_mark (whole);
+
+      if (whole->len > 0 && strcmp (whole->str, real_name->str) &&
+          g_ascii_strncasecmp (whole->str, real_name->str, real_name->len))
+        pdb_db_add_index_entry (db,
+                                lang_code,
+                                whole->str,
+                                display_name->str,
+                                reference);
+
+      g_string_free (whole, TRUE);
       g_string_free (real_name, TRUE);
     }
   else if (pdb_doc_element_has_child_element (element))
@@ -881,6 +953,8 @@ pdb_db_add_trd_index (PdbDb *db,
                                                "klr",
                                                NULL);
       pdb_trim_buf (real_name);
+      if (db->in_example)
+        pdb_db_trim_final_mark (real_name);
 
       pdb_db_add_index_entry (db,
                               lang_code,
@@ -1032,6 +1106,173 @@ pdb_db_handle_translation (PdbDb *db,
                                        error);
 }
 
+/* The text of an example, its root in place of <tld/>, without its
+ * translations and sources */
+static void
+pdb_db_append_example_text (PdbDb *db,
+                            PdbDocElementNode *element,
+                            GString *buf)
+{
+  for (PdbDocNode *node = element->node.first_child; node; node = node->next)
+    {
+      if (node->type == PDB_DOC_NODE_TYPE_TEXT)
+        {
+          PdbDocTextNode *text = (PdbDocTextNode *) node;
+          g_string_append_len (buf, text->data, text->len);
+        }
+      else
+        {
+          PdbDocElementNode *child = (PdbDocElementNode *) node;
+
+          if (!strcmp (child->name, "tld"))
+            pdb_db_append_tld (db, buf, child->atts);
+          else if (strcmp (child->name, "trd") &&
+                   strcmp (child->name, "trdgrp") &&
+                   strcmp (child->name, "fnt") &&
+                   strcmp (child->name, "adm") &&
+                   strcmp (child->name, "bld"))
+            pdb_db_append_example_text (db, child, buf);
+        }
+    }
+}
+
+/* A translation of an example, after those of its word: “~o: <the
+ * example> bonjour!, salut!”, the example in an example span, which the
+ * readers that don't know it show as text */
+static gboolean
+pdb_db_handle_example_translation (PdbDb *db,
+                                   PdbDocElementNode *ekz,
+                                   const char *phrase,
+                                   PdbDocElementNode *element,
+                                   const PdbDbReference *reference,
+                                   GError **error)
+{
+  const char *lang_code;
+  PdbDbTranslationData *data;
+  GString *content;
+
+  if (pdb_db_is_empty_translation (element))
+    return TRUE;
+
+  lang_code = pdb_doc_get_attribute (element, "lng");
+
+  if (lang_code == NULL || strlen (lang_code) > 3)
+    {
+      g_set_error (error,
+                   PDB_ERROR,
+                   PDB_ERROR_BAD_FORMAT,
+                   _("%s element in an example with no valid lng attribute"),
+                   element->name);
+      return FALSE;
+    }
+
+  if ((data = g_hash_table_lookup (db->translations,
+                                   lang_code)) == NULL)
+    {
+      data = g_slice_new (PdbDbTranslationData);
+      data->buf = g_string_new (NULL);
+      pdb_list_init (&data->spans);
+      g_hash_table_insert (db->translations,
+                           g_strdup (lang_code),
+                           data);
+    }
+  else if (data->buf->len > 0)
+    g_string_append (data->buf, "; ");
+
+  if (!pdb_db_get_trd_link (db,
+                            ekz,
+                            reference,
+                            data->buf,
+                            &data->spans,
+                            error))
+    return FALSE;
+
+  g_string_append (data->buf, ": ");
+
+  PdbSpan *span = g_slice_new0 (PdbSpan);
+  span->type = PDB_SPAN_EXAMPLE;
+  span->span_start = data->buf->len;
+  g_string_append (data->buf, phrase);
+  span->span_length = data->buf->len - span->span_start;
+  pdb_list_insert (data->spans.prev, &span->link);
+
+  g_string_append (data->buf, " ");
+
+  content = g_string_new (NULL);
+  pdb_doc_append_element_text (element, content);
+  pdb_trim_buf (content);
+  pdb_db_remove_space_before_punctuation (content);
+  g_string_append_len (data->buf, content->str, content->len);
+  g_string_free (content, TRUE);
+
+  db->in_example = TRUE;
+  gboolean ret = pdb_db_add_translation_index (db,
+                                               element,
+                                               reference,
+                                               error);
+  db->in_example = FALSE;
+
+  return ret;
+}
+
+/* The translations of an example, and the phrase it marks for the
+ * index, “<ind>~on!</ind>”: “saluton!” is found in Esperanto */
+static gboolean
+pdb_db_handle_example (PdbDb *db,
+                       PdbDocElementNode *ekz,
+                       const PdbDbReference *reference,
+                       GError **error)
+{
+  PdbDocElementNode *ind = pdb_doc_get_child_element (&ekz->node, "ind");
+  GString *phrase = g_string_new (NULL);
+  gboolean ret = TRUE;
+
+  pdb_db_append_example_text (db, ind ? ind : ekz, phrase);
+  pdb_trim_buf (phrase);
+  pdb_db_remove_space_before_punctuation (phrase);
+
+  /* Without the stop or the comma after it */
+  while (phrase->len > 0 && strchr (".,;:", phrase->str[phrase->len - 1]))
+    g_string_truncate (phrase, phrase->len - 1);
+  pdb_trim_buf (phrase);
+
+  if (phrase->len > 0)
+    {
+      /* After the word itself, if it is the same: "piedo" */
+      if (ind)
+        {
+          db->in_example = TRUE;
+          pdb_db_add_index_entry (db, "eo", phrase->str, NULL, reference);
+          db->in_example = FALSE;
+        }
+
+      for (PdbDocNode *node = ekz->node.first_child; node; node = node->next)
+        {
+          if (node->type != PDB_DOC_NODE_TYPE_ELEMENT)
+            continue;
+
+          PdbDocElementNode *element = (PdbDocElementNode *) node;
+
+          if ((!strcmp (element->name, "trd") ||
+               !strcmp (element->name, "trdgrp")) &&
+              !pdb_db_handle_example_translation (db,
+                                                  ekz,
+                                                  phrase->str,
+                                                  element,
+                                                  reference,
+                                                  error))
+            {
+              ret = FALSE;
+              break;
+            }
+        }
+    }
+
+  g_string_free (phrase, TRUE);
+
+  return ret;
+}
+
 static gboolean
 pdb_db_find_translations_recursive_skip (PdbDb *db,
                                          PdbDocElementNode *root_node,
@@ -1073,8 +1314,15 @@ pdb_db_find_translations_recursive_skip (PdbDb *db,
                   break;
                 }
             }
+          else if (!strcmp (element->name, "ekz"))
+            {
+              if (!pdb_db_handle_example (db, element, reference, error))
+                {
+                  ret = FALSE;
+                  break;
+                }
+            }
           else if (node->first_child &&
-                   strcmp (element->name, "ekz") &&
                    strcmp (element->name, "bld") &&
                    strcmp (element->name, "adm") &&
                    strcmp (element->name, "fnt") &&
@@ -3478,6 +3726,7 @@ pdb_db_new (PdbRevo *revo,
   GError *tmp_error;
 
   db = g_slice_new (PdbDb);
+  db->in_example = FALSE;
 
   db->lang = pdb_lang_new (revo,
                            pdb_db_free_data_cb,

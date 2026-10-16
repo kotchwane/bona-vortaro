@@ -65,6 +65,21 @@ class HistoryTest {
     }
 
     @Test
+    fun aWordKeepsItsPlace() {
+        /* "bonjour" in salut and in bon: two entries */
+        val salut = HistoryEntry("fr", "bonjour", file = "salut", section = 1)
+        val bon = HistoryEntry("fr", "bonjour", file = "bon", section = 0)
+        val entries = listOf(salut, bon, chercher)
+        assertEquals(entries, History.decode(History.encode(entries)))
+        assertEquals("fr\tbonjour\t\tsalut\t1", History.encode(listOf(salut)))
+        /* The lines written before still read */
+        assertEquals(listOf(HistoryEntry("fr", "bonjour")), History.decode("fr\tbonjour"))
+        /* Which the entry with its place replaces; the other place stays */
+        assertEquals(listOf(salut, chercher), History.added(listOf(HistoryEntry("fr", "bonjour"), chercher), salut))
+        assertEquals(listOf(bon, salut), History.added(listOf(salut), bon))
+    }
+
+    @Test
     fun aCarriageReturnDoesntSplitAnEntry() {
         assertEquals(listOf(HistoryEntry("fr", "w ord")), History.decode(History.encode(listOf(HistoryEntry("fr", "w\rord")))))
     }

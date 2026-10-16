@@ -169,6 +169,20 @@ class VikivortaroTest {
     }
 
     @Test
+    fun anExampleOfReVoIsReVos() {
+        val (french, esperanto) = trie("fr") to trie("eo")
+        /* The translations of its examples, and their phrases, are in the
+         * indices: "bonjour!" for "saluton!" */
+        assertTrue(Vikivortaro.inRevo(french, "bonjour", esperanto, "saluton"))
+        assertEquals("saluton!", Vikivortaro.revoEsperanto(esperanto, "saluton")?.word)
+        assertTrue(Vikivortaro.revoEsperanto(esperanto, "femurosto") != null)
+        /* The word itself before its example in another article, and not
+         * a homonym: "animo" (religio) */
+        assertFalse(Vikivortaro.revoEsperanto(esperanto, "animo")!!.isExample)
+        assertFalse(Vikivortaro.ambiguous(esperanto, "fingringo"))
+    }
+
+    @Test
     fun aWordOfSeveralEntriesIsAmbiguous() {
         val esperanto = trie("eo")
         assertTrue(Vikivortaro.ambiguous(esperanto, "korveto"))

@@ -31,6 +31,7 @@ import kotlinx.coroutines.withContext
 import androidx.compose.ui.res.stringArrayResource
 import android.graphics.Canvas
 import androidx.compose.ui.text.TextLayoutResult
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.runtime.remember
 import androidx.compose.foundation.gestures.detectTapGestures
@@ -71,6 +72,14 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Surface
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.runtime.rememberUpdatedState
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.filterNotNull
+import androidx.compose.runtime.snapshotFlow
+import kotlinx.coroutines.delay
+import androidx.compose.foundation.relocation.BringIntoViewRequester
+import androidx.compose.foundation.relocation.bringIntoViewRequester
+import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.window.Popup
 import androidx.compose.ui.unit.LayoutDirection
@@ -143,6 +152,11 @@ fun WordCard(
     vikiShown: Boolean = false,
     /** Whether the Wiktionary adds words to this card */
     onViki: (Boolean) -> Unit = {},
+    /** The example whose line of translations is shown: what was searched */
+    example: SearchedExample? = null,
+    /** Whether the list was scrolled to the card it was opened at: the
+     * example's line is brought into view after */
+    scrolled: Boolean = true,
 ) {
     /* What the French Wiktionary adds to the French translation of this
      * word, for each of its forms ("kukurbeto, itala kukurbo"); the French
@@ -161,13 +175,37 @@ fun WordCard(
              * bird */
             val forms = entry.title.toString().split(',').map { it.trim() }.filter { it.isNotEmpty() }
                 .filterNot { Vikivortaro.ambiguous(context, it) }
-            val revoFrench = entry.translations.filter { it.language == "fr" }.joinToString(", ") { it.text }
+            /* Its examples' too: "bonjour!" for "saluton!" */
+            val revoFrench = entry.translations.filter { it.language == "fr" }
+                .joinToString(", ") { (listOf(it.text) + it.examples.map { e -> e.text }).joinToString(", ") }
             val words = forms.flatMap { Vikivortaro.frenchFor(context, it, revoFrench) }
             val searched = vikiSearch?.takeIf { s -> forms.any { it == s.esperanto } }
             (listOfNotNull(searched?.french) + words).distinctBy { Vikivortaro.key(it) }
         }
     }
-    LaunchedEffect(viki) { onViki(viki.isNotEmpty()) }
+    /* And to its examples that Reta Vortaro translates, but not into
+     * French: "bonvolu", "s'il vous plaît" */
+    val vikiExamples by produceState(emptyList<VikiExample>(), entry, vikiShown, example) {
+        if (!vikiShown) {
+            value = emptyList()
+            return@produceState
+        }
+        value = withContext(Dispatchers.IO) {
+            val french = entry.translations.firstOrNull { it.language == "fr" }
+            val said = french?.examples.orEmpty().map { it.example }.toSet()
+            val revoFrench = french?.let { (listOf(it.text) + it.examples.map { e -> e.text }).joinToString(", ") }
+            /* With the example searched, which Reta Vortaro may translate
+             * into no language: "drinki kiel funelo" */
+            (entry.translations.flatMap { it.examples }.map { it.example } +
+                listOfNotNull(example?.takeIf { it.language == "eo" }?.example)).distinct()
+                .filter { it !in said }
+                .mapNotNull { example ->
+                    Vikivortaro.frenchForExample(context, example, revoFrench).takeIf { it.isNotEmpty() }
+                        ?.let { VikiExample(example, it) }
+                }
+        }
+    }
+    LaunchedEffect(viki, vikiExamples) { onViki(viki.isNotEmpty() || vikiExamples.isNotEmpty()) }
     val onLongPressText: (String?) -> Unit = { word ->
         if (word != null) onLongPressWord(word, "eo") else onLongPress()
     }
@@ -239,8 +277,8 @@ fun WordCard(
                 }
             }
 
-            if (entry.translations.isNotEmpty() || viki.isNotEmpty())
-                TranslationsBox(entry.translations, foldTranslations, onLongPressWord, viki)
+            if (entry.translations.isNotEmpty() || viki.isNotEmpty() || vikiExamples.isNotEmpty())
+                TranslationsBox(entry.translations, foldTranslations, onLongPressWord, viki, example, vikiExamples, scrolled)
         }
     }
 }
@@ -659,6 +697,12 @@ private fun foldNote(
 private const val FOLD_NOTES_ABOVE = 8
 private const val FOLDED_NOTE_LINES = 5
 
+/** The French that Vikivortaro gives for an example of the word */
+class VikiExample(val example: String, val words: List<String>)
+
+/** An example whose translation was searched, in [language] */
+class SearchedExample(val example: String, val language: String)
+
 /** The translations of the word, the user's languages first. After a few
  * languages, the others are shown on demand. */
 @Composable
@@ -667,12 +711,23 @@ private fun TranslationsBox(
     foldable: Boolean,
     onLongPressWord: (word: String, language: String) -> Unit,
     viki: List<String> = emptyList(),
+    /** The example whose translations were searched: brought into view and
+     * marked for a moment */
+    example: SearchedExample? = null,
+    /** Vikivortaro's French for examples Reta Vortaro doesn't translate into it */
+    vikiExamples: List<VikiExample> = emptyList(),
+    scrolled: Boolean = true,
 ) {
     var expanded by rememberSaveable { mutableStateOf(false) }
+    /* The line searched stays marked while the article is open from the
+     * search, until a tap on it; brought into view once */
+    var markShown by rememberSaveable(example?.example, example?.language) { mutableStateOf(example != null) }
+    var broughtIntoView by rememberSaveable(example?.example, example?.language) { mutableStateOf(false) }
+    val markColor = MaterialTheme.colorScheme.tertiaryContainer.copy(alpha = 0.7f)
     /* The French Wiktionary's words go on the line of Reta Vortaro's French,
      * which comes first if Reta Vortaro has none */
-    val translations = remember(translations, viki) {
-        if (viki.isEmpty() || translations.any { it.language == "fr" }) translations
+    val translations = remember(translations, viki, vikiExamples) {
+        if ((viki.isEmpty() && vikiExamples.isEmpty()) || translations.any { it.language == "fr" }) translations
         else listOf(Translation("fr", "")) + translations
     }
     val folded = foldable && !expanded
@@ -743,9 +798,10 @@ private fun TranslationsBox(
                     /* Vikivortaro's words follow Reta Vortaro's, where they
                      * are in the text */
                     val vikiRanges = mutableListOf<IntRange>()
-                    val text = if (viki.isNotEmpty() && translation.language == "fr") {
+                    val french = translation.language == "fr"
+                    val text = if (viki.isNotEmpty() && french) {
                         /* Some of Reta Vortaro's end with a comma: "…, net," */
-                        val revo = translation.text.trimEnd(' ', ',', ';')
+                        val revo = frenchSpacing(translation.text.trimEnd(' ', ',', ';'))
                         buildString {
                             /* After senses with their numbers, on a line of
                              * their own: they would read as the last sense,
@@ -759,31 +815,103 @@ private fun TranslationsBox(
                                 append(word)
                             }
                         }
-                    } else translation.text
+                    } else if (french) frenchSpacing(translation.text) else translation.text
+                    /* Then the translations of its examples, each on its
+                     * line after its example, quiet like the examples of
+                     * the article: "saluton! bonjour !, salut !"; the one
+                     * searched marked */
+                    var marked: IntRange? = null
+                    val shownText = buildAnnotatedString {
+                        append(text)
+                        for (line in translation.examples) {
+                            if (length > 0)
+                                append("\n")
+                            val start = length
+                            withStyle(SpanStyle(fontStyle = FontStyle.Italic, color = dots)) { append(line.example) }
+                            append(" ")
+                            append(if (french) frenchSpacing(line.text) else line.text)
+                            if (line.example == example?.example &&
+                                (example.language == "eo" || example.language == translation.language)) {
+                                marked = start until length
+                                if (markShown)
+                                    addStyle(SpanStyle(background = markColor), start, length)
+                            }
+                        }
+                        /* Vikivortaro's French for the examples Reta Vortaro
+                         * doesn't translate into French, dotted */
+                        if (french)
+                            for (line in vikiExamples) {
+                                if (length > 0)
+                                    append("\n")
+                                val start = length
+                                withStyle(SpanStyle(fontStyle = FontStyle.Italic, color = dots)) { append(line.example) }
+                                append(" ")
+                                for ((index, word) in line.words.withIndex()) {
+                                    if (index > 0)
+                                        append(", ")
+                                    vikiRanges.add(length until length + word.length)
+                                    append(word)
+                                }
+                                if (line.example == example?.example) {
+                                    marked = start until length
+                                    if (markShown)
+                                        addStyle(SpanStyle(background = markColor), start, length)
+                                }
+                            }
+                    }
+                    val bringIntoView = remember { BringIntoViewRequester() }
+                    val margin = with(LocalDensity.current) { 48.dp.toPx() }
+                    /* Once the list is at the card; done only once it is in
+                     * view: the text laid out again meanwhile (Vikivortaro's
+                     * words coming) cancels it, and it starts again */
+                    val markedNow by rememberUpdatedState(marked)
+                    LaunchedEffect(marked != null, scrolled, markShown) {
+                        if (markedNow == null || !markShown || broughtIntoView || !scrolled)
+                            return@LaunchedEffect
+                        delay(300)
+                        val laid = snapshotFlow { layout }.filterNotNull().first()
+                        val range = markedNow ?: return@LaunchedEffect
+                        /* With room around it, above the bar of the
+                         * system's buttons, not only just visible */
+                        bringIntoView.bringIntoView(laid.getBoundingBox(range.first).let { box ->
+                            Rect(
+                                0f,
+                                box.top - margin,
+                                laid.size.width.toFloat(),
+                                laid.getLineBottom(laid.getLineForOffset(range.last)) + 3 * margin,
+                            )
+                        })
+                        broughtIntoView = true
+                    }
                     /* A tap on one of them tells where it comes from; a screen
                      * reader says it after the line */
                     /* Closed when the screen turns: its place was the old one */
                     var bubble by remember(LocalConfiguration.current.orientation) { mutableStateOf<Pair<Offset, String>?>(null) }
                     val spoken = if (vikiRanges.isEmpty()) null
-                        else text + ". " + stringResource(R.string.viki_word_source, vikiRanges.joinToString("“, „") { text.substring(it) })
+                        else shownText.text + ". " + stringResource(R.string.viki_word_source, vikiRanges.joinToString("“, „") { shownText.text.substring(it) })
                     Box(Modifier.weight(1f)) {
                         Text(
-                            text,
+                            shownText,
                             style = body,
                             onTextLayout = { layout = it },
                             modifier = Modifier
+                                .bringIntoViewRequester(bringIntoView)
                                 .dottedUnder(vikiRanges, layout, dots)
                                 .semantics { spoken?.let { contentDescription = it } }
-                                .pointerInput(text) {
+                                .pointerInput(shownText) {
                                     detectTapGestures(
                                         onTap = { position ->
                                             val offset = layout?.getOffsetForPosition(position) ?: return@detectTapGestures
-                                            vikiRanges.firstOrNull { offset in it || offset == it.last + 1 }
-                                                ?.let { bubble = position to text.substring(it) }
+                                            val word = vikiRanges.firstOrNull { offset in it || offset == it.last + 1 }
+                                            if (word != null)
+                                                bubble = position to shownText.text.substring(word)
+                                            /* A tap on the line searched unmarks it */
+                                            else if (marked?.let { offset in it } == true)
+                                                markShown = false
                                         },
                                         onLongPress = { position ->
                                             val offset = layout?.getOffsetForPosition(position) ?: return@detectTapGestures
-                                            WordLookup.wordAt(text, offset)
+                                            WordLookup.wordAt(shownText.text, offset)
                                                 ?.let { onLongPressWord(it, translation.language) }
                                         },
                                     )

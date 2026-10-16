@@ -40,6 +40,14 @@ pdb_trie_add_word (PdbTrie *trie,
                    const char *display_representation,
                    void *data);
 
+/* The same, after the words already there and those added later: the
+ * translation of an example after the word itself */
+void
+pdb_trie_add_word_last (PdbTrie *trie,
+                        const char *word,
+                        const char *display_representation,
+                        void *data);
+
 void
 pdb_trie_compress (PdbTrie *trie,
                    guint8 **data,

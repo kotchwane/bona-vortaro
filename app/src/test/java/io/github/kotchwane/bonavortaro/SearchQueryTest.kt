@@ -142,8 +142,21 @@ class SearchQueryTest {
         val results = arrayOfNulls<SearchResult>(128)
         val count = trie.searchIgnoringAccents(searchFilter("jambe", "fr"), results)
         val entries = results.take(count).map { Triple(it!!.word, it.article, it.mark) }
-        /* The index has "jambe" twice for the same sense: the search keeps one */
-        assertTrue(entries.size > entries.distinct().size)
+        /* "jambe" once for its sense: prevodb writes the same entry once */
+        assertEquals(entries.distinct().size, entries.size)
+        assertTrue(entries.any { it.first == "jambe" })
+    }
+
+    @Test
+    fun frenchHasANarrowSpaceBeforeItsMarks() {
+        assertEquals("bonjour\u202f!", frenchSpacing("bonjour!"))
+        /* A space there replaced, a no-break one kept */
+        assertEquals("bonjour\u202f!", frenchSpacing("bonjour !"))
+        assertEquals("bonjour\u00a0!", frenchSpacing("bonjour\u00a0!"))
+        assertEquals("quoi\u202f?!", frenchSpacing("quoi?!"))
+        assertEquals("(1) saluer\u202f; (3) se connecter", frenchSpacing("(1) saluer; (3) se connecter"))
+        /* Not in a time, an address */
+        assertEquals("à 10:30, http://x", frenchSpacing("à 10:30, http://x"))
     }
 
     @Test

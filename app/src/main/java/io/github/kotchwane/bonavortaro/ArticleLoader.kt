@@ -95,6 +95,8 @@ object ArticleLoader {
         articleNumber: Int,
         onShowSection: (Int) -> Unit,
         quoteColor: Int,
+        /** The languages kept: by default, those of the settings */
+        languages: ((String) -> Boolean)? = null,
     ): Article {
         val fileName = String.format(Locale.US, "articles/article-%03xx.bin", articleNumber shr 4)
         val stream = context.assets.open(fileName)
@@ -107,7 +109,7 @@ object ArticleLoader {
             val articleStart = input.position
             val reader = SpanReader(articleNumber, onShowSection, quoteColor)
             val title = reader.read(input)
-            val showTranslations = BonaSettings.translationFilter(context)
+            val showTranslations = languages ?: BonaSettings.translationFilter(context)
             val sections = mutableListOf<ArticleSection>()
 
             while (input.position - articleStart < articleLength) {

@@ -45,6 +45,11 @@ object RevoFiles {
         emptyList()
     }.also { names = it }
 
+    /** The file of Reta Vortaro an article comes from, "salut", if known:
+     * the same after an update, unlike its number. Disk access, the first
+     * time. */
+    fun fileOf(context: Context, article: Int): String? = names(context).getOrNull(article)
+
     /** The page of an article on Reta Vortaro's site, if known. Disk
      * access, the first time. */
     fun page(context: Context, article: Int): Uri? =

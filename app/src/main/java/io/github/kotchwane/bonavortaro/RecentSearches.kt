@@ -80,11 +80,15 @@ fun findRecentSearches(context: Context, entries: List<HistoryEntry>): List<Rece
                     if (entry.language == "eo") Vikivortaro.esperantoResult(context, entry.word)
                     else Vikivortaro.result(context, entry.word, entry.wiktionary)
                 )?.let { RecentSearch(entry, FoundWord.InWiktionary(it)) }
-        fun find(key: String): SearchResult? {
+        fun find(key: String): List<SearchResult> {
             val count = trie.search(key, results)
-            return results.take(count).filterNotNull().firstOrNull { it.word == entry.word }
+            return results.take(count).filterNotNull().filter { it.word == entry.word }
         }
-        historyKeys(entry.word).firstNotNullOfOrNull { find(it) }
+        val found = historyKeys(entry.word).asSequence().map { find(it) }.firstOrNull { it.isNotEmpty() }.orEmpty()
+        /* The place it was opened at, if it is still there: its file,
+         * there its section; else the first */
+        val inFile = entry.file?.let { file -> found.filter { RevoFiles.fileOf(context, it.article) == file } }.orEmpty()
+        (inFile.firstOrNull { it.mark == entry.section } ?: inFile.firstOrNull() ?: found.firstOrNull())
             ?.let { RecentSearch(entry, FoundWord.InRevo(it)) }
     }
 }
@@ -188,6 +192,7 @@ fun RecentSearches(
                                 label = label,
                                 onLongClick = onLongClick,
                                 action = action,
+                                language = search.entry.language,
                             )
                             is FoundWord.InWiktionary -> VikiResultRow(
                                 found.result,
