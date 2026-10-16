@@ -138,8 +138,11 @@ class ArticleActivity : BonaActivity() {
      * next roots, and those of the roots before, for back */
     private val articleCache = LruCache<Int, Article>(16)
     private var article by mutableStateOf<Article?>(null)
-    /* The language of the example searched, if any */
+    /* The language of the example searched, if any, and, if it isn't
+     * among the translations, that language, shown for its line alone */
     private var exampleLanguage: String? = null
+    private var extraLanguage by mutableStateOf<String?>(null)
+    private var extraArticle: Pair<Int, Article>? = null
     private var textSize by mutableIntStateOf(BonaSettings.DEFAULT_TEXT_SIZE)
     private var unfoldExamples by mutableStateOf(false)
     private var foldTranslations by mutableStateOf(true)
@@ -202,6 +205,7 @@ class ArticleActivity : BonaActivity() {
                     /* For the root the search opened */
                     vikiSearch = if (depth == 1) vikiSearch else null,
                     searched = if (depth == 1) searched else null,
+                    extraLanguage = if (depth == 1) extraLanguage else null,
                     sectionRequests = sectionRequests,
                     onSearch = { Screens.goSearch(this) },
                     onPreferences = { Screens.goPreferences(this) },
@@ -242,6 +246,7 @@ class ArticleActivity : BonaActivity() {
         unfoldExamples = BonaSettings.getUnfoldExamples(this)
         preferredLanguages = BonaSettings.getTranslationOrder(this)
         vikiShown = Vikivortaro.inArticles(this)
+        extraLanguage = exampleLanguage?.takeIf { it != "eo" && !BonaSettings.translationFilter(this)(it) }
 
         val translations = currentTranslations()
         /* The translations are folded only when all of the languages
@@ -249,8 +254,10 @@ class ArticleActivity : BonaActivity() {
         foldTranslations = translations.size == LanguageList.getDefault(this).allLanguages.size
         if (article == null || translations != loadedTranslations) {
             /* The articles read before show other translations */
-            if (translations != loadedTranslations)
+            if (translations != loadedTranslations) {
                 articleCache.evictAll()
+                extraArticle = null
+            }
             showCurrentRoot()
             loadedTranslations = translations
         }
@@ -286,9 +293,11 @@ class ArticleActivity : BonaActivity() {
     @Throws(IOException::class)
     private fun loadCachedArticle(number: Int): Article {
         /* The article of an example searched in a language that isn't
-         * among the translations: with it, for the line of the example */
-        val extra = exampleLanguage?.takeIf { number == roots.firstOrNull() && !BonaSettings.translationFilter(this)(it) }
+         * among the translations, opened from the search: with it, for the
+         * line of the example */
+        val extra = extraLanguage?.takeIf { roots.size == 1 && number == roots.first() }
         if (extra != null) {
+            extraArticle?.takeIf { it.first == number }?.let { return it.second }
             val shown = BonaSettings.translationFilter(this)
             return ArticleLoader.load(
                 this,
@@ -296,7 +305,7 @@ class ArticleActivity : BonaActivity() {
                 onShowSection = { sectionRequests.tryEmit(it) },
                 quoteColor = QUOTE_COLOR,
                 languages = { shown(it) || it == extra },
-            )
+            ).also { extraArticle = number to it }
         }
         return articleCache.get(number)
             ?: ArticleLoader.load(
@@ -410,6 +419,8 @@ private fun ArticleScreen(
     vikiSearch: VikiSearch?,
     /** The example searched, whose line is shown */
     searched: ExampleSearch?,
+    /** Its language, if it isn't among the translations: only its line */
+    extraLanguage: String?,
     sectionRequests: MutableSharedFlow<Int>,
     onSearch: () -> Unit,
     onPreferences: () -> Unit,
@@ -428,7 +439,6 @@ private fun ArticleScreen(
     val listState = rememberLazyListState()
     /* The words whose card has words of Vikivortaro, for the sources */
     val vikiSections = remember(articleNumber) { mutableStateMapOf<Int, Boolean>() }
-    val withViki = vikiSections.values.any { it }
     val scope = rememberCoroutineScope()
     var actionsFor by remember { mutableStateOf<ArticleSection?>(null) }
     /* Read with the article, so that they are there before the end of it
@@ -508,9 +518,6 @@ private fun ArticleScreen(
                 ?.let { SearchedExample(it, s.language) }
         }
     }
-    val extraLanguage = remember(searched) {
-        searched?.language?.takeIf { it != "eo" && !BonaSettings.translationFilter(context)(it) }
-    }
     val words = remember(layout, example, extraLanguage) {
         layout?.words?.map { word ->
             if (extraLanguage == null) word
@@ -525,6 +532,22 @@ private fun ArticleScreen(
             })
         } ?: emptyList()
     }
+
+    /* Of every card, not only those drawn: the article may open at a later
+     * one, and the credit is due all the same */
+    val articleViki by produceState(false, layout, vikiShown, vikiSearch, searched) {
+        value = false
+        val all = layout?.words ?: return@produceState
+        if (vikiShown)
+            value = withContext(Dispatchers.IO) {
+                all.any { word ->
+                    vikiWordsOf(context, word, vikiSearch).isNotEmpty() ||
+                        vikiExamplesOf(context, word, searched?.takeIf { it.section == word.section && it.language == "eo" }
+                            ?.let { SearchedExample(it.word, "eo") }).isNotEmpty()
+                }
+            }
+    }
+    val withViki = articleViki || vikiSections.values.any { it }
 
     /* Links to another section of the same article. This keeps running,
      * so it needs to see the current article, not the one it started

@@ -18,6 +18,7 @@
 package io.github.kotchwane.bonavortaro
 
 import androidx.compose.runtime.produceState
+import android.content.Context
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.LinkAnnotation
@@ -169,19 +170,7 @@ fun WordCard(
             value = emptyList()
             return@produceState
         }
-        value = withContext(Dispatchers.IO) {
-            /* Not a form Reta Vortaro has under several entries, whose
-             * sense Wiktionary doesn't tell: "korveto", the ship and the
-             * bird */
-            val forms = entry.title.toString().split(',').map { it.trim() }.filter { it.isNotEmpty() }
-                .filterNot { Vikivortaro.ambiguous(context, it) }
-            /* Its examples' too: "bonjour!" for "saluton!" */
-            val revoFrench = entry.translations.filter { it.language == "fr" }
-                .joinToString(", ") { (listOf(it.text) + it.examples.map { e -> e.text }).joinToString(", ") }
-            val words = forms.flatMap { Vikivortaro.frenchFor(context, it, revoFrench) }
-            val searched = vikiSearch?.takeIf { s -> forms.any { it == s.esperanto } }
-            (listOfNotNull(searched?.french) + words).distinctBy { Vikivortaro.key(it) }
-        }
+        value = withContext(Dispatchers.IO) { vikiWordsOf(context, entry, vikiSearch) }
     }
     /* And to its examples that Reta Vortaro translates, but not into
      * French: "bonvolu", "s'il vous plaît" */
@@ -190,20 +179,7 @@ fun WordCard(
             value = emptyList()
             return@produceState
         }
-        value = withContext(Dispatchers.IO) {
-            val french = entry.translations.firstOrNull { it.language == "fr" }
-            val said = french?.examples.orEmpty().map { it.example }.toSet()
-            val revoFrench = french?.let { (listOf(it.text) + it.examples.map { e -> e.text }).joinToString(", ") }
-            /* With the example searched, which Reta Vortaro may translate
-             * into no language: "drinki kiel funelo" */
-            (entry.translations.flatMap { it.examples }.map { it.example } +
-                listOfNotNull(example?.takeIf { it.language == "eo" }?.example)).distinct()
-                .filter { it !in said }
-                .mapNotNull { example ->
-                    Vikivortaro.frenchForExample(context, example, revoFrench).takeIf { it.isNotEmpty() }
-                        ?.let { VikiExample(example, it) }
-                }
-        }
+        value = withContext(Dispatchers.IO) { vikiExamplesOf(context, entry, example) }
     }
     LaunchedEffect(viki, vikiExamples) { onViki(viki.isNotEmpty() || vikiExamples.isNotEmpty()) }
     val onLongPressText: (String?) -> Unit = { word ->
@@ -696,6 +672,40 @@ private fun foldNote(
 /* A remark is folded beyond so many lines, to the first ones */
 private const val FOLD_NOTES_ABOVE = 8
 private const val FOLDED_NOTE_LINES = 5
+
+/** What the French Wiktionary adds to the French translation of a word,
+ * for each of its forms ("kukurbeto, itala kukurbo"); the French word
+ * searched first, if the article was opened from it. Disk access: not on
+ * the main thread. */
+fun vikiWordsOf(context: Context, entry: WordEntry, vikiSearch: VikiSearch?): List<String> {
+    /* Not a form Reta Vortaro has under several entries, whose sense
+     * Wiktionary doesn't tell: "korveto", the ship and the bird */
+    val forms = entry.title.toString().split(',').map { it.trim() }.filter { it.isNotEmpty() }
+        .filterNot { Vikivortaro.ambiguous(context, it) }
+    /* Its examples' too: "bonjour!" for "saluton!" */
+    val revoFrench = entry.translations.filter { it.language == "fr" }
+        .joinToString(", ") { (listOf(it.text) + it.examples.map { e -> e.text }).joinToString(", ") }
+    val words = forms.flatMap { Vikivortaro.frenchFor(context, it, revoFrench) }
+    val searched = vikiSearch?.takeIf { s -> forms.any { it == s.esperanto } }
+    return (listOfNotNull(searched?.french) + words).distinctBy { Vikivortaro.key(it) }
+}
+
+/** And to its examples that Reta Vortaro translates, but not into French:
+ * "bonvolu", "s'il vous plaît"; with the example searched, which Reta
+ * Vortaro may translate into no language: "drinki kiel funelo". Disk
+ * access: not on the main thread. */
+fun vikiExamplesOf(context: Context, entry: WordEntry, example: SearchedExample?): List<VikiExample> {
+    val french = entry.translations.firstOrNull { it.language == "fr" }
+    val said = french?.examples.orEmpty().map { it.example }.toSet()
+    val revoFrench = french?.let { (listOf(it.text) + it.examples.map { e -> e.text }).joinToString(", ") }
+    return (entry.translations.flatMap { it.examples }.map { it.example } +
+        listOfNotNull(example?.takeIf { it.language == "eo" }?.example)).distinct()
+        .filter { it !in said }
+        .mapNotNull { phrase ->
+            Vikivortaro.frenchForExample(context, phrase, revoFrench).takeIf { it.isNotEmpty() }
+                ?.let { VikiExample(phrase, it) }
+        }
+}
 
 /** The French that Vikivortaro gives for an example of the word */
 class VikiExample(val example: String, val words: List<String>)
