@@ -5,6 +5,7 @@ Bona vortaro is an Esperanto dictionary for Android. It contains the whole <a hr
 • See which words are official (Fundamento, Official Additions), and browse the list of each Addition.
 • Long-press a word to look it up, whatever its form: "arbojn" finds "arbo".
 • Meet a word that isn't in the dictionary? The search suggests the roots and affixes it may be built from: "malsanulejestrano" = malsanulej + estr + ano.
+• More French translations: thousands of French words that Reta Vortaro lacks, from the French Wiktionary, with a dotted underline in the articles.
 • Leaf through the dictionary from root to root, or discover a random root.
 • Your recent searches, day and night colours, text size.
 

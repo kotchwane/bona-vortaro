@@ -17,6 +17,17 @@
 
 package io.github.kotchwane.bonavortaro
 
+import androidx.compose.runtime.produceState
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.LinkAnnotation
+import androidx.compose.ui.text.TextLinkStyles
+import androidx.compose.ui.text.withLink
+import androidx.compose.ui.text.style.TextDecoration
+import android.net.Uri
+import androidx.compose.runtime.LaunchedEffect
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import androidx.compose.ui.res.stringArrayResource
 import android.graphics.Canvas
 import androidx.compose.ui.text.TextLayoutResult
@@ -57,7 +68,20 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Surface
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.window.Popup
+import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.IntRect
+import androidx.compose.ui.window.PopupPositionProvider
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.runtime.key
+import androidx.compose.ui.window.PopupProperties
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -78,6 +102,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
@@ -113,7 +138,36 @@ fun WordCard(
     /** A long press on a word of the text, with its language */
     onLongPressWord: (word: String, language: String) -> Unit,
     modifier: Modifier = Modifier,
+    vikiSearch: VikiSearch? = null,
+    /** Whether Vikivortaro's French is shown: the French translations are */
+    vikiShown: Boolean = false,
+    /** Whether the Wiktionary adds words to this card */
+    onViki: (Boolean) -> Unit = {},
 ) {
+    /* What the French Wiktionary adds to the French translation of this
+     * word, for each of its forms ("kukurbeto, itala kukurbo"); the French
+     * word searched first, if the article was opened from it */
+    val context = LocalContext.current
+    val viki by produceState(emptyList<String>(), entry, vikiSearch, vikiShown) {
+        /* Only for those who chose to see the French translations; again
+         * when that changes in the settings */
+        if (!vikiShown) {
+            value = emptyList()
+            return@produceState
+        }
+        value = withContext(Dispatchers.IO) {
+            /* Not a form Reta Vortaro has under several entries, whose
+             * sense Wiktionary doesn't tell: "korveto", the ship and the
+             * bird */
+            val forms = entry.title.toString().split(',').map { it.trim() }.filter { it.isNotEmpty() }
+                .filterNot { Vikivortaro.ambiguous(context, it) }
+            val revoFrench = entry.translations.filter { it.language == "fr" }.joinToString(", ") { it.text }
+            val words = forms.flatMap { Vikivortaro.frenchFor(context, it, revoFrench) }
+            val searched = vikiSearch?.takeIf { s -> forms.any { it == s.esperanto } }
+            (listOfNotNull(searched?.french) + words).distinctBy { Vikivortaro.key(it) }
+        }
+    }
+    LaunchedEffect(viki) { onViki(viki.isNotEmpty()) }
     val onLongPressText: (String?) -> Unit = { word ->
         if (word != null) onLongPressWord(word, "eo") else onLongPress()
     }
@@ -185,8 +239,8 @@ fun WordCard(
                 }
             }
 
-            if (entry.translations.isNotEmpty())
-                TranslationsBox(entry.translations, foldTranslations, onLongPressWord)
+            if (entry.translations.isNotEmpty() || viki.isNotEmpty())
+                TranslationsBox(entry.translations, foldTranslations, onLongPressWord, viki)
         }
     }
 }
@@ -612,12 +666,20 @@ private fun TranslationsBox(
     translations: List<Translation>,
     foldable: Boolean,
     onLongPressWord: (word: String, language: String) -> Unit,
+    viki: List<String> = emptyList(),
 ) {
     var expanded by rememberSaveable { mutableStateOf(false) }
+    /* The French Wiktionary's words go on the line of Reta Vortaro's French,
+     * which comes first if Reta Vortaro has none */
+    val translations = remember(translations, viki) {
+        if (viki.isEmpty() || translations.any { it.language == "fr" }) translations
+        else listOf(Translation("fr", "")) + translations
+    }
     val folded = foldable && !expanded
     val shown = if (folded) translations.take(SHOWN_TRANSLATIONS) else translations
     val body = MaterialTheme.typography.bodyMedium
     val nameStyle = MaterialTheme.typography.bodySmall.copy(fontStyle = FontStyle.Italic)
+    val dots = MaterialTheme.colorScheme.onSurfaceVariant
 
     /* The names of the languages, and a column as wide as the longest, up
      * to a share of the box that grows with the text; a longer name, at a
@@ -652,7 +714,9 @@ private fun TranslationsBox(
             val limit = maxWidth / 3
             val nameWidth = widths.values.filter { it <= limit }.maxOrNull() ?: 0.dp
             Column {
-            for (translation in shown) {
+            /* Each language its own state, as the French line may come
+             * first once Vikivortaro's words are read */
+            for (translation in shown) key(translation.language) {
                 val apart = widths.getValue(translation.language) > limit
                 if (apart)
                     Text(
@@ -676,20 +740,59 @@ private fun TranslationsBox(
                     /* A long press looks up the word under the finger in
                      * the language of the translation */
                     var layout by remember { mutableStateOf<TextLayoutResult?>(null) }
-                    Text(
-                        translation.text,
-                        style = body,
-                        onTextLayout = { layout = it },
-                        modifier = Modifier
-                            .weight(1f)
-                            .pointerInput(translation) {
-                                detectTapGestures(onLongPress = { position ->
-                                    val offset = layout?.getOffsetForPosition(position) ?: return@detectTapGestures
-                                    WordLookup.wordAt(translation.text, offset)
-                                        ?.let { onLongPressWord(it, translation.language) }
-                                })
-                            },
-                    )
+                    /* Vikivortaro's words follow Reta Vortaro's, where they
+                     * are in the text */
+                    val vikiRanges = mutableListOf<IntRange>()
+                    val text = if (viki.isNotEmpty() && translation.language == "fr") {
+                        /* Some of Reta Vortaro's end with a comma: "…, net," */
+                        val revo = translation.text.trimEnd(' ', ',', ';')
+                        buildString {
+                            /* After senses with their numbers, on a line of
+                             * their own: they would read as the last sense,
+                             * "(3) perçant, …, saillant" */
+                            if (revo.isNotEmpty())
+                                append(if (Regex("\\(\\d").containsMatchIn(revo)) "$revo\n" else "$revo, ")
+                            for ((index, word) in viki.withIndex()) {
+                                if (index > 0)
+                                    append(", ")
+                                vikiRanges.add(length until length + word.length)
+                                append(word)
+                            }
+                        }
+                    } else translation.text
+                    /* A tap on one of them tells where it comes from; a screen
+                     * reader says it after the line */
+                    /* Closed when the screen turns: its place was the old one */
+                    var bubble by remember(LocalConfiguration.current.orientation) { mutableStateOf<Pair<Offset, String>?>(null) }
+                    val spoken = if (vikiRanges.isEmpty()) null
+                        else text + ". " + stringResource(R.string.viki_word_source, vikiRanges.joinToString("“, „") { text.substring(it) })
+                    Box(Modifier.weight(1f)) {
+                        Text(
+                            text,
+                            style = body,
+                            onTextLayout = { layout = it },
+                            modifier = Modifier
+                                .dottedUnder(vikiRanges, layout, dots)
+                                .semantics { spoken?.let { contentDescription = it } }
+                                .pointerInput(text) {
+                                    detectTapGestures(
+                                        onTap = { position ->
+                                            val offset = layout?.getOffsetForPosition(position) ?: return@detectTapGestures
+                                            vikiRanges.firstOrNull { offset in it || offset == it.last + 1 }
+                                                ?.let { bubble = position to text.substring(it) }
+                                        },
+                                        onLongPress = { position ->
+                                            val offset = layout?.getOffsetForPosition(position) ?: return@detectTapGestures
+                                            WordLookup.wordAt(text, offset)
+                                                ?.let { onLongPressWord(it, translation.language) }
+                                        },
+                                    )
+                                },
+                        )
+                        bubble?.let { (position, word) ->
+                            SourceBubble(stringResource(R.string.viki_word_source, word), position, onDismiss = { bubble = null })
+                        }
+                    }
                 }
             }
             }
@@ -706,6 +809,161 @@ private fun TranslationsBox(
             }
         }
     }
+}
+
+/** Dots under the given ranges of a text: Vikivortaro's words among Reta
+ * Vortaro's, quietly, like a note there is to read */
+private fun Modifier.dottedUnder(ranges: List<IntRange>, layout: TextLayoutResult?, color: Color) =
+    if (ranges.isEmpty()) this else drawBehind {
+        val laid = layout ?: return@drawBehind
+        val step = 3.dp.toPx()
+        val radius = 0.75.dp.toPx()
+        for (range in ranges)
+            for (i in range) {
+                if (i >= laid.layoutInput.text.length) break
+                val box = laid.getBoundingBox(i)
+                val y = laid.getLineBottom(laid.getLineForOffset(i)) - 2.dp.toPx()
+                /* At the same steps on every letter, so that they join */
+                var x = (box.left / step).toInt() * step + step / 2
+                while (x < box.right) {
+                    drawCircle(color, radius, Offset(x, y))
+                    x += step
+                }
+            }
+    }
+
+/** A small bubble over a tapped place, closed by a tap anywhere: above it,
+ * centred on it, kept in the window; below it, where there is no room
+ * above */
+@Composable
+private fun SourceBubble(text: String, position: Offset, onDismiss: () -> Unit) {
+    val gap = with(LocalDensity.current) { 8.dp.roundToPx() }
+    val placement = remember(position, gap) {
+        object : PopupPositionProvider {
+            override fun calculatePosition(
+                anchorBounds: IntRect,
+                windowSize: IntSize,
+                layoutDirection: LayoutDirection,
+                popupContentSize: IntSize,
+            ): IntOffset {
+                val x = (anchorBounds.left + position.x.toInt() - popupContentSize.width / 2)
+                    .coerceIn(0, maxOf(0, windowSize.width - popupContentSize.width))
+                val above = anchorBounds.top + position.y.toInt() - gap - popupContentSize.height
+                val y = if (above >= 0) above else anchorBounds.top + position.y.toInt() + gap
+                return IntOffset(x, y)
+            }
+        }
+    }
+    Popup(
+        popupPositionProvider = placement,
+        onDismissRequest = onDismiss,
+        properties = PopupProperties(focusable = true),
+    ) {
+        Surface(
+            shape = RoundedCornerShape(8.dp),
+            color = MaterialTheme.colorScheme.inverseSurface,
+            shadowElevation = 2.dp,
+        ) {
+            Text(
+                text,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.inverseOnSurface,
+                modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
+            )
+        }
+    }
+}
+
+/** At the end of a page, where its text comes from, in a line: "Fontoj:
+ * Reta Vortaro · Vikivortaro ›". A tap gives the credit their licences ask
+ * for, the same for both, Reta Vortaro first: who wrote what, under which
+ * licence, with a link to read it there: the article [revoArticle] on Reta
+ * Vortaro's site, or on the page of a word only Vikivortaro has,
+ * [vikiWord]'s page. */
+@Composable
+fun SourcesLine(
+    revo: Boolean,
+    viki: Boolean,
+    modifier: Modifier = Modifier,
+    revoArticle: Int? = null,
+    vikiWord: String? = null,
+    /** Whether the page shows Vikivortaro's description of [vikiWord] */
+    vikiDescription: Boolean = true,
+) {
+    var open by rememberSaveable { mutableStateOf(false) }
+    val context = LocalContext.current
+    val revoPage by produceState<String?>(null, revoArticle) {
+        value = revoArticle?.let { withContext(Dispatchers.IO) { RevoFiles.page(context, it)?.toString() } }
+    }
+    val revoName = stringResource(R.string.revo_name)
+    val vikiName = stringResource(R.string.viki_name)
+    val muted = MaterialTheme.colorScheme.onSurfaceVariant
+
+    /* A button, as high as one should be to be tapped */
+    Box(
+        modifier
+            .heightIn(min = 48.dp)
+            .clickable(role = Role.Button) { open = true },
+        contentAlignment = Alignment.CenterStart,
+    ) {
+        Text(
+            stringResource(R.string.sources_line, listOfNotNull(revoName.takeIf { revo }, vikiName.takeIf { viki }).joinToString(" · ")),
+            style = MaterialTheme.typography.bodySmall.copy(fontStyle = FontStyle.Italic),
+            color = muted,
+        )
+    }
+    if (open)
+        AlertDialog(
+            onDismissRequest = { open = false },
+            confirmButton = { TextButton(onClick = { open = false }) { Text(stringResource(R.string.close)) } },
+            title = { Text(stringResource(R.string.sources)) },
+            text = {
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    if (revo)
+                        Source(revoName, stringResource(R.string.sources_revo), revoPage ?: REVO_SITE)
+                    if (viki)
+                        Source(
+                            vikiName,
+                            if (vikiWord != null)
+                                stringResource(if (vikiDescription) R.string.sources_viki_word else R.string.sources_viki_word_only, vikiWord)
+                            else stringResource(R.string.sources_viki),
+                            if (vikiWord != null) VIKI_SITE + "wiki/" + Uri.encode(vikiWord.replace(' ', '_')) else VIKI_SITE,
+                        )
+                }
+            },
+        )
+}
+
+private const val REVO_SITE = "https://reta-vortaro.de/"
+private const val VIKI_SITE = "https://fr.wiktionary.org/"
+
+/** A source, its name a link to read it there */
+@Composable
+private fun Source(name: String, what: String, url: String) {
+    val link = TextLinkStyles(
+        SpanStyle(
+            color = MaterialTheme.colorScheme.primary,
+            fontWeight = FontWeight.Bold,
+            textDecoration = TextDecoration.Underline,
+        )
+    )
+    /* And the licence, where it is named, to read it */
+    val licence = "CC BY-SA 4.0"
+    Text(
+        buildAnnotatedString {
+            withLink(LinkAnnotation.Url(url, link)) { append(name) }
+            append(" — ")
+            val at = what.indexOf(licence)
+            if (at < 0)
+                append(what)
+            else {
+                append(what.substring(0, at))
+                withLink(LinkAnnotation.Url(CC_BY_SA_URL, link)) { append(licence) }
+                append(what.substring(at + licence.length))
+            }
+        },
+        style = MaterialTheme.typography.bodyMedium,
+    )
 }
 
 /** Text with the spans of the articles (links, superscripts, italics…),

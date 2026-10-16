@@ -22,8 +22,10 @@ import java.io.File
 
 /** A word opened from the search: the language searched in, and the word
  * as the index of that language has it, eg. "chercher" in French. Words,
- * not article numbers, which change with every update of the dictionary. */
-data class HistoryEntry(val language: String, val word: String)
+ * not article numbers, which change with every update of the dictionary.
+ * For a French word that only the French Wiktionary has, the Esperanto
+ * word opened: "potiron" leads to "kukurbo" and to "potirono". */
+data class HistoryEntry(val language: String, val word: String, val wiktionary: String? = null)
 
 /** The history of the searches: the words whose article was opened from
  * the search, the most recent first, each one once. It is kept in a
@@ -71,15 +73,23 @@ object History {
     internal fun added(entries: List<HistoryEntry>, entry: HistoryEntry, max: Int = MAX_ENTRIES) =
         (listOf(entry) + entries.filter { it != entry }).take(max)
 
-    /** One entry per line: the language, a tab, the word. */
+    /** One entry per line: the language, a tab, the word, and for a word
+     * of Wiktionary, another tab and its Esperanto word. */
     internal fun encode(entries: List<HistoryEntry>): String =
-        entries.joinToString("\n") { "${it.language}\t${it.word.replace(Regex("[\t\n\r]"), " ")}" }
+        entries.joinToString("\n") { entry ->
+            listOfNotNull(entry.language, entry.word, entry.wiktionary)
+                .joinToString("\t") { it.replace(Regex("[\t\n\r]"), " ") }
+        }
 
     /** Reads what [encode] writes, skipping the lines it can't read. */
     internal fun decode(text: String): List<HistoryEntry> =
         text.lineSequence().mapNotNull { line ->
             val tab = line.indexOf('\t')
             if (tab <= 0 || tab == line.lastIndex) null
-            else HistoryEntry(line.substring(0, tab), line.substring(tab + 1))
+            else {
+                val rest = line.substring(tab + 1).split('\t')
+                if (rest[0].isEmpty()) null
+                else HistoryEntry(line.substring(0, tab), rest[0], rest.getOrNull(1)?.takeIf { it.isNotEmpty() })
+            }
         }.toList()
 }

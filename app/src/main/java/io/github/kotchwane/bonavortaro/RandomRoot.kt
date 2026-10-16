@@ -58,7 +58,8 @@ object RandomRoot {
     private fun count(context: Context): Int =
         count ?: synchronized(this) {
             count ?: run {
-                val files = context.assets.list("articles")?.size ?: 0
+                /* Only the articles: files.txt is there too */
+                val files = context.assets.list("articles")?.count { it.startsWith("article-") } ?: 0
                 if (files == 0) return@run 0
                 val last = String.format(java.util.Locale.US, "articles/article-%03xx.bin", files - 1)
                 var inLast = 0

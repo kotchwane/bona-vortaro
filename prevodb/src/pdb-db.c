@@ -207,6 +207,10 @@ struct _PdbDb
 
   GPtrArray *articles;
 
+  /* The name of the file of each article, without its directory and
+   * ".xml", eg. "korvet", as Reta Vortaro's site names its pages */
+  GPtrArray *article_files;
+
   /* Temporary storage location for the word root. This is only valid
    * while parsing an article */
   char *word_root;
@@ -3488,6 +3492,7 @@ pdb_db_new (PdbRevo *revo,
     }
 
   db->articles = g_ptr_array_new ();
+  db->article_files = g_ptr_array_new_with_free_func (g_free);
   db->links = NULL;
 
   db->marks = g_hash_table_new_full (g_str_hash,
@@ -3557,6 +3562,17 @@ pdb_db_new (PdbRevo *revo,
 
               if (parse_result)
                 {
+                  char *base = g_path_get_basename (file);
+                  int i;
+
+                  if (g_str_has_suffix (base, ".xml"))
+                    base[strlen (base) - 4] = '\0';
+
+                  for (i = old_len; i < db->articles->len; i++)
+                    g_ptr_array_add (db->article_files, g_strdup (base));
+
+                  g_free (base);
+
                   if (db->articles->len <= old_len)
                     fprintf (stderr,
                              _("no articles found in %s\n"),
@@ -3636,6 +3652,7 @@ pdb_db_free (PdbDb *db)
     }
 
   g_ptr_array_free (db->articles, TRUE);
+  g_ptr_array_free (db->article_files, TRUE);
 
   pdb_db_free_link_list (db->links);
 
@@ -3876,6 +3893,32 @@ pdb_db_save_officiality (PdbDb *db,
   return ret;
 }
 
+/* Writes assets/articles/files.txt: the name of the file of each article,
+ * one a line, in the order of the articles, eg. "korvet", to link to its
+ * page on Reta Vortaro's site */
+static gboolean
+pdb_db_save_article_files (PdbDb *db,
+                           const char *dir,
+                           GError **error)
+{
+  GString *out = g_string_new (NULL);
+  int i;
+  gboolean ret;
+
+  for (i = 0; i < db->article_files->len; i++)
+    {
+      g_string_append (out, g_ptr_array_index (db->article_files, i));
+      g_string_append_c (out, '\n');
+    }
+
+  char *file_name = g_build_filename (dir, "assets", "articles", "files.txt", NULL);
+  ret = g_file_set_contents (file_name, out->str, out->len, error);
+  g_free (file_name);
+  g_string_free (out, TRUE);
+
+  return ret;
+}
+
 gboolean
 pdb_db_save (PdbDb *db,
              const char *dir,
@@ -3948,6 +3991,9 @@ pdb_db_save (PdbDb *db,
     ret = FALSE;
 
   if (ret && !pdb_db_save_officiality (db, dir, error))
+    ret = FALSE;
+
+  if (ret && !pdb_db_save_article_files (db, dir, error))
     ret = FALSE;
 
   return ret;

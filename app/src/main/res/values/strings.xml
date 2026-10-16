@@ -190,6 +190,22 @@
   <string name="about_privacy_link">La politiko pri privateco</string>
   <string name="about_data_title">La vortaro</string>
   <string name="about_data">La difinoj kaj la tradukoj estas tiuj de la Reta Vortaro (ReVo), verkitaj de ĝiaj redaktantoj kaj publikigitaj laŭ la GPL, versio 2.</string>
+  <!-- What comes from the French Wiktionary, apart from Reta Vortaro -->
+  <string name="viki_name">Vikivortaro</string>
+  <string name="viki_not_bold">La vortoj ne grasaj venas el Vikivortaro (CC BY-SA 4.0).</string>
+  <string name="viki_word_source">„%1$s“ venas el Vikivortaro (CC BY-SA 4.0).</string>
+  <string name="viki_in_french">franca: %1$s</string>
+  <string name="not_in_revo">ne en Reta Vortaro</string>
+  <string name="revo_name">Reta Vortaro</string>
+  <string name="sources">Fontoj</string>
+  <string name="sources_line">Fontoj: %1$s ›</string>
+  <string name="sources_revo">la difinoj, la ekzemploj kaj la tradukoj, de ĝiaj redaktantoj, laŭ la GPL</string>
+  <string name="sources_viki">la tradukoj kun punktita substreko, de ĝiaj kontribuantoj, laŭ CC BY-SA 4.0, elektitaj kaj adaptitaj por Bona vortaro</string>
+  <string name="sources_viki_word_only">„%1$s“, de ĝiaj kontribuantoj, laŭ CC BY-SA 4.0</string>
+  <string name="sources_viki_word">„%1$s“ kaj ĝia priskribo, de ĝiaj kontribuantoj, laŭ CC BY-SA 4.0, adaptitaj por Bona vortaro</string>
+  <string name="about_viki_title">Vikivortaro</string>
+  <string name="about_viki">Kelkaj tradukoj, kiujn la Reta Vortaro ne havas, venas el Vikivortaro: en la artikoloj ili havas punktitan substrekon, en la serĉo ili ne estas grasaj. Vikivortaro estas verkita de ĝiaj kontribuantoj kaj publikigita laŭ la permesilo CC BY-SA 4.0. Tiuj tradukoj estas elektitaj kaj adaptitaj por Bona vortaro, kaj restas apartaj de la Reta Vortaro.</string>
+  <string name="about_viki_link">Vikivortaro</string>
   <string name="about_data_link">La Reta Vortaro</string>
   <string name="about_copyright_title">Kopirajto</string>
   <string name="about_copyright">*Bona vortaro*: © 2026 kotchwane. PReVo kaj prevodb: © 2012, 2013, 2016, 2017, 2018, 2019, 2020 Neil Roberts. Ĉiuj tri estas libera programaro, laŭ la GPL, versio 2: ĉiu rajtas uzi, kunhavigi kaj ŝanĝi ilin.</string>

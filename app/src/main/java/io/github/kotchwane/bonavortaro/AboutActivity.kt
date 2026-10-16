@@ -53,6 +53,8 @@ private const val SOURCE_URL = "https://github.com/kotchwane/bona-vortaro"
 private const val RETA_VORTARO_URL = "https://reta-vortaro.de/"
 private const val LICENSE_URL = "https://www.gnu.org/licenses/old-licenses/gpl-2.0-standalone.html"
 private const val PRIVACY_URL = "https://kotchwane.github.io/bona-vortaro/privacy"
+private const val VIKIVORTARO_URL = "https://fr.wiktionary.org/"
+internal const val CC_BY_SA_URL = "https://creativecommons.org/licenses/by-sa/4.0/"
 
 /** About the app: what it is, that it is free software, works without
  * internet, asks for no permission and collects nothing (with a link to
@@ -76,7 +78,14 @@ class AboutActivity : BonaActivity() {
 }
 
 /* The parts of the page: a title, a text, and maybe a link */
-private class AboutPart(val title: Int, val text: Int, val link: Pair<Int, String>? = null)
+/** A part of the page: its title, its text, maybe with one of its words
+ * as a link ([textLink]), and a link under it */
+private class AboutPart(
+    val title: Int,
+    val text: Int,
+    val link: Pair<Int, String>? = null,
+    val textLink: Pair<String, String>? = null,
+)
 
 private val PARTS = listOf(
     AboutPart(R.string.about_free_title, R.string.about_free, R.string.about_source_link to SOURCE_URL),
@@ -84,6 +93,10 @@ private val PARTS = listOf(
     AboutPart(R.string.about_permissions_title, R.string.about_permissions),
     AboutPart(R.string.about_privacy_title, R.string.about_privacy, R.string.about_privacy_link to PRIVACY_URL),
     AboutPart(R.string.about_data_title, R.string.about_data, R.string.about_data_link to RETA_VORTARO_URL),
+    AboutPart(
+        R.string.about_viki_title, R.string.about_viki, R.string.about_viki_link to VIKIVORTARO_URL,
+        textLink = "CC BY-SA 4.0" to CC_BY_SA_URL,
+    ),
     AboutPart(R.string.about_copyright_title, R.string.about_copyright),
     AboutPart(R.string.about_warranty_title, R.string.about_warranty, R.string.about_license_link to LICENSE_URL),
 )
@@ -132,7 +145,8 @@ private fun AboutPage(onBack: () -> Unit) {
                     fontWeight = FontWeight.Bold,
                 )
                 Spacer(Modifier.height(4.dp))
-                Text(withItalics(stringResource(part.text)), style = body)
+                val text = stringResource(part.text)
+                Text(part.textLink?.let { withLinks(text, it) } ?: withItalics(text), style = body)
                 part.link?.let { (label, url) -> Link(label, url) }
             }
             Spacer(Modifier.height(32.dp))

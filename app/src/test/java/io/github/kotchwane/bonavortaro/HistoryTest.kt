@@ -54,6 +54,17 @@ class HistoryTest {
     }
 
     @Test
+    fun aWordOfWiktionaryKeepsItsEsperantoWord() {
+        val kukurbo = HistoryEntry("fr", "potiron", "kukurbo")
+        val potirono = HistoryEntry("fr", "potiron", "potirono")
+        val entries = listOf(kukurbo, chercher, potirono)
+        assertEquals(entries, History.decode(History.encode(entries)))
+        /* Two entries, and not the word of Reta Vortaro */
+        assertEquals(listOf(potirono, kukurbo, chercher), History.added(listOf(kukurbo, chercher), potirono))
+        assertEquals("fr\tpotiron\tkukurbo", History.encode(listOf(kukurbo)))
+    }
+
+    @Test
     fun aCarriageReturnDoesntSplitAnEntry() {
         assertEquals(listOf(HistoryEntry("fr", "w ord")), History.decode(History.encode(listOf(HistoryEntry("fr", "w\rord")))))
     }

@@ -53,8 +53,9 @@ import androidx.compose.ui.unit.dp
 import java.io.IOException
 import java.util.Locale
 
-/** A word of the history, found again in the index of its language. */
-class RecentSearch(val entry: HistoryEntry, val result: SearchResult)
+/** A word of the history, found again in the index of its language, or
+ * in the French Wiktionary. */
+class RecentSearch(val entry: HistoryEntry, val found: FoundWord)
 
 private const val TAG = "bonahistory"
 
@@ -71,12 +72,20 @@ fun findRecentSearches(context: Context, entries: List<HistoryEntry>): List<Rece
             Log.w(TAG, "Failed to load the index for ${entry.language}")
             return@mapNotNull null
         }
+        /* A word of Vikivortaro: Reta Vortaro's entry, if it has one since */
+        if (entry.wiktionary != null)
+            return@mapNotNull Vikivortaro.revoEntry(trie, entry.word, esperanto = entry.language == "eo")
+                ?.let { RecentSearch(entry, FoundWord.InRevo(it)) }
+                ?: (
+                    if (entry.language == "eo") Vikivortaro.esperantoResult(context, entry.word)
+                    else Vikivortaro.result(context, entry.word, entry.wiktionary)
+                )?.let { RecentSearch(entry, FoundWord.InWiktionary(it)) }
         fun find(key: String): SearchResult? {
             val count = trie.search(key, results)
             return results.take(count).filterNotNull().firstOrNull { it.word == entry.word }
         }
         historyKeys(entry.word).firstNotNullOfOrNull { find(it) }
-            ?.let { RecentSearch(entry, it) }
+            ?.let { RecentSearch(entry, FoundWord.InRevo(it)) }
     }
 }
 
@@ -151,31 +160,43 @@ fun RecentSearches(
                 recent == null -> {}
                 recent.isEmpty() || !keepHistory -> item { SearchTips(keepHistory) }
                 else -> {
-                    itemsIndexed(recent, key = { _, it -> "${it.entry.language}\t${it.entry.word}" }) { index, search ->
-                        ResultRow(
-                            search.result,
-                            wordStyle,
-                            inEsperanto = search.entry.language == "eo",
-                            onClick = { onOpen(search) },
-                            label = search.entry.language.uppercase(),
-                            onLongClick = {
-                                /* The keyboard closes, so that the back
-                                 * button ends the editing at once */
-                                focusManager.clearFocus()
-                                onEditingChange(true)
-                            },
-                            action = if (!showBins) null else {
-                                {
-                                    IconButton(onClick = { onRemove(search) }) {
-                                        Icon(
-                                            Icons.Default.Delete,
-                                            contentDescription = stringResource(R.string.remove_from_history),
-                                            tint = muted,
-                                        )
-                                    }
+                    itemsIndexed(recent, key = { _, it -> History.encode(listOf(it.entry)) }) { index, search ->
+                        val label = search.entry.language.uppercase()
+                        val onLongClick = {
+                            /* The keyboard closes, so that the back button
+                             * ends the editing at once */
+                            focusManager.clearFocus()
+                            onEditingChange(true)
+                        }
+                        val action: (@Composable () -> Unit)? = if (!showBins) null else {
+                            {
+                                IconButton(onClick = { onRemove(search) }) {
+                                    Icon(
+                                        Icons.Default.Delete,
+                                        contentDescription = stringResource(R.string.remove_from_history),
+                                        tint = muted,
+                                    )
                                 }
-                            },
-                        )
+                            }
+                        }
+                        when (val found = search.found) {
+                            is FoundWord.InRevo -> ResultRow(
+                                found.result,
+                                wordStyle,
+                                inEsperanto = search.entry.language == "eo",
+                                onClick = { onOpen(search) },
+                                label = label,
+                                onLongClick = onLongClick,
+                                action = action,
+                            )
+                            is FoundWord.InWiktionary -> VikiResultRow(
+                                found.result,
+                                onClick = { onOpen(search) },
+                                label = label,
+                                onLongClick = onLongClick,
+                                action = action,
+                            )
+                        }
                         if (index != recent.lastIndex)
                             HorizontalDivider(Modifier.padding(horizontal = 20.dp), color = rule)
                     }

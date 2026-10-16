@@ -118,11 +118,17 @@ class SearchActivity : BonaActivity() {
     private var recent by mutableStateOf<List<RecentSearch>?>(null)
     private var keepHistory by mutableStateOf(true)
     private var guessWords by mutableStateOf(true)
+    /* Whether Vikivortaro's French shows: the French translations do */
+    private var inFrench by mutableStateOf(false)
     /* Counts the new searches asked for with the magnifier of an article */
     private var newSearch by mutableIntStateOf(0)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        /* Vikivortaro's data, which the search in Esperanto reads too:
+         * read meanwhile, rather than at the first word typed */
+        lifecycleScope.launch(Dispatchers.IO) { Vikivortaro.preload(applicationContext) }
 
         searchLanguages = BonaSettings.getSearchLanguages(this)
         selected = (savedInstanceState?.getString(STATE_SELECTED)
@@ -142,12 +148,14 @@ class SearchActivity : BonaActivity() {
                     newSearch = newSearch,
                     onLanguageChosen = ::chooseLanguage,
                     onResultClick = ::openArticle,
+                    onVikiClick = ::openViki,
                     onChooseLanguage = { SelectLanguageActivity.open(this) },
                     onRandomRoot = ::openRandomRoot,
                     onPreferences = { Screens.goPreferences(this) },
                     recent = recent,
                     keepHistory = keepHistory,
                     guessWords = guessWords,
+                    inFrench = inFrench,
                     onRemoveRecent = ::removeFromHistory,
                     onRestoreHistory = ::restoreHistory,
                 )
@@ -168,6 +176,7 @@ class SearchActivity : BonaActivity() {
         textSize = BonaSettings.getTextSize(this)
         keepHistory = BonaSettings.getKeepHistory(this)
         guessWords = BonaSettings.getGuessWords(this)
+        inFrench = Vikivortaro.inArticles(this)
         loadHistory()
     }
 
@@ -229,6 +238,29 @@ class SearchActivity : BonaActivity() {
         }
     }
 
+    /* A French word of Wiktionary: Reta Vortaro's article for its Esperanto
+     * word, told which word was searched; else Wiktionary's own page. Kept
+     * in the history with its Esperanto word */
+    private fun openViki(result: VikiResult) {
+        if (keepHistory) {
+            val entry = if (result.inEsperanto) HistoryEntry("eo", result.esperanto, result.esperanto)
+                else HistoryEntry("fr", result.french, result.esperanto)
+            lifecycleScope.launch(Dispatchers.IO) { History.add(applicationContext, entry) }
+        }
+        val revo = result.revo
+        if (revo == null) {
+            VikivortaroActivity.open(this, result.esperanto)
+            return
+        }
+        startActivity(
+            Intent(this, ArticleActivity::class.java)
+                .putExtra(ArticleActivity.EXTRA_ARTICLE_NUMBER, revo.article)
+                .putExtra(ArticleActivity.EXTRA_MARK_NUMBER, revo.mark)
+                .putExtra(ArticleActivity.EXTRA_VIKI_FRENCH, result.french)
+                .putExtra(ArticleActivity.EXTRA_VIKI_WORD, result.esperanto)
+        )
+    }
+
     private fun openArticle(result: SearchResult, language: String) {
         if (keepHistory) {
             val entry = HistoryEntry(language, result.word)
@@ -252,12 +284,14 @@ private fun SearchScreen(
     newSearch: Int,
     onLanguageChosen: (String) -> Unit,
     onResultClick: (SearchResult, String) -> Unit,
+    onVikiClick: (VikiResult) -> Unit,
     onChooseLanguage: () -> Unit,
     onRandomRoot: () -> Unit,
     onPreferences: () -> Unit,
     recent: List<RecentSearch>?,
     keepHistory: Boolean,
     guessWords: Boolean,
+    inFrench: Boolean,
     onRemoveRecent: (RecentSearch) -> List<HistoryEntry>,
     onRestoreHistory: (List<HistoryEntry>) -> Unit,
 ) {
@@ -304,9 +338,14 @@ private fun SearchScreen(
      * tab, where a missing "bonjour" isn't Esperanto. The last one stays
      * until the next is ready */
     var analysis by remember { mutableStateOf<ShownAnalysis?>(null) }
-    val nothingFound = outcome?.results?.isEmpty() == true
-    LaunchedEffect(query, nothingFound, selected, guessWords) {
-        if (!nothingFound || selected != "eo" || isPattern(query) || query.isBlank() || !guessWords) {
+    /* Also when only Vikivortaro has the word, and nothing in the
+     * reader's languages to say of it */
+    val nothingToRead = outcome?.let { found ->
+        found.isEmpty || (found.results.isEmpty() && found.lemmas.none { it is FoundWord.InRevo } &&
+            found.wiktionary.all { it.inEsperanto } && !inFrench)
+    } == true
+    LaunchedEffect(query, nothingToRead, selected, guessWords) {
+        if (!nothingToRead || selected != "eo" || isPattern(query) || query.isBlank() || !guessWords) {
             analysis = null
             return@LaunchedEffect
         }
@@ -345,7 +384,13 @@ private fun SearchScreen(
                 editing = editing,
                 onEditingChange = { editing = it },
                 textSize = textSize,
-                onOpen = { editing = false; onResultClick(it.result, it.entry.language) },
+                onOpen = { search ->
+                    editing = false
+                    when (val found = search.found) {
+                        is FoundWord.InRevo -> onResultClick(found.result, search.entry.language)
+                        is FoundWord.InWiktionary -> onVikiClick(found.result)
+                    }
+                },
                 onRemove = { offerUndo(removed, onRemoveRecent(it)) },
                 modifier = Modifier.weight(1f),
                 /* The random root scrolls away with the history, which
@@ -353,7 +398,7 @@ private fun SearchScreen(
                 header = { RandomRootButton(onClick = { editing = false; onRandomRoot() }) },
             )
           }
-        } else if (current != null && current.results.isEmpty() && analysis != null) {
+        } else if (current != null && current.isEmpty && analysis != null) {
             /* Nothing in any language: how the word may be built, if it
              * is Esperanto */
             Column(
@@ -371,7 +416,7 @@ private fun SearchScreen(
                     WordAnalysisView(analysis!!, onOpen = { onResultClick(it, "eo") })
                 }
             }
-        } else if (current != null && current.results.isEmpty()) {
+        } else if (current != null && current.isEmpty) {
             Box(
                 Modifier.fillMaxSize().padding(padding).consumeWindowInsets(padding).imePadding(),
                 contentAlignment = Alignment.Center,
@@ -385,9 +430,12 @@ private fun SearchScreen(
         } else if (current != null) {
             ResultList(
                 outcome = current,
+                analysis = analysis,
                 searchOrder = searchOrder,
                 textSize = textSize,
+                inFrench = inFrench,
                 onResultClick = onResultClick,
+                onVikiClick = onVikiClick,
                 modifier = Modifier.padding(padding).consumeWindowInsets(padding).imePadding(),
             )
         }
@@ -517,9 +565,14 @@ private fun LanguageTabs(
 @Composable
 private fun ResultList(
     outcome: SearchOutcome,
+    /** How the word may be built, when what was found says nothing in the
+     * reader's languages */
+    analysis: ShownAnalysis?,
     searchOrder: List<String>,
     textSize: Int,
+    inFrench: Boolean,
     onResultClick: (SearchResult, String) -> Unit,
+    onVikiClick: (VikiResult) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val context = LocalContext.current
@@ -538,7 +591,7 @@ private fun ResultList(
                         stringResource(
                             R.string.other_language_note,
                             languageList.getLanguageName(searchOrder[0], true),
-                            languageList.getLanguageName(searchOrder[outcome.languageIndex], true),
+                            languageList.getLanguageName(outcome.language, true),
                         ),
                         style = MaterialTheme.typography.bodyMedium.copy(fontStyle = FontStyle.Italic),
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -547,21 +600,41 @@ private fun ResultList(
                 }
             }
 
-            item { RunningHead(outcome.results.first().word, outcome.results.last().word) }
+            val words = outcome.words
+            item { RunningHead(words.first().word, words.last().word) }
 
             /* For a search in another language, the preview starts with the
              * Esperanto word that the result translates */
             /* The language where the words were found, kept with them in the
-             * history */
-            val language = searchOrder[outcome.languageIndex]
+             * history: the search's, not the tab's, which may have changed
+             * meanwhile */
+            val language = outcome.language
             val inEsperanto = language == "eo"
-            val last = outcome.results.lastIndex
 
-            itemsIndexed(outcome.results) { index, result ->
-                ResultRow(result, wordStyle, inEsperanto, onClick = { onResultClick(result, language) })
-                if (index != last)
+            /* Among Reta Vortaro's, the French words that only the French
+             * Wiktionary has, marked so */
+            itemsIndexed(words) { index, found ->
+                when (found) {
+                    is FoundWord.InRevo ->
+                        ResultRow(found.result, wordStyle, inEsperanto, onClick = { onResultClick(found.result, language) })
+                    is FoundWord.InWiktionary ->
+                        VikiResultRow(found.result, onClick = { onVikiClick(found.result) }, inFrench = inFrench)
+                }
+                if (index != words.lastIndex)
                     HorizontalDivider(Modifier.padding(horizontal = 20.dp), color = rule)
             }
+            /* Where the words not bold come from, quietly, after them */
+            if (outcome.wiktionary.isNotEmpty())
+                item {
+                    Text(
+                        stringResource(R.string.viki_not_bold),
+                        style = MaterialTheme.typography.bodySmall.copy(fontStyle = FontStyle.Italic),
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.padding(horizontal = 20.dp, vertical = 12.dp),
+                    )
+                }
+            if (analysis != null)
+                item { WordAnalysisView(analysis, onOpen = { onResultClick(it, "eo") }) }
         }
     }
 }
@@ -606,6 +679,9 @@ internal fun ResultRow(
 ) {
     val context = LocalContext.current
     val preview by produceState<WordPreview?>(null, result) {
+        /* Not the preview of the word the row showed before, while its own
+         * is read */
+        value = null
         value = withContext(Dispatchers.IO) { SearchPreviews.get(context, result) }
     }
     val small = MaterialTheme.typography.bodyMedium

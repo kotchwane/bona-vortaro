@@ -84,6 +84,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -106,6 +107,10 @@ class ArticleActivity : BonaActivity() {
     companion object {
         const val EXTRA_ARTICLE_NUMBER = "io.github.kotchwane.bonavortaro.ArticleNumber"
         const val EXTRA_MARK_NUMBER = "io.github.kotchwane.bonavortaro.MarkNumber"
+        /** The French word searched, which only the French Wiktionary
+         * translates by the Esperanto word of [EXTRA_VIKI_WORD] */
+        const val EXTRA_VIKI_FRENCH = "io.github.kotchwane.bonavortaro.VikiFrench"
+        const val EXTRA_VIKI_WORD = "io.github.kotchwane.bonavortaro.VikiWord"
 
         /* http://www.openintents.org/en/node/720
          * This probably only works with AnkiDroid 2.0 */
@@ -133,6 +138,8 @@ class ArticleActivity : BonaActivity() {
 
     /* The user's languages, whose translations are shown first */
     private var preferredLanguages by mutableStateOf(emptyList<String>())
+    /* Whether Vikivortaro's French is shown: with the French translations */
+    private var vikiShown by mutableStateOf(false)
     private var showNoFlashcard by mutableStateOf(false)
 
     /* The translations that were shown when the article was loaded, to
@@ -151,6 +158,9 @@ class ArticleActivity : BonaActivity() {
                 ?: listOf(intent.getIntExtra(EXTRA_ARTICLE_NUMBER, -1))
         )
         val mark = intent.getIntExtra(EXTRA_MARK_NUMBER, -1)
+        val vikiSearch = intent.getStringExtra(EXTRA_VIKI_FRENCH)?.let { french ->
+            intent.getStringExtra(EXTRA_VIKI_WORD)?.let { VikiSearch(french, it) }
+        }
 
         setContent {
             /* Each root read keeps its own state, its scroll above all,
@@ -173,8 +183,11 @@ class ArticleActivity : BonaActivity() {
                     unfoldExamples = unfoldExamples,
                     foldTranslations = foldTranslations,
                     preferredLanguages = preferredLanguages,
+                    vikiShown = vikiShown,
                     /* The section of the intent, for the root it opened */
                     initialSection = if (savedInstanceState == null && depth == 1) mark else -1,
+                    /* For the root the search opened */
+                    vikiSearch = if (depth == 1) vikiSearch else null,
                     sectionRequests = sectionRequests,
                     onSearch = { Screens.goSearch(this) },
                     onPreferences = { Screens.goPreferences(this) },
@@ -214,6 +227,7 @@ class ArticleActivity : BonaActivity() {
         textSize = BonaSettings.getTextSize(this)
         unfoldExamples = BonaSettings.getUnfoldExamples(this)
         preferredLanguages = BonaSettings.getTranslationOrder(this)
+        vikiShown = Vikivortaro.inArticles(this)
 
         val translations = currentTranslations()
         /* The translations are folded only when all of the languages
@@ -352,7 +366,7 @@ class ArticleActivity : BonaActivity() {
 }
 
 /* A neutral grey that is readable in both light and dark themes */
-private const val QUOTE_COLOR = 0xFF9E9E9E.toInt()
+internal const val QUOTE_COLOR = 0xFF9E9E9E.toInt()
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -363,7 +377,9 @@ private fun ArticleScreen(
     unfoldExamples: Boolean,
     foldTranslations: Boolean,
     preferredLanguages: List<String>,
+    vikiShown: Boolean,
     initialSection: Int,
+    vikiSearch: VikiSearch?,
     sectionRequests: MutableSharedFlow<Int>,
     onSearch: () -> Unit,
     onPreferences: () -> Unit,
@@ -380,6 +396,9 @@ private fun ArticleScreen(
     peekArticle: (Int) -> Article?,
 ) {
     val listState = rememberLazyListState()
+    /* The words whose card has words of Vikivortaro, for the sources */
+    val vikiSections = remember(articleNumber) { mutableStateMapOf<Int, Boolean>() }
+    val withViki = vikiSections.values.any { it }
     val scope = rememberCoroutineScope()
     var actionsFor by remember { mutableStateOf<ArticleSection?>(null) }
     /* Read with the article, so that they are there before the end of it
@@ -526,6 +545,9 @@ private fun ArticleScreen(
                 items(layout?.words ?: emptyList(), key = { it.section }) { word ->
                     WordCard(
                         word, unfoldExamples, foldTranslations,
+                        vikiSearch = vikiSearch,
+                        vikiShown = vikiShown,
+                        onViki = { vikiSections[word.section] = it },
                         onLongPress = { actionsFor = word.source },
                         onLongPressWord = { pressed, language -> wordFor = pressed to language },
                     )
@@ -539,6 +561,10 @@ private fun ArticleScreen(
                  * would be left below the screen. A way to move on, not text
                  * to read: at the size of the controls, where its three
                  * narrow cards keep their words whole */
+                if (layout != null)
+                    item(key = "sources") {
+                        SourcesLine(revo = true, viki = withViki, revoArticle = articleNumber, modifier = Modifier.padding(horizontal = 8.dp))
+                    }
                 if (layout != null && neighbours != null)
                     item(key = "neighbours") {
                         UnscaledText {
@@ -760,14 +786,14 @@ private fun DefinitionActions(
 
 
 /** An article next to this one, in the order of the dictionary */
-private class Neighbour(val number: Int, val root: String, val definition: String)
+internal class Neighbour(val number: Int, val root: String, val definition: String)
 
 /** The neighbours of an article if both are in the cache, else null */
 private fun cachedNeighbours(peekArticle: (Int) -> Article?, articleNumber: Int): List<Neighbour?>? {
     val numbers = listOf(articleNumber - 1, articleNumber + 1)
     if (numbers.any { it >= 0 && peekArticle(it) == null })
         return null
-    return loadNeighbours({ peekArticle(it)!! }, articleNumber)
+    return loadNeighbours({ peekArticle(it)!! }, numbers)
 }
 
 /** The articles before and after one, null where there is none: before
@@ -775,7 +801,12 @@ private fun cachedNeighbours(peekArticle: (Int) -> Article?, articleNumber: Int)
  * itself, into its cache, so that opening them reads nothing more. Disk
  * access. */
 private fun loadNeighbours(loadArticle: (Int) -> Article, articleNumber: Int): List<Neighbour?> =
-    listOf(articleNumber - 1, articleNumber + 1).map { number ->
+    loadNeighbours(loadArticle, listOf(articleNumber - 1, articleNumber + 1))
+
+/** The articles of these numbers, the one before and the one after a
+ * place, null where there is none. Disk access. */
+internal fun loadNeighbours(loadArticle: (Int) -> Article, numbers: List<Int>): List<Neighbour?> =
+    numbers.map { number ->
         if (number < 0) return@map null
         try {
             val article = loadArticle(number)
@@ -793,7 +824,7 @@ private fun loadNeighbours(loadArticle: (Int) -> Article, articleNumber: Int): L
  * dictionary, to read on from one to the next, and between them a root
  * drawn at random. A tap opens it. */
 @Composable
-private fun NeighbourRoots(neighbours: List<Neighbour?>, onOpen: (Int) -> Unit, onRandom: () -> Unit) {
+internal fun NeighbourRoots(neighbours: List<Neighbour?>, onOpen: (Int) -> Unit, onRandom: () -> Unit) {
     val muted = MaterialTheme.colorScheme.onSurfaceVariant
 
     Column(Modifier.fillMaxWidth().padding(top = 14.dp)) {

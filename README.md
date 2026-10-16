@@ -39,6 +39,9 @@ Esperanto, kun ĝiaj tradukoj en pli ol 170 lingvojn. Ĉio estas en la telefono:
 ĝi funkcias sen interreto, kaj petas neniun permeson de la telefono. Ĝi naskiĝis
 el [PReVo](https://github.com/bpeel/prevo), la vortaro de Neil Roberts.
 
+Por la franca, ĝi aldonas la tradukojn, kiujn Reta Vortaro ne havas, el
+[Vikivortaro](https://fr.wiktionary.org/), la franca Vikivortaro.
+
 ### Kion ĝi faras
 
 - **Serĉi** en Esperanto kaj en viaj aliaj lingvoj, kun aŭ sen supersignoj
@@ -56,6 +59,10 @@ el [PReVo](https://github.com/bpeel/prevo), la vortaro de Neil Roberts.
 - **Diveni vortojn, kiuj mankas** en la vortaro: la serĉo proponas, el kiuj
   radikoj kaj afiksoj ili eble konsistas (*malsanulejestrano*: malsanulej +
   estr + ano).
+- **Pli da francaj tradukoj** el Vikivortaro, kie Reta Vortaro ne havas ilin:
+  miloj da pliaj francaj vortoj troveblaj (*potiron* trovas *kukurbo*), kaj
+  miloj da tradukoj aldonitaj en la artikoloj, kun punktita substreko. Ili
+  aperas nur, se la franca estas inter viaj lingvoj.
 - La **lastaj serĉoj**, tagaj kaj noktaj koloroj („papero“ kaj „stelnokto“), la
   grandeco de la teksto, kaj gvidilo en la agordoj.
 
@@ -71,7 +78,9 @@ volas esti same: simpla, klara, kaj agrabla por uzi.
 *Bona vortaro* baziĝas sur [PReVo](https://github.com/bpeel/prevo) de Neil Roberts,
 kies historio estas konservita en ĉi tiu deponejo. Ĝi havas novan interfacon
 (Jetpack Compose), novan aspekton kaj novajn funkciojn. La datumoj venas de la
-redaktoroj de [Reta Vortaro](https://github.com/revuloj/revo-fonto).
+redaktoroj de [Reta Vortaro](https://github.com/revuloj/revo-fonto); la aldonaj
+francaj tradukoj, de la kontribuantoj de la franca [Vikivortaro](https://fr.wiktionary.org/),
+per la eltiro de [Kaikki](https://kaikki.org/).
 
 La ilo, kiu konvertas Retan Vortaron por la apo, [prevodb](https://github.com/bpeel/prevodb),
 ankaŭ de Neil Roberts, troviĝas en `prevodb/`, kun sia historio.
@@ -97,18 +106,32 @@ cd bona-vortaro
 La unua konstruado daŭras kelkajn minutojn: ĝi kompilas prevodb kaj konvertas la
 tutan vortaron.
 
+La datumoj de Vikivortaro, male, estas en la deponejo
+(`app/src/main/assets/vikivortaro/`), por ke ĉiu konstruado estu sama. Por
+renovigi ilin el la nuna eltiro de Kaikki (ĉirkaŭ 740 MB, legataj sen konservo):
+
+```bash
+python3 scripts/vikivortaro.py https://kaikki.org/dictionary/downloads/fr/fr-extract.jsonl.gz
+```
+
 | Dosierujo | Enhavo |
 |---|---|
 | `app/` | la apo por Android (Kotlin kaj Compose, kun Java-kerno el PReVo) |
 | `prevodb/` | la konvertilo de la XML de ReVo al la dosieroj de la apo (C) |
 | `extern/revo-fonto`, `extern/voko-grundo` | la fontoj de Reta Vortaro (submoduloj) |
-| `scripts/` | la konstruado de la vortaro, la piktogramo |
+| `app/src/main/assets/vikivortaro/` | la francaj tradukoj el Vikivortaro (CC BY-SA 4.0) |
+| `scripts/` | la konstruado de la vortaro, la eltiro el Vikivortaro, la piktogramo |
 | `fastlane/` | la tekstoj kaj ekrankopioj por la vendejoj |
 
 ### Permesilo
 
 *Bona vortaro* estas libera programaro, laŭ la GNU General Public License,
 versio 2 (vidu [`COPYING`](COPYING)), kiel PReVo.
+
+La datumoj de Vikivortaro, verkitaj de ĝiaj kontribuantoj, estas laŭ la permesilo
+[CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/). Ili restas en
+apartaj dosieroj, en `app/src/main/assets/vikivortaro/`, kies kapoj diras ilian
+fonton kaj daton; la apo montras ilian fonton ĉe ĉiu paĝo, kie ili aperas.
 
 ---
 
@@ -120,6 +143,9 @@ Esperanto dictionary, with its translations into more than 170 languages.
 Everything is on the phone: it works without Internet access, and asks
 for no permission at all. It grew out of [PReVo](https://github.com/bpeel/prevo),
 Neil Roberts' dictionary.
+
+For French, it adds the translations that Reta Vortaro lacks, from the French
+[Wiktionary](https://fr.wiktionary.org/) ("Vikivortaro").
 
 ### What it does
 
@@ -138,6 +164,10 @@ Neil Roberts' dictionary.
 - **Guess missing words**: when a word isn't in the dictionary, the search
   suggests the roots and affixes it may be built from (*malsanulejestrano*:
   malsanulej + estr + ano).
+- **More French translations** from Wiktionary, where Reta Vortaro has none:
+  thousands more French words to search (*potiron* finds *kukurbo*), and
+  thousands of translations added in the articles, with a dotted underline.
+  They only show if French is among your languages.
 - **Recent searches**, day and night colours ("papero" and "stelnokto"), text
   size, and a guide in the settings.
 
@@ -155,7 +185,9 @@ building. *Bona vortaro* aims to be the same: simple, clear, and pleasant to use
 *Bona vortaro* is based on [PReVo](https://github.com/bpeel/prevo) by Neil Roberts,
 whose history is kept in this repository. It has a new interface (Jetpack
 Compose), a new look and new features. The data comes from the editors of
-[Reta Vortaro](https://github.com/revuloj/revo-fonto).
+[Reta Vortaro](https://github.com/revuloj/revo-fonto); the added French
+translations, from the contributors of the French [Wiktionary](https://fr.wiktionary.org/),
+through [Kaikki](https://kaikki.org/)'s extract.
 
 The tool that converts Reta Vortaro for the app, [prevodb](https://github.com/bpeel/prevodb),
 also by Neil Roberts, lives in `prevodb/`, with its history.
@@ -181,15 +213,29 @@ cd bona-vortaro
 The first build takes a few minutes: it compiles prevodb and converts the whole
 dictionary.
 
+The Wiktionary data, on the other hand, is in the repository
+(`app/src/main/assets/vikivortaro/`), so that every build is the same. To refresh
+it from Kaikki's current extract (about 740 MB, streamed, not kept):
+
+```bash
+python3 scripts/vikivortaro.py https://kaikki.org/dictionary/downloads/fr/fr-extract.jsonl.gz
+```
+
 | Folder | What it holds |
 |---|---|
 | `app/` | the Android app (Kotlin and Compose, with a Java core from PReVo) |
 | `prevodb/` | the converter from ReVo's XML to the app's files (C) |
 | `extern/revo-fonto`, `extern/voko-grundo` | the sources of Reta Vortaro (submodules) |
-| `scripts/` | the dictionary build, the icon |
+| `app/src/main/assets/vikivortaro/` | the French translations from Wiktionary (CC BY-SA 4.0) |
+| `scripts/` | the dictionary build, the Wiktionary extraction, the icon |
 | `fastlane/` | the store texts and screenshots |
 
 ### License
 
 *Bona vortaro* is free software under the GNU General Public License, version 2
 (see [`COPYING`](COPYING)), like PReVo.
+
+The Wiktionary data, by its contributors, is under the
+[CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/) license. It stays
+in separate files, in `app/src/main/assets/vikivortaro/`, whose headers give its
+source and date; the app credits it on every page where it appears.

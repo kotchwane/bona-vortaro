@@ -69,6 +69,9 @@
     <activity android:name="AdditionActivity"
               android:configChanges="uiMode|orientation|screenSize|screenLayout|smallestScreenSize"
               android:exported="false" />
+    <activity android:name="VikivortaroActivity"
+              android:configChanges="uiMode|orientation|screenSize|screenLayout|smallestScreenSize"
+              android:exported="false" />
     <activity android:name="OfficialityActivity"
               android:configChanges="uiMode|orientation|screenSize|screenLayout|smallestScreenSize"
               android:label="@string/officiality_title"
