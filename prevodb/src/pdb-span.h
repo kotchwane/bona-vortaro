@@ -52,6 +52,9 @@ typedef enum
    * CGS), 4 a currency code (ISO 4217), 5 a language code (ISO 639),
    * 6 the number of a food additive (E) */
   PDB_SPAN_ABBREVIATION,
+  /* A subscript, eg. the "2" of "H2O"; superscripts, eg. the "12" of
+   * "10¹²", are PDB_SPAN_SUPERSCRIPT */
+  PDB_SPAN_SUBSCRIPT,
   PDB_SPAN_NONE
 } PdbSpanType;
 

@@ -28,10 +28,11 @@ import urllib.request
 SOURCE = sys.argv[1]
 OUT = os.path.join(os.path.dirname(__file__), "..", "app", "src", "main", "assets", "vikivortaro")
 
-# The descriptions that only send to another word: "Pluriel de …", and
+# The descriptions that only send to another word: "Pluriel de …", not
+# the word alone, which describes "pluralo": "Pluriel."; and
 # anywhere in them, "Volitif du verbe …", "Synonyme de …"
 FORM = re.compile(r"^(pluriel|accusatif|forme|participe|présent|passé|futur|conditionnel|impératif|infinitif|"
-                  r"orthographe|variante|singulier|nominatif|graphie)\b", re.I)
+                  r"orthographe|variante|singulier|nominatif|graphie)\b(?=\s*\S)(?!\s*\.?$)", re.I)
 SENDS = re.compile(r"\b(volitif|pseudo-accusatif|synonyme de)\b", re.I)
 
 # What the extract sometimes gives instead of a description: the source of the

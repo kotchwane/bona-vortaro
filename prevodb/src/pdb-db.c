@@ -337,7 +337,7 @@ pdb_db_reference_get_name (const PdbDbReference *ref)
       return ref->d.mark;
 
     case PDB_DB_REFERENCE_TYPE_DIRECT:
-      return ref->d.direct.section->title.text;
+      return ref->d.direct.section->title.text ? ref->d.direct.section->title.text : "";
     }
 
   g_assert_not_reached ();
@@ -1238,11 +1238,27 @@ pdb_db_handle_example (PdbDb *db,
 
   if (phrase->len > 0)
     {
-      /* After the word itself, if it is the same: "piedo" */
-      if (ind)
+      /* After the word itself, if it is the same: "piedo"; found
+       * without what it starts with in brackets, "(elsalti) el la
+       * fritilo…" by "el la fritilo"; not without a letter, "…" */
+      const char *key = phrase->str;
+
+      if (*key == '(' && strchr (key, ')'))
+        {
+          key = strchr (key, ')') + 1;
+          while (*key == ' ')
+            key++;
+        }
+
+      gboolean has_letter = FALSE;
+
+      for (const char *c = key; *c && !has_letter; c = g_utf8_next_char (c))
+        has_letter = g_unichar_isalpha (g_utf8_get_char (c));
+
+      if (ind && has_letter)
         {
           db->in_example = TRUE;
-          pdb_db_add_index_entry (db, "eo", phrase->str, NULL, reference);
+          pdb_db_add_index_entry (db, "eo", key, key == phrase->str ? NULL : phrase->str, reference);
           db->in_example = FALSE;
         }
 
@@ -1387,7 +1403,8 @@ pdb_db_find_translations (PdbDb *db,
 static PdbDbSection *
 pdb_db_section_new (const char *lang_code)
 {
-  PdbDbSection *section = g_slice_new (PdbDbSection);
+  /* Zeroed: its title may be named in a warning before it is filled */
+  PdbDbSection *section = g_slice_new0 (PdbDbSection);
   int code_len = strlen (lang_code);
 
   memcpy (section->lang_code, lang_code, code_len);
@@ -2217,8 +2234,8 @@ pdb_db_handle_sncref (PdbDb *db,
 
     case PDB_DB_BEFORE_SNCREF_JOIN:
       /* As the reference before in this text: “la sencoj a) kaj b)”,
-       * “<tld/>o¹ aŭ²” */
-      plain = TRUE;
+       * “<tld/>o¹ aŭ²”; else after its word: “<tld/>oj,<sncref/>” */
+      plain = FALSE;
       for (GList *l = db->links; l; l = l->next)
         {
           PdbDbLink *before = l->data;
@@ -2697,6 +2714,9 @@ pdb_db_element_spans[] =
   {
     { .name = "var", .type = PDB_SPAN_NONE, .handler = pdb_db_handle_var },
     { .name = "ofc", .type = PDB_SPAN_SUPERSCRIPT },
+    /* "10<sup>12</sup>", "CH<sub>3</sub>" */
+    { .name = "sup", .type = PDB_SPAN_SUPERSCRIPT },
+    { .name = "sub", .type = PDB_SPAN_SUBSCRIPT },
     { .name = "ekz", .type = PDB_SPAN_ITALIC, .handler = pdb_db_handle_ekz },
     {
       .name = "subdrv",
@@ -2806,6 +2826,12 @@ pdb_db_should_ignore_spannable_tag (PdbDocElementNode *element)
 }
 
 static gboolean
+pdb_db_keeps_space_before (const GString *buf,
+                           char mark,
+                           const char *next,
+                           const char *end);
+
+static gboolean
 pdb_db_parse_node (PdbDb *db,
                    PdbDbParseState *state,
                    PdbDocNode *node,
@@ -2912,7 +2938,7 @@ pdb_db_parse_node (PdbDb *db,
                  * before a comma, a colon or a closing bracket, eg. the
                  * line break at the end of “<refgrp>…\n</refgrp>:” */
                 if (state->queued_space == PDB_DB_QUEUED_SPACE_TYPE_SPACE &&
-                    (strchr (",;:)", *p) ||
+                    ((strchr (",;:)", *p) && !pdb_db_keeps_space_before (state->buf, *p, p + 1, end)) ||
                      (state->space_before_skipped && strchr (".!?", *p))))
                   state->queued_space = PDB_DB_QUEUED_SPACE_TYPE_NONE;
                 state->space_before_skipped = FALSE;
@@ -2926,6 +2952,38 @@ pdb_db_parse_node (PdbDb *db,
     }
 
   return TRUE;
+}
+
+/* Whether a space stays before a mark: in a ratio, "1 : 2 400 000";
+ * before the bracket that closes one opened with a space, "( ĉar se … )" */
+static gboolean
+pdb_db_keeps_space_before (const GString *buf,
+                           char mark,
+                           const char *next,
+                           const char *end)
+{
+  if (mark == ':')
+    {
+      while (next < end && *next == ' ')
+        next++;
+      return (buf->len > 0 && g_ascii_isdigit (buf->str[buf->len - 1]) &&
+              next < end && g_ascii_isdigit (*next));
+    }
+
+  if (mark == ')')
+    {
+      int depth = 0;
+
+      for (int i = buf->len - 1; i >= 0; i--)
+        {
+          if (buf->str[i] == ')')
+            depth++;
+          else if (buf->str[i] == '(' && depth-- == 0)
+            return i + 1 < buf->len && buf->str[i + 1] == ' ';
+        }
+    }
+
+  return FALSE;
 }
 
 static gboolean

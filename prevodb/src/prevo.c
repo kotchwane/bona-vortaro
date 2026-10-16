@@ -878,6 +878,8 @@ handle_start_span (WriteData *write_data,
       /* The symbol of the type of a link is written as it is */
     case PDB_SPAN_ABBREVIATION:
       /* An abbreviation is written as it is */
+    case PDB_SPAN_SUBSCRIPT:
+      /* A subscript is written as it is: man has none */
     case PDB_SPAN_NONE:
       return;
     }
@@ -912,6 +914,8 @@ handle_end_span (WriteData *write_data,
       /* The symbol of the type of a link is written as it is */
     case PDB_SPAN_ABBREVIATION:
       /* An abbreviation is written as it is */
+    case PDB_SPAN_SUBSCRIPT:
+      /* A subscript is written as it is: man has none */
     case PDB_SPAN_NONE:
       return;
     }
