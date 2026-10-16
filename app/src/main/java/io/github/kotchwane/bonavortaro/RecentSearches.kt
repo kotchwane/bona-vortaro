@@ -88,7 +88,8 @@ fun findRecentSearches(context: Context, entries: List<HistoryEntry>): List<Rece
         /* The place it was opened at, if it is still there: its file,
          * there its section; else the first */
         val inFile = entry.file?.let { file -> found.filter { RevoFiles.fileOf(context, it.article) == file } }.orEmpty()
-        (inFile.firstOrNull { it.mark == entry.section } ?: inFile.firstOrNull() ?: found.firstOrNull())
+        (inFile.firstOrNull { it.mark == entry.section } ?: inFile.firstOrNull()
+            ?: found.firstOrNull { !it.isExample } ?: found.firstOrNull())
             ?.let { RecentSearch(entry, FoundWord.InRevo(it)) }
     }
 }

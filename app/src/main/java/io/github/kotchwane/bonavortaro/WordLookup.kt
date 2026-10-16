@@ -86,7 +86,9 @@ object WordLookup {
         return forms.flatMap { form ->
             /* The words of the node come first, then the longer ones */
             val count = trie.search(form, results)
+            /* The word itself before its examples in other articles */
             results.take(count).filterNotNull().filter { it.word.lowercase(Locale.ROOT) == form }
+                .sortedBy { it.isExample }
         }.distinctBy { it.article to it.mark }.take(MAX_ENTRIES)
     }
 

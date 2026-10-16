@@ -83,9 +83,11 @@ object History {
         (listOf(entry) + entries.filter { it != entry && !it.sameWordWithoutPlace(entry) }).take(max)
 
     /* An entry written before the place was kept, for the same word: the
-     * new one replaces it */
+     * new one replaces it; so does one of Reta Vortaro the same word of
+     * Vikivortaro, which it now has */
     private fun HistoryEntry.sameWordWithoutPlace(other: HistoryEntry) =
-        file == null && language == other.language && word == other.word && wiktionary == other.wiktionary
+        file == null && language == other.language && word == other.word &&
+            (wiktionary == other.wiktionary || (other.wiktionary == null && other.file != null))
 
     /** One entry per line: the language, a tab, the word, and for a word
      * of Wiktionary, another tab and its Esperanto word; for its place,

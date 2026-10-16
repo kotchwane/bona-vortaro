@@ -77,6 +77,9 @@ class HistoryTest {
         /* Which the entry with its place replaces; the other place stays */
         assertEquals(listOf(salut, chercher), History.added(listOf(HistoryEntry("fr", "bonjour"), chercher), salut))
         assertEquals(listOf(bon, salut), History.added(listOf(salut), bon))
+        /* A word of Vikivortaro that Reta Vortaro has since */
+        val revo = HistoryEntry("fr", "potiron", file = "kukurb", section = 0)
+        assertEquals(listOf(revo), History.added(listOf(HistoryEntry("fr", "potiron", "kukurbo")), revo))
     }
 
     @Test
