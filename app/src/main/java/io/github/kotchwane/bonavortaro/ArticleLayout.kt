@@ -21,6 +21,7 @@ import android.text.SpannableStringBuilder
 import android.text.Spanned
 import android.text.style.ClickableSpan
 import android.text.style.QuoteSpan
+import android.text.style.SubscriptSpan
 import android.text.style.SuperscriptSpan
 
 /*
@@ -598,17 +599,27 @@ fun previewOf(article: Article, mark: Int): WordPreview? {
         ?: return null
 
     val (_, title) = splitOfficial(section.header)
-    val (_, content) = splitLabels(section.content)
+    val (_, labelled) = splitLabels(section.content)
+
+    /* In plain text, the superscripts and subscripts as such characters,
+     * "10¹²", "CH₃", "trovi¹", rather than "101 2", "CH3", "trovi1"; a
+     * superscript that has no such characters is left out */
+    val content = SpannableStringBuilder(labelled)
+    val scripts = content.getSpans(0, content.length, SuperscriptSpan::class.java)
+        .map { Triple(content.getSpanStart(it), content.getSpanEnd(it), true) } +
+        content.getSpans(0, content.length, SubscriptSpan::class.java)
+            .map { Triple(content.getSpanStart(it), content.getSpanEnd(it), false) }
+    for ((start, end, up) in scripts.distinct().sortedByDescending { it.first }) {
+        val text = content.substring(start, end)
+        content.replace(start, end, scriptCharacters(text, up) ?: if (up) "" else text)
+    }
 
     /* Left out of the preview: the labels within the text, eg. "muziko"
      * at the start of a sense, so that it starts with the definition
-     * itself, and the superscripts, eg. the sense number of "trovi¹",
-     * which would read as "trovi1" in plain text */
-    val superscripts = content.getSpans(0, content.length, SuperscriptSpan::class.java)
-        .map { content.getSpanStart(it) to content.getSpanEnd(it) }
+     * itself */
     val labels = labelSpans(content, 0, content.length)
     val removed = ((labels.filter { it.abbreviation < 0 } + leadingAbbreviations(content, labels))
-        .map { (_, start, end) -> start to end } + superscripts)
+        .map { (_, start, end) -> start to end })
         .sortedBy { it.first }
         /* Merged where they overlap, so that nothing is deleted twice */
         .fold(mutableListOf<Pair<Int, Int>>()) { ranges, range ->
@@ -636,6 +647,21 @@ fun previewOf(article: Article, mark: Int): WordPreview? {
         ?: ""
 
     return WordPreview(title.toString(), definition)
+}
+
+private const val SUPERSCRIPTS = "0⁰1¹2²3³4⁴5⁵6⁶7⁷8⁸9⁹+⁺-⁻−⁻=⁼(⁽)⁾aᵃbᵇcᶜdᵈeᵉfᶠgᵍhʰiⁱjʲkᵏlˡmᵐnⁿoᵒpᵖrʳsˢtᵗuᵘvᵛwʷxˣyʸzᶻ*﹡"
+private const val SUBSCRIPTS = "0₀1₁2₂3₃4₄5₅6₆7₇8₈9₉+₊-₋−₋=₌(₍)₎aₐeₑhₕiᵢjⱼkₖlₗmₘnₙoₒpₚrᵣsₛtₜuᵤvᵥxₓ"
+
+/** A text as superscript or subscript characters, if each of its
+ * characters has one: "12" → "¹²", "3" → "₃" */
+internal fun scriptCharacters(text: String, up: Boolean): String? {
+    val table = if (up) SUPERSCRIPTS else SUBSCRIPTS
+    return buildString {
+        for (c in text.trim()) {
+            val at = (0 until table.length step 2).firstOrNull { table[it] == c } ?: return null
+            append(table[at + 1])
+        }
+    }.takeIf { it.isNotEmpty() }
 }
 
 /* A preview ends without a period, as most definitions do; the period of
