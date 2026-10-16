@@ -939,6 +939,24 @@ pdb_db_add_translation_index (PdbDb *db,
     return pdb_db_add_trd_index (db, element, lang_code, reference, error);
 }
 
+/* Without the space that the end of a <trd> leaves before the comma of
+ * its group, “<trd>…\n</trd>,”: “абандонировать, отказаться” */
+static void
+pdb_db_remove_space_before_punctuation (GString *buf)
+{
+  int dst = 0;
+
+  for (int src = 0; src < buf->len; src++)
+    {
+      if (buf->str[src] == ' ' && src + 1 < buf->len &&
+          strchr (",)", buf->str[src + 1]))
+        continue;
+      buf->str[dst++] = buf->str[src];
+    }
+
+  g_string_set_size (buf, dst);
+}
+
 static gboolean
 pdb_db_handle_translation (PdbDb *db,
                            PdbDocElementNode *element,
@@ -1000,6 +1018,7 @@ pdb_db_handle_translation (PdbDb *db,
   content = g_string_new (NULL);
   pdb_doc_append_element_text (element, content);
   pdb_trim_buf (content);
+  pdb_db_remove_space_before_punctuation (content);
   g_string_append_len (data->buf, content->str, content->len);
   g_string_free (content, TRUE);
 
@@ -2637,10 +2656,12 @@ pdb_db_parse_node (PdbDb *db,
               {
                 /* Don't leave the space that was before a skipped
                  * element in front of a punctuation mark, eg. in
-                 * “neĝo <fnt>…</fnt>.” */
-                if (state->space_before_skipped &&
-                    state->queued_space == PDB_DB_QUEUED_SPACE_TYPE_SPACE &&
-                    strchr (".,;:!?", *p))
+                 * “neĝo <fnt>…</fnt>.”; nor, from any element, a space
+                 * before a comma, a colon or a closing bracket, eg. the
+                 * line break at the end of “<refgrp>…\n</refgrp>:” */
+                if (state->queued_space == PDB_DB_QUEUED_SPACE_TYPE_SPACE &&
+                    (strchr (",;:)", *p) ||
+                     (state->space_before_skipped && strchr (".!?", *p))))
                   state->queued_space = PDB_DB_QUEUED_SPACE_TYPE_NONE;
                 state->space_before_skipped = FALSE;
 
@@ -3087,9 +3108,11 @@ get_var_root (PdbDb *db,
   if (label == NULL)
     return TRUE;
 
+  /* Without the line break around it, if the source has one: “<rad>
+   *   fraj</rad>” is “fraj” */
   g_hash_table_insert (db->root_variants,
                        g_strdup (label),
-                       pdb_doc_get_element_text (rad));
+                       g_strstrip (pdb_doc_get_element_text (rad)));
 
   return TRUE;
 }
@@ -3122,7 +3145,9 @@ get_roots (PdbDb *db,
               goto error;
             }
 
-          word_root = pdb_doc_get_element_text (elem);
+          /* Without the line break around it, if the source has one:
+           * “<rad>\n  fraj</rad>” is “fraj” */
+          word_root = g_strstrip (pdb_doc_get_element_text (elem));
         }
       else if (!strcmp (elem->name, "var"))
         {
