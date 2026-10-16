@@ -69,6 +69,7 @@ private val GUIDE = listOf(
     R.string.guide_read to listOf(
         R.string.guide_links_title to R.string.guide_links,
         R.string.guide_translations_title to R.string.guide_translations,
+        R.string.guide_vikivortaro_title to R.string.guide_vikivortaro,
         R.string.guide_official_title to R.string.guide_official,
         R.string.guide_neighbours_title to R.string.guide_neighbours,
         R.string.guide_long_press_title to R.string.guide_long_press,
