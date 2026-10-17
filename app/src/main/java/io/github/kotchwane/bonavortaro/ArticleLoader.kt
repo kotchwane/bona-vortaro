@@ -25,6 +25,7 @@ import android.text.style.ClickableSpan
 import android.text.style.QuoteSpan
 import android.text.style.RelativeSizeSpan
 import android.text.style.StyleSpan
+import android.text.style.StrikethroughSpan
 import android.text.style.SubscriptSpan
 import android.text.style.SuperscriptSpan
 import android.util.Log
@@ -84,6 +85,8 @@ object ArticleLoader {
     private const val SPAN_ABBREVIATION = 9
     /* ReVo's <sub>, "CH₃"; its <sup> is a superscript, "10¹²" */
     private const val SPAN_SUBSCRIPT = 10
+    /* ReVo's <ts>, a word struck through: "edziĝi kun al" */
+    private const val SPAN_STRIKETHROUGH = 11
 
     /**
      * Loads an article, keeping only the sections of the languages shown
@@ -212,6 +215,7 @@ object ArticleLoader {
                 SPAN_LINK_TYPE -> listOf(LinkTypeSpan(data1))
                 SPAN_ABBREVIATION -> listOf(AbbreviationSpan(data1))
                 SPAN_SUBSCRIPT -> listOf(SubscriptSpan(), RelativeSizeSpan(0.7f))
+                SPAN_STRIKETHROUGH -> listOf(StrikethroughSpan())
                 else -> emptyList()
             }
     }
