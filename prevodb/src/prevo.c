@@ -867,6 +867,7 @@ handle_start_span (WriteData *write_data,
     case PDB_SPAN_ITALIC:
     case PDB_SPAN_GRAMMAR:
     case PDB_SPAN_FIELD:
+    case PDB_SPAN_MISUSE:
       write_data->italic_count++;
       break;
     case PDB_SPAN_NOTE:
@@ -905,6 +906,7 @@ handle_end_span (WriteData *write_data,
     case PDB_SPAN_ITALIC:
     case PDB_SPAN_GRAMMAR:
     case PDB_SPAN_FIELD:
+    case PDB_SPAN_MISUSE:
       write_data->italic_count--;
       break;
     case PDB_SPAN_NOTE:

@@ -1911,7 +1911,9 @@ pdb_db_start_text (PdbDbParseState *state)
            * begins with a space.
            */
           if (state->buf->str[state->buf->len - 1] != ' ' &&
-              state->buf->str[state->buf->len - 1] != '\n')
+              state->buf->str[state->buf->len - 1] != '\n' &&
+              /* Nor after the quote opening a <ctl>, "<ctl>\n aperto" */
+              !g_str_has_suffix (state->buf->str, "\xe2\x80\x9e"))
             g_string_append_c (state->buf, ' ');
           break;
 
@@ -1945,17 +1947,18 @@ pdb_db_start_span (PdbDbParseState *state,
   return span;
 }
 
-/* A usage ReVo marks as wrong, eg. "ne ĉesu la laboron": with the mark
- * ReVo gives it, "ˣĉesu la laboron" */
+/* A quoted word or phrase (<ctl>), eg. the meaning "plenumi": between
+ * Esperanto's quotes, as ReVo shows it, „plenumi“ */
 static gboolean
-pdb_db_handle_mis (PdbDb *db,
+pdb_db_handle_ctl (PdbDb *db,
                    PdbDbParseState *state,
                    PdbDocElementNode *element,
                    PdbSpan *span,
                    GError **error)
 {
   pdb_db_start_text (state);
-  g_string_append (state->buf, "\xcb\xa3");
+  g_string_append (state->buf, "\xe2\x80\x9e");
+  pdb_db_parse_push_closing_character (state, 0x201c);
 
   return TRUE;
 }
@@ -2740,8 +2743,13 @@ pdb_db_element_spans[] =
     { .name = "sup", .type = PDB_SPAN_SUPERSCRIPT },
     { .name = "sub", .type = PDB_SPAN_SUBSCRIPT },
     /* A usage marked wrong, and a word struck through: "edziĝi kun al" */
-    { .name = "mis", .type = PDB_SPAN_NONE, .handler = pdb_db_handle_mis },
+    { .name = "mis", .type = PDB_SPAN_MISUSE },
     { .name = "ts", .type = PDB_SPAN_STRIKETHROUGH },
+    { .name = "ctl", .type = PDB_SPAN_NONE, .handler = pdb_db_handle_ctl },
+    /* In formulas, as ReVo shows them: "x" in italics, the sets and
+     * spaces in bold, "E" */
+    { .name = "k", .type = PDB_SPAN_ITALIC },
+    { .name = "g", .type = PDB_SPAN_BOLD },
     { .name = "ekz", .type = PDB_SPAN_ITALIC, .handler = pdb_db_handle_ekz },
     {
       .name = "subdrv",
@@ -3053,8 +3061,20 @@ pdb_db_parse_spannable_string_upto (PdbDb *db,
         case PDB_DB_STACK_CLOSING_CHARACTER:
           if (state.skip_copy)
             break;
-          pdb_db_start_text (&state);
-          g_string_append_unichar (state.buf, this_entry.d.character);
+          /* A space queued at the end of the element goes after its
+           * closing character: „ligas A al B“ por, not „… B “ por */
+          if (state.queued_space == PDB_DB_QUEUED_SPACE_TYPE_SPACE)
+            {
+              state.queued_space = PDB_DB_QUEUED_SPACE_TYPE_NONE;
+              pdb_db_start_text (&state);
+              g_string_append_unichar (state.buf, this_entry.d.character);
+              state.queued_space = PDB_DB_QUEUED_SPACE_TYPE_SPACE;
+            }
+          else
+            {
+              pdb_db_start_text (&state);
+              g_string_append_unichar (state.buf, this_entry.d.character);
+            }
           break;
 
         case PDB_DB_STACK_END_COPY:

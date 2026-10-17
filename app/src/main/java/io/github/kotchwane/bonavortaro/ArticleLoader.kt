@@ -21,7 +21,9 @@ package io.github.kotchwane.bonavortaro
 import android.content.Context
 import android.graphics.Typeface
 import android.text.SpannableString
+import android.text.TextPaint
 import android.text.style.ClickableSpan
+import android.text.style.MetricAffectingSpan
 import android.text.style.QuoteSpan
 import android.text.style.RelativeSizeSpan
 import android.text.style.StyleSpan
@@ -56,6 +58,28 @@ class LinkTypeSpan(val type: Int)
  * with its kind: the index in R.array.abbreviation_kinds */
 class AbbreviationSpan(val kind: Int)
 
+/** A usage ReVo marks as wrong: in italics, or upright in a text already
+ * in italics, such as an example. It must be set after the other spans,
+ * so that it is applied last. */
+class MisuseSpan : MetricAffectingSpan() {
+    override fun updateDrawState(paint: TextPaint) = toggleItalic(paint)
+
+    override fun updateMeasureState(paint: TextPaint) = toggleItalic(paint)
+
+    private fun toggleItalic(paint: TextPaint) {
+        val typeface = paint.typeface ?: Typeface.DEFAULT
+        if (typeface.isItalic || paint.textSkewX != 0f) {
+            paint.typeface = Typeface.create(typeface, typeface.style and Typeface.ITALIC.inv())
+            paint.textSkewX = 0f
+        } else {
+            paint.typeface = Typeface.create(typeface, typeface.style or Typeface.ITALIC)
+            /* As StyleSpan does when the font has no italics */
+            if (!paint.typeface.isItalic)
+                paint.textSkewX = -0.25f
+        }
+    }
+}
+
 /** A link to another section of the same article. The translations use
  * them to point back to the word they translate. */
 class SectionLinkSpan(val section: Int, private val onShowSection: (Int) -> Unit) : ClickableSpan() {
@@ -87,6 +111,8 @@ object ArticleLoader {
     private const val SPAN_SUBSCRIPT = 10
     /* ReVo's <ts>, a word struck through: "edziĝi kun al" */
     private const val SPAN_STRIKETHROUGH = 11
+    /* ReVo's <mis>, a usage marked wrong: "ne ĉesu la laboron" */
+    private const val SPAN_MISUSE = 12
 
     /**
      * Loads an article, keeping only the sections of the languages shown
@@ -172,6 +198,8 @@ object ArticleLoader {
             input.readAll(bytes)
 
             val string = SpannableString(String(bytes, Charsets.UTF_8))
+            /* Set at the end: they undo the italics of the spans around */
+            val misuses = mutableListOf<Pair<Int, Int>>()
 
             while (true) {
                 val spanLength = input.readShort()
@@ -190,9 +218,15 @@ object ArticleLoader {
                     continue
                 }
 
-                for (span in createSpans(spanType, data1, data2))
-                    string.setSpan(span, spanStart, spanEnd, 0)
+                if (spanType == SPAN_MISUSE)
+                    misuses.add(spanStart to spanEnd)
+                else
+                    for (span in createSpans(spanType, data1, data2))
+                        string.setSpan(span, spanStart, spanEnd, 0)
             }
+
+            for ((start, end) in misuses)
+                string.setSpan(MisuseSpan(), start, end, 0)
 
             return string
         }

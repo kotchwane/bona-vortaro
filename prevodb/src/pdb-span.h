@@ -57,6 +57,9 @@ typedef enum
   PDB_SPAN_SUBSCRIPT,
   /* A word struck through, as ReVo's <ts>: "edziĝi kun al" */
   PDB_SPAN_STRIKETHROUGH,
+  /* A usage ReVo marks as wrong (<mis>): "ne ĉesu la laboron". Shown
+   * in italics, upright inside an example, which is already italic */
+  PDB_SPAN_MISUSE,
   PDB_SPAN_NONE
 } PdbSpanType;
 
