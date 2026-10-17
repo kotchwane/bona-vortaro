@@ -898,6 +898,7 @@ pdb_db_add_trd_index (PdbDb *db,
   pdb_doc_append_element_text_with_ignore (element,
                                            display_name,
                                            "ofc",
+                                           "baz",
                                            NULL);
   pdb_trim_buf (display_name);
   if (db->in_example)
@@ -926,6 +927,7 @@ pdb_db_add_trd_index (PdbDb *db,
                                                whole,
                                                "ofc",
                                                "klr",
+                                               "baz",
                                                NULL);
       pdb_trim_buf (whole);
       if (db->in_example)
@@ -951,6 +953,7 @@ pdb_db_add_trd_index (PdbDb *db,
                                                real_name,
                                                "ofc",
                                                "klr",
+                                               "baz",
                                                NULL);
       pdb_trim_buf (real_name);
       if (db->in_example)
@@ -1094,7 +1097,9 @@ pdb_db_handle_translation (PdbDb *db,
   g_string_append (data->buf, ": ");
 
   content = g_string_new (NULL);
-  pdb_doc_append_element_text (element, content);
+  /* Without the base form of an Indonesian word, which is only for
+   * its place in ReVo's index: "<baz>sayur</baz>sayuran" is "sayuran" */
+  pdb_doc_append_element_text_with_ignore (element, content, "baz", NULL);
   pdb_trim_buf (content);
   pdb_db_remove_space_before_punctuation (content);
   g_string_append_len (data->buf, content->str, content->len);
@@ -1199,7 +1204,9 @@ pdb_db_handle_example_translation (PdbDb *db,
   g_string_append (data->buf, " ");
 
   content = g_string_new (NULL);
-  pdb_doc_append_element_text (element, content);
+  /* Without the base form of an Indonesian word, which is only for
+   * its place in ReVo's index: "<baz>sayur</baz>sayuran" is "sayuran" */
+  pdb_doc_append_element_text_with_ignore (element, content, "baz", NULL);
   pdb_trim_buf (content);
   pdb_db_remove_space_before_punctuation (content);
   g_string_append_len (data->buf, content->str, content->len);
@@ -1936,6 +1943,21 @@ pdb_db_start_span (PdbDbParseState *state,
   entry->d.span = span;
 
   return span;
+}
+
+/* A usage ReVo marks as wrong, eg. "ne ĉesu la laboron": with the mark
+ * ReVo gives it, "ˣĉesu la laboron" */
+static gboolean
+pdb_db_handle_mis (PdbDb *db,
+                   PdbDbParseState *state,
+                   PdbDocElementNode *element,
+                   PdbSpan *span,
+                   GError **error)
+{
+  pdb_db_start_text (state);
+  g_string_append (state->buf, "\xcb\xa3");
+
+  return TRUE;
 }
 
 static gboolean
@@ -2717,6 +2739,9 @@ pdb_db_element_spans[] =
     /* "10<sup>12</sup>", "CH<sub>3</sub>" */
     { .name = "sup", .type = PDB_SPAN_SUPERSCRIPT },
     { .name = "sub", .type = PDB_SPAN_SUBSCRIPT },
+    /* A usage marked wrong, and a word struck through: "edziĝi kun al" */
+    { .name = "mis", .type = PDB_SPAN_NONE, .handler = pdb_db_handle_mis },
+    { .name = "ts", .type = PDB_SPAN_STRIKETHROUGH },
     { .name = "ekz", .type = PDB_SPAN_ITALIC, .handler = pdb_db_handle_ekz },
     {
       .name = "subdrv",

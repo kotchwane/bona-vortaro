@@ -880,6 +880,8 @@ handle_start_span (WriteData *write_data,
       /* An abbreviation is written as it is */
     case PDB_SPAN_SUBSCRIPT:
       /* A subscript is written as it is: man has none */
+    case PDB_SPAN_STRIKETHROUGH:
+      /* Struck through: written as it is */
     case PDB_SPAN_NONE:
       return;
     }
@@ -916,6 +918,8 @@ handle_end_span (WriteData *write_data,
       /* An abbreviation is written as it is */
     case PDB_SPAN_SUBSCRIPT:
       /* A subscript is written as it is: man has none */
+    case PDB_SPAN_STRIKETHROUGH:
+      /* Struck through: written as it is */
     case PDB_SPAN_NONE:
       return;
     }

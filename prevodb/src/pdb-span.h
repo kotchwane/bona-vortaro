@@ -55,6 +55,8 @@ typedef enum
   /* A subscript, eg. the "2" of "H2O"; superscripts, eg. the "12" of
    * "10¹²", are PDB_SPAN_SUPERSCRIPT */
   PDB_SPAN_SUBSCRIPT,
+  /* A word struck through, as ReVo's <ts>: "edziĝi kun al" */
+  PDB_SPAN_STRIKETHROUGH,
   PDB_SPAN_NONE
 } PdbSpanType;
 
