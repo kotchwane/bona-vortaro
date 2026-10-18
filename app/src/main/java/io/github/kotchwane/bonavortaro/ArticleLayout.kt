@@ -573,12 +573,12 @@ private fun markInlineLabels(content: Spanned, markLabel: (String?) -> Any, abbr
         for (piece in LABEL_SEPARATOR.findAll(content.subSequence(span.start, span.end)).toList().reversed()) {
             val at = span.start + piece.range.first
             if (at + piece.value.length < end)
-                marked.setSpan(markLabel(null), at + piece.value.length, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+                marked.setSpan(markLabel(span.field), at + piece.value.length, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
             marked.replace(at, at + piece.value.length, " ")
             end = at
         }
-        /* The icon of the field on its first label only:
-         * "ŝipkonstruado, navigado" is one field */
+        /* Each piece with the icon: "ŝipkonstruado, navigado" is one
+         * field, in two labels */
         marked.setSpan(markLabel(span.field), span.start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
     }
     return marked
