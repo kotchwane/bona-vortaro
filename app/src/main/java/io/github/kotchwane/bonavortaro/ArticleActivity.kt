@@ -991,7 +991,7 @@ internal fun loadNeighbours(loadArticle: (Int) -> Article, numbers: List<Int>): 
 internal fun NeighbourRoots(neighbours: List<Neighbour?>, onOpen: (Int) -> Unit, onRandom: () -> Unit) {
     val muted = MaterialTheme.colorScheme.onSurfaceVariant
 
-    Column(Modifier.fillMaxWidth().padding(top = 14.dp)) {
+    Column(Modifier.fillMaxWidth()) {
         Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)) {
             HorizontalDivider(Modifier.weight(1f), color = muted.copy(alpha = 0.4f))
             Text(
