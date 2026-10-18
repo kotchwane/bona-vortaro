@@ -17,6 +17,8 @@
 
 package io.github.kotchwane.bonavortaro
 
+import androidx.compose.ui.res.painterResource
+import android.graphics.drawable.Drawable
 import androidx.compose.runtime.produceState
 import android.content.Context
 import androidx.compose.ui.text.SpanStyle
@@ -279,10 +281,10 @@ private fun groupExamples(blocks: List<ContentBlock>, exampleColor: Int): List<B
 
         when {
             run.isEmpty() -> {}
-            run.size == 1 && run[0].text.length <= INLINE_EXAMPLE_LENGTH && before != null ->
+            run.size == 1 && run[0].text.withoutSourceLength() <= INLINE_EXAMPLE_LENGTH && before != null ->
                 groups[groups.lastIndex] =
                     BlockGroup.Single(ContentBlock.Text(withExample(before.text, run[0].text, exampleColor)))
-            run.sumOf { it.text.length } <= SHOWN_EXAMPLES_LENGTH ->
+            run.sumOf { it.text.withoutSourceLength() } <= SHOWN_EXAMPLES_LENGTH ->
                 groups.add(BlockGroup.ShortExamples(run))
             else -> groups.add(BlockGroup.Examples(run))
         }
@@ -302,6 +304,12 @@ private fun groupExamples(blocks: List<ContentBlock>, exampleColor: Int): List<B
     return groups
 }
 
+/** The length of an example without its source: shown or folded as it
+ * was before the sources were */
+private fun CharSequence.withoutSourceLength(): Int =
+    length - ((this as? Spanned)?.getSpans(0, length, SourceSpan::class.java)
+        ?.sumOf { getSpanEnd(it) - getSpanStart(it) + 1 } ?: 0)
+
 /** The text followed by a short example, in the colour of the
  * examples. The example keeps its italics and its links. */
 private fun withExample(text: CharSequence, example: CharSequence, color: Int): CharSequence {
@@ -310,6 +318,12 @@ private fun withExample(text: CharSequence, example: CharSequence, color: Int): 
 
     result.append(example)
     result.setSpan(ForegroundColorSpan(color), start, result.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+    /* Its source keeps its own colour: set again, after the example's */
+    for (source in result.getSpans(start, result.length, SourceSpan::class.java)) {
+        val (from, to) = result.getSpanStart(source) to result.getSpanEnd(source)
+        result.removeSpan(source)
+        result.setSpan(source, from, to, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+    }
 
     return result
 }
@@ -374,27 +388,49 @@ private fun LabelChip(label: Label, modifier: Modifier = Modifier) {
         contentColor = if (label.isField) colors.onSecondaryContainer else colors.onSurfaceVariant,
         border = if (label.isField) null else BorderStroke(1.dp, colors.outlineVariant),
     ) {
-        Text(
-            /* "landokodo: DE": an abbreviation says what it is */
-            if (label.abbreviation < 0) label.text
-            else stringArrayResource(R.array.abbreviation_kinds).getOrElse(label.abbreviation) { "" }
-                .let { kind -> if (kind.isEmpty()) label.text else "$kind: ${label.text}" },
-            style = MaterialTheme.typography.labelMedium,
+        val style = MaterialTheme.typography.labelMedium
+        val icon = label.field?.let { FIELD_ICONS[it] }
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp),
-        )
+        ) {
+            /* As high as the letters: the chip keeps its height */
+            if (icon != null)
+                Icon(
+                    painterResource(icon),
+                    contentDescription = null,
+                    modifier = Modifier
+                        .padding(end = 4.dp)
+                        .size(with(LocalDensity.current) { (style.fontSize * 0.95f).toDp() }),
+                )
+            Text(
+                /* "landokodo: DE": an abbreviation says what it is */
+                if (label.abbreviation < 0) label.text
+                else stringArrayResource(R.array.abbreviation_kinds).getOrElse(label.abbreviation) { "" }
+                    .let { kind -> if (kind.isEmpty()) label.text else "$kind: ${label.text}" },
+                style = style,
+            )
+        }
     }
 }
 
 /** Draws a field or a kind of word left within the text, eg. at the
- * start of a sense, as a small label with a tinted background. */
+ * start of a sense, as a small label with a tinted background, after the
+ * icon of the field if it has one, as high as the letters. */
 class InlineLabelSpan(
     private val background: Int,
     private val foreground: Int,
     private val radius: Float,
     private val padding: Float,
+    private val icon: Drawable? = null,
 ) : ReplacementSpan() {
 
     private fun labelPaint(paint: Paint) = Paint(paint).apply { textSize = paint.textSize * 0.85f }
+
+    /* The icon's side: the height of a capital letter, a little more */
+    private fun iconSize(label: Paint) = if (icon == null) 0f else label.textSize * 0.8f
+
+    private fun iconWidth(label: Paint) = if (icon == null) 0f else iconSize(label) + padding * 0.75f
 
     override fun getSize(
         paint: Paint,
@@ -403,8 +439,9 @@ class InlineLabelSpan(
         end: Int,
         fm: Paint.FontMetricsInt?,
     ): Int {
-        fm?.let { fitPill(it, paint, labelPaint(paint), padding, 0f) }
-        return (labelPaint(paint).measureText(text, start, end) + 2 * padding).roundToInt()
+        val label = labelPaint(paint)
+        fm?.let { fitPill(it, paint, label, padding, 0f) }
+        return (label.measureText(text, start, end) + iconWidth(label) + 2 * padding).roundToInt()
     }
 
     override fun draw(
@@ -419,12 +456,25 @@ class InlineLabelSpan(
         paint: Paint,
     ) {
         val label = labelPaint(paint)
-        val width = label.measureText(text, start, end) + 2 * padding
+        val width = label.measureText(text, start, end) + iconWidth(label) + 2 * padding
         val rect = RectF(x, y + label.ascent() - padding / 2, x + width, y + label.descent() + padding / 2)
 
         canvas.drawRoundRect(rect, radius, radius, Paint(paint).apply { color = background })
+        icon?.let {
+            /* Centred on the letters without descender */
+            val size = iconSize(label)
+            val middle = y - label.textSize * 0.36f
+            it.setBounds(
+                (x + padding).roundToInt(),
+                (middle - size / 2).roundToInt(),
+                (x + padding + size).roundToInt(),
+                (middle + size / 2).roundToInt(),
+            )
+            it.setTint(foreground)
+            it.draw(canvas)
+        }
         label.color = foreground
-        canvas.drawText(text, start, end, x + padding, y.toFloat(), label)
+        canvas.drawText(text, start, end, x + padding + iconWidth(label), y.toFloat(), label)
     }
 }
 
@@ -1033,6 +1083,11 @@ fun SourcesLine(
     val revoPage by produceState<String?>(null, revoArticle) {
         value = revoArticle?.let { withContext(Dispatchers.IO) { RevoFiles.page(context, it)?.toString() } }
     }
+    /* The dictionaries its headwords are in */
+    val dictionaries by produceState(emptyList<Pair<String, String>>(), revoArticle) {
+        value = revoArticle?.let { article -> withContext(Dispatchers.IO) { Attestations.of(context, article) } }
+            ?: emptyList()
+    }
     val revoName = stringResource(R.string.revo_name)
     val vikiName = stringResource(R.string.viki_name)
     val muted = MaterialTheme.colorScheme.onSurfaceVariant
@@ -1059,6 +1114,22 @@ fun SourcesLine(
                 Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     if (revo)
                         Source(revoName, stringResource(R.string.sources_revo), revoPage ?: REVO_SITE)
+                    if (revo && dictionaries.isNotEmpty()) {
+                        /* "En la vortaroj: aboli — …", the words in italics */
+                        val line = stringResource(R.string.sources_dictionaries, "\u0000")
+                        Text(
+                            buildAnnotatedString {
+                                append(line.substringBefore('\u0000'))
+                                dictionaries.forEachIndexed { index, (form, works) ->
+                                    if (index > 0) append("; ")
+                                    withStyle(SpanStyle(fontStyle = FontStyle.Italic)) { append(form) }
+                                    append(" — $works")
+                                }
+                                append(line.substringAfter('\u0000'))
+                            },
+                            style = MaterialTheme.typography.bodyMedium,
+                        )
+                    }
                     if (viki)
                         Source(
                             vikiName,
@@ -1167,7 +1238,10 @@ fun SpannedText(
                 }
                 view.setOnLongClickListener {
                     val offset = view.getOffsetForPosition(down[0], down[1])
-                    onLongPress(WordLookup.wordAt(view.text, offset))
+                    /* Not the author or the work of an example */
+                    val inSource = (view.text as? Spanned)
+                        ?.getSpans(offset, offset, SourceSpan::class.java)?.isNotEmpty() == true
+                    onLongPress(if (inSource) null else WordLookup.wordAt(view.text, offset))
                     true
                 }
             }

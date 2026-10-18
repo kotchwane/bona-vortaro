@@ -54,7 +54,7 @@ object SearchPreviews {
         val key = "${result.article}/${result.mark}/$language/${result.word}/$readerLanguages/$inFrench"
         examples.get(key)?.let { return it.example }
         val (layout, title) = layouts.get(result.article) ?: try {
-            val article = ArticleLoader.load(context, result.article, onShowSection = {}, quoteColor = 0, languages = { true })
+            val article = ArticleLoader.load(context, result.article, onShowSection = {}, quoteColor = 0, languages = { true }, sources = false)
             /* The title of the article, "al/", for a part without a word */
             val title = parseOfficial(article.title).forms.firstOrNull()?.text?.replace("/", "")?.trim()
             (layoutArticle(article, emptyList(), markLabel = { Any() }, markLinkType = { _, _ -> Any() }) to title)
@@ -78,7 +78,7 @@ object SearchPreviews {
         previews.get(key)?.let { return it }
 
         val article = articles.get(result.article) ?: try {
-            ArticleLoader.load(context, result.article, onShowSection = {}, quoteColor = 0)
+            ArticleLoader.load(context, result.article, onShowSection = {}, quoteColor = 0, sources = false)
                 .also { articles.put(result.article, it) }
         } catch (e: IOException) {
             Log.w(TAG, "Failed to load article ${result.article}")

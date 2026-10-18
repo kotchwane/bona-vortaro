@@ -135,6 +135,10 @@ typedef struct
 
   /* A list of PdbDbSections */
   GList *sections;
+
+  /* The dictionaries that its headwords are in, one a line, "aboli\t
+   * Plena Ilustrita Vortaro (1970)", for assets/attestations.txt */
+  GString *attestations;
 } PdbDbArticle;
 
 /* A reference represents a position in an article. The reference can
@@ -235,6 +239,21 @@ struct _PdbDb
   /* The titles of the works of the bibliography, indexed by their
    * abbreviation, eg. "BL", from cfg/bibliogr.xml */
   GHashTable *works;
+
+  /* The codes of the fields, sorted. The span of a field has the
+   * number of its code in this list, from 1, written one a line in
+   * assets/fields.txt, so that applications can show its icon */
+  GPtrArray *field_codes;
+
+  /* The details of the works (PdbDbWork), indexed by their
+   * abbreviation, for the sources of the examples */
+  GHashTable *work_details;
+
+  /* The addresses of the sources of the examples, written one a line
+   * in assets/sources.txt. The span of a source has the number of its
+   * address, from 1, or 0 */
+  GPtrArray *source_urls;
+  GHashTable *source_url_numbers;
 
   /* This is a list of links. Each link contains a reference to a
    * section (either directly a pointer or a mark name) and and a
@@ -2521,6 +2540,261 @@ pdb_db_append_element_in_span (PdbDbParseState *state,
   g_string_free (text, TRUE);
 }
 
+/* A work of the bibliography: its title, its author's surname, its
+ * address and its year, each NULL if ReVo doesn't give it */
+typedef struct
+{
+  char *title;
+  char *author;
+  char *url;
+  char *year;
+} PdbDbWork;
+
+static void
+pdb_db_work_free (PdbDbWork *work)
+{
+  g_free (work->title);
+  g_free (work->author);
+  g_free (work->url);
+  g_free (work->year);
+  g_slice_free (PdbDbWork, work);
+}
+
+/* The first element of the given name in a node, at any depth */
+static PdbDocElementNode *
+pdb_db_find_element (PdbDocNode *node,
+                     const char *name)
+{
+  PdbDocNode *child;
+
+  for (child = node->first_child; child; child = child->next)
+    {
+      PdbDocElementNode *found;
+
+      if (child->type != PDB_DOC_NODE_TYPE_ELEMENT)
+        continue;
+
+      if (!strcmp (((PdbDocElementNode *) child)->name, name))
+        return (PdbDocElementNode *) child;
+
+      if ((found = pdb_db_find_element (child, name)))
+        return found;
+    }
+
+  return NULL;
+}
+
+/* The trimmed text of an element, or NULL if there is none */
+static char *
+pdb_db_get_element_text (PdbDocElementNode *element)
+{
+  GString *text;
+
+  if (element == NULL)
+    return NULL;
+
+  text = g_string_new (NULL);
+  pdb_doc_append_element_text (element, text);
+  pdb_trim_buf (text);
+
+  if (text->len == 0)
+    {
+      g_string_free (text, TRUE);
+      return NULL;
+    }
+
+  return g_string_free (text, FALSE);
+}
+
+/* Reads the works of cfg/bibliogr.xml: <vrk mll="F"><aut><a>L. L.</a>
+ * <n>Zamenhof</n></aut><tit>Fundamento de Esperanto</tit>…</vrk> */
+static GHashTable *
+pdb_db_load_works (PdbRevo *revo)
+{
+  GHashTable *works =
+    g_hash_table_new_full (g_str_hash,
+                           g_str_equal,
+                           g_free,
+                           (GDestroyNotify) pdb_db_work_free);
+  GError *error = NULL;
+  PdbDoc *doc;
+  PdbDocNode *node;
+
+  doc = pdb_doc_load (revo, "cfg/bibliogr.xml", &error);
+
+  if (doc == NULL)
+    {
+      fprintf (stderr, "cfg/bibliogr.xml: %s\n", error->message);
+      g_error_free (error);
+      return works;
+    }
+
+  for (node = pdb_doc_get_root (doc)->node.first_child;
+       node;
+       node = node->next)
+    {
+      PdbDocElementNode *element = (PdbDocElementNode *) node;
+      PdbDocElementNode *aut;
+      PdbDbWork *work;
+      const char *code;
+
+      if (node->type != PDB_DOC_NODE_TYPE_ELEMENT ||
+          strcmp (element->name, "vrk") ||
+          (code = pdb_doc_get_attribute (element, "mll")) == NULL)
+        continue;
+
+      work = g_slice_new0 (PdbDbWork);
+      work->title =
+        pdb_db_get_element_text (pdb_doc_get_child_element (node, "tit"));
+      /* The surname if it is marked, "Zamenhof", otherwise the whole
+       * name, "Henri Vallienne" */
+      aut = pdb_doc_get_child_element (node, "aut");
+      if (aut)
+        {
+          work->author =
+            pdb_db_get_element_text (pdb_db_find_element (&aut->node, "n"));
+          if (work->author == NULL)
+            work->author = pdb_db_get_element_text (aut);
+        }
+      work->url =
+        pdb_db_get_element_text (pdb_doc_get_child_element (node, "url"));
+      work->year =
+        pdb_db_get_element_text (pdb_db_find_element (node, "dat"));
+
+      g_hash_table_insert (works, g_strdup (code), work);
+    }
+
+  pdb_doc_free (doc);
+
+  return works;
+}
+
+/* The number of an address in assets/sources.txt, from 1 */
+static int
+pdb_db_get_source_url_number (PdbDb *db,
+                              const char *url)
+{
+  gpointer number = g_hash_table_lookup (db->source_url_numbers, url);
+
+  if (number == NULL)
+    {
+      char *copy = g_strdup (url);
+
+      g_ptr_array_add (db->source_urls, copy);
+      number = GINT_TO_POINTER (db->source_urls->len);
+      g_hash_table_insert (db->source_url_numbers, copy, number);
+    }
+
+  return GPOINTER_TO_INT (number);
+}
+
+/* Writes the source of an example after it, " — Zamenhof, Fundamento de
+ * Esperanto", in a span of its own (PDB_SPAN_SOURCE), so that
+ * applications can show it small, or not at all. The author is the
+ * surname from the bibliography, or the name the source gives, without
+ * its translator; the work is the title from the bibliography, or the
+ * one the source gives; the page or the year are left out. data1 is the
+ * number of its address in assets/sources.txt: the source's own, eg. an
+ * article of Monato, otherwise the work's; 0 if there is none. */
+static void
+pdb_db_add_example_source (PdbDb *db,
+                           PdbDbParseState *state,
+                           PdbDocElementNode *element)
+{
+  PdbDocElementNode *bib, *url_element;
+  PdbDbWork *work = NULL;
+  char *bib_code, *author, *title;
+  const char *url = NULL;
+  PdbSpan *span;
+  char punctuation = 0;
+  int end;
+
+  bib = pdb_doc_get_child_element (&element->node, "bib");
+  bib_code = pdb_db_get_element_text (bib);
+  if (bib_code)
+    work = g_hash_table_lookup (db->work_details, bib_code);
+  g_free (bib_code);
+
+  author = pdb_db_get_element_text (pdb_doc_get_child_element (&element->node,
+                                                               "aut"));
+  if (author)
+    {
+      /* "P. Kuusberg, trad. A. Lekko", "A. Ĉeĥov, tr. M. Lukaŝ" */
+      char *translator = strstr (author, ", tr");
+
+      if (translator)
+        *translator = '\0';
+    }
+  else if (work && work->author)
+    author = g_strdup (work->author);
+
+  if (work && work->title)
+    title = g_strdup (work->title);
+  else
+    title =
+      pdb_db_get_element_text (pdb_doc_get_child_element (&element->node,
+                                                          "vrk"));
+
+  /* Only web addresses: ReVo has a few without "http", empty, or a
+   * name in their place */
+  if ((url_element = pdb_db_find_element (&element->node, "url")))
+    url = pdb_doc_get_attribute (url_element, "ref");
+  if (url && !g_str_has_prefix (url, "http://") &&
+      !g_str_has_prefix (url, "https://"))
+    url = NULL;
+  if (url == NULL && work && work->url &&
+      g_str_has_prefix (work->url, "http"))
+    url = work->url;
+
+  if (author == NULL && title == NULL)
+    return;
+
+  /* A mark that ReVo puts before the source, "…samtempe); <fnt>",
+   * goes after it, unless a span ends with it */
+  end = state->buf->len;
+  while (end > 0 && g_ascii_isspace (state->buf->str[end - 1]))
+    end--;
+  if (end > 0 && strchr (";,", state->buf->str[end - 1]))
+    {
+      PdbSpan *other;
+
+      punctuation = state->buf->str[end - 1];
+
+      pdb_list_for_each (other, &state->spans, link)
+        if (other->span_length > 0 &&
+            other->span_start + other->span_length >= end)
+          punctuation = 0;
+
+      if (punctuation)
+        g_string_truncate (state->buf, end - 1);
+    }
+
+  state->queued_space = PDB_DB_QUEUED_SPACE_TYPE_SPACE;
+  pdb_db_start_text (state);
+
+  span = g_slice_new0 (PdbSpan);
+  span->type = PDB_SPAN_SOURCE;
+  span->span_start = state->buf->len;
+  span->data1 = url ? pdb_db_get_source_url_number (db, url) : 0;
+
+  g_string_append (state->buf, "\xe2\x80\x94 ");
+  if (author)
+    g_string_append (state->buf, author);
+  if (author && title)
+    g_string_append (state->buf, ", ");
+  if (title)
+    g_string_append (state->buf, title);
+
+  span->span_length = state->buf->len - span->span_start;
+  pdb_list_insert (state->spans.prev, &span->link);
+
+  if (punctuation)
+    g_string_append_c (state->buf, punctuation);
+
+  g_free (author);
+  g_free (title);
+}
+
 static gboolean
 pdb_db_handle_fnt (PdbDb *db,
                    PdbDbParseState *state,
@@ -2534,6 +2808,14 @@ pdb_db_handle_fnt (PdbDb *db,
    * abbreviation, otherwise as "author, title". Its other details, such
    * as the page, are left out. */
   PdbDocElementNode *bib, *aut, *vrk;
+  PdbDocElementNode *parent = (PdbDocElementNode *) element->node.parent;
+
+  if (parent && !strcmp (parent->name, "ekz"))
+    {
+      pdb_db_add_example_source (db, state, element);
+      state->skip_children = TRUE;
+      return TRUE;
+    }
 
   bib = pdb_doc_get_child_element (&element->node, "bib");
   aut = pdb_doc_get_child_element (&element->node, "aut");
@@ -2582,11 +2864,19 @@ pdb_db_add_field (PdbDb *db,
   pdb_doc_append_element_text (element, code);
   pdb_trim_buf (code);
 
+  PdbSpan *span;
+  int i;
+
   name = g_hash_table_lookup (db->fields, code->str);
 
   pdb_db_start_text (state);
-  pdb_db_start_span (state, PDB_SPAN_FIELD);
+  span = pdb_db_start_span (state, PDB_SPAN_FIELD);
   g_string_append (state->buf, name ? name : code->str);
+
+  /* The number of its code, for its icon */
+  for (i = 0; i < db->field_codes->len; i++)
+    if (!strcmp (g_ptr_array_index (db->field_codes, i), code->str))
+      span->data1 = i + 1;
 
   g_string_free (code, TRUE);
 }
@@ -2802,14 +3092,15 @@ static gboolean
 pdb_db_should_ignore_spannable_tag (PdbDocElementNode *element)
 {
   /* Skip the sources, except in the remarks, whose text usually refers
-   * to them */
+   * to them, and in the examples, after which they are written */
   if (!strcmp (element->name, "fnt"))
     {
       PdbDocElementNode *parent;
 
       parent = (PdbDocElementNode *) element->node.parent;
 
-      return parent == NULL || strcmp (parent->name, "rim");
+      return parent == NULL || (strcmp (parent->name, "rim") &&
+                                strcmp (parent->name, "ekz"));
     }
 
   /* Skip adm tags and pictures */
@@ -3209,6 +3500,127 @@ pdb_db_add_kap_index (PdbDb *db,
   g_string_free (buf, TRUE);
 }
 
+/* Appends a form of a headword as it reads, "aboli" for <kap><rad>abol
+ * </rad>/i <fnt>…</fnt>, <var>…</var></kap>: without its variants, its
+ * sources and its officiality */
+static void
+pdb_db_append_kap_form (PdbDb *db,
+                        PdbDocNode *node,
+                        GString *buf)
+{
+  PdbDocNode *child;
+
+  for (child = node->first_child; child; child = child->next)
+    {
+      if (child->type == PDB_DOC_NODE_TYPE_TEXT)
+        {
+          PdbDocTextNode *text = (PdbDocTextNode *) child;
+          int i;
+
+          for (i = 0; i < text->len; i++)
+            if (text->data[i] != '/')
+              g_string_append_c (buf, text->data[i]);
+        }
+      else
+        {
+          PdbDocElementNode *element = (PdbDocElementNode *) child;
+
+          if (!strcmp (element->name, "tld"))
+            pdb_db_append_tld (db, buf, element->atts);
+          else if (strcmp (element->name, "var") &&
+                   strcmp (element->name, "fnt") &&
+                   strcmp (element->name, "ofc"))
+            pdb_db_append_kap_form (db, child, buf);
+        }
+    }
+}
+
+/* Adds a line to the attestations of an article for a headword, and for
+ * each of its variants, that names the dictionaries it is in: <kap>…
+ * <fnt><bib>PIV1</bib></fnt></kap> */
+static void
+pdb_db_add_attestations (PdbDb *db,
+                         PdbDbArticle *article,
+                         PdbDocElementNode *kap)
+{
+  GString *works = g_string_new (NULL);
+  PdbDocNode *child;
+
+  for (child = kap->node.first_child; child; child = child->next)
+    {
+      PdbDocElementNode *element = (PdbDocElementNode *) child;
+      PdbDocNode *bib;
+
+      if (child->type != PDB_DOC_NODE_TYPE_ELEMENT)
+        continue;
+
+      if (strcmp (element->name, "fnt"))
+        continue;
+
+      for (bib = child->first_child; bib; bib = bib->next)
+        {
+          PdbDbWork *work;
+          char *code;
+
+          if (bib->type != PDB_DOC_NODE_TYPE_ELEMENT ||
+              strcmp (((PdbDocElementNode *) bib)->name, "bib"))
+            continue;
+
+          code = pdb_db_get_element_text ((PdbDocElementNode *) bib);
+          work = code ? g_hash_table_lookup (db->work_details, code) : NULL;
+
+          if (work && work->title)
+            {
+              if (works->len > 0)
+                g_string_append (works, "; ");
+              g_string_append (works, work->title);
+              if (work->year)
+                g_string_append_printf (works, " (%s)", work->year);
+            }
+
+          g_free (code);
+        }
+    }
+
+  if (works->len > 0)
+    {
+      GString *form = g_string_new (NULL);
+      char **words;
+
+      pdb_db_append_kap_form (db, &kap->node, form);
+      /* One space between the words, no comma at the end */
+      words = g_strsplit_set (form->str, " \t\n,", -1);
+      g_string_truncate (form, 0);
+      for (char **word = words; *word; word++)
+        if (**word)
+          {
+            if (form->len > 0)
+              g_string_append_c (form, ' ');
+            g_string_append (form, *word);
+          }
+      g_strfreev (words);
+
+      g_string_append_printf (article->attestations,
+                              "%s\t%s\n",
+                              form->str,
+                              works->str);
+      g_string_free (form, TRUE);
+    }
+
+  g_string_free (works, TRUE);
+
+  /* Then the variants, after the main form */
+  for (child = kap->node.first_child; child; child = child->next)
+    if (child->type == PDB_DOC_NODE_TYPE_ELEMENT &&
+        !strcmp (((PdbDocElementNode *) child)->name, "var"))
+      {
+        PdbDocElementNode *var_kap = pdb_doc_get_child_element (child, "kap");
+
+        if (var_kap)
+          pdb_db_add_attestations (db, article, var_kap);
+      }
+}
+
 static PdbDbSection *
 pdb_db_parse_drv (PdbDb *db,
                   PdbDbArticle *article,
@@ -3233,6 +3645,7 @@ pdb_db_parse_drv (PdbDb *db,
   section = pdb_db_section_new ("eo");
 
   pdb_db_add_kap_index (db, kap, article, section);
+  pdb_db_add_attestations (db, article, kap);
 
   if (pdb_db_parse_spannable_string (db, kap, &section->title, error))
     {
@@ -3557,6 +3970,8 @@ pdb_db_parse_article (PdbDb *db,
   g_queue_init (&sections);
 
   article = g_slice_new (PdbDbArticle);
+  article->attestations = g_string_new (NULL);
+  pdb_db_add_attestations (db, article, kap);
 
   if (pdb_db_parse_spannable_string (db, kap, &article->title, error))
     {
@@ -3667,6 +4082,7 @@ pdb_db_parse_article (PdbDb *db,
   else
     {
       pdb_db_free_section_list (sections.head);
+      g_string_free (article->attestations, TRUE);
       g_slice_free (PdbDbArticle, article);
       return NULL;
     }
@@ -3872,6 +4288,21 @@ pdb_db_new (PdbRevo *revo,
                                  "vrk",
                                  "mll",
                                  "tit");
+  db->work_details = pdb_db_load_works (revo);
+
+  {
+    GHashTableIter iter;
+    gpointer code;
+
+    db->field_codes = g_ptr_array_new ();
+    g_hash_table_iter_init (&iter, db->fields);
+    while (g_hash_table_iter_next (&iter, &code, NULL))
+      g_ptr_array_add (db->field_codes, code);
+    g_ptr_array_sort (db->field_codes, compare_string_pointer);
+  }
+
+  db->source_urls = g_ptr_array_new_with_free_func (g_free);
+  db->source_url_numbers = g_hash_table_new (g_str_hash, g_str_equal);
 
   files = pdb_revo_list_files (revo, "revo/*.xml", error);
 
@@ -4000,6 +4431,7 @@ pdb_db_free (PdbDb *db)
       pdb_db_destroy_spannable_string (&article->title);
       pdb_db_free_section_list (article->sections);
 
+      g_string_free (article->attestations, TRUE);
       g_slice_free (PdbDbArticle, article);
     }
 
@@ -4011,8 +4443,12 @@ pdb_db_free (PdbDb *db)
   g_hash_table_destroy (db->marks);
   g_hash_table_destroy (db->translations);
   g_hash_table_destroy (db->root_variants);
+  g_ptr_array_free (db->field_codes, TRUE);
   g_hash_table_destroy (db->fields);
   g_hash_table_destroy (db->works);
+  g_hash_table_destroy (db->work_details);
+  g_hash_table_destroy (db->source_url_numbers);
+  g_ptr_array_free (db->source_urls, TRUE);
 
   g_slice_free (PdbDb, db);
 }
@@ -4271,6 +4707,75 @@ pdb_db_save_article_files (PdbDb *db,
   return ret;
 }
 
+/* Writes assets/attestations.txt: for each headword that names the
+ * dictionaries it is in, a line "article\tform\tworks", eg. "12\taboli\t
+ * Plena Ilustrita Vortaro (1970)", the article counted from 0 */
+static gboolean
+pdb_db_save_attestations (PdbDb *db,
+                          const char *dir,
+                          GError **error)
+{
+  GString *out = g_string_new (NULL);
+  char *file_name;
+  gboolean ret;
+  int i;
+
+  for (i = 0; i < db->articles->len; i++)
+    {
+      PdbDbArticle *article = g_ptr_array_index (db->articles, i);
+      char **lines = g_strsplit (article->attestations->str, "\n", -1);
+
+      /* The same headword can name its dictionaries both in the
+       * article's <kap> and in the <drv>'s */
+      for (char **line = lines; *line; line++)
+        {
+          char **earlier = lines;
+
+          while (earlier < line && strcmp (*earlier, *line))
+            earlier++;
+
+          if (**line && earlier == line)
+            g_string_append_printf (out, "%d\t%s\n", i, *line);
+        }
+
+      g_strfreev (lines);
+    }
+
+  file_name = g_build_filename (dir, "assets", "attestations.txt", NULL);
+  ret = g_file_set_contents (file_name, out->str, out->len, error);
+  g_free (file_name);
+  g_string_free (out, TRUE);
+
+  return ret;
+}
+
+/* Writes a list of strings one a line, eg. the codes of the fields in
+ * assets/fields.txt */
+static gboolean
+pdb_db_save_lines (GPtrArray *lines,
+                   const char *dir,
+                   const char *name,
+                   GError **error)
+{
+  GString *out = g_string_new (NULL);
+  char *file_name;
+  gboolean ret;
+  int i;
+
+  for (i = 0; i < lines->len; i++)
+    {
+      g_string_append (out, g_ptr_array_index (lines, i));
+      g_string_append_c (out, '\n');
+    }
+
+  file_name = g_build_filename (dir, "assets", name, NULL);
+  ret = g_file_set_contents (file_name, out->str, out->len, error);
+  g_free (file_name);
+  g_string_free (out, TRUE);
+
+  return ret;
+}
+
 gboolean
 pdb_db_save (PdbDb *db,
              const char *dir,
@@ -4340,6 +4845,15 @@ pdb_db_save (PdbDb *db,
         }
     }
   else
+    ret = FALSE;
+
+  if (ret && !pdb_db_save_lines (db->field_codes, dir, "fields.txt", error))
+    ret = FALSE;
+
+  if (ret && !pdb_db_save_lines (db->source_urls, dir, "sources.txt", error))
+    ret = FALSE;
+
+  if (ret && !pdb_db_save_attestations (db, dir, error))
     ret = FALSE;
 
   if (ret && !pdb_db_save_officiality (db, dir, error))

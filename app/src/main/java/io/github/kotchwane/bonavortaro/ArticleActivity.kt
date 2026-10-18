@@ -137,6 +137,7 @@ class ArticleActivity : BonaActivity() {
     /* The articles already read: those of the cards of the previous and
      * next roots, and those of the roots before, for back */
     private val articleCache = LruCache<Int, Article>(16)
+    private var loadedSources: Boolean? = null
     private var article by mutableStateOf<Article?>(null)
     /* The language of the example searched, if any, and, if it isn't
      * among the translations, that language, shown for its line alone */
@@ -247,6 +248,18 @@ class ArticleActivity : BonaActivity() {
         preferredLanguages = BonaSettings.getTranslationOrder(this)
         vikiShown = Vikivortaro.inArticles(this)
         extraLanguage = exampleLanguage?.takeIf { it != "eo" && !BonaSettings.translationFilter(this)(it) }
+
+        /* The articles read before show the sources of the examples, or
+         * not, as the setting was */
+        val sources = BonaSettings.getShowSources(this)
+        if (sources != loadedSources) {
+            if (loadedSources != null) {
+                articleCache.evictAll()
+                extraArticle = null
+                article = null
+            }
+            loadedSources = sources
+        }
 
         val translations = currentTranslations()
         /* The translations are folded only when all of the languages
@@ -464,12 +477,13 @@ private fun ArticleScreen(
                 it,
                 preferredLanguages,
                 abbreviationKinds = abbreviationKinds,
-                markLabel = {
+                markLabel = { field ->
                     InlineLabelSpan(
                         background = colors.secondaryContainer.toArgb(),
                         foreground = colors.onSecondaryContainer.toArgb(),
                         radius = 6 * density,
                         padding = 4 * density,
+                        icon = field?.let { FIELD_ICONS[it] }?.let { context.getDrawable(it)?.mutate() },
                     )
                 },
                 markLinkType = { type, label ->

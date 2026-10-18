@@ -60,6 +60,10 @@ typedef enum
   /* A usage ReVo marks as wrong (<mis>): "ne ĉesu la laboron". Shown
    * in italics, upright inside an example, which is already italic */
   PDB_SPAN_MISUSE,
+  /* The source of an example, " — Zamenhof, Fundamento de Esperanto".
+   * data1 is the number of its address in assets/sources.txt, from 1,
+   * or 0 */
+  PDB_SPAN_SOURCE,
   PDB_SPAN_NONE
 } PdbSpanType;
 
