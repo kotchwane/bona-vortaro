@@ -18,6 +18,9 @@
 
 package io.github.kotchwane.bonavortaro
 
+import androidx.compose.runtime.toMutableStateList
+import androidx.compose.runtime.saveable.listSaver
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.res.stringArrayResource
 import android.content.ActivityNotFoundException
 import android.content.Context
@@ -449,6 +452,11 @@ private fun ArticleScreen(
     /* The words whose card has words of Vikivortaro, for the sources */
     val vikiSections = remember(articleNumber) { mutableStateMapOf<Int, Boolean>() }
     val scope = rememberCoroutineScope()
+    /* The examples and remarks folded or unfolded by a tap, for this root */
+    val toggledParts = rememberSaveable(
+        articleNumber,
+        saver = listSaver(save = { it.toList() }, restore = { it.toMutableStateList() }),
+    ) { mutableStateListOf<String>() }
     /* The section pressed, with its pages outside, found before the menu
      * opens so that it doesn't change size */
     var actionsFor by remember { mutableStateOf<DefinitionTarget?>(null) }
@@ -506,7 +514,8 @@ private fun ArticleScreen(
                         color = when (type.family) {
                             LinkFamily.HIERARCHY, LinkFamily.PARTS -> colors.primary
                             LinkFamily.EQUIVALENCE -> colors.tertiary
-                            LinkFamily.OTHER -> colors.outline
+                            /* outline would be too pale for the words */
+                            LinkFamily.OTHER -> colors.onSurfaceVariant
                         }.toArgb(),
                         radius = 50 * density,
                         padding = 5 * density,
@@ -636,52 +645,54 @@ private fun ArticleScreen(
         /* What is read at the text size of the settings; the bar above
          * stays as it is */
         ScaledText(textSize) {
-            LazyColumn(
-                state = listState,
-                modifier = Modifier.fillMaxSize(),
-                contentPadding = PaddingValues(
-                    start = 12.dp,
-                    end = 12.dp,
-                    top = padding.calculateTopPadding() + 4.dp,
-                    bottom = padding.calculateBottomPadding() + 16.dp,
-                ),
-                verticalArrangement = Arrangement.spacedBy(10.dp),
-            ) {
-                items(words, key = { it.section }) { word ->
-                    WordCard(
-                        word, unfoldExamples, foldTranslations,
-                        vikiSearch = vikiSearch,
-                        vikiShown = vikiShown,
-                        example = example.takeIf { word.section == searched?.section },
-                        scrolled = showedSection,
-                        onViki = { vikiSections[word.section] = it },
-                        onLongPress = { showActions(word.source, word.section) },
-                        onLongPressWord = { pressed, language -> wordFor = pressed to language },
-                    )
-                }
-                /* Translations that couldn't be given to a word, if any */
-                items(layout?.otherTranslations ?: emptyList()) { section ->
-                    Section(section, onLongPress = { showActions(section, null) })
-                }
-                /* The roots before and after, once the article is there, and
-                 * whole: if it grew after a scroll reached the end, the cards
-                 * would be left below the screen. A way to move on, not text
-                 * to read: at the size of the controls, where its three
-                 * narrow cards keep their words whole */
-                if (layout != null)
-                    item(key = "sources") {
-                        SourcesLine(revo = true, viki = withViki, revoArticle = articleNumber, modifier = Modifier.padding(horizontal = 8.dp))
+            CompositionLocalProvider(LocalToggledParts provides toggledParts) {
+                LazyColumn(
+                    state = listState,
+                    modifier = Modifier.fillMaxSize(),
+                    contentPadding = PaddingValues(
+                        start = 12.dp,
+                        end = 12.dp,
+                        top = padding.calculateTopPadding() + 4.dp,
+                        bottom = padding.calculateBottomPadding() + 16.dp,
+                    ),
+                    verticalArrangement = Arrangement.spacedBy(10.dp),
+                ) {
+                    items(words, key = { it.section }) { word ->
+                        WordCard(
+                            word, unfoldExamples, foldTranslations,
+                            vikiSearch = vikiSearch,
+                            vikiShown = vikiShown,
+                            example = example.takeIf { word.section == searched?.section },
+                            scrolled = showedSection,
+                            onViki = { vikiSections[word.section] = it },
+                            onLongPress = { showActions(word.source, word.section) },
+                            onLongPressWord = { pressed, language -> wordFor = pressed to language },
+                        )
                     }
-                if (layout != null && neighbours != null)
-                    item(key = "neighbours") {
-                        UnscaledText {
-                            NeighbourRoots(
-                                neighbours!!,
-                                onOpen = onOpenNeighbour,
-                                onRandom = { scope.launch { onOpenRandom(withContext(Dispatchers.IO) { RandomRoot.pick(context) }) } },
-                            )
+                    /* Translations that couldn't be given to a word, if any */
+                    items(layout?.otherTranslations ?: emptyList()) { section ->
+                        Section(section, onLongPress = { showActions(section, null) })
+                    }
+                    /* The roots before and after, once the article is there, and
+                     * whole: if it grew after a scroll reached the end, the cards
+                     * would be left below the screen. A way to move on, not text
+                     * to read: at the size of the controls, where its three
+                     * narrow cards keep their words whole */
+                    if (layout != null)
+                        item(key = "sources") {
+                            SourcesLine(revo = true, viki = withViki, revoArticle = articleNumber, modifier = Modifier.padding(horizontal = 8.dp))
                         }
-                    }
+                    if (layout != null && neighbours != null)
+                        item(key = "neighbours") {
+                            UnscaledText {
+                                NeighbourRoots(
+                                    neighbours!!,
+                                    onOpen = onOpenNeighbour,
+                                    onRandom = { scope.launch { onOpenRandom(withContext(Dispatchers.IO) { RandomRoot.pick(context) }) } },
+                                )
+                            }
+                        }
+                }
             }
         }
     }
@@ -885,23 +896,30 @@ private fun DefinitionActions(
         revo?.let { R.string.menu_revo to { onOpenPage(it) } },
     )
 
-    ModalBottomSheet(onDismissRequest = onDismiss) {
-        Text(
-            section.header.toString(),
-            style = MaterialTheme.typography.titleMedium,
-            color = MaterialTheme.colorScheme.primary,
-            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
-        )
-        val outsideLink = stringResource(R.string.outside_link)
-        for ((label, action) in actions) {
-            val text = stringResource(label)
-            ListItem(
-                headlineContent = { Text(text) },
-                /* "↗" read as words by TalkBack */
-                modifier = Modifier
-                    .clickable { onDismiss(); action() }
-                    .semantics(mergeDescendants = true) { contentDescription = spokenOutside(text, outsideLink) },
+    /* Opened whole, and scrolling when it is higher than the screen
+     * (landscape, a large font) */
+    ModalBottomSheet(
+        onDismissRequest = onDismiss,
+        sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
+    ) {
+        Column(Modifier.verticalScroll(rememberScrollState())) {
+            Text(
+                section.header.toString(),
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
             )
+            val outsideLink = stringResource(R.string.outside_link)
+            for ((label, action) in actions) {
+                val text = stringResource(label)
+                ListItem(
+                    headlineContent = { Text(text) },
+                    /* "↗" read as words by TalkBack */
+                    modifier = Modifier
+                        .clickable { onDismiss(); action() }
+                        .semantics(mergeDescendants = true) { contentDescription = spokenOutside(text, outsideLink) },
+                )
+            }
         }
     }
 }

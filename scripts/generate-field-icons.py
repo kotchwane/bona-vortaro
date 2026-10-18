@@ -18,7 +18,7 @@ greys, and calligraphic pens in skewed groups: librsvg renders all of it
 exactly, which a conversion to vector drawables doesn't. Each icon is a
 mask: black where the drawing is black, transparent where it is white,
 partly transparent for the greys, so that the app tints it in the colour
-of the text. 24 dp, at each density.
+of the text. 24 dp high, as wide as the drawing, at each density.
 """
 import glob
 import os
@@ -49,6 +49,12 @@ def mask(svg, size, out):
     os.remove(png)
     icon = Image.new("LA", lightness.size, 0)
     icon.putalpha(lightness.point(lambda v: 255 - v))
+    # Without the empty sides of the drawing, so that the space between
+    # the icon and the name is the same for all; the full height, so that
+    # they stand on the same line
+    box = icon.getchannel("A").getbbox()
+    if box:
+        icon = icon.crop((box[0], 0, box[2], size))
     icon.save(out, optimize=True)
 
 

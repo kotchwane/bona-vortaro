@@ -17,6 +17,8 @@
 
 package io.github.kotchwane.bonavortaro
 
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.Role
@@ -225,7 +227,13 @@ fun OfficialSheet(
         onDismissRequest = onDismiss,
         sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
     ) {
-        Column(Modifier.padding(start = 24.dp, end = 24.dp, bottom = 32.dp)) {
+        /* It scrolls when it is higher than the screen: a large font,
+         * landscape */
+        Column(
+            Modifier
+                .verticalScroll(rememberScrollState())
+                .padding(start = 24.dp, end = 24.dp, bottom = 32.dp),
+        ) {
             Text(
                 "${levelName(shown)} (${OFFICIAL_YEARS[shown]})",
                 style = MaterialTheme.typography.titleLarge,
@@ -276,7 +284,7 @@ fun OfficialSheet(
                     },
                     modifier = Modifier.weight(1f),
                 ) {
-                    Text(stringResource(R.string.addition_list), maxLines = 1)
+                    Text(stringResource(R.string.addition_list), textAlign = TextAlign.Center)
                 }
                 OutlinedButton(
                     onClick = {
@@ -285,7 +293,7 @@ fun OfficialSheet(
                     },
                     modifier = Modifier.weight(1f),
                 ) {
-                    Text(stringResource(R.string.official_more), maxLines = 1)
+                    Text(stringResource(R.string.official_more), textAlign = TextAlign.Center)
                 }
             }
         }
@@ -403,9 +411,14 @@ fun OfficialTimeline(
                         )
                     }
                 }
+                /* At the same size whatever the font size of the phone:
+                 * eleven years have to fit in the width */
                 Text(
                     year,
-                    style = MaterialTheme.typography.labelSmall.copy(fontSize = 9.sp),
+                    style = MaterialTheme.typography.labelSmall.copy(
+                        fontSize = with(LocalDensity.current) { 9.dp.toSp() },
+                    ),
+                    softWrap = false,
                     color = if (current) colors.primary else colors.onSurfaceVariant,
                     fontWeight = if (current) FontWeight.Bold else null,
                     maxLines = 1,

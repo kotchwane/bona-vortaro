@@ -17,6 +17,8 @@
 
 package io.github.kotchwane.bonavortaro
 
+import androidx.compose.runtime.snapshots.SnapshotStateList
+import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.res.painterResource
 import android.graphics.drawable.Drawable
 import androidx.compose.runtime.produceState
@@ -345,6 +347,30 @@ private fun ExampleLine(text: CharSequence, onLongPress: (String?) -> Unit) {
     )
 }
 
+/** The examples and remarks whose folding the reader changed, by their
+ * key, for the whole article. The article screen keeps them rather than
+ * their card: the state a card saves is lost when the screen is left
+ * while the card is off screen. */
+val LocalToggledParts = staticCompositionLocalOf<SnapshotStateList<String>?> { null }
+
+/** Whether a part is unfolded, and how to change it: [unfolded] at first,
+ * as the settings say, or as the reader made it. */
+@Composable
+private fun unfoldedState(key: String, unfolded: Boolean): Pair<Boolean, (Boolean) -> Unit> {
+    val toggled = LocalToggledParts.current
+    if (toggled != null) {
+        val shown = unfolded != (key in toggled)
+        return shown to { value ->
+            if (value != shown) {
+                if (!toggled.remove(key))
+                    toggled.add(key)
+            }
+        }
+    }
+    var expanded by rememberSaveable(key, unfolded) { mutableStateOf(unfolded) }
+    return expanded to { expanded = it }
+}
+
 /** Several examples, folded behind "Ekzemploj (n) ▾". */
 @Composable
 private fun FoldedExamples(
@@ -354,10 +380,10 @@ private fun FoldedExamples(
     unfolded: Boolean,
 ) {
     /* Unfolded at first if the user chose it, and can still be folded */
-    var expanded by rememberSaveable(key, unfolded) { mutableStateOf(unfolded) }
+    val (expanded, setExpanded) = unfoldedState(key, unfolded)
 
     TextButton(
-        onClick = { expanded = !expanded },
+        onClick = { setExpanded(!expanded) },
         contentPadding = PaddingValues(horizontal = 0.dp, vertical = 0.dp),
     ) {
         Text(
@@ -394,14 +420,17 @@ private fun LabelChip(label: Label, modifier: Modifier = Modifier) {
             modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp),
         ) {
             /* As high as the letters: the chip keeps its height */
-            if (icon != null)
+            if (icon != null) {
+                val painter = painterResource(icon)
+                val height = with(LocalDensity.current) { (style.fontSize * 0.95f).toDp() }
                 Icon(
-                    painterResource(icon),
+                    painter,
                     contentDescription = null,
                     modifier = Modifier
                         .padding(end = 4.dp)
-                        .size(with(LocalDensity.current) { (style.fontSize * 0.95f).toDp() }),
+                        .size(height * (painter.intrinsicSize.width / painter.intrinsicSize.height), height),
                 )
+            }
             Text(
                 /* "landokodo: DE": an abbreviation says what it is */
                 if (label.abbreviation < 0) label.text
@@ -426,10 +455,14 @@ class InlineLabelSpan(
 
     private fun labelPaint(paint: Paint) = Paint(paint).apply { textSize = paint.textSize * 0.85f }
 
-    /* The icon's side: the height of a capital letter, a little more */
+    /* The icon's height: the height of a capital letter, a little more;
+     * its width as the drawing's */
     private fun iconSize(label: Paint) = if (icon == null) 0f else label.textSize * 0.8f
 
-    private fun iconWidth(label: Paint) = if (icon == null) 0f else iconSize(label) + padding * 0.75f
+    private fun iconDrawnWidth(label: Paint) =
+        icon?.let { iconSize(label) * it.intrinsicWidth / it.intrinsicHeight.coerceAtLeast(1) } ?: 0f
+
+    private fun iconWidth(label: Paint) = if (icon == null) 0f else iconDrawnWidth(label) + padding * 0.75f
 
     override fun getSize(
         paint: Paint,
@@ -466,7 +499,7 @@ class InlineLabelSpan(
             it.setBounds(
                 (x + padding).roundToInt(),
                 (middle - size / 2).roundToInt(),
-                (x + padding + size).roundToInt(),
+                (x + padding + iconDrawnWidth(label)).roundToInt(),
                 (middle + size / 2).roundToInt(),
             )
             it.setTint(foreground)
@@ -615,7 +648,7 @@ fun OfficialBadge(
 @Composable
 private fun NoteBox(text: CharSequence, key: String, unfolded: Boolean, onLongPress: (String?) -> Unit) {
     val link = MaterialTheme.colorScheme.primary
-    var expanded by rememberSaveable(key, unfolded) { mutableStateOf(unfolded) }
+    val (expanded, setExpanded) = unfoldedState(key, unfolded)
     val more = stringResource(R.string.note_more)
     /* The text cut at the end of its last shown line, for the width and
      * the size it was measured with; null while it fits */
@@ -632,7 +665,7 @@ private fun NoteBox(text: CharSequence, key: String, unfolded: Boolean, onLongPr
          * on its last line, a small target for a finger */
         Column(
             Modifier
-                .clickable(enabled = isFolded) { expanded = true }
+                .clickable(enabled = isFolded) { setExpanded(true) }
                 .padding(horizontal = 10.dp, vertical = 8.dp),
         ) {
             Text(
@@ -647,12 +680,12 @@ private fun NoteBox(text: CharSequence, key: String, unfolded: Boolean, onLongPr
                 onLongPress = onLongPress,
                 /* Measured again when the width or the text size change,
                  * eg. when the phone is turned */
-                onClick = if (isFolded) ({ expanded = true }) else null,
+                onClick = if (isFolded) ({ setExpanded(true) }) else null,
                 onLayout = { view ->
                     val width = view.layout.width
                     val size = view.paint.textSize
                     if (folded?.width != width || folded?.size != size)
-                        folded = foldNote(text, view.paint, width, more, link.toArgb()) { expanded = true }
+                        folded = foldNote(text, view.paint, width, more, link.toArgb()) { setExpanded(true) }
                 },
                 modifier = Modifier.fillMaxWidth(),
             )
@@ -665,7 +698,7 @@ private fun NoteBox(text: CharSequence, key: String, unfolded: Boolean, onLongPr
                     modifier = Modifier
                         .padding(top = 2.dp)
                         .heightIn(min = 32.dp)
-                        .clickable { expanded = false }
+                        .clickable { setExpanded(false) }
                         .wrapContentHeight(),
                 )
         }

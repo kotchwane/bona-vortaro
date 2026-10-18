@@ -2844,6 +2844,27 @@ pdb_db_find_mark_after_source (PdbDocElementNode *element,
   return NULL;
 }
 
+/* Whether an element is in a remark */
+static gboolean
+pdb_db_in_remark (PdbDocElementNode *element)
+{
+  PdbDocNode *node;
+
+  for (node = element->node.parent; node; node = node->parent)
+    if (!strcmp (((PdbDocElementNode *) node)->name, "rim"))
+      return TRUE;
+
+  return FALSE;
+}
+
+/* Whether a text ends with the mark of the end of a sentence */
+static gboolean
+pdb_db_ends_with_mark (GString *buf)
+{
+  return (buf->len > 0 && strchr (".!?", buf->str[buf->len - 1])) ||
+    g_str_has_suffix (buf->str, "\xe2\x80\xa6");
+}
+
 /* Writes the source of an example after it, " — Zamenhof, Fundamento de
  * Esperanto", in a span of its own (PDB_SPAN_SOURCE) that starts at the
  * dash, so that applications can show it small, or not at all. The author
@@ -2940,11 +2961,16 @@ pdb_db_add_example_source (PdbDb *db,
           if (punctuation)
             g_string_truncate (state->buf, end - 1);
         }
-      /* The example's own mark, after the source in ReVo, before it */
-      else if ((mark_node = pdb_db_find_mark_after_source (element, &mark)))
+      /* The example's own mark, after the source in ReVo, before it;
+       * left out if the example already ends with one ("junularo!
+       * <fnt>…</fnt>."). Not in a remark, where the example is in a
+       * sentence that goes on after it */
+      else if (!pdb_db_in_remark (element) &&
+               (mark_node = pdb_db_find_mark_after_source (element, &mark)))
         {
           g_string_truncate (state->buf, end);
-          g_string_append_c (state->buf, mark);
+          if (!pdb_db_ends_with_mark (state->buf))
+            g_string_append_c (state->buf, mark);
           state->mark_moved_from = mark_node;
         }
 
@@ -2963,7 +2989,8 @@ pdb_db_add_example_source (PdbDb *db,
   span->span_start = state->buf->len;
   span->data1 = url ? pdb_db_get_source_url_number (db, url) : 0;
 
-  g_string_append (state->buf, joined ? "; " : "\xe2\x80\x94 ");
+  /* The dash with the author: a no-break space between them */
+  g_string_append (state->buf, joined ? "; " : "\xe2\x80\x94\xc2\xa0");
   if (author)
     g_string_append (state->buf, author);
   if (author && title)
@@ -2974,6 +3001,8 @@ pdb_db_add_example_source (PdbDb *db,
   span->span_length = state->buf->len - span->span_start;
   pdb_list_insert (state->spans.prev, &span->link);
   state->last_source_end = state->buf->len;
+  /* No space left before a mark that follows: "Monato." */
+  state->space_before_skipped = TRUE;
 
   if (punctuation)
     g_string_append_c (state->buf, punctuation);

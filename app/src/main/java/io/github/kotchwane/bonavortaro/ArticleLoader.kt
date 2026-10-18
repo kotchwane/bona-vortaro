@@ -74,8 +74,9 @@ class AbbreviationSpan(val kind: Int)
  * [SourceLinkSpan]). */
 interface ExampleSource
 
+/* A little paler than the example, still readable: 4.8:1 on the card */
 private fun paler(paint: TextPaint) {
-    paint.color = Color.argb(Color.alpha(paint.color) * 3 / 4, Color.red(paint.color), Color.green(paint.color), Color.blue(paint.color))
+    paint.color = Color.argb(Color.alpha(paint.color) * 9 / 10, Color.red(paint.color), Color.green(paint.color), Color.blue(paint.color))
 }
 
 /** A source without an address: only paler. */
