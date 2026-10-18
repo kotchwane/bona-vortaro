@@ -17,6 +17,7 @@
 
 package io.github.kotchwane.bonavortaro
 
+import android.text.style.RelativeSizeSpan
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.runtime.snapshots.SnapshotStateList
@@ -241,7 +242,7 @@ fun WordCard(
                 when (group) {
                     is BlockGroup.Single -> when (val block = group.block) {
                         is ContentBlock.Text -> SpannedText(
-                            block.text,
+                            compactParagraphs(block.text),
                             style = MaterialTheme.typography.bodyLarge,
                             color = MaterialTheme.colorScheme.onSurface,
                             onLongPress = onLongPressText,
@@ -263,6 +264,26 @@ fun WordCard(
                 TranslationsBox(entry.translations, foldTranslations, onLongPressWord, viki, example, vikiExamples, scrolled)
         }
     }
+}
+
+/** A text as shown: a label alone in its paragraph joins the next one,
+ * "(malofte) Letero:" rather than on a line of its own, and between two
+ * paragraphs the empty line is half as high, closer to the space between
+ * two blocks (epistolo: "Letero:", "a) …", "b) …"). */
+private fun compactParagraphs(text: CharSequence): CharSequence {
+    if ("\n\n" !in text)
+        return text
+    val result = SpannableStringBuilder(text)
+    Regex("""^\([^()\n]*\) *\n\n""").find(result)?.let { label ->
+        result.replace(label.value.indexOf(')') + 1, label.range.last + 1, " ")
+    }
+    var at = result.indexOf("\n\n")
+    while (at >= 0) {
+        /* The second line break is the empty line */
+        result.setSpan(RelativeSizeSpan(0.5f), at + 1, at + 2, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+        at = result.indexOf("\n\n", at + 2)
+    }
+    return result
 }
 
 /** The blocks of a word, with the runs of several examples together. */
