@@ -109,6 +109,9 @@
   <string name="neighbours_title">Foliumi la vortaron</string>
   <string name="neighbour_previous">‹ antaŭa radiko</string>
   <string name="neighbour_next">sekva radiko ›</string>
+  <!-- One under the other, where the three cards don't fit -->
+  <string name="neighbour_previous_short">‹ antaŭa</string>
+  <string name="neighbour_next_short">sekva ›</string>
   <string name="guide_title">Kiel uzi la apon</string>
   <string name="guide_summary">Konsiloj por serĉi kaj legi</string>
   <string name="guide_search">Serĉi</string>
