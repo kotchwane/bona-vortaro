@@ -281,7 +281,9 @@ private fun groupExamples(blocks: List<ContentBlock>, exampleColor: Int): List<B
 
         when {
             run.isEmpty() -> {}
-            run.size == 1 && run[0].text.withoutSourceLength() <= INLINE_EXAMPLE_LENGTH && before != null ->
+            /* With its source, an example has its own line, like the
+             * others, rather than making the definition longer */
+            run.size == 1 && run[0].text.length <= INLINE_EXAMPLE_LENGTH && !run[0].text.hasSource() && before != null ->
                 groups[groups.lastIndex] =
                     BlockGroup.Single(ContentBlock.Text(withExample(before.text, run[0].text, exampleColor)))
             run.sumOf { it.text.withoutSourceLength() } <= SHOWN_EXAMPLES_LENGTH ->
@@ -304,6 +306,9 @@ private fun groupExamples(blocks: List<ContentBlock>, exampleColor: Int): List<B
     return groups
 }
 
+private fun CharSequence.hasSource(): Boolean =
+    (this as? Spanned)?.getSpans(0, length, SourceSpan::class.java)?.isNotEmpty() == true
+
 /** The length of an example without its source: shown or folded as it
  * was before the sources were */
 private fun CharSequence.withoutSourceLength(): Int =
@@ -318,12 +323,6 @@ private fun withExample(text: CharSequence, example: CharSequence, color: Int): 
 
     result.append(example)
     result.setSpan(ForegroundColorSpan(color), start, result.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-    /* Its source keeps its own colour: set again, after the example's */
-    for (source in result.getSpans(start, result.length, SourceSpan::class.java)) {
-        val (from, to) = result.getSpanStart(source) to result.getSpanEnd(source)
-        result.removeSpan(source)
-        result.setSpan(source, from, to, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-    }
 
     return result
 }
@@ -1114,6 +1113,22 @@ fun SourcesLine(
                 Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     if (revo)
                         Source(revoName, stringResource(R.string.sources_revo), revoPage ?: REVO_SITE)
+                    /* The article on Reta Vortaro, where its "Redakti" button
+                     * lets one correct it, and who changed what in it */
+                    revoPage?.let { page ->
+                        val link = TextLinkStyles(SpanStyle(color = MaterialTheme.colorScheme.primary, textDecoration = TextDecoration.Underline))
+                        Text(
+                            buildAnnotatedString {
+                                append(stringResource(R.string.sources_revo_article) + " ")
+                                withLink(LinkAnnotation.Url(page, link)) { append(stringResource(R.string.sources_revo_read)) }
+                                append(" · ")
+                                withLink(LinkAnnotation.Url(page.replace("/art/", "/hst/"), link)) {
+                                    append(stringResource(R.string.sources_revo_history))
+                                }
+                            },
+                            style = MaterialTheme.typography.bodyMedium,
+                        )
+                    }
                     if (revo && dictionaries.isNotEmpty()) {
                         /* "En la vortaroj: aboli — …", the words in italics */
                         val line = stringResource(R.string.sources_dictionaries, "\u0000")

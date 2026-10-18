@@ -13,6 +13,7 @@ local.properties
 /app/src/main/assets/fields.txt
 /app/src/main/assets/sources.txt
 /app/src/main/assets/attestations.txt
+/app/src/main/assets/vikipedio.txt
 /app/src/main/assets/articles/files.txt
 /app/src/main/res/xml/languages.xml
 

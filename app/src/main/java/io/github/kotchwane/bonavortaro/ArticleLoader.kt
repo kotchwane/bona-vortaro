@@ -66,14 +66,13 @@ class LinkTypeSpan(val type: Int)
  * with its kind: the index in R.array.abbreviation_kinds */
 class AbbreviationSpan(val kind: Int)
 
-/** The source of an example, " — Zamenhof, Fundamento de Esperanto": in
- * the colour of the links when a tap opens the work, its [number] in
- * assets/sources.txt, otherwise paler. */
+/** The source of an example, " — Zamenhof, Fundamento de Esperanto",
+ * paler than the example. When a tap opens the work, its [number] in
+ * assets/sources.txt, it ends with "↗", the sign of a page outside the
+ * app, rather than taking the colour of the links, which stay in it. */
 class SourceSpan(val number: Int) : ClickableSpan() {
     override fun updateDrawState(paint: TextPaint) {
-        paint.color =
-            if (number > 0) paint.linkColor
-            else Color.argb(Color.alpha(paint.color) * 3 / 4, Color.red(paint.color), Color.green(paint.color), Color.blue(paint.color))
+        paint.color = Color.argb(Color.alpha(paint.color) * 3 / 4, Color.red(paint.color), Color.green(paint.color), Color.blue(paint.color))
     }
 
     override fun onClick(view: View) {
@@ -181,6 +180,8 @@ object ArticleLoader {
     /* The source of an example, " — Zamenhof, Fundamento de Esperanto",
      * with the number of its address in sources.txt */
     private const val SPAN_SOURCE = 13
+    /* After a source that opens a page outside the app */
+    private const val OUTSIDE = "\u00a0↗"
 
     /* The codes of the fields, for the number in their spans, written
      * by prevodb in fields.txt */
@@ -322,12 +323,25 @@ object ArticleLoader {
             if (sources.isEmpty())
                 return string
             if (showSources) {
-                for ((start, end, number) in sources) {
-                    string.setSpan(RelativeSizeSpan(0.85f), start, end, 0)
-                    string.setSpan(UprightSpan(), start, end, 0)
-                    string.setSpan(SourceSpan(number), start, end, 0)
+                val marked = SpannableStringBuilder(string)
+                for ((start, end, number) in sources.sortedByDescending { it.first }) {
+                    var to = end
+                    if (number > 0) {
+                        /* The spans that end with the source, such as its
+                         * example, end after the sign */
+                        val ending = marked.getSpans(end, end, Any::class.java)
+                            .filter { marked.getSpanEnd(it) == end && marked.getSpanStart(it) < end }
+                            .map { Triple(it, marked.getSpanStart(it), marked.getSpanFlags(it)) }
+                        marked.insert(end, OUTSIDE)
+                        to = end + OUTSIDE.length
+                        for ((span, from, flags) in ending)
+                            marked.setSpan(span, from, to, flags)
+                    }
+                    marked.setSpan(RelativeSizeSpan(0.85f), start, to, 0)
+                    marked.setSpan(UprightSpan(), start, to, 0)
+                    marked.setSpan(SourceSpan(number), start, to, 0)
                 }
-                return string
+                return SpannableString(marked)
             }
             /* Left out, with the space before them, from the end so that
              * the others stay where they are */

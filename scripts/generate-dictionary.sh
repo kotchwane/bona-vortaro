@@ -14,4 +14,5 @@ make -j"$(nproc 2>/dev/null || sysctl -n hw.ncpu)"
 ./src/prevodb \
     -i ../extern/revo-fonto \
     -i ../extern/voko-grundo \
-    -o ../app/src/main
+    -o ../app/src/main \
+    --vikiref ../data/vikiref.json

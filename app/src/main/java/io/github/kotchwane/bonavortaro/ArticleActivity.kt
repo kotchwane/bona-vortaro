@@ -415,6 +415,15 @@ class ArticleActivity : BonaActivity() {
     }
 }
 
+/** Opens a page outside the app, in the browser */
+private fun openPage(context: Context, page: Uri) {
+    try {
+        context.startActivity(Intent(Intent.ACTION_VIEW, page))
+    } catch (e: ActivityNotFoundException) {
+        Log.w("bonaarticle", "Failed to start activity: ${e.message}")
+    }
+}
+
 /* A neutral grey that is readable in both light and dark themes */
 internal const val QUOTE_COLOR = 0xFF9E9E9E.toInt()
 
@@ -453,7 +462,8 @@ private fun ArticleScreen(
     /* The words whose card has words of Vikivortaro, for the sources */
     val vikiSections = remember(articleNumber) { mutableStateMapOf<Int, Boolean>() }
     val scope = rememberCoroutineScope()
-    var actionsFor by remember { mutableStateOf<ArticleSection?>(null) }
+    /* The section pressed, and its number when it is a word's */
+    var actionsFor by remember { mutableStateOf<Pair<ArticleSection, Int?>?>(null) }
     /* Read with the article, so that they are there before the end of it
      * can be reached */
     val context = LocalContext.current
@@ -645,13 +655,13 @@ private fun ArticleScreen(
                         example = example.takeIf { word.section == searched?.section },
                         scrolled = showedSection,
                         onViki = { vikiSections[word.section] = it },
-                        onLongPress = { actionsFor = word.source },
+                        onLongPress = { actionsFor = word.source to word.section },
                         onLongPressWord = { pressed, language -> wordFor = pressed to language },
                     )
                 }
                 /* Translations that couldn't be given to a word, if any */
                 items(layout?.otherTranslations ?: emptyList()) { section ->
-                    Section(section, onLongPress = { actionsFor = section })
+                    Section(section, onLongPress = { actionsFor = section to null })
                 }
                 /* The roots before and after, once the article is there, and
                  * whole: if it grew after a scroll reached the end, the cards
@@ -686,9 +696,20 @@ private fun ArticleScreen(
         )
     }
 
-    actionsFor?.let { section ->
+    actionsFor?.let { (section, number) ->
+        /* Its pages outside: Vikipedio's if Reta Vortaro links to one,
+         * and Reta Vortaro's */
+        val pages by produceState<Pair<Uri?, Uri?>>(null to null, section, number) {
+            value = withContext(Dispatchers.IO) {
+                number?.let { VikipedioLinks.page(context, articleNumber, it) } to
+                    RevoFiles.page(context, articleNumber)
+            }
+        }
         DefinitionActions(
             section = section,
+            vikipedio = pages.first,
+            revo = pages.second,
+            onOpenPage = { page -> openPage(context, page) },
             onDismiss = { actionsFor = null },
             onCopy = { onCopy(section) },
             /* "definition → word": the definition is asked, the word is
@@ -856,13 +877,20 @@ private fun DefinitionActions(
     onFlashcardDefinition: () -> Unit,
     onLookUpInPiv: () -> Unit,
     onShare: () -> Unit,
+    /** The page of Vikipedio about the word, if there is one */
+    vikipedio: Uri?,
+    /** The page of the article on Reta Vortaro's site */
+    revo: Uri?,
+    onOpenPage: (Uri) -> Unit,
 ) {
-    val actions = listOf(
+    val actions = listOfNotNull(
         R.string.menu_copy_definition to onCopy,
         R.string.share to onShare,
         R.string.menu_create_flashcard_word to onFlashcardWord,
         R.string.menu_create_flashcard_definition to onFlashcardDefinition,
         R.string.menu_look_up_in_piv to onLookUpInPiv,
+        vikipedio?.let { R.string.menu_vikipedio to { onOpenPage(it) } },
+        revo?.let { R.string.menu_revo to { onOpenPage(it) } },
     )
 
     ModalBottomSheet(onDismissRequest = onDismiss) {

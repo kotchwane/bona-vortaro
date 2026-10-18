@@ -586,10 +586,17 @@ private fun markInlineLabels(content: Spanned, markLabel: (String?) -> Any, abbr
 
 private fun CharSequence.trimEndPunctuation(): CharSequence {
     var end = length
-    while (end > 0 && (this[end - 1].isWhitespace() || this[end - 1] == ';'))
+    while (end > 0 && (this[end - 1].isWhitespace() || this[end - 1] == ';' ||
+                (this[end - 1] == '.' && afterSource(end - 1))))
         end--
     return subSequence(0, end)
 }
+
+/* Whether a mark comes right after the source of an example, "— Monato
+ * ↗.": the example's own period, which ReVo puts after its source */
+private fun CharSequence.afterSource(at: Int): Boolean =
+    at > 0 && (this as? Spanned)?.getSpans(at - 1, at, SourceSpan::class.java)
+        ?.any { getSpanEnd(it) == at } == true
 
 /** A short preview of a word for the list of search results: its title
  * and the start of its definition. */

@@ -17,6 +17,8 @@
 
 package io.github.kotchwane.bonavortaro
 
+import android.util.Log
+import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
@@ -248,6 +250,12 @@ fun OfficialSheet(
             }
             Spacer(Modifier.height(12.dp))
             AdditionAbout(shown, examples = true)
+            /* The Fundamento itself, to read: its text, and the book of 1905 */
+            if (shown == 0) {
+                Spacer(Modifier.height(8.dp))
+                FundamentoLink(stringResource(R.string.fundamento_text), FUNDAMENTO_TEXT)
+                FundamentoLink(stringResource(R.string.fundamento_facsimile), FUNDAMENTO_FACSIMILE)
+            }
             Spacer(Modifier.height(20.dp))
             Text(
                 stringResource(R.string.official_timeline),
@@ -281,6 +289,32 @@ fun OfficialSheet(
             }
         }
     }
+}
+
+/* From the bibliography of Reta Vortaro: the text at steloj.de, and the
+ * book of 1905, scanned, at archive.org */
+private const val FUNDAMENTO_TEXT = "https://www.steloj.de/esperanto/fundamento/index.html"
+private const val FUNDAMENTO_FACSIMILE = "https://archive.org/details/fundamentodeesp00zamegoog"
+
+/** A page about the Fundamento, outside the app: "↗" */
+@Composable
+private fun FundamentoLink(label: String, url: String) {
+    val context = LocalContext.current
+    Text(
+        "$label\u00a0↗",
+        style = MaterialTheme.typography.bodyLarge,
+        color = MaterialTheme.colorScheme.primary,
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable {
+                try {
+                    context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)))
+                } catch (e: ActivityNotFoundException) {
+                    Log.w("bonaofficial", "No browser for $url")
+                }
+            }
+            .padding(vertical = 10.dp),
+    )
 }
 
 /** What is worth knowing about a level, optionally some of its words,

@@ -4749,6 +4749,57 @@ pdb_db_save_attestations (PdbDb *db,
   return ret;
 }
 
+/* Writes assets/vikipedio.txt from Reta Vortaro's list of the
+ * Vikipedio articles of its words, a JSON array of [title, mark] one a
+ * line, eg. ["Hundo","hund"], the mark of a word or the name of the
+ * file of an article (its first word), an empty title for none: a line
+ * "article\tsection\ttitle" for each word found, eg. "4898\t0\tHundo" */
+gboolean
+pdb_db_save_vikipedio (PdbDb *db,
+                       const char *vikiref,
+                       const char *dir,
+                       GError **error)
+{
+  GString *out = g_string_new (NULL);
+  char *contents, **lines, *file_name;
+  gboolean ret;
+
+  if (!g_file_get_contents (vikiref, &contents, NULL, error))
+    {
+      g_string_free (out, TRUE);
+      return FALSE;
+    }
+
+  lines = g_strsplit (contents, "\n", -1);
+  g_free (contents);
+
+  for (char **line = lines; *line; line++)
+    {
+      /* ["title","mark"], */
+      char **parts = g_strsplit (*line, "\"", -1);
+      PdbDbMark *mark;
+
+      if (g_strv_length (parts) >= 5 && parts[1][0] &&
+          (mark = g_hash_table_lookup (db->marks, parts[3])))
+        g_string_append_printf (out,
+                                "%d\t%d\t%s\n",
+                                mark->article->article_num,
+                                mark->section->section_num,
+                                parts[1]);
+
+      g_strfreev (parts);
+    }
+
+  g_strfreev (lines);
+
+  file_name = g_build_filename (dir, "assets", "vikipedio.txt", NULL);
+  ret = g_file_set_contents (file_name, out->str, out->len, error);
+  g_free (file_name);
+  g_string_free (out, TRUE);
+
+  return ret;
+}
+
 /* Writes a list of strings one a line, eg. the codes of the fields in
  * assets/fields.txt */
 static gboolean

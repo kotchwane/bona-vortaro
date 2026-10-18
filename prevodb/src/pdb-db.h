@@ -38,6 +38,12 @@ pdb_db_save_single (PdbDb *db,
                     const char *filename,
                     GError **error);
 
+gboolean
+pdb_db_save_vikipedio (PdbDb *db,
+                       const char *vikiref,
+                       const char *dir,
+                       GError **error);
+
 void
 pdb_db_free (PdbDb *db);
 
