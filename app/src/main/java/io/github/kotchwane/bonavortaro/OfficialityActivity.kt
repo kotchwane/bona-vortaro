@@ -17,6 +17,7 @@
 
 package io.github.kotchwane.bonavortaro
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.semantics
@@ -370,8 +371,8 @@ fun countsText(roots: Int, words: Int): String {
 }
 
 /** The Fundamento and the Oficialaj Aldonoj with their years: "F", 1,
- * 2… The given level is highlighted, and the earlier ones tinted. A tap
- * on a circle selects its level. */
+ * 2… The given level is filled in green, the word's own levels have a
+ * green ring. A tap on a circle selects its level. */
 @Composable
 fun OfficialTimeline(
     level: Int?,
@@ -383,8 +384,9 @@ fun OfficialTimeline(
 
     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
         for ((index, year) in OFFICIAL_YEARS.withIndex()) {
-            val current = index == level || index in marked
-            val earlier = level != null && index < level
+            /* Only the level shown is filled: one green for one meaning */
+            val current = index == level
+            val own = index in marked && !current
 
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
@@ -395,12 +397,9 @@ fun OfficialTimeline(
             ) {
                 Surface(
                     shape = CircleShape,
-                    color = when {
-                        current || level == null -> colors.primary
-                        earlier -> colors.primaryContainer
-                        else -> colors.surfaceContainerHigh
-                    },
+                    color = if (current || level == null) colors.primary else colors.surfaceContainerHigh,
                     contentColor = if (current || level == null) colors.onPrimary else colors.onSurfaceVariant,
+                    border = if (own) BorderStroke(2.dp, colors.primary) else null,
                     modifier = Modifier.size(24.dp),
                 ) {
                     Box(contentAlignment = Alignment.Center) {
@@ -419,8 +418,8 @@ fun OfficialTimeline(
                         fontSize = with(LocalDensity.current) { 9.dp.toSp() },
                     ),
                     softWrap = false,
-                    color = if (current) colors.primary else colors.onSurfaceVariant,
-                    fontWeight = if (current) FontWeight.Bold else null,
+                    color = if (current || own) colors.primary else colors.onSurfaceVariant,
+                    fontWeight = if (current || own) FontWeight.Bold else null,
                     maxLines = 1,
                 )
             }
