@@ -152,11 +152,12 @@ main (int argc, char **argv)
                 save_ret = pdb_db_save_single (db, option_out_file, &error);
               else
                 save_ret = pdb_db_save (db, option_out_file, &error) &&
-                  (option_vikiref == NULL ||
+                  (option_vikiref ?
                    pdb_db_save_vikipedio (db,
                                           option_vikiref,
                                           option_out_file,
-                                          &error));
+                                          &error) :
+                   pdb_db_remove_vikipedio (option_out_file));
 
               if (!save_ret)
                 {

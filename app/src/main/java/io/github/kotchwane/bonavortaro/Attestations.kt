@@ -54,8 +54,4 @@ object Attestations {
                 forms.groupBy({ it.first }) { it.second }
                     .map { (form, works) -> form to works.flatMap { it.split("; ") }.distinct().joinToString("; ") }
             }
-
-    /** "aboli — Plena Ilustrita Vortaro (1970); abolicii — …" */
-    fun describe(forms: List<Pair<String, String>>): String =
-        forms.joinToString("; ") { (form, works) -> "$form — $works" }
 }

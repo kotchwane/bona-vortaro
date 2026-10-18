@@ -342,7 +342,7 @@ class ArticleActivity : BonaActivity() {
     }
 
     private fun copyDefinition(section: ArticleSection) {
-        SpannedCopy.copyText(this, getText(R.string.definition_label), section.content)
+        SpannedCopy.copyText(this, getText(R.string.definition_label), withoutOutsideSigns(section.content))
     }
 
     private fun createFlashcard(source: CharSequence, target: CharSequence) {
@@ -376,11 +376,7 @@ class ArticleActivity : BonaActivity() {
             .fragment(query.toString())
             .build()
 
-        try {
-            startActivity(Intent(Intent.ACTION_VIEW, uri))
-        } catch (e: ActivityNotFoundException) {
-            Log.w(TAG, "Failed to start activity: ${e.message}")
-        }
+        openOutside(this, uri)
     }
 
     /* The previous, next or random root replaces this one on the same
@@ -409,18 +405,9 @@ class ArticleActivity : BonaActivity() {
     private fun share(section: ArticleSection) {
         val intent = Intent(Intent.ACTION_SEND)
             .setType("text/plain")
-            .putExtra(Intent.EXTRA_TEXT, "${section.header}\n\n${section.content}")
+            .putExtra(Intent.EXTRA_TEXT, "${section.header}\n\n${withoutOutsideSigns(section.content)}")
 
         startActivity(Intent.createChooser(intent, null))
-    }
-}
-
-/** Opens a page outside the app, in the browser */
-private fun openPage(context: Context, page: Uri) {
-    try {
-        context.startActivity(Intent(Intent.ACTION_VIEW, page))
-    } catch (e: ActivityNotFoundException) {
-        Log.w("bonaarticle", "Failed to start activity: ${e.message}")
     }
 }
 
@@ -462,8 +449,9 @@ private fun ArticleScreen(
     /* The words whose card has words of Vikivortaro, for the sources */
     val vikiSections = remember(articleNumber) { mutableStateMapOf<Int, Boolean>() }
     val scope = rememberCoroutineScope()
-    /* The section pressed, and its number when it is a word's */
-    var actionsFor by remember { mutableStateOf<Pair<ArticleSection, Int?>?>(null) }
+    /* The section pressed, with its pages outside, found before the menu
+     * opens so that it doesn't change size */
+    var actionsFor by remember { mutableStateOf<DefinitionTarget?>(null) }
     /* Read with the article, so that they are there before the end of it
      * can be reached */
     val context = LocalContext.current
@@ -476,6 +464,18 @@ private fun ArticleScreen(
     }
     /* The word pressed in the text, and its language */
     var wordFor by remember { mutableStateOf<Pair<String, String>?>(null) }
+    /* Opens the menu of a section once its pages outside are known */
+    fun showActions(section: ArticleSection, number: Int?) {
+        scope.launch {
+            actionsFor = withContext(Dispatchers.IO) {
+                DefinitionTarget(
+                    section,
+                    vikipedio = number?.let { VikipedioLinks.page(context, articleNumber, it) },
+                    revo = RevoFiles.page(context, articleNumber),
+                )
+            }
+        }
+    }
 
     /* One card per word, with its translations */
     val colors = MaterialTheme.colorScheme
@@ -655,13 +655,13 @@ private fun ArticleScreen(
                         example = example.takeIf { word.section == searched?.section },
                         scrolled = showedSection,
                         onViki = { vikiSections[word.section] = it },
-                        onLongPress = { actionsFor = word.source to word.section },
+                        onLongPress = { showActions(word.source, word.section) },
                         onLongPressWord = { pressed, language -> wordFor = pressed to language },
                     )
                 }
                 /* Translations that couldn't be given to a word, if any */
                 items(layout?.otherTranslations ?: emptyList()) { section ->
-                    Section(section, onLongPress = { actionsFor = section to null })
+                    Section(section, onLongPress = { showActions(section, null) })
                 }
                 /* The roots before and after, once the article is there, and
                  * whole: if it grew after a scroll reached the end, the cards
@@ -696,26 +696,18 @@ private fun ArticleScreen(
         )
     }
 
-    actionsFor?.let { (section, number) ->
-        /* Its pages outside: Vikipedio's if Reta Vortaro links to one,
-         * and Reta Vortaro's */
-        val pages by produceState<Pair<Uri?, Uri?>>(null to null, section, number) {
-            value = withContext(Dispatchers.IO) {
-                number?.let { VikipedioLinks.page(context, articleNumber, it) } to
-                    RevoFiles.page(context, articleNumber)
-            }
-        }
+    actionsFor?.let { (section, vikipedio, revo) ->
         DefinitionActions(
             section = section,
-            vikipedio = pages.first,
-            revo = pages.second,
-            onOpenPage = { page -> openPage(context, page) },
+            vikipedio = vikipedio,
+            revo = revo,
+            onOpenPage = { page -> openOutside(context, page) },
             onDismiss = { actionsFor = null },
             onCopy = { onCopy(section) },
             /* "definition → word": the definition is asked, the word is
              * the answer, and the other way round */
-            onFlashcardWord = { onFlashcard(section.content, section.header) },
-            onFlashcardDefinition = { onFlashcard(section.header, section.content) },
+            onFlashcardWord = { onFlashcard(withoutSources(section.content), section.header) },
+            onFlashcardDefinition = { onFlashcard(section.header, withoutSources(section.content)) },
             onLookUpInPiv = { onLookUpInPiv(section.header) },
             onShare = { onShare(section) },
         )
@@ -900,15 +892,24 @@ private fun DefinitionActions(
             color = MaterialTheme.colorScheme.primary,
             modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
         )
+        val outsideLink = stringResource(R.string.outside_link)
         for ((label, action) in actions) {
+            val text = stringResource(label)
             ListItem(
-                headlineContent = { Text(stringResource(label)) },
-                modifier = Modifier.clickable { onDismiss(); action() },
+                headlineContent = { Text(text) },
+                /* "↗" read as words by TalkBack */
+                modifier = Modifier
+                    .clickable { onDismiss(); action() }
+                    .semantics(mergeDescendants = true) { contentDescription = spokenOutside(text, outsideLink) },
             )
         }
     }
 }
 
+
+/** A section whose menu is open, with its pages outside: Vikipedio's if
+ * Reta Vortaro links to one, and Reta Vortaro's */
+private data class DefinitionTarget(val section: ArticleSection, val vikipedio: Uri?, val revo: Uri?)
 
 /** An article next to this one, in the order of the dictionary */
 internal class Neighbour(val number: Int, val root: String, val definition: String)

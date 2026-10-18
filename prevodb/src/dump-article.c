@@ -193,7 +193,7 @@ main (int argc, char **argv)
               article_length = (pos[0] |
                                 (pos[1] << 8) |
                                 (pos[2] << 16) |
-                                (pos[2] << 24));
+                                (pos[3] << 24));
               pos += sizeof (guint32);
 
               if (article_length + (pos - data) > data_length)

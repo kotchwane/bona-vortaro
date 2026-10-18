@@ -307,12 +307,12 @@ private fun groupExamples(blocks: List<ContentBlock>, exampleColor: Int): List<B
 }
 
 private fun CharSequence.hasSource(): Boolean =
-    (this as? Spanned)?.getSpans(0, length, SourceSpan::class.java)?.isNotEmpty() == true
+    (this as? Spanned)?.getSpans(0, length, ExampleSource::class.java)?.isNotEmpty() == true
 
 /** The length of an example without its source: shown or folded as it
  * was before the sources were */
 private fun CharSequence.withoutSourceLength(): Int =
-    length - ((this as? Spanned)?.getSpans(0, length, SourceSpan::class.java)
+    length - ((this as? Spanned)?.getSpans(0, length, ExampleSource::class.java)
         ?.sumOf { getSpanEnd(it) - getSpanStart(it) + 1 } ?: 0)
 
 /** The text followed by a short example, in the colour of the
@@ -1115,7 +1115,7 @@ fun SourcesLine(
                         Source(revoName, stringResource(R.string.sources_revo), revoPage ?: REVO_SITE)
                     /* The article on Reta Vortaro, where its "Redakti" button
                      * lets one correct it, and who changed what in it */
-                    revoPage?.let { page ->
+                    if (revo) revoPage?.let { page ->
                         val link = TextLinkStyles(SpanStyle(color = MaterialTheme.colorScheme.primary, textDecoration = TextDecoration.Underline))
                         Text(
                             buildAnnotatedString {
@@ -1242,20 +1242,28 @@ fun SpannedText(
             )
             if (onLongPress != null) {
                 /* Where the finger went down, to find the word under it;
-                 * the touch goes on to the links */
+                 * the touch goes on to the links, but not the lifting of
+                 * the finger after a long press, which would follow the
+                 * link pressed as well */
                 val down = FloatArray(2)
+                var longPressed = false
                 view.setOnTouchListener { _, event ->
-                    if (event.actionMasked == MotionEvent.ACTION_DOWN) {
-                        down[0] = event.x
-                        down[1] = event.y
+                    when (event.actionMasked) {
+                        MotionEvent.ACTION_DOWN -> {
+                            down[0] = event.x
+                            down[1] = event.y
+                            longPressed = false
+                        }
+                        MotionEvent.ACTION_UP -> if (longPressed) event.action = MotionEvent.ACTION_CANCEL
                     }
                     false
                 }
                 view.setOnLongClickListener {
+                    longPressed = true
                     val offset = view.getOffsetForPosition(down[0], down[1])
                     /* Not the author or the work of an example */
                     val inSource = (view.text as? Spanned)
-                        ?.getSpans(offset, offset, SourceSpan::class.java)?.isNotEmpty() == true
+                        ?.getSpans(offset, offset, ExampleSource::class.java)?.isNotEmpty() == true
                     onLongPress(if (inSource) null else WordLookup.wordAt(view.text, offset))
                     true
                 }

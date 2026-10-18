@@ -44,6 +44,9 @@ pdb_db_save_vikipedio (PdbDb *db,
                        const char *dir,
                        GError **error);
 
+gboolean
+pdb_db_remove_vikipedio (const char *dir);
+
 void
 pdb_db_free (PdbDb *db);
 

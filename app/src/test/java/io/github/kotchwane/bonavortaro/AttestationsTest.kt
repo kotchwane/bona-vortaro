@@ -35,13 +35,15 @@ class AttestationsTest {
         )
 
         assertEquals(
-            "aboli — Plena Ilustrita Vortaro (1970); " +
-                "abolicii — Plena Vortaro Esperanto-Esperanta kaj Esperanto-Franca (1909)",
-            Attestations.describe(parsed.getValue(24)),
+            listOf(
+                "aboli" to "Plena Ilustrita Vortaro (1970)",
+                "abolicii" to "Plena Vortaro Esperanto-Esperanta kaj Esperanto-Franca (1909)",
+            ),
+            parsed.getValue(24),
         )
         assertEquals(
-            "sceno — Wörterbuch Esperanto-Deutsch (1905); Fundamento de Esperanto (1905)",
-            Attestations.describe(parsed.getValue(10777)),
+            listOf("sceno" to "Wörterbuch Esperanto-Deutsch (1905); Fundamento de Esperanto (1905)"),
+            parsed.getValue(10777),
         )
         assertEquals(setOf(24, 10777), parsed.keys)
     }

@@ -17,8 +17,9 @@
 
 package io.github.kotchwane.bonavortaro
 
-import android.util.Log
-import android.content.ActivityNotFoundException
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.Role
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
@@ -300,19 +301,15 @@ private const val FUNDAMENTO_FACSIMILE = "https://archive.org/details/fundamento
 @Composable
 private fun FundamentoLink(label: String, url: String) {
     val context = LocalContext.current
+    val outsideLink = stringResource(R.string.outside_link)
     Text(
-        "$label\u00a0↗",
+        "$label\u00a0$OUTSIDE_SIGN",
         style = MaterialTheme.typography.bodyLarge,
         color = MaterialTheme.colorScheme.primary,
         modifier = Modifier
             .fillMaxWidth()
-            .clickable {
-                try {
-                    context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)))
-                } catch (e: ActivityNotFoundException) {
-                    Log.w("bonaofficial", "No browser for $url")
-                }
-            }
+            .clickable(role = Role.Button) { openOutside(context, Uri.parse(url)) }
+            .semantics { contentDescription = "$label, $outsideLink" }
             .padding(vertical = 10.dp),
     )
 }
