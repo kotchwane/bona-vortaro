@@ -248,6 +248,8 @@
   <string name="menu_create_flashcard_word">Krei fulmkarton, difino→vorto</string>
   <string name="menu_create_flashcard_definition">Krei fulmkarton, vorto→difino</string>
   <string name="menu_look_up_in_piv">Serĉi vorton ĉe Vortaro.net ↗</string>
+  <!-- How TalkBack reads "↗", the sign of what opens a page outside the app -->
+  <string name="outside_link">ekstera ligilo</string>
   <string name="menu_vikipedio">Legi en Vikipedio ↗</string>
   <string name="menu_revo">Malfermi en Reta Vortaro ↗</string>
   <string name="no_flashcard">Mankas aplikaĵo kiu povas krei fulmkarton. Eble vi volos instali “Anki”; almenaŭ version 2.0.</string>
