@@ -384,18 +384,20 @@ private fun FoldedExamples(
     /* Unfolded at first if the user chose it, and can still be folded */
     val (expanded, setExpanded) = unfoldedState(key, unfolded)
 
-    TextButton(
-        onClick = { setExpanded(!expanded) },
-        contentPadding = PaddingValues(horizontal = 0.dp, vertical = 0.dp),
-    ) {
-        Text(
-            stringResource(
-                if (expanded) R.string.examples_shown else R.string.examples_folded,
-                examples.size,
-            ),
-            style = MaterialTheme.typography.labelLarge,
-        )
-    }
+    /* As high as its line, and as wide as the card, which makes it easy
+     * to tap: a button would leave a large empty space around it */
+    Text(
+        stringResource(
+            if (expanded) R.string.examples_shown else R.string.examples_folded,
+            examples.size,
+        ),
+        style = MaterialTheme.typography.labelLarge,
+        color = MaterialTheme.colorScheme.primary,
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(role = Role.Button) { setExpanded(!expanded) }
+            .padding(top = 8.dp, bottom = 4.dp),
+    )
 
     if (expanded) {
         for (example in examples)
