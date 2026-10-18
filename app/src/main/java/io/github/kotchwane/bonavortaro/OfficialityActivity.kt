@@ -17,6 +17,11 @@
 
 package io.github.kotchwane.bonavortaro
 
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.Role
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
@@ -222,7 +227,13 @@ fun OfficialSheet(
         onDismissRequest = onDismiss,
         sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
     ) {
-        Column(Modifier.padding(start = 24.dp, end = 24.dp, bottom = 32.dp)) {
+        /* It scrolls when it is higher than the screen: a large font,
+         * landscape */
+        Column(
+            Modifier
+                .verticalScroll(rememberScrollState())
+                .padding(start = 24.dp, end = 24.dp, bottom = 32.dp),
+        ) {
             Text(
                 "${levelName(shown)} (${OFFICIAL_YEARS[shown]})",
                 style = MaterialTheme.typography.titleLarge,
@@ -248,6 +259,12 @@ fun OfficialSheet(
             }
             Spacer(Modifier.height(12.dp))
             AdditionAbout(shown, examples = true)
+            /* The Fundamento itself, to read: its text, and the book of 1905 */
+            if (shown == 0) {
+                Spacer(Modifier.height(8.dp))
+                FundamentoLink(stringResource(R.string.fundamento_text), FUNDAMENTO_TEXT)
+                FundamentoLink(stringResource(R.string.fundamento_facsimile), FUNDAMENTO_FACSIMILE)
+            }
             Spacer(Modifier.height(20.dp))
             Text(
                 stringResource(R.string.official_timeline),
@@ -267,7 +284,7 @@ fun OfficialSheet(
                     },
                     modifier = Modifier.weight(1f),
                 ) {
-                    Text(stringResource(R.string.addition_list), maxLines = 1)
+                    Text(stringResource(R.string.addition_list), textAlign = TextAlign.Center)
                 }
                 OutlinedButton(
                     onClick = {
@@ -276,11 +293,33 @@ fun OfficialSheet(
                     },
                     modifier = Modifier.weight(1f),
                 ) {
-                    Text(stringResource(R.string.official_more), maxLines = 1)
+                    Text(stringResource(R.string.official_more), textAlign = TextAlign.Center)
                 }
             }
         }
     }
+}
+
+/* From the bibliography of Reta Vortaro: the text at steloj.de, and the
+ * book of 1905, scanned, at archive.org */
+private const val FUNDAMENTO_TEXT = "https://www.steloj.de/esperanto/fundamento/index.html"
+private const val FUNDAMENTO_FACSIMILE = "https://archive.org/details/fundamentodeesp00zamegoog"
+
+/** A page about the Fundamento, outside the app: "↗" */
+@Composable
+private fun FundamentoLink(label: String, url: String) {
+    val context = LocalContext.current
+    val outsideLink = stringResource(R.string.outside_link)
+    Text(
+        "$label\u00a0$OUTSIDE_SIGN",
+        style = MaterialTheme.typography.bodyLarge,
+        color = MaterialTheme.colorScheme.primary,
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(role = Role.Button) { openOutside(context, Uri.parse(url)) }
+            .semantics { contentDescription = "$label, $outsideLink" }
+            .padding(vertical = 10.dp),
+    )
 }
 
 /** What is worth knowing about a level, optionally some of its words,
@@ -372,9 +411,14 @@ fun OfficialTimeline(
                         )
                     }
                 }
+                /* At the same size whatever the font size of the phone:
+                 * eleven years have to fit in the width */
                 Text(
                     year,
-                    style = MaterialTheme.typography.labelSmall.copy(fontSize = 9.sp),
+                    style = MaterialTheme.typography.labelSmall.copy(
+                        fontSize = with(LocalDensity.current) { 9.dp.toSp() },
+                    ),
+                    softWrap = false,
                     color = if (current) colors.primary else colors.onSurfaceVariant,
                     fontWeight = if (current) FontWeight.Bold else null,
                     maxLines = 1,

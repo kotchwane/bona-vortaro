@@ -59,6 +59,8 @@ class Label(
     val text: String,
     /** For an abbreviation, its kind (R.array.abbreviation_kinds), else -1 */
     val abbreviation: Int = -1,
+    /** For a field, its code ("ZOO"), for its icon, if known */
+    val field: String? = null,
 )
 
 class Translation(
@@ -120,15 +122,15 @@ enum class LinkFamily { HIERARCHY, PARTS, EQUIVALENCE, OTHER }
 
 /**
  * @param markLabel called for each field or kind of word left within the
- *   text (eg. at the start of a sense, "a) muziko …"), to return the span
- *   that shows it as a label
+ *   text (eg. at the start of a sense, "a) muziko …"), with the code of the
+ *   field if it is one ("MUZ"), to return the span that shows it as a label
  * @param markLinkType called for each symbol of the type of a link, with
  *   the word to show instead, to return the span that shows it
  */
 fun layoutArticle(
     article: Article,
     preferredLanguages: List<String>,
-    markLabel: () -> Any,
+    markLabel: (field: String?) -> Any,
     markLinkType: (LinkType, String) -> Any,
     /** The words for the kinds of abbreviations (R.array.abbreviation_kinds) */
     abbreviationKinds: List<String> = emptyList(),
@@ -486,7 +488,7 @@ private fun splitLabels(content: Spanned): Pair<List<Label>, Spanned> {
             break
 
         for (span in spans)
-            labels.add(Label(span.isField, text.substring(span.start, span.end).trim(), span.abbreviation))
+            labels.add(Label(span.isField, text.substring(span.start, span.end).trim(), span.abbreviation, span.field))
         start = end
     }
 
@@ -497,7 +499,13 @@ private fun splitLabels(content: Spanned): Pair<List<Label>, Spanned> {
  * field, its start and its end. */
 /** A label found in the text: a field, a kind of word or an
  * abbreviation, and where it is */
-private class LabelSpan(val isField: Boolean, val start: Int, val end: Int, val abbreviation: Int = -1) {
+private class LabelSpan(
+    val isField: Boolean,
+    val start: Int,
+    val end: Int,
+    val abbreviation: Int = -1,
+    val field: String? = null,
+) {
     operator fun component1() = isField
     operator fun component2() = start
     operator fun component3() = end
@@ -505,7 +513,7 @@ private class LabelSpan(val isField: Boolean, val start: Int, val end: Int, val 
 
 private fun labelSpans(content: Spanned, start: Int, end: Int): List<LabelSpan> {
     val fields = content.getSpans(start, end, FieldSpan::class.java)
-        .map { LabelSpan(true, content.getSpanStart(it), content.getSpanEnd(it)) }
+        .map { LabelSpan(true, content.getSpanStart(it), content.getSpanEnd(it), field = it.code) }
     val grammar = content.getSpans(start, end, GrammarSpan::class.java)
         .map { LabelSpan(false, content.getSpanStart(it), content.getSpanEnd(it)) }
     /* "DE" for Germanujo: shown as "landokodo: DE" */
@@ -540,7 +548,7 @@ private fun leadingAbbreviations(content: Spanned, spans: List<LabelSpan>): List
  * stays text. */
 private val LABEL_SEPARATOR = Regex(""",\s*""")
 
-private fun markInlineLabels(content: Spanned, markLabel: () -> Any, abbreviationKinds: List<String>): Spanned {
+private fun markInlineLabels(content: Spanned, markLabel: (String?) -> Any, abbreviationKinds: List<String>): Spanned {
     val all = labelSpans(content, 0, content.length)
     val spans = all.filter { it.abbreviation < 0 } + leadingAbbreviations(content, all)
     if (spans.isEmpty())
@@ -556,7 +564,7 @@ private fun markInlineLabels(content: Spanned, markLabel: () -> Any, abbreviatio
             val label = "$kind: ${content.subSequence(span.start, span.end)}"
             marked.replace(span.start, span.end, label)
             end = span.start + label.length
-            marked.setSpan(markLabel(), span.start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+            marked.setSpan(markLabel(null), span.start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
             continue
         }
         /* "hortikulturo, arbokulturo, silvikulturo": one label each,
@@ -565,11 +573,13 @@ private fun markInlineLabels(content: Spanned, markLabel: () -> Any, abbreviatio
         for (piece in LABEL_SEPARATOR.findAll(content.subSequence(span.start, span.end)).toList().reversed()) {
             val at = span.start + piece.range.first
             if (at + piece.value.length < end)
-                marked.setSpan(markLabel(), at + piece.value.length, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+                marked.setSpan(markLabel(span.field), at + piece.value.length, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
             marked.replace(at, at + piece.value.length, " ")
             end = at
         }
-        marked.setSpan(markLabel(), span.start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+        /* Each piece with the icon: "ŝipkonstruado, navigado" is one
+         * field, in two labels */
+        marked.setSpan(markLabel(span.field), span.start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
     }
     return marked
 }

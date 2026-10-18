@@ -28,6 +28,7 @@ static gboolean option_single = FALSE;
 static gboolean option_version = FALSE;
 static char **option_in_files = NULL;
 static const char *option_out_file = NULL;
+static const char *option_vikiref = NULL;
 
 static GOptionEntry
 options[] =
@@ -44,6 +45,11 @@ options[] =
     {
       "out", 'o', 0, G_OPTION_ARG_STRING, &option_out_file,
       N_("Location for the output of the database"), NULL
+    },
+    {
+      "vikiref", 0, 0, G_OPTION_ARG_STRING, &option_vikiref,
+      N_("Reta Vortaro's list of the Vikipedio articles of its words "
+         "(revo/inx/vikiref.json on its site), to link to them"), NULL
     },
     {
       "version", 0, 0, G_OPTION_ARG_NONE, &option_version,
@@ -145,7 +151,13 @@ main (int argc, char **argv)
               if (option_single)
                 save_ret = pdb_db_save_single (db, option_out_file, &error);
               else
-                save_ret = pdb_db_save (db, option_out_file, &error);
+                save_ret = pdb_db_save (db, option_out_file, &error) &&
+                  (option_vikiref ?
+                   pdb_db_save_vikipedio (db,
+                                          option_vikiref,
+                                          option_out_file,
+                                          &error) :
+                   pdb_db_remove_vikipedio (option_out_file));
 
               if (!save_ret)
                 {

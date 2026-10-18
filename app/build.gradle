@@ -90,8 +90,21 @@ dependencies {
 }
 
 def buildDictionary = tasks.register('buildDictionary', Exec) {
+    /* Built again when prevodb, Reta Vortaro's data or its list of
+     * Vikipedio articles change */
+    inputs.dir rootProject.file('prevodb/src')
+    inputs.dir rootProject.file('extern/revo-fonto/revo')
+    inputs.dir rootProject.file('extern/revo-fonto/cfg')
+    inputs.dir rootProject.file('extern/voko-grundo/cfg')
+    inputs.file rootProject.file('data/vikiref.json')
+    inputs.file rootProject.file('scripts/generate-dictionary.sh')
     outputs.dir 'src/main/assets/articles'
     outputs.dir 'src/main/assets/indices'
+    outputs.file 'src/main/assets/officiality.txt'
+    outputs.file 'src/main/assets/fields.txt'
+    outputs.file 'src/main/assets/sources.txt'
+    outputs.file 'src/main/assets/attestations.txt'
+    outputs.file 'src/main/assets/vikipedio.txt'
     outputs.file 'src/main/res/xml/languages.xml'
 
     commandLine rootProject.file('scripts/generate-dictionary.sh')

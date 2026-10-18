@@ -18,6 +18,13 @@
 
 package io.github.kotchwane.bonavortaro
 
+import androidx.compose.ui.unit.sp
+import androidx.compose.material3.LocalTextStyle
+import androidx.compose.ui.text.rememberTextMeasurer
+import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.runtime.toMutableStateList
+import androidx.compose.runtime.saveable.listSaver
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.res.stringArrayResource
 import android.content.ActivityNotFoundException
 import android.content.Context
@@ -137,6 +144,7 @@ class ArticleActivity : BonaActivity() {
     /* The articles already read: those of the cards of the previous and
      * next roots, and those of the roots before, for back */
     private val articleCache = LruCache<Int, Article>(16)
+    private var loadedSources: Boolean? = null
     private var article by mutableStateOf<Article?>(null)
     /* The language of the example searched, if any, and, if it isn't
      * among the translations, that language, shown for its line alone */
@@ -248,6 +256,18 @@ class ArticleActivity : BonaActivity() {
         vikiShown = Vikivortaro.inArticles(this)
         extraLanguage = exampleLanguage?.takeIf { it != "eo" && !BonaSettings.translationFilter(this)(it) }
 
+        /* The articles read before show the sources of the examples, or
+         * not, as the setting was */
+        val sources = BonaSettings.getShowSources(this)
+        if (sources != loadedSources) {
+            if (loadedSources != null) {
+                articleCache.evictAll()
+                extraArticle = null
+                article = null
+            }
+            loadedSources = sources
+        }
+
         val translations = currentTranslations()
         /* The translations are folded only when all of the languages
          * are shown: the ones the user chose are all shown */
@@ -329,7 +349,7 @@ class ArticleActivity : BonaActivity() {
     }
 
     private fun copyDefinition(section: ArticleSection) {
-        SpannedCopy.copyText(this, getText(R.string.definition_label), section.content)
+        SpannedCopy.copyText(this, getText(R.string.definition_label), withoutOutsideSigns(section.content))
     }
 
     private fun createFlashcard(source: CharSequence, target: CharSequence) {
@@ -363,11 +383,7 @@ class ArticleActivity : BonaActivity() {
             .fragment(query.toString())
             .build()
 
-        try {
-            startActivity(Intent(Intent.ACTION_VIEW, uri))
-        } catch (e: ActivityNotFoundException) {
-            Log.w(TAG, "Failed to start activity: ${e.message}")
-        }
+        openOutside(this, uri)
     }
 
     /* The previous, next or random root replaces this one on the same
@@ -396,7 +412,7 @@ class ArticleActivity : BonaActivity() {
     private fun share(section: ArticleSection) {
         val intent = Intent(Intent.ACTION_SEND)
             .setType("text/plain")
-            .putExtra(Intent.EXTRA_TEXT, "${section.header}\n\n${section.content}")
+            .putExtra(Intent.EXTRA_TEXT, "${section.header}\n\n${withoutOutsideSigns(section.content)}")
 
         startActivity(Intent.createChooser(intent, null))
     }
@@ -440,7 +456,14 @@ private fun ArticleScreen(
     /* The words whose card has words of Vikivortaro, for the sources */
     val vikiSections = remember(articleNumber) { mutableStateMapOf<Int, Boolean>() }
     val scope = rememberCoroutineScope()
-    var actionsFor by remember { mutableStateOf<ArticleSection?>(null) }
+    /* The examples and remarks folded or unfolded by a tap, for this root */
+    val toggledParts = rememberSaveable(
+        articleNumber,
+        saver = listSaver(save = { it.toList() }, restore = { it.toMutableStateList() }),
+    ) { mutableStateListOf<String>() }
+    /* The section pressed, with its pages outside, found before the menu
+     * opens so that it doesn't change size */
+    var actionsFor by remember { mutableStateOf<DefinitionTarget?>(null) }
     /* Read with the article, so that they are there before the end of it
      * can be reached */
     val context = LocalContext.current
@@ -453,6 +476,18 @@ private fun ArticleScreen(
     }
     /* The word pressed in the text, and its language */
     var wordFor by remember { mutableStateOf<Pair<String, String>?>(null) }
+    /* Opens the menu of a section once its pages outside are known */
+    fun showActions(section: ArticleSection, number: Int?) {
+        scope.launch {
+            actionsFor = withContext(Dispatchers.IO) {
+                DefinitionTarget(
+                    section,
+                    vikipedio = number?.let { VikipedioLinks.page(context, articleNumber, it) },
+                    revo = RevoFiles.page(context, articleNumber),
+                )
+            }
+        }
+    }
 
     /* One card per word, with its translations */
     val colors = MaterialTheme.colorScheme
@@ -464,12 +499,13 @@ private fun ArticleScreen(
                 it,
                 preferredLanguages,
                 abbreviationKinds = abbreviationKinds,
-                markLabel = {
+                markLabel = { field ->
                     InlineLabelSpan(
                         background = colors.secondaryContainer.toArgb(),
                         foreground = colors.onSecondaryContainer.toArgb(),
                         radius = 6 * density,
                         padding = 4 * density,
+                        icon = field?.let { FIELD_ICONS[it] }?.let { context.getDrawable(it)?.mutate() },
                     )
                 },
                 markLinkType = { type, label ->
@@ -482,7 +518,8 @@ private fun ArticleScreen(
                         color = when (type.family) {
                             LinkFamily.HIERARCHY, LinkFamily.PARTS -> colors.primary
                             LinkFamily.EQUIVALENCE -> colors.tertiary
-                            LinkFamily.OTHER -> colors.outline
+                            /* outline would be too pale for the words */
+                            LinkFamily.OTHER -> colors.onSurfaceVariant
                         }.toArgb(),
                         radius = 50 * density,
                         padding = 5 * density,
@@ -567,7 +604,22 @@ private fun ArticleScreen(
                     val first = official?.forms?.firstOrNull()
 
                     /* The officiality of the root of the article, which
-                     * the words of the article share */
+                     * the words of the article share; only its sign
+                     * ("F") when the whole badge would cut the root */
+                    val levels = first?.marks.orEmpty().distinct().sortedBy { officialLevel(it) ?: Int.MAX_VALUE }
+                    val measurer = rememberTextMeasurer()
+                    val titleStyle = LocalTextStyle.current
+                    val badgeStyle = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold)
+                    val badgeLabel = levels.firstOrNull()?.let { officialLabel(it, levels.drop(1), showOthers = true) }
+                    val density = LocalDensity.current
+                    BoxWithConstraints {
+                    val compact = badgeLabel != null && with(density) {
+                        val root = measurer.measure(first?.text.orEmpty(), titleStyle, maxLines = 1).size.width
+                        /* Its words, its margins, the ⓘ and the space before it */
+                        val badge = measurer.measure(badgeLabel, badgeStyle, maxLines = 1).size.width +
+                            (8 + 5 + 3 + 8).dp.toPx() + 13.sp.toPx()
+                        root + badge > constraints.maxWidth
+                    }
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         /* The first form only ("monarĥ/o" for "monarĥ/o,
                          * ⁸monark/o"): the variants, with their own marks,
@@ -580,16 +632,17 @@ private fun ArticleScreen(
                         )
                         /* The oldest officiality only, with the number of
                          * the others: the root keeps its room */
-                        val levels = first?.marks.orEmpty().distinct().sortedBy { officialLevel(it) ?: Int.MAX_VALUE }
                         levels.firstOrNull()?.let {
                             OfficialBadge(
                                 it,
                                 others = levels.drop(1),
                                 showOthers = true,
                                 forms = official,
+                                compact = compact,
                                 modifier = Modifier.padding(start = 8.dp),
                             )
                         }
+                    }
                     }
                 },
                 /* No back arrow, which the back of the phone does: in its
@@ -612,52 +665,54 @@ private fun ArticleScreen(
         /* What is read at the text size of the settings; the bar above
          * stays as it is */
         ScaledText(textSize) {
-            LazyColumn(
-                state = listState,
-                modifier = Modifier.fillMaxSize(),
-                contentPadding = PaddingValues(
-                    start = 12.dp,
-                    end = 12.dp,
-                    top = padding.calculateTopPadding() + 4.dp,
-                    bottom = padding.calculateBottomPadding() + 16.dp,
-                ),
-                verticalArrangement = Arrangement.spacedBy(10.dp),
-            ) {
-                items(words, key = { it.section }) { word ->
-                    WordCard(
-                        word, unfoldExamples, foldTranslations,
-                        vikiSearch = vikiSearch,
-                        vikiShown = vikiShown,
-                        example = example.takeIf { word.section == searched?.section },
-                        scrolled = showedSection,
-                        onViki = { vikiSections[word.section] = it },
-                        onLongPress = { actionsFor = word.source },
-                        onLongPressWord = { pressed, language -> wordFor = pressed to language },
-                    )
-                }
-                /* Translations that couldn't be given to a word, if any */
-                items(layout?.otherTranslations ?: emptyList()) { section ->
-                    Section(section, onLongPress = { actionsFor = section })
-                }
-                /* The roots before and after, once the article is there, and
-                 * whole: if it grew after a scroll reached the end, the cards
-                 * would be left below the screen. A way to move on, not text
-                 * to read: at the size of the controls, where its three
-                 * narrow cards keep their words whole */
-                if (layout != null)
-                    item(key = "sources") {
-                        SourcesLine(revo = true, viki = withViki, revoArticle = articleNumber, modifier = Modifier.padding(horizontal = 8.dp))
+            CompositionLocalProvider(LocalToggledParts provides toggledParts) {
+                LazyColumn(
+                    state = listState,
+                    modifier = Modifier.fillMaxSize(),
+                    contentPadding = PaddingValues(
+                        start = 12.dp,
+                        end = 12.dp,
+                        top = padding.calculateTopPadding() + 4.dp,
+                        bottom = padding.calculateBottomPadding() + 16.dp,
+                    ),
+                    verticalArrangement = Arrangement.spacedBy(10.dp),
+                ) {
+                    items(words, key = { it.section }) { word ->
+                        WordCard(
+                            word, unfoldExamples, foldTranslations,
+                            vikiSearch = vikiSearch,
+                            vikiShown = vikiShown,
+                            example = example.takeIf { word.section == searched?.section },
+                            scrolled = showedSection,
+                            onViki = { vikiSections[word.section] = it },
+                            onLongPress = { showActions(word.source, word.section) },
+                            onLongPressWord = { pressed, language -> wordFor = pressed to language },
+                        )
                     }
-                if (layout != null && neighbours != null)
-                    item(key = "neighbours") {
-                        UnscaledText {
-                            NeighbourRoots(
-                                neighbours!!,
-                                onOpen = onOpenNeighbour,
-                                onRandom = { scope.launch { onOpenRandom(withContext(Dispatchers.IO) { RandomRoot.pick(context) }) } },
-                            )
+                    /* Translations that couldn't be given to a word, if any */
+                    items(layout?.otherTranslations ?: emptyList()) { section ->
+                        Section(section, onLongPress = { showActions(section, null) })
+                    }
+                    /* The roots before and after, once the article is there, and
+                     * whole: if it grew after a scroll reached the end, the cards
+                     * would be left below the screen. A way to move on, not text
+                     * to read: at the size of the controls, where its three
+                     * narrow cards keep their words whole */
+                    if (layout != null)
+                        item(key = "sources") {
+                            SourcesLine(revo = true, viki = withViki, revoArticle = articleNumber, modifier = Modifier.padding(horizontal = 8.dp))
                         }
-                    }
+                    if (layout != null && neighbours != null)
+                        item(key = "neighbours") {
+                            UnscaledText {
+                                NeighbourRoots(
+                                    neighbours!!,
+                                    onOpen = onOpenNeighbour,
+                                    onRandom = { scope.launch { onOpenRandom(withContext(Dispatchers.IO) { RandomRoot.pick(context) }) } },
+                                )
+                            }
+                        }
+                }
             }
         }
     }
@@ -672,15 +727,18 @@ private fun ArticleScreen(
         )
     }
 
-    actionsFor?.let { section ->
+    actionsFor?.let { (section, vikipedio, revo) ->
         DefinitionActions(
             section = section,
+            vikipedio = vikipedio,
+            revo = revo,
+            onOpenPage = { page -> openOutside(context, page) },
             onDismiss = { actionsFor = null },
             onCopy = { onCopy(section) },
             /* "definition → word": the definition is asked, the word is
              * the answer, and the other way round */
-            onFlashcardWord = { onFlashcard(section.content, section.header) },
-            onFlashcardDefinition = { onFlashcard(section.header, section.content) },
+            onFlashcardWord = { onFlashcard(withoutSources(section.content), section.header) },
+            onFlashcardDefinition = { onFlashcard(section.header, withoutSources(section.content)) },
             onLookUpInPiv = { onLookUpInPiv(section.header) },
             onShare = { onShare(section) },
         )
@@ -842,31 +900,54 @@ private fun DefinitionActions(
     onFlashcardDefinition: () -> Unit,
     onLookUpInPiv: () -> Unit,
     onShare: () -> Unit,
+    /** The page of Vikipedio about the word, if there is one */
+    vikipedio: Uri?,
+    /** The page of the article on Reta Vortaro's site */
+    revo: Uri?,
+    onOpenPage: (Uri) -> Unit,
 ) {
-    val actions = listOf(
+    val actions = listOfNotNull(
         R.string.menu_copy_definition to onCopy,
         R.string.share to onShare,
         R.string.menu_create_flashcard_word to onFlashcardWord,
         R.string.menu_create_flashcard_definition to onFlashcardDefinition,
         R.string.menu_look_up_in_piv to onLookUpInPiv,
+        vikipedio?.let { R.string.menu_vikipedio to { onOpenPage(it) } },
+        revo?.let { R.string.menu_revo to { onOpenPage(it) } },
     )
 
-    ModalBottomSheet(onDismissRequest = onDismiss) {
-        Text(
-            section.header.toString(),
-            style = MaterialTheme.typography.titleMedium,
-            color = MaterialTheme.colorScheme.primary,
-            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
-        )
-        for ((label, action) in actions) {
-            ListItem(
-                headlineContent = { Text(stringResource(label)) },
-                modifier = Modifier.clickable { onDismiss(); action() },
+    /* Opened whole, and scrolling when it is higher than the screen
+     * (landscape, a large font) */
+    ModalBottomSheet(
+        onDismissRequest = onDismiss,
+        sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
+    ) {
+        Column(Modifier.verticalScroll(rememberScrollState())) {
+            Text(
+                section.header.toString(),
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
             )
+            val outsideLink = stringResource(R.string.outside_link)
+            for ((label, action) in actions) {
+                val text = stringResource(label)
+                ListItem(
+                    headlineContent = { Text(text) },
+                    /* "↗" read as words by TalkBack */
+                    modifier = Modifier
+                        .clickable { onDismiss(); action() }
+                        .semantics(mergeDescendants = true) { contentDescription = spokenOutside(text, outsideLink) },
+                )
+            }
         }
     }
 }
 
+
+/** A section whose menu is open, with its pages outside: Vikipedio's if
+ * Reta Vortaro links to one, and Reta Vortaro's */
+private data class DefinitionTarget(val section: ArticleSection, val vikipedio: Uri?, val revo: Uri?)
 
 /** An article next to this one, in the order of the dictionary */
 internal class Neighbour(val number: Int, val root: String, val definition: String)
@@ -910,7 +991,7 @@ internal fun loadNeighbours(loadArticle: (Int) -> Article, numbers: List<Int>): 
 internal fun NeighbourRoots(neighbours: List<Neighbour?>, onOpen: (Int) -> Unit, onRandom: () -> Unit) {
     val muted = MaterialTheme.colorScheme.onSurfaceVariant
 
-    Column(Modifier.fillMaxWidth().padding(top = 14.dp)) {
+    Column(Modifier.fillMaxWidth()) {
         Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)) {
             HorizontalDivider(Modifier.weight(1f), color = muted.copy(alpha = 0.4f))
             Text(

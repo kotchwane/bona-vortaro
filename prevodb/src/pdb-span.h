@@ -55,6 +55,15 @@ typedef enum
   /* A subscript, eg. the "2" of "H2O"; superscripts, eg. the "12" of
    * "10¹²", are PDB_SPAN_SUPERSCRIPT */
   PDB_SPAN_SUBSCRIPT,
+  /* A word struck through, as ReVo's <ts>: "edziĝi kun al" */
+  PDB_SPAN_STRIKETHROUGH,
+  /* A usage ReVo marks as wrong (<mis>): "ne ĉesu la laboron". Shown
+   * in italics, upright inside an example, which is already italic */
+  PDB_SPAN_MISUSE,
+  /* The source of an example, "— Zamenhof, Fundamento de Esperanto"
+   * after it, from the dash, or "; Goethe, …" for a second one. data1 is
+   * the number of its address in assets/sources.txt, from 1, or 0 */
+  PDB_SPAN_SOURCE,
   PDB_SPAN_NONE
 } PdbSpanType;
 

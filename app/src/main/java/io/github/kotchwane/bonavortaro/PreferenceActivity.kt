@@ -89,6 +89,7 @@ class PreferenceActivity : BonaActivity() {
     private var unfoldExamples by mutableStateOf(false)
     private var keepHistory by mutableStateOf(true)
     private var guessWords by mutableStateOf(true)
+    private var showSources by mutableStateOf(true)
 
     /** Every language that can be a translation, i.e. all but Esperanto */
     private lateinit var translationLanguages: List<Language>
@@ -137,6 +138,11 @@ class PreferenceActivity : BonaActivity() {
                             unfoldExamples = it
                             BonaSettings.setUnfoldExamples(this, it)
                         },
+                        showSources = showSources,
+                        onShowSourcesChange = {
+                            showSources = it
+                            BonaSettings.setShowSources(this, it)
+                        },
                         translationsSummary = translationsSummary(),
                         onTranslations = { page = Page.TRANSLATIONS },
                         myLanguagesSummary = languageNames(myLanguages),
@@ -172,6 +178,7 @@ class PreferenceActivity : BonaActivity() {
         unfoldExamples = BonaSettings.getUnfoldExamples(this)
         keepHistory = BonaSettings.getKeepHistory(this)
         guessWords = BonaSettings.getGuessWords(this)
+        showSources = BonaSettings.getShowSources(this)
         myLanguages = BonaSettings.getChosenSearchLanguages(this)
         translations = BonaSettings.getTranslationLanguages(this, translationLanguages)
     }
@@ -306,6 +313,8 @@ private fun MainSettings(
     onGuessWordsChange: (Boolean) -> Unit,
     unfoldExamples: Boolean,
     onUnfoldExamplesChange: (Boolean) -> Unit,
+    showSources: Boolean,
+    onShowSourcesChange: (Boolean) -> Unit,
     translationsSummary: String,
     onTranslations: () -> Unit,
     myLanguagesSummary: String?,
@@ -337,6 +346,14 @@ private fun MainSettings(
                 stringResource(R.string.unfold_examples_summary),
                 unfoldExamples,
                 onUnfoldExamplesChange,
+            )
+        }
+        item {
+            SwitchRow(
+                stringResource(R.string.show_sources),
+                stringResource(R.string.show_sources_summary),
+                showSources,
+                onShowSourcesChange,
             )
         }
 

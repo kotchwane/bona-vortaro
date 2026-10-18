@@ -17,6 +17,12 @@
 
 package io.github.kotchwane.bonavortaro
 
+import androidx.compose.foundation.layout.defaultMinSize
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.runtime.snapshots.SnapshotStateList
+import androidx.compose.runtime.staticCompositionLocalOf
+import androidx.compose.ui.res.painterResource
+import android.graphics.drawable.Drawable
 import androidx.compose.runtime.produceState
 import android.content.Context
 import androidx.compose.ui.text.SpanStyle
@@ -279,10 +285,12 @@ private fun groupExamples(blocks: List<ContentBlock>, exampleColor: Int): List<B
 
         when {
             run.isEmpty() -> {}
-            run.size == 1 && run[0].text.length <= INLINE_EXAMPLE_LENGTH && before != null ->
+            /* With its source, an example has its own line, like the
+             * others, rather than making the definition longer */
+            run.size == 1 && run[0].text.length <= INLINE_EXAMPLE_LENGTH && !run[0].text.hasSource() && before != null ->
                 groups[groups.lastIndex] =
                     BlockGroup.Single(ContentBlock.Text(withExample(before.text, run[0].text, exampleColor)))
-            run.sumOf { it.text.length } <= SHOWN_EXAMPLES_LENGTH ->
+            run.sumOf { it.text.withoutSourceLength() } <= SHOWN_EXAMPLES_LENGTH ->
                 groups.add(BlockGroup.ShortExamples(run))
             else -> groups.add(BlockGroup.Examples(run))
         }
@@ -301,6 +309,15 @@ private fun groupExamples(blocks: List<ContentBlock>, exampleColor: Int): List<B
 
     return groups
 }
+
+private fun CharSequence.hasSource(): Boolean =
+    (this as? Spanned)?.getSpans(0, length, ExampleSource::class.java)?.isNotEmpty() == true
+
+/** The length of an example without its source: shown or folded as it
+ * was before the sources were */
+private fun CharSequence.withoutSourceLength(): Int =
+    length - ((this as? Spanned)?.getSpans(0, length, ExampleSource::class.java)
+        ?.sumOf { getSpanEnd(it) - getSpanStart(it) + 1 } ?: 0)
 
 /** The text followed by a short example, in the colour of the
  * examples. The example keeps its italics and its links. */
@@ -332,6 +349,30 @@ private fun ExampleLine(text: CharSequence, onLongPress: (String?) -> Unit) {
     )
 }
 
+/** The examples and remarks whose folding the reader changed, by their
+ * key, for the whole article. The article screen keeps them rather than
+ * their card: the state a card saves is lost when the screen is left
+ * while the card is off screen. */
+val LocalToggledParts = staticCompositionLocalOf<SnapshotStateList<String>?> { null }
+
+/** Whether a part is unfolded, and how to change it: [unfolded] at first,
+ * as the settings say, or as the reader made it. */
+@Composable
+private fun unfoldedState(key: String, unfolded: Boolean): Pair<Boolean, (Boolean) -> Unit> {
+    val toggled = LocalToggledParts.current
+    if (toggled != null) {
+        val shown = unfolded != (key in toggled)
+        return shown to { value ->
+            if (value != shown) {
+                if (!toggled.remove(key))
+                    toggled.add(key)
+            }
+        }
+    }
+    var expanded by rememberSaveable(key, unfolded) { mutableStateOf(unfolded) }
+    return expanded to { expanded = it }
+}
+
 /** Several examples, folded behind "Ekzemploj (n) ▾". */
 @Composable
 private fun FoldedExamples(
@@ -341,20 +382,22 @@ private fun FoldedExamples(
     unfolded: Boolean,
 ) {
     /* Unfolded at first if the user chose it, and can still be folded */
-    var expanded by rememberSaveable(key, unfolded) { mutableStateOf(unfolded) }
+    val (expanded, setExpanded) = unfoldedState(key, unfolded)
 
-    TextButton(
-        onClick = { expanded = !expanded },
-        contentPadding = PaddingValues(horizontal = 0.dp, vertical = 0.dp),
-    ) {
-        Text(
-            stringResource(
-                if (expanded) R.string.examples_shown else R.string.examples_folded,
-                examples.size,
-            ),
-            style = MaterialTheme.typography.labelLarge,
-        )
-    }
+    /* As high as its line, and as wide as the card, which makes it easy
+     * to tap: a button would leave a large empty space around it */
+    Text(
+        stringResource(
+            if (expanded) R.string.examples_shown else R.string.examples_folded,
+            examples.size,
+        ),
+        style = MaterialTheme.typography.labelLarge,
+        color = MaterialTheme.colorScheme.primary,
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(role = Role.Button) { setExpanded(!expanded) }
+            .padding(top = 8.dp, bottom = 4.dp),
+    )
 
     if (expanded) {
         for (example in examples)
@@ -374,27 +417,57 @@ private fun LabelChip(label: Label, modifier: Modifier = Modifier) {
         contentColor = if (label.isField) colors.onSecondaryContainer else colors.onSurfaceVariant,
         border = if (label.isField) null else BorderStroke(1.dp, colors.outlineVariant),
     ) {
-        Text(
-            /* "landokodo: DE": an abbreviation says what it is */
-            if (label.abbreviation < 0) label.text
-            else stringArrayResource(R.array.abbreviation_kinds).getOrElse(label.abbreviation) { "" }
-                .let { kind -> if (kind.isEmpty()) label.text else "$kind: ${label.text}" },
-            style = MaterialTheme.typography.labelMedium,
+        val style = MaterialTheme.typography.labelMedium
+        val icon = label.field?.let { FIELD_ICONS[it] }
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp),
-        )
+        ) {
+            /* As high as the letters: the chip keeps its height */
+            if (icon != null) {
+                val painter = painterResource(icon)
+                /* As high as the letters, so that its details can be made out */
+                val height = with(LocalDensity.current) { (style.fontSize * 1.2f).toDp() }
+                Icon(
+                    painter,
+                    contentDescription = null,
+                    modifier = Modifier
+                        .padding(end = 4.dp)
+                        .size(height * (painter.intrinsicSize.width / painter.intrinsicSize.height), height),
+                )
+            }
+            Text(
+                /* "landokodo: DE": an abbreviation says what it is */
+                if (label.abbreviation < 0) label.text
+                else stringArrayResource(R.array.abbreviation_kinds).getOrElse(label.abbreviation) { "" }
+                    .let { kind -> if (kind.isEmpty()) label.text else "$kind: ${label.text}" },
+                style = style,
+            )
+        }
     }
 }
 
 /** Draws a field or a kind of word left within the text, eg. at the
- * start of a sense, as a small label with a tinted background. */
+ * start of a sense, as a small label with a tinted background, after the
+ * icon of the field if it has one, as high as the letters. */
 class InlineLabelSpan(
     private val background: Int,
     private val foreground: Int,
     private val radius: Float,
     private val padding: Float,
+    private val icon: Drawable? = null,
 ) : ReplacementSpan() {
 
     private fun labelPaint(paint: Paint) = Paint(paint).apply { textSize = paint.textSize * 0.85f }
+
+    /* The icon's height: the whole height of the letters, so that its
+     * details can be made out; its width as the drawing's */
+    private fun iconSize(label: Paint) = if (icon == null) 0f else label.textSize
+
+    private fun iconDrawnWidth(label: Paint) =
+        icon?.let { iconSize(label) * it.intrinsicWidth / it.intrinsicHeight.coerceAtLeast(1) } ?: 0f
+
+    private fun iconWidth(label: Paint) = if (icon == null) 0f else iconDrawnWidth(label) + padding * 0.75f
 
     override fun getSize(
         paint: Paint,
@@ -403,8 +476,9 @@ class InlineLabelSpan(
         end: Int,
         fm: Paint.FontMetricsInt?,
     ): Int {
-        fm?.let { fitPill(it, paint, labelPaint(paint), padding, 0f) }
-        return (labelPaint(paint).measureText(text, start, end) + 2 * padding).roundToInt()
+        val label = labelPaint(paint)
+        fm?.let { fitPill(it, paint, label, padding, 0f) }
+        return (label.measureText(text, start, end) + iconWidth(label) + 2 * padding).roundToInt()
     }
 
     override fun draw(
@@ -419,12 +493,25 @@ class InlineLabelSpan(
         paint: Paint,
     ) {
         val label = labelPaint(paint)
-        val width = label.measureText(text, start, end) + 2 * padding
+        val width = label.measureText(text, start, end) + iconWidth(label) + 2 * padding
         val rect = RectF(x, y + label.ascent() - padding / 2, x + width, y + label.descent() + padding / 2)
 
         canvas.drawRoundRect(rect, radius, radius, Paint(paint).apply { color = background })
+        icon?.let {
+            /* Centred on the letters without descender */
+            val size = iconSize(label)
+            val middle = y - label.textSize * 0.36f
+            it.setBounds(
+                (x + padding).roundToInt(),
+                (middle - size / 2).roundToInt(),
+                (x + padding + iconDrawnWidth(label)).roundToInt(),
+                (middle + size / 2).roundToInt(),
+            )
+            it.setTint(foreground)
+            it.draw(canvas)
+        }
         label.color = foreground
-        canvas.drawText(text, start, end, x + padding, y.toFloat(), label)
+        canvas.drawText(text, start, end, x + padding + iconWidth(label), y.toFloat(), label)
     }
 }
 
@@ -516,17 +603,31 @@ fun OfficialBadge(
     showOthers: Boolean = false,
     /** The forms of the title, for the panel to tell which has which */
     forms: OfficialTitle? = null,
+    /** Only its sign in a circle, "F" or "8", as in the timeline: where the
+     * root would be cut by the whole badge */
+    compact: Boolean = false,
 ) {
     val level = officialLevel(official)
-    val name = when (level) {
-        null -> official
-        0 -> stringResource(R.string.official_fundamento)
-        else -> stringResource(R.string.official_addition, level)
-    }
-    val label = if (showOthers && others.isNotEmpty()) "$name +${others.size}" else name
+    val label = officialLabel(official, others, showOthers)
     var explain by rememberSaveable { mutableStateOf(false) }
 
-    Surface(
+    if (compact && level != null)
+        Surface(
+            onClick = { explain = true },
+            modifier = modifier.semantics { contentDescription = label },
+            shape = CircleShape,
+            color = MaterialTheme.colorScheme.primary,
+            contentColor = MaterialTheme.colorScheme.onPrimary,
+        ) {
+            Box(contentAlignment = Alignment.Center, modifier = Modifier.defaultMinSize(28.dp, 28.dp)) {
+                Text(
+                    if (level == 0) "F" else "$level",
+                    style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold),
+                    modifier = Modifier.padding(horizontal = 6.dp),
+                )
+            }
+        }
+    else Surface(
         onClick = { explain = true },
         enabled = level != null,
         modifier = modifier,
@@ -559,6 +660,18 @@ fun OfficialBadge(
     }
 }
 
+/** The words of an officiality badge: "Fundamento", "8a Oficiala
+ * Aldono", with the number of the others if asked: "Fundamento +1" */
+@Composable
+fun officialLabel(official: String, others: List<String> = emptyList(), showOthers: Boolean = false): String {
+    val name = when (val level = officialLevel(official)) {
+        null -> official
+        0 -> stringResource(R.string.official_fundamento)
+        else -> stringResource(R.string.official_addition, level)
+    }
+    return if (showOthers && others.isNotEmpty()) "$name +${others.size}" else name
+}
+
 /** A remark, in a tinted box with its title. A long one is folded to
  * its first lines, which often say the main point, ending with
  * "… legi plu ▾" where the reading stops; a short one, folded, would only
@@ -566,7 +679,7 @@ fun OfficialBadge(
 @Composable
 private fun NoteBox(text: CharSequence, key: String, unfolded: Boolean, onLongPress: (String?) -> Unit) {
     val link = MaterialTheme.colorScheme.primary
-    var expanded by rememberSaveable(key, unfolded) { mutableStateOf(unfolded) }
+    val (expanded, setExpanded) = unfoldedState(key, unfolded)
     val more = stringResource(R.string.note_more)
     /* The text cut at the end of its last shown line, for the width and
      * the size it was measured with; null while it fits */
@@ -583,7 +696,7 @@ private fun NoteBox(text: CharSequence, key: String, unfolded: Boolean, onLongPr
          * on its last line, a small target for a finger */
         Column(
             Modifier
-                .clickable(enabled = isFolded) { expanded = true }
+                .clickable(enabled = isFolded) { setExpanded(true) }
                 .padding(horizontal = 10.dp, vertical = 8.dp),
         ) {
             Text(
@@ -598,12 +711,12 @@ private fun NoteBox(text: CharSequence, key: String, unfolded: Boolean, onLongPr
                 onLongPress = onLongPress,
                 /* Measured again when the width or the text size change,
                  * eg. when the phone is turned */
-                onClick = if (isFolded) ({ expanded = true }) else null,
+                onClick = if (isFolded) ({ setExpanded(true) }) else null,
                 onLayout = { view ->
                     val width = view.layout.width
                     val size = view.paint.textSize
                     if (folded?.width != width || folded?.size != size)
-                        folded = foldNote(text, view.paint, width, more, link.toArgb()) { expanded = true }
+                        folded = foldNote(text, view.paint, width, more, link.toArgb()) { setExpanded(true) }
                 },
                 modifier = Modifier.fillMaxWidth(),
             )
@@ -616,7 +729,7 @@ private fun NoteBox(text: CharSequence, key: String, unfolded: Boolean, onLongPr
                     modifier = Modifier
                         .padding(top = 2.dp)
                         .heightIn(min = 32.dp)
-                        .clickable { expanded = false }
+                        .clickable { setExpanded(false) }
                         .wrapContentHeight(),
                 )
         }
@@ -1033,6 +1146,11 @@ fun SourcesLine(
     val revoPage by produceState<String?>(null, revoArticle) {
         value = revoArticle?.let { withContext(Dispatchers.IO) { RevoFiles.page(context, it)?.toString() } }
     }
+    /* The dictionaries its headwords are in */
+    val dictionaries by produceState(emptyList<Pair<String, String>>(), revoArticle) {
+        value = revoArticle?.let { article -> withContext(Dispatchers.IO) { Attestations.of(context, article) } }
+            ?: emptyList()
+    }
     val revoName = stringResource(R.string.revo_name)
     val vikiName = stringResource(R.string.viki_name)
     val muted = MaterialTheme.colorScheme.onSurfaceVariant
@@ -1059,6 +1177,38 @@ fun SourcesLine(
                 Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     if (revo)
                         Source(revoName, stringResource(R.string.sources_revo), revoPage ?: REVO_SITE)
+                    /* The article on Reta Vortaro, where its "Redakti" button
+                     * lets one correct it, and who changed what in it */
+                    if (revo) revoPage?.let { page ->
+                        val link = TextLinkStyles(SpanStyle(color = MaterialTheme.colorScheme.primary, textDecoration = TextDecoration.Underline))
+                        Text(
+                            buildAnnotatedString {
+                                append(stringResource(R.string.sources_revo_article) + " ")
+                                withLink(LinkAnnotation.Url(page, link)) { append(stringResource(R.string.sources_revo_read)) }
+                                append(" · ")
+                                withLink(LinkAnnotation.Url(page.replace("/art/", "/hst/"), link)) {
+                                    append(stringResource(R.string.sources_revo_history))
+                                }
+                            },
+                            style = MaterialTheme.typography.bodyMedium,
+                        )
+                    }
+                    if (revo && dictionaries.isNotEmpty()) {
+                        /* "En la vortaroj: aboli — …", the words in italics */
+                        val line = stringResource(R.string.sources_dictionaries, "\u0000")
+                        Text(
+                            buildAnnotatedString {
+                                append(line.substringBefore('\u0000'))
+                                dictionaries.forEachIndexed { index, (form, works) ->
+                                    if (index > 0) append("; ")
+                                    withStyle(SpanStyle(fontStyle = FontStyle.Italic)) { append(form) }
+                                    append(" — $works")
+                                }
+                                append(line.substringAfter('\u0000'))
+                            },
+                            style = MaterialTheme.typography.bodyMedium,
+                        )
+                    }
                     if (viki)
                         Source(
                             vikiName,
@@ -1156,18 +1306,29 @@ fun SpannedText(
             )
             if (onLongPress != null) {
                 /* Where the finger went down, to find the word under it;
-                 * the touch goes on to the links */
+                 * the touch goes on to the links, but not the lifting of
+                 * the finger after a long press, which would follow the
+                 * link pressed as well */
                 val down = FloatArray(2)
+                var longPressed = false
                 view.setOnTouchListener { _, event ->
-                    if (event.actionMasked == MotionEvent.ACTION_DOWN) {
-                        down[0] = event.x
-                        down[1] = event.y
+                    when (event.actionMasked) {
+                        MotionEvent.ACTION_DOWN -> {
+                            down[0] = event.x
+                            down[1] = event.y
+                            longPressed = false
+                        }
+                        MotionEvent.ACTION_UP -> if (longPressed) event.action = MotionEvent.ACTION_CANCEL
                     }
                     false
                 }
                 view.setOnLongClickListener {
+                    longPressed = true
                     val offset = view.getOffsetForPosition(down[0], down[1])
-                    onLongPress(WordLookup.wordAt(view.text, offset))
+                    /* Not the author or the work of an example */
+                    val inSource = (view.text as? Spanned)
+                        ?.getSpans(offset, offset, ExampleSource::class.java)?.isNotEmpty() == true
+                    onLongPress(if (inSource) null else WordLookup.wordAt(view.text, offset))
                     true
                 }
             }

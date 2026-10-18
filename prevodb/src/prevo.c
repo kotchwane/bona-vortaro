@@ -867,6 +867,7 @@ handle_start_span (WriteData *write_data,
     case PDB_SPAN_ITALIC:
     case PDB_SPAN_GRAMMAR:
     case PDB_SPAN_FIELD:
+    case PDB_SPAN_MISUSE:
       write_data->italic_count++;
       break;
     case PDB_SPAN_NOTE:
@@ -880,6 +881,10 @@ handle_start_span (WriteData *write_data,
       /* An abbreviation is written as it is */
     case PDB_SPAN_SUBSCRIPT:
       /* A subscript is written as it is: man has none */
+    case PDB_SPAN_STRIKETHROUGH:
+      /* Struck through: written as it is */
+    case PDB_SPAN_SOURCE:
+      /* The source of an example: written as it is */
     case PDB_SPAN_NONE:
       return;
     }
@@ -903,6 +908,7 @@ handle_end_span (WriteData *write_data,
     case PDB_SPAN_ITALIC:
     case PDB_SPAN_GRAMMAR:
     case PDB_SPAN_FIELD:
+    case PDB_SPAN_MISUSE:
       write_data->italic_count--;
       break;
     case PDB_SPAN_NOTE:
@@ -916,6 +922,10 @@ handle_end_span (WriteData *write_data,
       /* An abbreviation is written as it is */
     case PDB_SPAN_SUBSCRIPT:
       /* A subscript is written as it is: man has none */
+    case PDB_SPAN_STRIKETHROUGH:
+      /* Struck through: written as it is */
+    case PDB_SPAN_SOURCE:
+      /* The source of an example: written as it is */
     case PDB_SPAN_NONE:
       return;
     }
