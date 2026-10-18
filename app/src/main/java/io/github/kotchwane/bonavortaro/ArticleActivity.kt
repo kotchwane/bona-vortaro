@@ -18,8 +18,6 @@
 
 package io.github.kotchwane.bonavortaro
 
-import androidx.compose.foundation.layout.widthIn
-import androidx.compose.foundation.layout.RowScope
 import androidx.compose.ui.unit.sp
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.ui.text.rememberTextMeasurer
@@ -1004,132 +1002,54 @@ internal fun NeighbourRoots(neighbours: List<Neighbour?>, onOpen: (Int) -> Unit,
             )
             HorizontalDivider(Modifier.weight(1f), color = muted.copy(alpha = 0.4f))
         }
-        /* Side by side where they fit, whole; otherwise one under the
-         * other, a line each, without the start of the definition: a
-         * narrow phone, a large font */
-        BoxWithConstraints(Modifier.fillMaxWidth()) {
-            val measurer = rememberTextMeasurer()
-            val label = MaterialTheme.typography.labelMedium
-            val name = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
-            val labels = listOf(stringResource(R.string.neighbour_previous), stringResource(R.string.neighbour_next))
-            val randomWords = stringResource(R.string.random_root_short).split(' ')
-            val fits = with(LocalDensity.current) {
-                val card = (maxWidth - 84.dp - 16.dp) / 2 - 24.dp
-                labels.all { measurer.measure(it, label, maxLines = 1).size.width <= card.toPx() } &&
-                    neighbours.filterNotNull().all { measurer.measure(it.root, name, maxLines = 1).size.width <= card.toPx() } &&
-                    randomWords.all { measurer.measure(it, label, maxLines = 1).size.width <= (84 - 12).dp.toPx() }
-            }
-            if (fits)
-                Row(
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    /* The three cards as high as the highest */
-                    modifier = Modifier.padding(top = 6.dp).height(IntrinsicSize.Min),
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            /* The three cards as high as the highest */
+            modifier = Modifier.padding(top = 6.dp).height(IntrinsicSize.Min),
+        ) {
+            for ((index, neighbour) in neighbours.withIndex()) {
+                val before = index == 0
+                if (index == 1)
+                    RandomRootCard(onRandom, Modifier.width(84.dp).fillMaxHeight())
+                if (neighbour == null) {
+                    Spacer(Modifier.weight(1f))
+                    continue
+                }
+                Surface(
+                    onClick = { onOpen(neighbour.number) },
+                    shape = RoundedCornerShape(12.dp),
+                    color = MaterialTheme.colorScheme.surfaceContainerLow,
+                    border = BorderStroke(1.dp, muted.copy(alpha = 0.3f)),
+                    modifier = Modifier.weight(1f).fillMaxHeight(),
                 ) {
-                    for ((index, neighbour) in neighbours.withIndex()) {
-                        val before = index == 0
-                        if (index == 1)
-                            RandomRootCard(onRandom, Modifier.width(84.dp).fillMaxHeight())
-                        if (neighbour == null) {
-                            Spacer(Modifier.weight(1f))
-                            continue
-                        }
-                        Surface(
-                            onClick = { onOpen(neighbour.number) },
-                            shape = RoundedCornerShape(12.dp),
-                            color = MaterialTheme.colorScheme.surfaceContainerLow,
-                            border = BorderStroke(1.dp, muted.copy(alpha = 0.3f)),
-                            modifier = Modifier.weight(1f).fillMaxHeight(),
-                        ) {
-                            Column(
-                                Modifier.padding(horizontal = 12.dp, vertical = 12.dp),
-                                horizontalAlignment = if (before) Alignment.Start else Alignment.End,
-                            ) {
-                                Text(
-                                    stringResource(if (before) R.string.neighbour_previous else R.string.neighbour_next),
-                                    style = MaterialTheme.typography.labelMedium,
-                                    color = muted,
-                                )
-                                Text(
-                                    neighbour.root,
-                                    style = MaterialTheme.typography.titleMedium,
-                                    fontWeight = FontWeight.Bold,
-                                    color = bonaDesign.headword,
-                                    maxLines = 1,
-                                    overflow = TextOverflow.Ellipsis,
-                                )
-                                Text(
-                                    neighbour.definition,
-                                    style = MaterialTheme.typography.bodySmall.copy(fontStyle = FontStyle.Italic),
-                                    color = muted,
-                                    maxLines = 2,
-                                    overflow = TextOverflow.Ellipsis,
-                                    textAlign = if (before) TextAlign.Start else TextAlign.End,
-                                )
-                            }
-                        }
+                    Column(
+                        Modifier.padding(horizontal = 12.dp, vertical = 12.dp),
+                        horizontalAlignment = if (before) Alignment.Start else Alignment.End,
+                    ) {
+                        Text(
+                            stringResource(if (before) R.string.neighbour_previous else R.string.neighbour_next),
+                            style = MaterialTheme.typography.labelMedium,
+                            color = muted,
+                        )
+                        Text(
+                            neighbour.root,
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Bold,
+                            color = bonaDesign.headword,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                        )
+                        Text(
+                            neighbour.definition,
+                            style = MaterialTheme.typography.bodySmall.copy(fontStyle = FontStyle.Italic),
+                            color = muted,
+                            maxLines = 2,
+                            overflow = TextOverflow.Ellipsis,
+                            textAlign = if (before) TextAlign.Start else TextAlign.End,
+                        )
                     }
                 }
-            else
-                NeighbourLines(neighbours, onOpen, onRandom)
-        }
-    }
-}
-
-/** The roots before and after, and the random one, one under the other,
- * a line each: "‹ antaŭa … Hunan/o", where three cards don't fit */
-@Composable
-private fun NeighbourLines(neighbours: List<Neighbour?>, onOpen: (Int) -> Unit, onRandom: () -> Unit) {
-    val muted = MaterialTheme.colorScheme.onSurfaceVariant
-
-    @Composable
-    fun Line(onClick: () -> Unit, content: @Composable RowScope.() -> Unit) {
-        Surface(
-            onClick = onClick,
-            shape = RoundedCornerShape(12.dp),
-            color = MaterialTheme.colorScheme.surfaceContainerLow,
-            border = BorderStroke(1.dp, muted.copy(alpha = 0.3f)),
-            modifier = Modifier.fillMaxWidth().padding(top = 6.dp),
-        ) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.padding(horizontal = 12.dp, vertical = 10.dp),
-                content = content,
-            )
-        }
-    }
-
-    Column(Modifier.padding(top = 6.dp)) {
-        for ((index, neighbour) in neighbours.withIndex()) {
-            if (neighbour == null)
-                continue
-            Line({ onOpen(neighbour.number) }) {
-                Text(
-                    stringResource(if (index == 0) R.string.neighbour_previous_short else R.string.neighbour_next_short),
-                    style = MaterialTheme.typography.labelMedium,
-                    color = muted,
-                )
-                Spacer(Modifier.weight(1f).widthIn(min = 12.dp))
-                Text(
-                    neighbour.root,
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold,
-                    color = bonaDesign.headword,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                )
             }
-        }
-        val random = stringResource(R.string.random_root)
-        Line(onRandom) {
-            Spacer(Modifier.weight(1f))
-            Dice(bonaDesign.headword, size = 22.dp)
-            Text(
-                stringResource(R.string.random_root_short),
-                style = MaterialTheme.typography.labelMedium,
-                color = muted,
-                modifier = Modifier.padding(start = 8.dp).semantics { contentDescription = random },
-            )
-            Spacer(Modifier.weight(1f))
         }
     }
 }
