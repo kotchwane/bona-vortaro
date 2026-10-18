@@ -17,6 +17,8 @@
 
 package io.github.kotchwane.bonavortaro
 
+import androidx.compose.foundation.layout.defaultMinSize
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.res.painterResource
@@ -422,7 +424,8 @@ private fun LabelChip(label: Label, modifier: Modifier = Modifier) {
             /* As high as the letters: the chip keeps its height */
             if (icon != null) {
                 val painter = painterResource(icon)
-                val height = with(LocalDensity.current) { (style.fontSize * 0.95f).toDp() }
+                /* As high as the letters, so that its details can be made out */
+                val height = with(LocalDensity.current) { (style.fontSize * 1.2f).toDp() }
                 Icon(
                     painter,
                     contentDescription = null,
@@ -455,9 +458,9 @@ class InlineLabelSpan(
 
     private fun labelPaint(paint: Paint) = Paint(paint).apply { textSize = paint.textSize * 0.85f }
 
-    /* The icon's height: the height of a capital letter, a little more;
-     * its width as the drawing's */
-    private fun iconSize(label: Paint) = if (icon == null) 0f else label.textSize * 0.8f
+    /* The icon's height: the whole height of the letters, so that its
+     * details can be made out; its width as the drawing's */
+    private fun iconSize(label: Paint) = if (icon == null) 0f else label.textSize
 
     private fun iconDrawnWidth(label: Paint) =
         icon?.let { iconSize(label) * it.intrinsicWidth / it.intrinsicHeight.coerceAtLeast(1) } ?: 0f
@@ -598,17 +601,31 @@ fun OfficialBadge(
     showOthers: Boolean = false,
     /** The forms of the title, for the panel to tell which has which */
     forms: OfficialTitle? = null,
+    /** Only its sign in a circle, "F" or "8", as in the timeline: where the
+     * root would be cut by the whole badge */
+    compact: Boolean = false,
 ) {
     val level = officialLevel(official)
-    val name = when (level) {
-        null -> official
-        0 -> stringResource(R.string.official_fundamento)
-        else -> stringResource(R.string.official_addition, level)
-    }
-    val label = if (showOthers && others.isNotEmpty()) "$name +${others.size}" else name
+    val label = officialLabel(official, others, showOthers)
     var explain by rememberSaveable { mutableStateOf(false) }
 
-    Surface(
+    if (compact && level != null)
+        Surface(
+            onClick = { explain = true },
+            modifier = modifier.semantics { contentDescription = label },
+            shape = CircleShape,
+            color = MaterialTheme.colorScheme.primary,
+            contentColor = MaterialTheme.colorScheme.onPrimary,
+        ) {
+            Box(contentAlignment = Alignment.Center, modifier = Modifier.defaultMinSize(28.dp, 28.dp)) {
+                Text(
+                    if (level == 0) "F" else "$level",
+                    style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold),
+                    modifier = Modifier.padding(horizontal = 6.dp),
+                )
+            }
+        }
+    else Surface(
         onClick = { explain = true },
         enabled = level != null,
         modifier = modifier,
@@ -639,6 +656,18 @@ fun OfficialBadge(
             onDismiss = { explain = false },
         )
     }
+}
+
+/** The words of an officiality badge: "Fundamento", "8a Oficiala
+ * Aldono", with the number of the others if asked: "Fundamento +1" */
+@Composable
+fun officialLabel(official: String, others: List<String> = emptyList(), showOthers: Boolean = false): String {
+    val name = when (val level = officialLevel(official)) {
+        null -> official
+        0 -> stringResource(R.string.official_fundamento)
+        else -> stringResource(R.string.official_addition, level)
+    }
+    return if (showOthers && others.isNotEmpty()) "$name +${others.size}" else name
 }
 
 /** A remark, in a tinted box with its title. A long one is folded to

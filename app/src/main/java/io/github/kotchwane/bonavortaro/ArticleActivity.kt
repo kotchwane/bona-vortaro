@@ -18,6 +18,10 @@
 
 package io.github.kotchwane.bonavortaro
 
+import androidx.compose.ui.unit.sp
+import androidx.compose.material3.LocalTextStyle
+import androidx.compose.ui.text.rememberTextMeasurer
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.runtime.toMutableStateList
 import androidx.compose.runtime.saveable.listSaver
 import androidx.compose.runtime.CompositionLocalProvider
@@ -600,7 +604,22 @@ private fun ArticleScreen(
                     val first = official?.forms?.firstOrNull()
 
                     /* The officiality of the root of the article, which
-                     * the words of the article share */
+                     * the words of the article share; only its sign
+                     * ("F") when the whole badge would cut the root */
+                    val levels = first?.marks.orEmpty().distinct().sortedBy { officialLevel(it) ?: Int.MAX_VALUE }
+                    val measurer = rememberTextMeasurer()
+                    val titleStyle = LocalTextStyle.current
+                    val badgeStyle = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold)
+                    val badgeLabel = levels.firstOrNull()?.let { officialLabel(it, levels.drop(1), showOthers = true) }
+                    val density = LocalDensity.current
+                    BoxWithConstraints {
+                    val compact = badgeLabel != null && with(density) {
+                        val root = measurer.measure(first?.text.orEmpty(), titleStyle, maxLines = 1).size.width
+                        /* Its words, its margins, the ⓘ and the space before it */
+                        val badge = measurer.measure(badgeLabel, badgeStyle, maxLines = 1).size.width +
+                            (8 + 5 + 3 + 8).dp.toPx() + 13.sp.toPx()
+                        root + badge > constraints.maxWidth
+                    }
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         /* The first form only ("monarĥ/o" for "monarĥ/o,
                          * ⁸monark/o"): the variants, with their own marks,
@@ -613,16 +632,17 @@ private fun ArticleScreen(
                         )
                         /* The oldest officiality only, with the number of
                          * the others: the root keeps its room */
-                        val levels = first?.marks.orEmpty().distinct().sortedBy { officialLevel(it) ?: Int.MAX_VALUE }
                         levels.firstOrNull()?.let {
                             OfficialBadge(
                                 it,
                                 others = levels.drop(1),
                                 showOthers = true,
                                 forms = official,
+                                compact = compact,
                                 modifier = Modifier.padding(start = 8.dp),
                             )
                         }
+                    }
                     }
                 },
                 /* No back arrow, which the back of the phone does: in its
