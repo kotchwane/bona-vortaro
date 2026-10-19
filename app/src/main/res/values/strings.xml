@@ -129,7 +129,7 @@
   <string name="guide_translations_title">Tradukoj</string>
   <string name="guide_translations">La tradukoj aperas en la lingvoj elektitaj en la agordoj („Tradukoj en la artikoloj“), en ilia ordo. „+ N lingvoj“ montras la aliajn. Post la tradukoj de la vorto venas tiuj de ĝiaj ekzemploj, ĉiu post sia ekzemplo, kaj ankaŭ ili troviĝas per la serĉo: _bonjour_ kondukas al „saluton!“, ĉe „saluto“. Tiam la linio de la ekzemplo estas emfazita; tuŝu ĝin por forigi la emfazon.</string>
   <string name="guide_vikivortaro_title">Vikivortaro</string>
-  <string name="guide_vikivortaro">Por la franca, la vortoj kaj tradukoj, kiujn Reta Vortaro ne havas, venas el Vikivortaro (CC BY-SA 4.0): ne grasaj en la serĉo, punktite substrekitaj en la artikoloj. Tuŝu tian vorton por scii, de kie ĝi venas. Ili aperas nur, se la franca estas inter la tradukoj en la agordoj.</string>
+  <string name="guide_vikivortaro">La vortoj kaj tradukoj, kiujn Reta Vortaro ne havas, venas el Vikivortaro (CC BY-SA 4.0): ne grasaj en la serĉo, punktite substrekitaj en la artikoloj. Tuŝu tian vorton por scii, de kie ĝi venas. La esperantaj difinoj de kelkcent vortoj aperas por ĉiuj; la francaj vortoj kaj tradukoj nur, se la franca estas inter la tradukoj en la agordoj.</string>
   <string name="guide_official_title">Oficialeco</string>
   <string name="guide_official">La etikedoj „Fundamento“ kaj „9a Oficiala Aldono“ montras, ke radiko aŭ vorto estas oficiala, kaj ekde kiam. Tuŝu ilin por scii pli kaj vidi la listojn.</string>
   <string name="guide_neighbours_title">Legi plu</string>
@@ -214,9 +214,17 @@
   <string name="sources_dictionaries">En la vortaroj: %1$s</string>
   <string name="sources_viki">la tradukoj kun punktita substreko, elektitaj kaj adaptitaj por Bona vortaro</string>
   <string name="sources_viki_word_only">la vorto „%1$s“</string>
+  <!-- The Esperanto Wiktionary's definition of a word Reta Vortaro doesn't have -->
+  <string name="sources_viki_eo">„%1$s“ kaj ĝia difino</string>
+  <string name="sources_viki_eo_adapted">„%1$s“ kaj ĝia difino, adaptitaj por Bona vortaro</string>
+  <!-- With the French Wiktionary's too: "Vikivortaro (eo · fr)", each edition a link -->
+  <string name="sources_viki_editions">%1$s (%2$s · %3$s)</string>
+  <string name="sources_viki_eo_fr">la difino kaj %1$s, adaptitaj por Bona vortaro</string>
+  <string name="sources_viki_fr_description">la franca priskribo</string>
+  <string name="sources_viki_fr_translations">la francaj tradukoj</string>
   <string name="sources_viki_word">„%1$s“ kaj ĝia priskribo, adaptitaj por Bona vortaro</string>
   <string name="about_viki_title">Vikivortaro</string>
-  <string name="about_viki">Kelkaj tradukoj, kiujn la Reta Vortaro ne havas, venas el Vikivortaro: en la artikoloj ili havas punktitan substrekon, en la serĉo ili ne estas grasaj. Vikivortaro estas verkita de ĝiaj kontribuantoj kaj publikigita laŭ la permesilo CC BY-SA 4.0. Tiuj tradukoj estas elektitaj kaj adaptitaj por Bona vortaro, kaj restas apartaj de la Reta Vortaro.</string>
+  <string name="about_viki">Kelkaj vortoj kaj tradukoj, kiujn la Reta Vortaro ne havas, venas el Vikivortaro: francaj tradukoj kaj priskriboj el fr.wiktionary.org, kaj la difinoj de kelkcent esperantaj vortoj el eo.wiktionary.org, elektitaj unu post la alia. En la artikoloj ili havas punktitan substrekon, en la serĉo ili ne estas grasaj. Vikivortaro estas verkita de ĝiaj kontribuantoj kaj publikigita laŭ la permesilo CC BY-SA 4.0. Tiuj tradukoj kaj difinoj estas elektitaj kaj adaptitaj por Bona vortaro, kaj restas apartaj de la Reta Vortaro.</string>
   <string name="about_viki_link">Vikivortaro</string>
   <string name="about_data_link">La Reta Vortaro</string>
   <string name="about_copyright_title">Kopirajto</string>

@@ -1,0 +1,685 @@
+# The entries of the Esperanto Wiktionary (eo.wiktionary.org) that Bona vortaro shows: Esperanto words that
+# Reta Vortaro does not have, chosen one by one (see scripts/vikivortaro-eo.py). One a line.
+a.K.
+a.K.E.
+Abadano
+Abadono
+abandonismo
+Abelujon ne incitu, amason ne spitu.
+abĥaza
+acideco
+ADSL
+akordlaboro
+akvokrano
+Alando
+albana leko
+alfalanta
+aliaj domoj, aliaj homoj
+alilingvigi
+aliseksamulino
+aliseksemismo
+aliseksemulino
+alkazabo
+allimi
+Alozio
+alsilabo
+amasartiklo
+amatora radio
+ambaŭpartia
+ambaŭtranĉa
+amoraktorino
+Amu domon novan kaj amikon malnovan.
+Andoro Malnova
+angola kvanzo
+antaŭeniradi
+antaŭkazo
+apaluza
+apoapsido
+aranereto
+arapaha
+arideco
+Ariovisto
+arkta vulpo
+arlekenaĵo
+armena dramo
+aruako
+arumana
+arĝentumi
+as-tempo
+Asmero
+astroscienco
+atlantika salmo
+atomnumero
+azolo
+aĉetumi
+b
+bananarbo
+Bandar-Seri-Begavano
+Banjulo
+Barankilo
+barvaro
+Bastero
+Belmopano
+biaso de konfirmo
+bicikleto
+bierumi
+bikola
+bikolano
+birma kjato
+blankakcepto
+blankmetalo
+blankoprokuro
+blankrusa
+bluigaĵo
+bluigilo
+bocvana pulao
+bolivia bolivjano
+botulismo
+branĉoficejo
+braziljano
+britono
+Briĝtaŭno
+burimeo
+burlako
+butana ngultrumo
+Buĵumburo
+c
+centifolio
+centmil
+centmiliono
+cistercia
+cisternvagono
+d
+Dagestano
+damtabulo
+damumi
+dankoveka
+De guto post guto disfalas granito.
+dekatizi
+deklinometro
+dekmiliono
+dereligi
+detalkomerco
+detalprezo
+determina kunmetaĵo
+dirhamo
+disdonilo
+diskontbanko
+dobro
+dogandeva
+doganlibera
+dogantakso
+domanio
+dormi kiel ŝtono
+dungokontrakto
+duonfabrikaĵo
+E-o
+E@I
+egalpartia
+egzismo
+ekspiri
+ekspresfreto
+ekspresletero
+ekspresvagonaro
+ekstertero
+ekz-e
+elektromotoro
+elektrona truo
+elektronvolto
+Eljundi
+elsaltisto
+elsendfluo
+eltombigi
+eMule
+en arbaro li sidis kaj arbaron ne vidis
+enlasi la lupon en la ŝafejon
+enĉizo
+Eriso
+eritrea nakfo
+espeletio
+Espo
+etendigilo
+etiopa biro
+evea
+ezafeo
+Eĉ guto malgranda, konstante frapante, traboras la monton granitan.
+Eĉ la plej nigra bovino donas lakton nur blankan.
+eŭklazo
+f
+fa
+fabrikmarko
+fabrikprezo
+Faetono
+Fanipal
+farmpreni
+fenigo
+figurasence
+financulo
+finnlandiĝo
+firolludema
+firstotureto
+flamema
+flufabrikaĵo
+fokstrot
+foliego
+formero
+forpigri
+forĵetakvo
+forĵetakvopurigejo
+fratiĝi
+fretkosto
+fretletero
+fretotakso
+fruaĵo
+frufrukto
+frumaturaĵo
+g
+G.
+gambia dalasio
+ganaa cedio
+gedormi
+geonklo
+Georgtaŭno
+ger.
+geraĵo
+Germana Demokratia Respubliko
+glacia disko
+glacikonuso
+GLAT
+golf
+Gongono
+Gotlando
+gradpartikulo
+granddekduo
+grandkomercisto
+grandkomerco
+Guto malgranda, sed ŝtonon ĝi boras.
+Gvatemalurbo
+h
+haitia gurdo
+Hakono
+Haŭmeo
+helenisto
+Helgolando
+Heliogabalo
+heliopaŭzo
+heliosfero
+hidroskopo
+Higio
+hindeŭropa
+hobito
+horarlibro
+hotel
+i-modo
+IFA
+implica derivado
+interj.
+interlinio
+interrego
+is-tempo
+janki
+jarkunveno
+Javeo
+jelpadi
+juliet
+jungŝturma
+Junono
+k
+k.
+k.t.p.
+kacapo
+kaculo
+kadavropririgardo
+kafejumi
+kafkuseneto
+kamboĝa rielo
+kanastro
+kanelonioj
+kanelonoj
+kanonboato
+kapitaligi
+kapobrasiko
+kariertabelo
+Karlo la Granda
+kartletero
+kartvela lario
+kaslibro
+Kasparo
+Kastrizo
+katizilo
+kazaĥa tengo
+kaĉjo
+Kie estas malrestoracio?
+Kie fumo leviĝas, tie fajro troviĝas.
+kilogramometro
+Kingstaŭno
+Kingstono
+kirgiza somo
+Kiu fosas sub alia, falos mem en la foson.
+Kiu kaptas tro vaste, konservas malmulte.
+Kiu ludas kun koto, malpurigas la manojn.
+Kiu rabi eliras, ofte nuda revenas.
+Kiu volas panon, ne dorlotu la manon.
+kiucele
+Klevlando
+klitiko
+knabamanto
+kolbasobulko
+kolumbario
+komanditisto
+koncentreco
+konjo
+konsigni
+kontoreguligo
+kontraŭuzo
+kopilibro
+korespondisto
+korposcienco
+kosma polvo
+kostprezo
+Kotavao
+krapo
+kribrilo de Eratosteno
+kristadelfiano
+kronopo
+kroĉaĵo
+ktp
+kumanagota
+kunfrato
+kunordo
+kurac-baneja
+kurznotado
+Kuvajturbo
+kvarobla
+Kvavaro
+kvietigisto
+kvirseksa
+kvirseksulo
+kvirulo
+l
+L.
+laadana lingvo
+lamaismo
+langumi
+laosa kipo
+lasi fadenon iri antaŭ kudrilo
+laŭprioritatigi
+legisto
+Lemuelo
+lesota lotio
+leterordigilo
+leterpapero
+levoforto
+leĝforta
+liberecanismo
+liberecano
+libertino
+limdepagejo
+limimpostejo
+Linkolno
+Listo Swadesh
+ludolibro
+lukontrakto
+Luksemburgurbo
+lunaro
+m
+Mababano
+magazenlibro
+magdalenio
+magneta deklinacio
+magneta kampo
+makaa patako
+makedona denaro
+Makemako
+maklerpago
+maklerprocentaĵo
+Malabo
+malagasa ariaro
+malajzia ringito
+malaltgermana
+malavia kvaĉo
+maldiva rufijao
+Malfeliĉo venas are, ne ere.
+malfremdiĝo
+malfru-mezaltgermana
+malmanĝi
+malnovaltgermana
+malnovfrisa
+malnovsaksa
+malrestoracio
+malsano de bova freneziĝo
+malsuprafrankonia
+maltrinki
+malutileco
+Manfredo
+manki klapo en ies kapo
+marfundo
+maroka dirhamo
+masnombro
+matenilo
+maŝinpafileto
+megerumi
+mekanika krajono
+melamino
+memorialo
+memorlibreto
+memstareco
+mensoganto devas havi bonan memoron
+metalmono
+meti sur karton
+meti ĉiujn ovojn en saman korbon
+meza angla
+mezaltgermana
+mezgermana
+mezmalaltgermana
+milmiliono
+Mimaso
+mistrafi
+moldava leŭo
+monerfarejo
+mongola tugriko
+monigo
+Moniko
+Morono
+morsoklavo
+movi ĉielon kaj teron
+mozambika metikalo
+moŝtumi
+multobligaparato
+multobligilo
+multopunkto
+muroblanke
+musmato
+n-ro
+Ne gutas mielo el la ĉielo.
+Ne ŝovu vian nazon en fremdan vazon.
+neniuseksama
+neracionala nombro
+nervomilito
+nesobrigeblulo
+nombrovorto
+Norda Kabo
+nordsamea
+normkazo
+Nov-Kaledonio
+nova rumana leo
+NPIV
+Odoakro
+Okcidenta Saharo
+okroŝko
+okshofto
+ondokartono
+OPEL
+oranĝokolora
+orema
+orientiĝado
+orientmezgermana
+os-tempo
+oskar
+Otokaro
+overalo
+p
+p.K.
+pagopromeso
+pagoŝargo
+pakaĵisto
+Palado
+Palanto
+Palaso
+palatinata
+Panamurbo
+panbiskvito
+papageto
+paperaĉo
+papertuko
+papuonovgvinea kinao
+paragvaja gvaranio
+parao
+parolfiguro
+part.
+Pasero kaptita estas pli bona ol aglo kaptota.
+peltisto
+pendglacio
+pendoglacio
+pengo
+peptono
+peradaĉisto
+periapsido
+periluno
+perua nova suno
+pestulo
+pezeto
+pi
+pistakarbo
+PIV
+pladeto
+planedaro
+planedoido
+Plej juna katido musojn jam pelas.
+Pli bone malfrue ol neniam.
+pluvbano
+pluvegi kvazaŭ el sitelo
+PMEG
+Podgorico
+polenujaro
+pomfingro
+pomfrito
+pornaktorino
+Port-Luiso
+Porto-Novo
+poŝtfako
+poŝtordono
+pracela
+pracelo
+praho
+Prajo
+prapranevo
+prapraonklo
+prepozicionalo
+prezaĉo
+Pri ies riĉo kaj bono, ne kredu eĉ la duonon.
+priservejo
+Priŝtino
+Pro kapo malsaĝa suferas la kruroj.
+prokurito
+propraĵulo
+protokolisto
+pruntisto
+punŝoto
+PV
+q
+r
+racionala nombro
+rad.
+radioamatoro
+rajdi sur la tigro kaj ne esti manĝita de ĝi
+Rajdi sur ĉevalo oni ne lernas sen falo.
+rampulo
+Rapunkolo
+recifano
+reela nombro
+remalsaniĝi
+remaĉulo
+rentulo
+rentumprocento
+respondecigi
+reĝinjo
+reĝo de birdoj
+rolvorteto
+romeo
+Roseo
+rozokolora
+Rusjo
+ruĝa vulpo
+ruĝeco
+s
+S-ino
+S-ro
+sagkruculo
+saltkuri
+samaro
+San-Joseo
+sangsoifa
+Sankta Domingo
+Sankta Georgo
+Sankta Johano
+sankteco
+saro
+saro-ciklo
+SARS-CoV-2
+SAT
+saterfrisa
+Se vi pri ĉio informiĝos, vi baldaŭ maljuniĝos.
+Sedno
+sekviteto
+Seleno
+semaglutido
+senharaĵo
+senkremigi
+senproprigi
+senrajtigi
+senrima
+Senĉesa guto eĉ ŝtonon traboras.
+servosoldato
+signalvorto
+simiovosto
+simpla, kiel la ovo de Kolumbo
+sizigio
+skusorbilo
+slipujo
+sol
+solismo
+Solresolo
+sonbildigo
+sorĉistino
+spegulumo
+spesdeko
+stampilkuseno
+staplodomo
+stero
+stultula mato
+subokuli
+sudafrika rando
+Sueza krizo
+sufokmato
+Sukro
+superegoo
+supermio
+svazilanda lilangenio
+t
+t. e.
+ta-ta-ta
+taina
+tajlanda
+tajlanda bahto
+tajlorismo
+taksisto
+taksonomia rango
+tamanduo
+tartaro
+tavoletebla
+taĝika somonio
+Taŭrogo
+TEJO
+telefonĉelo
+Teluso
+tempomaŝino
+terpomfrito
+tertestudo
+ti
+tilo
+Timbuo
+tonga paangao
+tramrelo
+transitvaro
+translativo
+transseksa
+transseksulino
+transseksuliĉo
+transseksulo
+transvestisto
+transŝarĝi
+traskribi
+triaseksa
+triobla
+triunua
+trodelikata
+tugriko
+tupia
+turni al iu la kapon
+tutmonda varmiĝo
+u-hoko
+u-modo
+UEA
+UHF
+ungodorno
+unua venis, unua prenis
+unuhufulo
+unukorna
+unumasta
+urbumi
+uremio
+ureo
+us-modo
+uzbeka somo
+v
+validlimi
+vanuatua vatuo
+varaĉo
+varmopumpilo
+varrestaĵo
+vazopresino
+vendebla
+vetbatali
+Vikifontaro
+Vikivortaro
+viktor
+vinjo
+vira transseksulo
+viringo
+virvirino
+vitrofandejo
+vivciklo
+vivpriskribo
+vivresumo
+vojenigmo
+vort' en ĝusta momento faras pli ol arĝento
+vundfebro
+w
+WinMx
+x
+y
+z
+Z-o
+zambia kvaĉo
+zoarko
+zulu
+ĉ
+ĉaŭ
+ĉefsekretario
+ĉeĉjo
+ĉiesulo
+ĉirkaŭsilabo
+ĉirkaŭtroviĝo
+ĝ
+ĝiismo
+ĝirindikilo
+ĝis kiam sankta Johano klinos la fingron
+ĝis la revido
+ĥ
+Ĥabakuko
+Ĥagajo
+Ĥuramo
+ĵ
+ĵurpromeso
+ŝ
+ŝaktisto
+ŝargado
+ŝarĝaĵo
+ŝipveturado
+ŝirmrelo
+ŝparkaso
+ŝtatero
+ŝteldiri
+ŭ
+₷
