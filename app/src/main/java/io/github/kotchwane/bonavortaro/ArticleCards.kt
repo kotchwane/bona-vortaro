@@ -1147,9 +1147,9 @@ private fun SourceBubble(text: String, position: Offset, onDismiss: () -> Unit) 
 }
 
 /** At the end of a page, where its text comes from, in a line: "Fontoj:
- * Reta Vortaro · Vikivortaro ›". A tap gives the credit their licences ask
- * for, the same for both, Reta Vortaro first: who wrote what, under which
- * licence, with a link to read it there: the article [revoArticle] on Reta
+ * Reta Vortaro · Vikivortaro ›". A tap tells what comes from each, Reta
+ * Vortaro first, with a link to read it there (their authors and licences
+ * are in "Pri"): the article [revoArticle] on Reta
  * Vortaro's site, or on the page of a word only Vikivortaro has,
  * [vikiWord]'s page. */
 @Composable
@@ -1256,7 +1256,6 @@ private fun Source(name: String, what: String, url: String) {
             textDecoration = TextDecoration.Underline,
         )
     )
-    /* The licence is only named: "Pri" links to it */
     Text(
         buildAnnotatedString {
             withLink(LinkAnnotation.Url(url, link)) { append(name) }
