@@ -1256,20 +1256,12 @@ private fun Source(name: String, what: String, url: String) {
             textDecoration = TextDecoration.Underline,
         )
     )
-    /* And the licence, where it is named, to read it */
-    val licence = "CC BY-SA 4.0"
+    /* The licence is only named: "Pri" links to it */
     Text(
         buildAnnotatedString {
             withLink(LinkAnnotation.Url(url, link)) { append(name) }
             append(" — ")
-            val at = what.indexOf(licence)
-            if (at < 0)
-                append(what)
-            else {
-                append(what.substring(0, at))
-                withLink(LinkAnnotation.Url(CC_BY_SA_URL, link)) { append(licence) }
-                append(what.substring(at + licence.length))
-            }
+            append(what)
         },
         style = MaterialTheme.typography.bodyMedium,
     )

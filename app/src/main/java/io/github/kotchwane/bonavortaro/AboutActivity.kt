@@ -54,7 +54,7 @@ private const val RETA_VORTARO_URL = "https://reta-vortaro.de/"
 private const val LICENSE_URL = "https://www.gnu.org/licenses/old-licenses/gpl-2.0-standalone.html"
 private const val PRIVACY_URL = "https://kotchwane.github.io/bona-vortaro/privacy"
 private const val VIKIVORTARO_URL = "https://fr.wiktionary.org/"
-internal const val CC_BY_SA_URL = "https://creativecommons.org/licenses/by-sa/4.0/"
+private const val CC_BY_SA_URL = "https://creativecommons.org/licenses/by-sa/4.0/"
 
 /** About the app: what it is, that it is free software, works without
  * internet, asks for no permission and collects nothing (with a link to
