@@ -1161,6 +1161,9 @@ fun SourcesLine(
     vikiWord: String? = null,
     /** Whether the page shows Vikivortaro's description of [vikiWord] */
     vikiDescription: Boolean = true,
+    /** The definition of [vikiWord] from the Esperanto Wiktionary that the
+     * page shows, if any */
+    vikiEsperanto: EsperantoDefinition? = null,
 ) {
     var open by rememberSaveable { mutableStateOf(false) }
     val context = LocalContext.current
@@ -1184,7 +1187,7 @@ fun SourcesLine(
         contentAlignment = Alignment.CenterStart,
     ) {
         Text(
-            stringResource(R.string.sources_line, listOfNotNull(revoName.takeIf { revo }, vikiName.takeIf { viki }).joinToString(" · ")),
+            stringResource(R.string.sources_line, listOfNotNull(revoName.takeIf { revo }, vikiName.takeIf { viki || vikiEsperanto != null }).joinToString(" · ")),
             style = MaterialTheme.typography.bodySmall.copy(fontStyle = FontStyle.Italic),
             color = muted,
         )
@@ -1230,7 +1233,26 @@ fun SourcesLine(
                             style = MaterialTheme.typography.bodyMedium,
                         )
                     }
-                    if (viki)
+                    /* Vikivortaro once: with the French too, "Vikivortaro
+                     * (eo · fr)", each edition a link to the word's page */
+                    if (vikiEsperanto != null && vikiWord != null) {
+                        val page = "wiki/" + Uri.encode(vikiWord.replace(' ', '_'))
+                        if (viki)
+                            Source(
+                                stringResource(R.string.sources_viki_editions, vikiName, "eo", "fr"),
+                                stringResource(
+                                    R.string.sources_viki_eo_fr,
+                                    stringResource(if (vikiDescription) R.string.sources_viki_fr_description else R.string.sources_viki_fr_translations),
+                                ),
+                                links = listOf("eo" to VIKI_EO_SITE + page, "fr" to VIKI_SITE + page),
+                            )
+                        else
+                            Source(
+                                vikiName,
+                                stringResource(if (vikiEsperanto.adapted) R.string.sources_viki_eo_adapted else R.string.sources_viki_eo, vikiWord),
+                                VIKI_EO_SITE + page,
+                            )
+                    } else if (viki)
                         Source(
                             vikiName,
                             if (vikiWord != null)
@@ -1245,10 +1267,13 @@ fun SourcesLine(
 
 private const val REVO_SITE = "https://reta-vortaro.de/"
 private const val VIKI_SITE = "https://fr.wiktionary.org/"
+private const val VIKI_EO_SITE = "https://eo.wiktionary.org/"
 
-/** A source, its name a link to read it there */
+/** A source, its name a link to read it there ([url]); or, with several
+ * places to read it, its name plain and each text of [links] in the name
+ * ("eo" in "Vikivortaro (eo · fr)") a link to its address */
 @Composable
-private fun Source(name: String, what: String, url: String) {
+private fun Source(name: String, what: String, url: String? = null, links: List<Pair<String, String>> = emptyList()) {
     val link = TextLinkStyles(
         SpanStyle(
             color = MaterialTheme.colorScheme.primary,
@@ -1258,7 +1283,15 @@ private fun Source(name: String, what: String, url: String) {
     )
     Text(
         buildAnnotatedString {
-            withLink(LinkAnnotation.Url(url, link)) { append(name) }
+            if (url != null)
+                withLink(LinkAnnotation.Url(url, link)) { append(name) }
+            else
+                withStyle(SpanStyle(fontWeight = FontWeight.Bold)) { append(name) }
+            for ((text, address) in links) {
+                val at = name.lastIndexOf(text)
+                if (at >= 0)
+                    addLink(LinkAnnotation.Url(address, link), at, at + text.length)
+            }
             append(" — ")
             append(what)
         },

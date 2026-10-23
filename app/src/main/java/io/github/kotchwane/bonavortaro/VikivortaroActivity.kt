@@ -123,10 +123,13 @@ fun VikiResultRow(
                         modifier = Modifier.padding(start = 12.dp),
                     )
             }
-            /* Found in Esperanto, what it says is in French, and says so */
+            /* Found in Esperanto: its Esperanto definition, for everyone;
+             * else what it says in French, saying so */
             Text(
                 if (result.inEsperanto)
-                    if (inFrench)
+                    if (result.definition != null)
+                        result.definition
+                    else if (inFrench)
                         stringResource(R.string.viki_in_french, result.frenchWords.joinToString(", ")) +
                             (result.description?.let { " — $it" } ?: "")
                     /* Nothing in the reader's languages */
@@ -222,11 +225,16 @@ private fun VikiPage(
     val description by produceState<String?>(null, word, inFrench) {
         value = if (inFrench) withContext(Dispatchers.IO) { Vikivortaro.description(context, word) } else null
     }
-    /* Without it, how the word may be built, as for a word nobody has:
+    /* Its definition in the Esperanto Wiktionary, for every reader */
+    val definition by produceState<EsperantoDefinition?>(null, word) {
+        value = withContext(Dispatchers.IO) { Vikivortaro.definition(context, word) }
+    }
+    /* Without them, how the word may be built, as for a word nobody has:
      * "femurosto", femur + osto */
     val analysis by produceState<ShownAnalysis?>(null, word, inFrench, guessWords) {
-        value = if (!inFrench && guessWords) withContext(Dispatchers.IO) { WordAnalyses.find(context, word, needsEnding = true) }
-            else null
+        value = if (!inFrench && guessWords && withContext(Dispatchers.IO) { Vikivortaro.definition(context, word) } == null)
+            withContext(Dispatchers.IO) { WordAnalyses.find(context, word, needsEnding = true) }
+        else null
     }
     val edge = MaterialTheme.colorScheme.primary
     val muted = MaterialTheme.colorScheme.onSurfaceVariant
@@ -288,6 +296,19 @@ private fun VikiPage(
                         style = MaterialTheme.typography.bodySmall.copy(fontStyle = FontStyle.Italic),
                         color = muted,
                     )
+                    /* The definition in Esperanto, its senses numbered when
+                     * there are several */
+                    definition?.let { definition ->
+                        Column(Modifier.padding(top = 10.dp, bottom = 4.dp)) {
+                            definition.senses.forEachIndexed { index, sense ->
+                                Text(
+                                    if (definition.senses.size > 1) "${index + 1}. $sense" else sense,
+                                    style = MaterialTheme.typography.bodyLarge,
+                                    modifier = Modifier.padding(top = if (index > 0) 6.dp else 0.dp),
+                                )
+                            }
+                        }
+                    }
                     if (french.isNotEmpty() || description != null) {
                         /* The French words, then the description when it
                          * says more than them */
@@ -319,13 +340,16 @@ private fun VikiPage(
                         HorizontalDivider(Modifier.padding(top = 12.dp), color = muted.copy(alpha = 0.25f))
                         WordAnalysisView(it, onOpen = onOpenEntry)
                     }
-                    if (french.isNotEmpty() || description != null || analysis != null)
+                    if (definition != null || french.isNotEmpty() || description != null || analysis != null)
                         HorizontalDivider(color = muted.copy(alpha = 0.25f))
                     SourcesLine(
                         revo = false,
-                        viki = true,
+                        /* The French Wiktionary when its French is shown, or
+                         * when the word comes from it only */
+                        viki = french.isNotEmpty() || description != null || definition == null,
                         vikiWord = word,
                         vikiDescription = french.isNotEmpty() || description != null,
+                        vikiEsperanto = definition,
                         modifier = Modifier.padding(top = 2.dp),
                     )
                 }

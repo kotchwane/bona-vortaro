@@ -39,15 +39,27 @@ class VikiResult(
     val description: String?,
     val inEsperanto: Boolean = false,
     val frenchWords: List<String> = emptyList(),
+    /** For an Esperanto word, the first sense of its definition in the
+     * Esperanto Wiktionary, if it has one */
+    val definition: String? = null,
 ) {
     /** The word as the search found it */
     val word: String get() = if (inEsperanto) esperanto else french
 }
 
+/** The definition of an Esperanto word in the Esperanto Wiktionary: its
+ * senses, and whether it was corrected for Bona vortaro ("adaptita"),
+ * else "" */
+class EsperantoDefinition(val senses: List<String>, val origin: String) {
+    val adapted get() = origin == "adaptita"
+}
+
 /**
  * What the French Wiktionary adds to Reta Vortaro: French words that Reta
  * Vortaro can't find, with their Esperanto translations, and French
- * descriptions of Esperanto words that it lacks.
+ * descriptions of Esperanto words that it lacks; and what the Esperanto
+ * Wiktionary adds: definitions of Esperanto words that it lacks, chosen
+ * one by one (data/vikivortaro-eo-words.txt).
  *
  * Its data, by the contributors of the French Wiktionary under CC BY-SA 4.0,
  * is kept apart from Reta Vortaro's, in assets/vikivortaro/, written by
@@ -64,9 +76,11 @@ object Vikivortaro {
         val pairs: List<Pair<String, String>>,
         val frenchOf: Map<String, List<String>>,
         val descriptions: Map<String, String>,
+        val definitions: Map<String, EsperantoDefinition>,
     ) {
-        /* The Esperanto words that Vikivortaro describes, sorted by key */
-        val esperantoWords: List<String> = descriptions.keys.sortedBy { key(it) }
+        /* The Esperanto words that Vikivortaro describes or defines, sorted
+         * by key */
+        val esperantoWords: List<String> = (descriptions.keys + definitions.keys).distinct().sortedBy { key(it) }
         val esperantoKeys: List<String> = esperantoWords.map { key(it) }
     }
 
@@ -103,8 +117,28 @@ object Vikivortaro {
         for ((french, esperanto) in pairs)
             /* By the word as written: "bruno" the colour isn't "Bruno" */
             frenchOf.getOrPut(esperanto) { mutableListOf() }.add(french)
-        return Data(pairs.map { key(it.first) }, pairs, frenchOf, lines(context, "eo-fr.tsv").toMap())
+        return Data(pairs.map { key(it.first) }, pairs, frenchOf, lines(context, "eo-fr.tsv").toMap(), definitions(context))
     }
+
+    /* eo-eo.tsv: the word, its senses separated by " ¶ ", its origin */
+    private fun definitions(context: Context): Map<String, EsperantoDefinition> = try {
+        context.assets.open("vikivortaro/eo-eo.tsv").bufferedReader().useLines { lines ->
+            lines.filter { !it.startsWith("#") }
+                .mapNotNull { line ->
+                    val fields = line.split('\t')
+                    if (fields.size < 2 || fields[1].isBlank()) null
+                    else fields[0] to EsperantoDefinition(fields[1].split(" ¶ "), fields.getOrNull(2).orEmpty())
+                }
+                .toMap()
+        }
+    } catch (e: IOException) {
+        Log.w(TAG, "Failed to read eo-eo.tsv")
+        emptyMap()
+    }
+
+    /** An Esperanto word's definition in the Esperanto Wiktionary, if it is
+     * one of those chosen. Disk access, the first time. */
+    fun definition(context: Context, word: String): EsperantoDefinition? = data(context).definitions[word]
 
     /** A French word as the search compares it: without case, accents, and
      * what Reta Vortaro adds in brackets ("potager (jardin)"); "œ" as "oe",
@@ -188,7 +222,7 @@ object Vikivortaro {
     /** An Esperanto word that only Vikivortaro has, found again for the
      * history; null if an update of the data dropped it. */
     fun esperantoResult(context: Context, word: String): VikiResult? =
-        data(context).let { if (word in it.descriptions) esperantoResult(it, word) else null }
+        data(context).let { if (word in it.descriptions || word in it.definitions) esperantoResult(it, word) else null }
 
     private fun esperantoResult(data: Data, word: String) = VikiResult(
         french = "",
@@ -197,6 +231,7 @@ object Vikivortaro {
         description = informative(data, word),
         inEsperanto = true,
         frenchWords = data.frenchOf[word].orEmpty().distinctBy { key(it) },
+        definition = data.definitions[word]?.senses?.firstOrNull(),
     )
 
     /** Whether Reta Vortaro has a French word that Wiktionary translates by
@@ -528,6 +563,7 @@ object Vikivortaro {
     private fun informative(data: Data, word: String): String? {
         val description = data.descriptions[word] ?: return null
         val french = data.frenchOf[word].orEmpty().map { key(it) }
-        return description.takeUnless { key(it.trimEnd('.')) in french }
+        /* Nor the French words again, in any order: "Acidité, aigreur." */
+        return description.takeUnless { key(it.trimEnd('.')).let { plain -> plain in french || plain.split(", ").toSet() == french.toSet() } }
     }
 }
