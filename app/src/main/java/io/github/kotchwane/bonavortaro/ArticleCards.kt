@@ -142,7 +142,7 @@ private const val SHOWN_TRANSLATIONS = 4
 private const val INLINE_EXAMPLE_LENGTH = 70
 
 /** Examples up to this total length are shown, longer ones are folded
- * behind "Ekzemploj (n) ▾". */
+ * behind their first one and "5 pliaj ekzemploj ▾". */
 private const val SHOWN_EXAMPLES_LENGTH = 120
 
 /** A derived word of the article: its header with its officiality, its
@@ -424,24 +424,31 @@ private fun FoldedExamples(
      * width and the size it was measured with; null while it fits. Kept
      * while unfolded, so that folding again doesn't show it whole first */
     var folded by remember(first) { mutableStateOf<FoldedNote?>(null) }
-    var measured by remember(first) { mutableStateOf(false) }
+    /* The lines of the others, at the same width and size */
+    var othersLines by remember(first) { mutableStateOf<Int?>(null) }
+    var measuredFor by remember(first) { mutableStateOf<Pair<Int, Float>?>(null) }
     val measure: (TextView) -> Unit = { view ->
         val width = view.layout.width
         val size = view.paint.textSize
-        if (!measured || folded?.let { it.width != width || it.size != size } == true) {
+        if (measuredFor != width to size) {
             folded = foldNote(first, view.paint, width, more, link.toArgb(), FOLD_EXAMPLE_ABOVE, FOLDED_EXAMPLE_LINES) {
                 setExpanded(true)
             }
-            measured = true
+            othersLines = examples.drop(1).sumOf { lineCount(it.text, view.paint, width) }
+            measuredFor = width to size
         }
     }
+    /* Folding hides too little when the first example isn't cut and the
+     * others take no more than 3 lines ("1 plia ekzemplo" for an example
+     * of two lines): they are all shown */
+    val all = folded == null && (othersLines ?: Int.MAX_VALUE) <= FOLD_EXAMPLE_ABOVE
     /* Something to unfold: other examples, or the end of the first one */
-    val hidden = examples.size > 1 || folded != null
+    val hidden = !all && (examples.size > 1 || folded != null)
 
     val start = remember { BringIntoViewRequester() }
     val top = topWithRoom()
     val scope = rememberCoroutineScope()
-    if (expanded) {
+    if (expanded || all) {
         ExampleLine(first, onLongPress, onLayout = measure, modifier = Modifier.bringIntoViewRequester(start))
         for (example in examples.drop(1))
             ExampleLine(example.text, onLongPress)
@@ -827,6 +834,14 @@ private fun NoteBox(text: CharSequence, key: String, unfolded: Boolean, onLongPr
         }
     }
 }
+
+/** The number of lines of a text at a width, as a remark or an example
+ * is laid out. */
+private fun lineCount(text: CharSequence, paint: android.text.TextPaint, width: Int): Int =
+    android.text.StaticLayout.Builder.obtain(text, 0, text.length, paint, width)
+        .setLineSpacing(0f, 1.2f)
+        .build()
+        .lineCount
 
 /** A remark cut to its first lines, and what it was measured for. */
 private class FoldedNote(val text: CharSequence, val width: Int, val size: Float)
