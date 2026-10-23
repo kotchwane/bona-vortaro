@@ -29,8 +29,9 @@
   <string name="clear">Forviŝi</string>
   <string name="share">Kunhavigi</string>
   <string name="remark">RIMARKO</string>
-  <string name="examples_folded">Ekzemploj (%1$d) ▾</string>
-  <string name="examples_shown">Ekzemploj (%1$d) ▴</string>
+  <string name="examples_more">%1$d pliaj ekzemploj ▾</string>
+  <string name="examples_one_more">1 plia ekzemplo ▾</string>
+  <string name="examples_less">Faldi la ekzemplojn ▴</string>
   <string name="note_more">legi plu ▾</string>
   <string name="note_less">Faldi la rimarkon ▴</string>
   <string name="translations">TRADUKOJ</string>
@@ -125,7 +126,7 @@
   <string name="guide_history_title">La lastaj serĉoj</string>
   <string name="guide_history">Kiam nenio estas tajpita, la serĉo montras la vortojn, kiujn vi laste malfermis. Tenu unu premita por forviŝi ĝin. En la agordoj vi povas malŝalti la historion.</string>
   <string name="guide_links_title">Ligiloj kaj ekzemploj</string>
-  <string name="guide_links">La substrekitaj vortoj kondukas al aliaj artikoloj. La longaj ekzemploj estas kaŝitaj sub „Ekzemploj“, kaj la longaj rimarkoj montras nur sian komencon: tuŝu por malfaldi ilin, aŭ petu en la agordoj, ke ili ĉiam aperu tutaj. Post ĉiu ekzemplo staras ĝia fonto, la aŭtoro kaj la verko. La signo ↗ montras, ke tuŝo malfermas paĝon ekster la aplikaĵo: la verkon, Vikipedion aŭ Retan Vortaron.</string>
+  <string name="guide_links">La substrekitaj vortoj kondukas al aliaj artikoloj. El longaj ekzemploj aperas nur la unua, kaj „5 pliaj ekzemploj“ montras la aliajn; la longaj rimarkoj montras nur sian komencon: tuŝu por malfaldi ilin, aŭ petu en la agordoj, ke ili ĉiam aperu tutaj. Post ĉiu ekzemplo staras ĝia fonto, la aŭtoro kaj la verko. La signo ↗ montras, ke tuŝo malfermas paĝon ekster la aplikaĵo: la verkon, Vikipedion aŭ Retan Vortaron.</string>
   <string name="guide_translations_title">Tradukoj</string>
   <string name="guide_translations">La tradukoj aperas en la lingvoj elektitaj en la agordoj („Tradukoj en la artikoloj“), en ilia ordo. „+ N lingvoj“ montras la aliajn. Post la tradukoj de la vorto venas tiuj de ĝiaj ekzemploj, ĉiu post sia ekzemplo, kaj ankaŭ ili troviĝas per la serĉo: _bonjour_ kondukas al „saluton!“, ĉe „saluto“. Tiam la linio de la ekzemplo estas emfazita; tuŝu ĝin por forigi la emfazon.</string>
   <string name="guide_vikivortaro_title">Vikivortaro</string>

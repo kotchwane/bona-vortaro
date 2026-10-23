@@ -354,7 +354,12 @@ private fun withExample(text: CharSequence, example: CharSequence, color: Int): 
 
 /** An example on its own line, with a bar on its left. */
 @Composable
-private fun ExampleLine(text: CharSequence, onLongPress: (String?) -> Unit) {
+private fun ExampleLine(
+    text: CharSequence,
+    onLongPress: (String?) -> Unit,
+    onClick: (() -> Unit)? = null,
+    onLayout: ((TextView) -> Unit)? = null,
+) {
     val bar = MaterialTheme.colorScheme.outlineVariant
 
     SpannedText(
@@ -362,6 +367,8 @@ private fun ExampleLine(text: CharSequence, onLongPress: (String?) -> Unit) {
         style = MaterialTheme.typography.bodyMedium,
         color = MaterialTheme.colorScheme.onSurfaceVariant,
         onLongPress = onLongPress,
+        onClick = onClick,
+        onLayout = onLayout,
         modifier = Modifier
             .fillMaxWidth()
             .padding(top = 6.dp)
@@ -394,7 +401,10 @@ private fun unfoldedState(key: String, unfolded: Boolean): Pair<Boolean, (Boolea
     return expanded to { expanded = it }
 }
 
-/** Several examples, folded behind "Ekzemploj (n) ▾". */
+/** Several examples, or one long one, folded: the first shown, cut to
+ * its first lines if it is long, then "5 pliaj ekzemploj ▾", which says
+ * plainly that there are more; a single one ends with "… legi plu ▾", as
+ * a long remark. Unfolded, all of them, then "Faldi la ekzemplojn ▴". */
 @Composable
 private fun FoldedExamples(
     examples: List<ContentBlock.Example>,
@@ -404,26 +414,55 @@ private fun FoldedExamples(
 ) {
     /* Unfolded at first if the user chose it, and can still be folded */
     val (expanded, setExpanded) = unfoldedState(key, unfolded)
-
-    /* As high as its line, and as wide as the card, which makes it easy
-     * to tap: a button would leave a large empty space around it */
-    Text(
-        stringResource(
-            if (expanded) R.string.examples_shown else R.string.examples_folded,
-            examples.size,
-        ),
-        style = MaterialTheme.typography.labelLarge,
-        color = MaterialTheme.colorScheme.primary,
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable(role = Role.Button) { setExpanded(!expanded) }
-            .padding(top = 8.dp, bottom = 4.dp),
-    )
+    val link = MaterialTheme.colorScheme.primary
 
     if (expanded) {
         for (example in examples)
             ExampleLine(example.text, onLongPress)
+        FoldLink(stringResource(R.string.examples_less), link) { setExpanded(false) }
+        return
     }
+
+    val first = examples.first().text
+    val more = if (examples.size == 1) stringResource(R.string.note_more) else ""
+    /* The example cut at the end of its last shown line, for the width and
+     * the size it was measured with; null while it fits */
+    var folded by remember(first) { mutableStateOf<FoldedNote?>(null) }
+    ExampleLine(
+        folded?.text ?: first,
+        onLongPress,
+        onClick = { setExpanded(true) },
+        /* Measured again when the width or the text size change */
+        onLayout = { view ->
+            val width = view.layout.width
+            val size = view.paint.textSize
+            if (folded?.width != width || folded?.size != size)
+                folded = foldNote(first, view.paint, width, more, link.toArgb(), FOLD_EXAMPLE_ABOVE, FOLDED_EXAMPLE_LINES) {
+                    setExpanded(true)
+                }
+        },
+    )
+    if (examples.size > 1)
+        FoldLink(
+            if (examples.size == 2) stringResource(R.string.examples_one_more)
+            else stringResource(R.string.examples_more, examples.size - 1),
+            link,
+        ) { setExpanded(true) }
+}
+
+/** "5 pliaj ekzemploj ▾", "Faldi la ekzemplojn ▴": as wide as the card,
+ * which makes it easy to tap, without a large empty space around it */
+@Composable
+private fun FoldLink(text: String, color: Color, onClick: () -> Unit) {
+    Text(
+        text,
+        style = MaterialTheme.typography.labelLarge,
+        color = color,
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(role = Role.Button, onClick = onClick)
+            .padding(top = 6.dp, bottom = 4.dp),
+    )
 }
 
 /** A label of the whole word: its field, or its kind. */
@@ -770,16 +809,18 @@ private fun foldNote(
     width: Int,
     more: String,
     linkColor: Int,
+    above: Int = FOLD_NOTES_ABOVE,
+    lines: Int = FOLDED_NOTE_LINES,
     onMore: () -> Unit,
 ): FoldedNote? {
     val layout = android.text.StaticLayout.Builder.obtain(text, 0, text.length, paint, width)
         .setLineSpacing(0f, 1.2f)
         .build()
-    if (layout.lineCount <= FOLD_NOTES_ABOVE)
+    if (layout.lineCount <= above)
         return null
 
     val label = "… $more"
-    val last = FOLDED_NOTE_LINES - 1
+    val last = lines - 1
     var cut = layout.getOffsetForHorizontal(last, width - paint.measureText(label))
         .coerceAtMost(layout.getLineEnd(last))
     /* Between two words, not in one */
@@ -789,7 +830,9 @@ private fun foldNote(
 
     /* "deduktas…", not "deduktas,…" */
     val cutText = android.text.SpannableStringBuilder(text.subSequence(0, cut).trimEnd { it.isWhitespace() || it in ",;:" })
-    /* "…" against the last word, "legi plu ▾" the link */
+    /* "…" against the last word, "legi plu ▾" the link, if there is one */
+    if (more.isEmpty())
+        return FoldedNote(cutText.append("…"), width, paint.textSize)
     cutText.append("… ")
     val start = cutText.length
     cutText.append(more)
@@ -803,9 +846,12 @@ private fun foldNote(
     return FoldedNote(cutText, width, paint.textSize)
 }
 
-/* A remark is folded beyond so many lines, to the first ones */
+/* A remark is folded beyond so many lines, to the first ones; the first
+ * of folded examples too, shorter: the others are a tap away */
 private const val FOLD_NOTES_ABOVE = 8
 private const val FOLDED_NOTE_LINES = 5
+private const val FOLD_EXAMPLE_ABOVE = 3
+private const val FOLDED_EXAMPLE_LINES = 2
 
 /** What the French Wiktionary adds to the French translation of a word,
  * for each of its forms ("kukurbeto, itala kukurbo"); the French word
