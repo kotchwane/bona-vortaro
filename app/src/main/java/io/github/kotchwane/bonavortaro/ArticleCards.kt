@@ -35,6 +35,8 @@ import androidx.compose.ui.text.style.TextDecoration
 import android.net.Uri
 import androidx.compose.runtime.LaunchedEffect
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import androidx.compose.runtime.rememberCoroutineScope
 import kotlinx.coroutines.withContext
 import androidx.compose.ui.res.stringArrayResource
 import android.graphics.Canvas
@@ -359,6 +361,7 @@ private fun ExampleLine(
     onLongPress: (String?) -> Unit,
     onClick: (() -> Unit)? = null,
     onLayout: ((TextView) -> Unit)? = null,
+    modifier: Modifier = Modifier,
 ) {
     val bar = MaterialTheme.colorScheme.outlineVariant
 
@@ -369,7 +372,7 @@ private fun ExampleLine(
         onLongPress = onLongPress,
         onClick = onClick,
         onLayout = onLayout,
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .padding(top = 6.dp)
             .drawBehind { drawRect(bar, size = Size(2.dp.toPx(), size.height)) }
@@ -415,32 +418,52 @@ private fun FoldedExamples(
     /* Unfolded at first if the user chose it, and can still be folded */
     val (expanded, setExpanded) = unfoldedState(key, unfolded)
     val link = MaterialTheme.colorScheme.primary
+    val first = examples.first().text
+    val more = if (examples.size == 1) stringResource(R.string.note_more) else ""
+    /* The first example cut at the end of its last shown line, for the
+     * width and the size it was measured with; null while it fits. Kept
+     * while unfolded, so that folding again doesn't show it whole first */
+    var folded by remember(first) { mutableStateOf<FoldedNote?>(null) }
+    var measured by remember(first) { mutableStateOf(false) }
+    val measure: (TextView) -> Unit = { view ->
+        val width = view.layout.width
+        val size = view.paint.textSize
+        if (!measured || folded?.let { it.width != width || it.size != size } == true) {
+            folded = foldNote(first, view.paint, width, more, link.toArgb(), FOLD_EXAMPLE_ABOVE, FOLDED_EXAMPLE_LINES) {
+                setExpanded(true)
+            }
+            measured = true
+        }
+    }
+    /* Something to unfold: other examples, or the end of the first one */
+    val hidden = examples.size > 1 || folded != null
 
+    val start = remember { BringIntoViewRequester() }
+    val top = topWithRoom()
+    val scope = rememberCoroutineScope()
     if (expanded) {
-        for (example in examples)
+        ExampleLine(first, onLongPress, onLayout = measure, modifier = Modifier.bringIntoViewRequester(start))
+        for (example in examples.drop(1))
             ExampleLine(example.text, onLongPress)
-        FoldLink(stringResource(R.string.examples_less), link) { setExpanded(false) }
+        if (hidden)
+            FoldLink(stringResource(R.string.examples_less), link) {
+                /* Back to the start of the group first: folding removes
+                 * the text above the link, and the list, kept at its
+                 * offset, would land far past the card */
+                scope.launch {
+                    start.bringIntoView(top)
+                    setExpanded(false)
+                }
+            }
         return
     }
 
-    val first = examples.first().text
-    val more = if (examples.size == 1) stringResource(R.string.note_more) else ""
-    /* The example cut at the end of its last shown line, for the width and
-     * the size it was measured with; null while it fits */
-    var folded by remember(first) { mutableStateOf<FoldedNote?>(null) }
     ExampleLine(
         folded?.text ?: first,
         onLongPress,
-        onClick = { setExpanded(true) },
+        onClick = if (hidden) ({ setExpanded(true) }) else null,
         /* Measured again when the width or the text size change */
-        onLayout = { view ->
-            val width = view.layout.width
-            val size = view.paint.textSize
-            if (folded?.width != width || folded?.size != size)
-                folded = foldNote(first, view.paint, width, more, link.toArgb(), FOLD_EXAMPLE_ABOVE, FOLDED_EXAMPLE_LINES) {
-                    setExpanded(true)
-                }
-        },
+        onLayout = measure,
     )
     if (examples.size > 1)
         FoldLink(
@@ -746,9 +769,12 @@ private fun NoteBox(text: CharSequence, key: String, unfolded: Boolean, onLongPr
     var folded by remember(text) { mutableStateOf<FoldedNote?>(null) }
 
     val isFolded = folded != null && !expanded
+    val start = remember { BringIntoViewRequester() }
+    val top = topWithRoom()
+    val scope = rememberCoroutineScope()
 
     Surface(
-        modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
+        modifier = Modifier.fillMaxWidth().padding(top = 8.dp).bringIntoViewRequester(start),
         shape = RoundedCornerShape(10.dp),
         color = MaterialTheme.colorScheme.surfaceContainerHigh,
     ) {
@@ -789,7 +815,13 @@ private fun NoteBox(text: CharSequence, key: String, unfolded: Boolean, onLongPr
                     modifier = Modifier
                         .padding(top = 2.dp)
                         .heightIn(min = 32.dp)
-                        .clickable { setExpanded(false) }
+                        /* Back to its start first, as for the examples */
+                        .clickable {
+                            scope.launch {
+                                start.bringIntoView(top)
+                                setExpanded(false)
+                            }
+                        }
                         .wrapContentHeight(),
                 )
         }
@@ -850,6 +882,13 @@ private fun foldNote(
  * of folded examples too, shorter: the others are a tap away */
 private const val FOLD_NOTES_ABOVE = 8
 private const val FOLDED_NOTE_LINES = 5
+/** The top of a part, to bring into view with room above it, for the
+ * lines before it (the sense of the examples): all of it may not fit */
+@Composable
+private fun topWithRoom(): Rect {
+    val room = with(LocalDensity.current) { 120.dp.toPx() }
+    return Rect(0f, -room, 1f, 1f)
+}
 private const val FOLD_EXAMPLE_ABOVE = 3
 private const val FOLDED_EXAMPLE_LINES = 2
 
@@ -1286,10 +1325,18 @@ fun SourcesLine(
                         if (viki)
                             Source(
                                 stringResource(R.string.sources_viki_editions, vikiName, "eo", "fr"),
-                                stringResource(
-                                    R.string.sources_viki_eo_fr,
-                                    stringResource(if (vikiDescription) R.string.sources_viki_fr_description else R.string.sources_viki_fr_translations),
-                                ),
+                                /* "adaptitaj" for both if the definition was
+                                 * adapted too, else for the French only */
+                                if (vikiEsperanto.adapted)
+                                    stringResource(
+                                        R.string.sources_viki_eo_fr,
+                                        stringResource(if (vikiDescription) R.string.sources_viki_fr_description else R.string.sources_viki_fr_translations),
+                                    )
+                                else
+                                    stringResource(
+                                        R.string.sources_viki_eo_fr_as_is,
+                                        stringResource(if (vikiDescription) R.string.sources_viki_fr_description_adapted else R.string.sources_viki_fr_translations_adapted),
+                                    ),
                                 links = listOf("eo" to VIKI_EO_SITE + page, "fr" to VIKI_SITE + page),
                             )
                         else

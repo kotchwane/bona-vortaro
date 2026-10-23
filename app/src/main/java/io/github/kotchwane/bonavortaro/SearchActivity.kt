@@ -349,10 +349,11 @@ private fun SearchScreen(
      * until the next is ready */
     var analysis by remember { mutableStateOf<ShownAnalysis?>(null) }
     /* Also when only Vikivortaro has the word, and nothing in the
-     * reader's languages to say of it */
+     * reader's languages to say of it: neither a definition from the
+     * Esperanto Wiktionary nor, for them, French */
     val nothingToRead = outcome?.let { found ->
         found.isEmpty || (found.results.isEmpty() && found.lemmas.none { it is FoundWord.InRevo } &&
-            found.wiktionary.all { it.inEsperanto } && !inFrench)
+            found.wiktionary.all { it.inEsperanto && it.definition == null } && !inFrench)
     } == true
     LaunchedEffect(query, nothingToRead, selected, guessWords) {
         if (!nothingToRead || selected != "eo" || isPattern(query) || query.isBlank() || !guessWords) {

@@ -225,14 +225,16 @@ private fun VikiPage(
     val description by produceState<String?>(null, word, inFrench) {
         value = if (inFrench) withContext(Dispatchers.IO) { Vikivortaro.description(context, word) } else null
     }
-    /* Its definition in the Esperanto Wiktionary, for every reader */
-    val definition by produceState<EsperantoDefinition?>(null, word) {
-        value = withContext(Dispatchers.IO) { Vikivortaro.definition(context, word) }
+    /* Its definition in the Esperanto Wiktionary, for every reader; and
+     * whether it was read: until then, the page doesn't know its source */
+    val read by produceState<Pair<Boolean, EsperantoDefinition?>>(false to null, word) {
+        value = true to withContext(Dispatchers.IO) { Vikivortaro.definition(context, word) }
     }
+    val (definitionRead, definition) = read
     /* Without them, how the word may be built, as for a word nobody has:
      * "femurosto", femur + osto */
-    val analysis by produceState<ShownAnalysis?>(null, word, inFrench, guessWords) {
-        value = if (!inFrench && guessWords && withContext(Dispatchers.IO) { Vikivortaro.definition(context, word) } == null)
+    val analysis by produceState<ShownAnalysis?>(null, word, inFrench, guessWords, read) {
+        value = if (definitionRead && definition == null && !inFrench && guessWords)
             withContext(Dispatchers.IO) { WordAnalyses.find(context, word, needsEnding = true) }
         else null
     }
@@ -342,7 +344,7 @@ private fun VikiPage(
                     }
                     if (definition != null || french.isNotEmpty() || description != null || analysis != null)
                         HorizontalDivider(color = muted.copy(alpha = 0.25f))
-                    SourcesLine(
+                    if (definitionRead) SourcesLine(
                         revo = false,
                         /* The French Wiktionary when its French is shown, or
                          * when the word comes from it only */

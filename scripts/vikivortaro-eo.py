@@ -66,8 +66,9 @@ def clean(text):
     text = html.unescape(text)
     # What the labels left out leave: "()", "(, , rare)", "((evitenda))"
     text = re.sub(r",\s*(?=,)", "", text)
-    text = re.sub(r"\(\s*\)", "", text)
     text = re.sub(r"\(\s*(?:,\s*)+", "(", text)
+    text = re.sub(r"(?:\s*,)+\s*\)", ")", text)
+    text = re.sub(r"\(\s*\)", "", text)
     text = re.sub(r"\(\s*\(([^()]*)\)", r"(\1", text)
     text = re.sub(r"\(([^()]*)\)\s*\)", r"(\1)", text)
     # The signs of PIV copied with a definition: its field ("Λ", "🌄") and
@@ -208,9 +209,11 @@ for _, element in ET.iterparse(stream, events=("end",)):
             if m.group(1).strip() != "eo":
                 continue
             section = page[m.end(): languages[i + 1].start() if i + 1 < len(languages) else len(page)]
+            # A page may have several Esperanto sections (homographs):
+            # their senses one after the other
             found = senses(section, clean)
             if found:
-                definitions[title.text] = " ¶ ".join(found)
+                definitions[title.text] = " ¶ ".join(filter(None, [definitions.get(title.text), *found]))
     element.clear()
 
 adapted = set()
