@@ -234,7 +234,7 @@
   <string name="unfold_examples">Ĉiam malfaldi ekzemplojn kaj rimarkojn</string>
   <string name="show_sources">Montri la fontojn de la ekzemploj</string>
   <string name="show_sources_summary">Post ĉiu ekzemplo, el kiu verko ĝi venas: „— Zamenhof, Fundamento de Esperanto“. Tuŝu la fonton por legi la verkon en la reto, kiam ĝi estas tie.</string>
-  <string name="unfold_examples_summary">Montri ĉiujn ekzemplojn kaj la tutan tekston de la longaj rimarkoj, anstataŭ faldi ilin</string>
+  <string name="unfold_examples_summary">Montri la longajn ekzemplojn kaj la tutan tekston de la longaj rimarkoj, anstataŭ faldi ilin</string>
   <string name="translations_order_help">La tradukoj aperas en la artikoloj en ĉi tiu ordo. Tenu lingvon premita por movi ĝin.</string>
   <string name="drag_to_reorder">Tenu kaj movu por ŝanĝi la ordon</string>
   <string name="other_languages">Aliaj lingvoj</string>
