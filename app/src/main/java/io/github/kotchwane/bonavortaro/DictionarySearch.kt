@@ -266,7 +266,7 @@ object DictionarySearch {
             wiktionary.any { it.word.lowercase(Locale.ROOT) == typed } ||
             bonaLingvo.any { it.word.lowercase(Locale.ROOT) == typed }
         if (esperanto && !isPattern(filter) && !exact &&
-            ((found.isEmpty() && wiktionary.isEmpty() && bonaLingvo.isEmpty()) || INFLECTED.matches(typed) || typed in PRONOUNS)) {
+            ((found.isEmpty() && wiktionary.isEmpty()) || INFLECTED.matches(typed) || typed in PRONOUNS)) {
             val lemmas = inflected(context, trie, filter)
             if (lemmas.isNotEmpty())
                 return Found(found, wiktionary.filter { viki -> lemmas.none { it.word == viki.word } }, lemmas, bonaLingvo)

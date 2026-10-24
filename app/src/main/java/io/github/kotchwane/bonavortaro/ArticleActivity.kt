@@ -579,9 +579,11 @@ private fun ArticleScreen(
 
     /* Of every card, not only those drawn: the article may open at a later
      * one, and the credit is due all the same */
-    val articleViki by produceState(false, layout, vikiShown, vikiSearch, searched) {
+    /* Reta Vortaro's layout: the list's remarks, coming after, change no
+     * translation */
+    val articleViki by produceState(false, revoLayout, vikiShown, vikiSearch, searched) {
         value = false
-        val all = layout?.words ?: return@produceState
+        val all = revoLayout?.words ?: return@produceState
         if (vikiShown)
             value = withContext(Dispatchers.IO) {
                 all.any { word ->
@@ -1089,7 +1091,7 @@ private fun RandomRootCard(onClick: () -> Unit, modifier: Modifier = Modifier) {
             val style = MaterialTheme.typography.labelMedium
             val measurer = rememberTextMeasurer()
             val room = with(LocalDensity.current) { (RANDOM_CARD_WIDTH - 12.dp).roundToPx() }
-            val fits = short.split(' ').all { measurer.measure(it, style).size.width <= room }
+            val fits = remember(short, style, room) { short.split(' ').all { measurer.measure(it, style).size.width <= room } }
             if (fits)
                 Text(
                     short,

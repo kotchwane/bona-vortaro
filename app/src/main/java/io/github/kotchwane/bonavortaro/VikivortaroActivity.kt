@@ -17,6 +17,7 @@
 
 package io.github.kotchwane.bonavortaro
 
+import androidx.compose.ui.text.withStyle
 import java.io.IOException
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.buildAnnotatedString
@@ -332,7 +333,8 @@ private fun VikiPage(
                         stringResource(
                             when {
                                 read == null -> R.string.not_in_revo
-                                !(read!!.inViki || french.isNotEmpty() || description != null) -> R.string.from_bl_not_in_revo
+                                !(read!!.inViki || french.isNotEmpty() || description != null) ->
+                                    if (advice != null) R.string.from_bl_not_in_revo else R.string.not_in_revo
                                 advice != null -> R.string.from_viki_bl_not_in_revo
                                 else -> R.string.from_viki_not_in_revo
                             }
@@ -343,7 +345,7 @@ private fun VikiPage(
                     /* What to say instead, each word a link to its page */
                     val sources = read
                     if (advice != null && sources != null)
-                        AdviceText(advice, sources.targets, onOpenEntry, onOpenWord = { VikivortaroActivity.open(context, it) }, firstDefinition = sources.firstDefinition)
+                        AdviceText(advice, sources.targets, sources.withPage, onOpenEntry, onOpenWord = { VikivortaroActivity.open(context, it) }, firstDefinition = sources.firstDefinition)
                     /* The definition in Esperanto, its senses numbered when
                      * there are several */
                     definition?.let { definition ->
@@ -434,6 +436,8 @@ private class PageSources(
     val definition: EsperantoDefinition?,
     val advice: BonaLingvoEntry?,
     val targets: Map<String, SearchResult>,
+    /** The words to say that Reta Vortaro lacks but have a page: Vikivortaro's or the list's */
+    val withPage: Set<String>,
     val firstDefinition: String?,
     val inViki: Boolean,
 ) {
@@ -449,10 +453,15 @@ private class PageSources(
                 index?.let { Vikivortaro.revoEsperanto(it, target.word) }?.let { target.word to it }
             }.toMap()
             val first = advice?.preferred?.firstOrNull()?.let { targets[it.word] }
+            val withPage = advice?.preferred.orEmpty().map { it.word }.filter { it !in targets }.filter { target ->
+                Vikivortaro.esperantoResult(context, target) != null || Vikivortaro.frenchOf(context, target).isNotEmpty() ||
+                    BonaLingvo.entry(context, target) != null
+            }.toSet()
             return PageSources(
                 definition = Vikivortaro.definition(context, word),
                 advice = advice,
                 targets = targets,
+                withPage = withPage,
                 firstDefinition = first?.let { SearchPreviews.get(context, it)?.definition },
                 inViki = Vikivortaro.esperantoResult(context, word) != null || Vikivortaro.frenchOf(context, word).isNotEmpty(),
             )
@@ -468,6 +477,7 @@ private class PageSources(
 private fun AdviceText(
     advice: BonaLingvoEntry,
     targets: Map<String, SearchResult>,
+    withPage: Set<String>,
     onOpenEntry: (SearchResult) -> Unit,
     onOpenWord: (String) -> Unit,
     firstDefinition: String?,
@@ -488,8 +498,11 @@ private fun AdviceText(
                     if (number > 0)
                         append(", ")
                     val found = targets[word]
-                    withLink(LinkAnnotation.Clickable(word, link) { if (found != null) onOpenEntry(found) else onOpenWord(word) }) {
-                        append(word)
+                    when {
+                        found != null -> withLink(LinkAnnotation.Clickable(word, link) { onOpenEntry(found) }) { append(word) }
+                        word in withPage -> withLink(LinkAnnotation.Clickable(word, link) { onOpenWord(word) }) { append(word) }
+                        /* Nowhere to read it: in bold, without a link */
+                        else -> withStyle(SpanStyle(fontWeight = FontWeight.Bold)) { append(word) }
                     }
                 }
                 if (wordsContext.isNotEmpty())

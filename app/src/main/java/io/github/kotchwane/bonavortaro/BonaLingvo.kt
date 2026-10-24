@@ -154,7 +154,8 @@ object BonaLingvo {
                 return@mapNotNull null
             /* Each of its headwords: "faraĉi, fuŝfari" */
             val headwords = word.title.toString().split(",").map { it.trim() }.filter { it.isNotEmpty() }
-            val found = headwords.mapNotNull { headword -> entry(context, headword)?.let { headword to it } }
+            /* As written: "Xyz" the name isn't the list's "xyz" */
+            val found = headwords.mapNotNull { headword -> entries(context)[headword]?.takeIf { it.word == headword }?.let { headword to it } }
             if (found.isEmpty())
                 null
             else
