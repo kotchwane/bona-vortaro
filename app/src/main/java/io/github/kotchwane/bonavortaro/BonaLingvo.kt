@@ -125,7 +125,10 @@ object BonaLingvo {
             )
             found[word] = entry
             /* Also without the case of its first letter, as typed */
-            found.putIfAbsent(word.lowercase(Locale.ROOT), entry)
+            /* Not putIfAbsent: Android 6 lacks it */
+            val small = word.lowercase(Locale.ROOT)
+            if (small !in found)
+                found[small] = entry
         }
         return found
     }
@@ -154,7 +157,8 @@ object BonaLingvo {
                 return@mapNotNull null
             /* Each of its headwords: "faraĉi, fuŝfari" */
             val headwords = word.title.toString().split(",").map { it.trim() }.filter { it.isNotEmpty() }
-            val found = headwords.mapNotNull { headword -> entry(context, headword)?.let { headword to it } }
+            /* As written: "Xyz" the name isn't the list's "xyz" */
+            val found = headwords.mapNotNull { headword -> entries(context)[headword]?.takeIf { it.word == headword }?.let { headword to it } }
             if (found.isEmpty())
                 null
             else

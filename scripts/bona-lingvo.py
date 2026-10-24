@@ -66,6 +66,12 @@ by_word = {}
 for row in rows:
     by_word.setdefault(clean(row["source_word"]), []).append(row)
 
+# The app keeps one context per word: say so if a word ever has several
+for word, word_rows in by_word.items():
+    contexts = {clean(r["source_word_context"]) for r in word_rows}
+    if len(contexts) > 1:
+        print(f"warning: {word} has several contexts {sorted(contexts)}; only the first is kept", file=sys.stderr)
+
 lines = []
 left_out = 0
 for word in sorted(by_word, key=lambda w: (w.lower().strip("-"), w)):
@@ -74,13 +80,13 @@ for word in sorted(by_word, key=lambda w: (w.lower().strip("-"), w)):
     for row in sorted(by_word[word], key=lambda r: (int(r["display_order"] or 0), r["created_at"], r["id"])):
         target = clean(row["target_word"])
         target_context = clean(row["target_word_context"])
+        if not (checked(row["source_annotation"]) and checked(row["target_annotation"])):
+            left_out += 1
+            continue
         if (target, target_context) in seen or not target:
             continue
         seen.add((target, target_context))
         sign = "→" if row["recommendation_type"] == "malrekomendo" else "~"
-        if not (checked(row["source_annotation"]) and checked(row["target_annotation"])):
-            left_out += 1
-            continue
         lines.append("\t".join([word, clean(row["source_word_context"]), sign, target, target_context]))
 
 latest = max(r["updated_at"] for r in rows)[:10]

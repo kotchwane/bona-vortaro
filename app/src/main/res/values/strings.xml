@@ -29,11 +29,11 @@
   <string name="clear">Forviŝi</string>
   <string name="share">Kunhavigi</string>
   <string name="remark">RIMARKO</string>
-  <string name="examples_more">%1$d pliaj ekzemploj ▾</string>
-  <string name="examples_one_more">1 plia ekzemplo ▾</string>
-  <string name="examples_less">Faldi la ekzemplojn ▴</string>
-  <string name="note_more">legi plu ▾</string>
-  <string name="note_less">Faldi la rimarkon ▴</string>
+  <string name="examples_more">%1$d pliaj ekzemploj\u00A0▾</string>
+  <string name="examples_one_more">1 plia ekzemplo\u00A0▾</string>
+  <string name="examples_less">Faldi la ekzemplojn\u00A0▴</string>
+  <string name="note_more">legi plu\u00A0▾</string>
+  <string name="note_less">Faldi la rimarkon\u00A0▴</string>
   <string name="translations">TRADUKOJ</string>
   <string name="more_languages">+ %1$d lingvoj</string>
   <string name="fewer_languages">Malpli da lingvoj</string>
@@ -126,7 +126,7 @@
   <string name="guide_history_title">La lastaj serĉoj</string>
   <string name="guide_history">Kiam nenio estas tajpita, la serĉo montras la vortojn, kiujn vi laste malfermis. Tenu unu premita por forviŝi ĝin. En la agordoj vi povas malŝalti la historion.</string>
   <string name="guide_links_title">Ligiloj kaj ekzemploj</string>
-  <string name="guide_links">La substrekitaj vortoj kondukas al aliaj artikoloj. El longaj ekzemploj aperas nur la unua, kaj „5 pliaj ekzemploj“ montras la aliajn; la longaj rimarkoj montras nur sian komencon: tuŝu por malfaldi ilin, aŭ petu en la agordoj, ke ili ĉiam aperu tutaj. Post ĉiu ekzemplo staras ĝia fonto, la aŭtoro kaj la verko. La signo ↗ montras, ke tuŝo malfermas paĝon ekster la aplikaĵo: la verkon, Vikipedion aŭ Retan Vortaron.</string>
+  <string name="guide_links">La substrekitaj vortoj kondukas al aliaj artikoloj. Se estas multaj ekzemploj, aperas nur la unua, kaj „5 pliaj ekzemploj“ montras la aliajn; la longaj rimarkoj montras nur sian komencon: tuŝu por malfaldi ilin, aŭ petu en la agordoj, ke ili ĉiam aperu tutaj. Post ĉiu ekzemplo staras ĝia fonto, la aŭtoro kaj la verko. La signo ↗ montras, ke tuŝo malfermas paĝon ekster la aplikaĵo: la verkon, Vikipedion aŭ Retan Vortaron.</string>
   <string name="guide_translations_title">Tradukoj</string>
   <string name="guide_translations">La tradukoj aperas en la lingvoj elektitaj en la agordoj („Tradukoj en la artikoloj“), en ilia ordo. „+ N lingvoj“ montras la aliajn. Post la tradukoj de la vorto venas tiuj de ĝiaj ekzemploj, ĉiu post sia ekzemplo, kaj ankaŭ ili troviĝas per la serĉo: _bonjour_ kondukas al „saluton!“, ĉe „saluto“. Tiam la linio de la ekzemplo estas emfazita; tuŝu ĝin por forigi la emfazon.</string>
   <string name="guide_vikivortaro_title">Vikivortaro</string>
@@ -200,6 +200,7 @@
   <!-- What comes from the French Wiktionary, apart from Reta Vortaro -->
   <string name="viki_name">Vikivortaro</string>
   <string name="viki_not_bold">La vortoj ne grasaj venas el Vikivortaro (CC\u00A0BY-SA\u00A04.0).</string>
+  <string name="viki_not_bold_others">La aliaj vortoj ne grasaj venas el Vikivortaro (CC\u00A0BY-SA\u00A04.0).</string>
   <string name="viki_word_source">„%1$s“ venas el Vikivortaro (CC\u00A0BY-SA\u00A04.0).</string>
   <string name="viki_in_french">franca: %1$s</string>
   <string name="not_in_revo">ne en Reta Vortaro</string>
@@ -207,7 +208,7 @@
   <string name="bl_name">Vortoj de la bona lingvo</string>
   <string name="bl_discouraged">malrekomendata</string>
   <string name="bl_preferably">prefere</string>
-  <string name="bl_not_bold">La vortoj ne grasaj kun „prefere“ aŭ „ankaŭ eblas diri“ venas el Vortoj de la bona lingvo.</string>
+  <string name="bl_not_bold">La vortoj ne grasaj kun „prefere …“ aŭ „ankaŭ eblas diri …“ sub ili venas el Vortoj de la bona lingvo.</string>
   <!-- In a remark: "Laŭ Vortoj de la bona lingvo: prefere diru akvokondukilo." -->
   <string name="bl_according">Laŭ %1$s</string>
   <string name="bl_say_instead">prefere diru</string>
@@ -265,7 +266,7 @@
   <string name="unfold_examples">Ĉiam malfaldi ekzemplojn kaj rimarkojn</string>
   <string name="show_sources">Montri la fontojn de la ekzemploj</string>
   <string name="show_sources_summary">Post ĉiu ekzemplo, el kiu verko ĝi venas: „—\u00A0Zamenhof, Fundamento de Esperanto“. Tuŝu la fonton por legi la verkon en la reto, kiam ĝi estas tie.</string>
-  <string name="unfold_examples_summary">Montri la longajn ekzemplojn kaj la tutan tekston de la longaj rimarkoj, anstataŭ faldi ilin</string>
+  <string name="unfold_examples_summary">Montri ĉiujn ekzemplojn kaj la tutan tekston de la longaj rimarkoj, anstataŭ faldi ilin</string>
   <string name="translations_order_help">La tradukoj aperas en la artikoloj en ĉi tiu ordo. Tenu lingvon premita por movi ĝin.</string>
   <string name="drag_to_reorder">Tenu kaj movu por ŝanĝi la ordon</string>
   <string name="other_languages">Aliaj lingvoj</string>

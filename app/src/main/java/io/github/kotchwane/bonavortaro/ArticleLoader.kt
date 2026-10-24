@@ -383,9 +383,11 @@ object ArticleLoader {
                     linked.setSpan(OutsideLinkSpan(number), start, end, 0)
                     linked.setSpan(OutsideSignSpan(), end, end + OUTSIDE.length, 0)
                     linked.setSpan(TtsSpan.TextBuilder(outsideLink).build(), end, end + OUTSIDE.length, 0)
-                    sources.replaceAll { source ->
-                        if (source.first >= end) Triple(source.first + OUTSIDE.length, source.second + OUTSIDE.length, source.third)
-                        else source
+                    /* Not replaceAll: Android 6 lacks it */
+                    for (i in sources.indices) {
+                        val source = sources[i]
+                        if (source.first >= end)
+                            sources[i] = Triple(source.first + OUTSIDE.length, source.second + OUTSIDE.length, source.third)
                     }
                 }
                 text = SpannableString(linked)
