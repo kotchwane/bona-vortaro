@@ -39,6 +39,10 @@ OUT = os.path.join(ROOT, "app", "src", "main", "assets", "vikivortaro", "eo-eo.t
 LANG = re.compile(r"^==\s*\{\{Lingvo\|([^}|]+)\}\}\s*==\s*$", re.M)
 
 
+SUPERSCRIPTS = str.maketrans("0123456789+−-", "⁰¹²³⁴⁵⁶⁷⁸⁹⁺⁻⁻")
+SUBSCRIPTS = str.maketrans("0123456789+−-", "₀₁₂₃₄₅₆₇₈₉₊₋₋")
+
+
 def inner(template):
     """The readable argument of a few templates ({{l|eo|word}}), and the
     labels of style ({{k|eo|S: evitenda}}: "(evitenda)"); the others are
@@ -62,6 +66,9 @@ def clean(text):
         text = re.sub(r"\{\{[^{}]*\}\}", lambda m: inner(m.group(0)), text)
     text = re.sub(r"\[\[(?:[^|\]]*\|)?([^\]]*)\]\]", r"\1", text)
     text = re.sub(r"\[https?://\S+ ([^\]]*)\]", r"\1", text)
+    # "n<sup>2</sup>", "H<sub>2</sub>O" in Unicode, as Reta Vortaro's
+    text = re.sub(r"<sup>([0-9+−-]+)</sup>", lambda m: m.group(1).translate(SUPERSCRIPTS), text)
+    text = re.sub(r"<sub>([0-9+−-]+)</sub>", lambda m: m.group(1).translate(SUBSCRIPTS), text)
     text = re.sub(r"'''?|<[^>]+>", "", text)
     text = html.unescape(text)
     # What the labels left out leave: "()", "(, , rare)", "((evitenda))"

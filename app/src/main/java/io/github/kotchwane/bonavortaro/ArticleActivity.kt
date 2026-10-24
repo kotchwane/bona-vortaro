@@ -1010,7 +1010,7 @@ internal fun NeighbourRoots(neighbours: List<Neighbour?>, onOpen: (Int) -> Unit,
             for ((index, neighbour) in neighbours.withIndex()) {
                 val before = index == 0
                 if (index == 1)
-                    RandomRootCard(onRandom, Modifier.width(84.dp).fillMaxHeight())
+                    RandomRootCard(onRandom, Modifier.width(RANDOM_CARD_WIDTH).fillMaxHeight())
                 if (neighbour == null) {
                     Spacer(Modifier.weight(1f))
                     continue
@@ -1054,6 +1054,8 @@ internal fun NeighbourRoots(neighbours: List<Neighbour?>, onOpen: (Int) -> Unit,
     }
 }
 
+private val RANDOM_CARD_WIDTH = 84.dp
+
 /** The card between the previous and the next roots: a root at random */
 @Composable
 private fun RandomRootCard(onClick: () -> Unit, modifier: Modifier = Modifier) {
@@ -1073,13 +1075,22 @@ private fun RandomRootCard(onClick: () -> Unit, modifier: Modifier = Modifier) {
             verticalArrangement = Arrangement.Center,
         ) {
             Dice(bonaDesign.headword, size = 30.dp)
-            Text(
-                stringResource(R.string.random_root_short),
-                style = MaterialTheme.typography.labelMedium,
-                color = muted,
-                textAlign = TextAlign.Center,
-                modifier = Modifier.padding(top = 8.dp),
-            )
+            /* Its words whole or not at all: with a large text (the
+             * phone's), "hazarda" no longer fits the card, and the dice
+             * says it alone */
+            val short = stringResource(R.string.random_root_short)
+            val style = MaterialTheme.typography.labelMedium
+            val measurer = rememberTextMeasurer()
+            val room = with(LocalDensity.current) { (RANDOM_CARD_WIDTH - 12.dp).roundToPx() }
+            val fits = short.split(' ').all { measurer.measure(it, style).size.width <= room }
+            if (fits)
+                Text(
+                    short,
+                    style = style,
+                    color = muted,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.padding(top = 8.dp),
+                )
         }
     }
 }

@@ -90,15 +90,25 @@ class SourceSpan : CharacterStyle(), ExampleSource {
 class SourceLinkSpan(val number: Int) : ClickableSpan(), ExampleSource {
     override fun updateDrawState(paint: TextPaint) = paler(paint)
 
-    override fun onClick(view: View) {
-        /* No highlight left on it when coming back */
-        ((view as? TextView)?.text as? Spannable)?.let { Selection.removeSelection(it) }
-        val context = view.context
-        /* The addresses are read once, away from the main thread */
-        thread {
-            val url = SourceLinks.url(context, number) ?: return@thread
-            view.post { openOutside(context, Uri.parse(url)) }
-        }
+    override fun onClick(view: View) = openSource(view, number)
+}
+
+/** A link in the text to a page outside the app, ReVo's <url> ("PMEG:
+ * Neoficialaj vortetoj"), its [number] in assets/sources.txt, in the
+ * colour of the links, followed by "↗". */
+class OutsideLinkSpan(val number: Int) : ClickableSpan() {
+    override fun onClick(view: View) = openSource(view, number)
+}
+
+/* Opens the page of the address [number] of assets/sources.txt */
+private fun openSource(view: View, number: Int) {
+    /* No highlight left on it when coming back */
+    ((view as? TextView)?.text as? Spannable)?.let { Selection.removeSelection(it) }
+    val context = view.context
+    /* The addresses are read once, away from the main thread */
+    thread {
+        val url = SourceLinks.url(context, number) ?: return@thread
+        view.post { openOutside(context, Uri.parse(url)) }
     }
 }
 
@@ -190,6 +200,11 @@ object ArticleLoader {
     /* The source of an example, " — Zamenhof, Fundamento de Esperanto",
      * with the number of its address in sources.txt */
     private const val SPAN_SOURCE = 13
+    /* ReVo's <url> in the text, "PMEG: Neoficialaj vortetoj", with the
+     * number of its address in sources.txt */
+    private const val SPAN_LINK = 14
+    private const val SUBSCRIPT_DIGITS = "0123456789+-−=()"
+    private const val SUBSCRIPTS = "₀₁₂₃₄₅₆₇₈₉₊₋₋₌₍₎"
     /* After a source that opens a page outside the app */
     private const val OUTSIDE = "\u00a0" + OUTSIDE_SIGN
 
@@ -304,6 +319,10 @@ object ArticleLoader {
             val misuses = mutableListOf<Pair<Int, Int>>()
             /* The sources of the examples: start, end and address */
             val sources = mutableListOf<Triple<Int, Int, Int>>()
+            /* The links to pages outside the app, the same */
+            val links = mutableListOf<Triple<Int, Int, Int>>()
+            /* The subscripts: start and end */
+            val subscripts = mutableListOf<Pair<Int, Int>>()
 
             while (true) {
                 val spanLength = input.readShort()
@@ -326,6 +345,10 @@ object ArticleLoader {
                     misuses.add(spanStart to spanEnd)
                 else if (spanType == SPAN_SOURCE)
                     sources.add(Triple(spanStart, spanEnd, data1))
+                else if (spanType == SPAN_LINK && data1 > 0)
+                    links.add(Triple(spanStart, spanEnd, data1))
+                else if (spanType == SPAN_SUBSCRIPT)
+                    subscripts.add(spanStart to spanEnd)
                 else
                     for (span in createSpans(spanType, data1, data2))
                         string.setSpan(span, spanStart, spanEnd, 0)
@@ -334,10 +357,44 @@ object ArticleLoader {
             for ((start, end) in misuses)
                 string.setSpan(MisuseSpan(), start, end, 0)
 
+            /* Digits in subscript written as such, "C₂H₅OH", the same
+             * length: a lowered span would make its line taller than the
+             * others. Letters, which Unicode lacks, stay a span */
+            var text = string
+            if (subscripts.isNotEmpty()) {
+                val written = SpannableStringBuilder(string)
+                for ((start, end) in subscripts) {
+                    val digits = written.subSequence(start, end).toString()
+                    if (digits.all { it in SUBSCRIPT_DIGITS })
+                        for (i in start until end)
+                            written.replace(i, i + 1, SUBSCRIPTS[SUBSCRIPT_DIGITS.indexOf(written[i])].toString())
+                    else
+                        for (span in listOf(SubscriptSpan(), RelativeSizeSpan(0.7f)))
+                            written.setSpan(span, start, end, 0)
+                }
+                text = SpannableString(written)
+            }
+
+            /* A link, followed by "↗"; the sources after it move along */
+            if (links.isNotEmpty()) {
+                val linked = SpannableStringBuilder(text)
+                for ((start, end, number) in links.sortedByDescending { it.first }) {
+                    linked.insert(end, OUTSIDE)
+                    linked.setSpan(OutsideLinkSpan(number), start, end, 0)
+                    linked.setSpan(OutsideSignSpan(), end, end + OUTSIDE.length, 0)
+                    linked.setSpan(TtsSpan.TextBuilder(outsideLink).build(), end, end + OUTSIDE.length, 0)
+                    sources.replaceAll { source ->
+                        if (source.first >= end) Triple(source.first + OUTSIDE.length, source.second + OUTSIDE.length, source.third)
+                        else source
+                    }
+                }
+                text = SpannableString(linked)
+            }
+
             if (sources.isEmpty())
-                return string
+                return text
             if (showSources) {
-                val marked = SpannableStringBuilder(string)
+                val marked = SpannableStringBuilder(text)
                 for ((start, end, number) in sources.sortedByDescending { it.first }) {
                     var to = end
                     if (number > 0) {
@@ -367,7 +424,7 @@ object ArticleLoader {
             }
             /* Left out, with the space before them, from the end so that
              * the others stay where they are */
-            val without = SpannableStringBuilder(string)
+            val without = SpannableStringBuilder(text)
             for ((start, end, _) in sources.sortedByDescending { it.first })
                 without.delete(if (start > 0 && without[start - 1] == ' ') start - 1 else start, end)
             return SpannableString(without)
@@ -390,7 +447,6 @@ object ArticleLoader {
                 SPAN_EXAMPLE -> listOf(ExampleSpan())
                 SPAN_LINK_TYPE -> listOf(LinkTypeSpan(data1))
                 SPAN_ABBREVIATION -> listOf(AbbreviationSpan(data1))
-                SPAN_SUBSCRIPT -> listOf(SubscriptSpan(), RelativeSizeSpan(0.7f))
                 SPAN_STRIKETHROUGH -> listOf(StrikethroughSpan())
                 else -> emptyList()
             }

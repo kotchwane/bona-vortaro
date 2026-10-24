@@ -95,7 +95,7 @@ private val PARTS = listOf(
     AboutPart(R.string.about_data_title, R.string.about_data, R.string.about_data_link to RETA_VORTARO_URL),
     AboutPart(
         R.string.about_viki_title, R.string.about_viki, R.string.about_viki_link to VIKIVORTARO_URL,
-        textLink = "CC BY-SA 4.0" to CC_BY_SA_URL,
+        textLink = "CC\u00A0BY-SA\u00A04.0" to CC_BY_SA_URL,
     ),
     AboutPart(R.string.about_copyright_title, R.string.about_copyright),
     AboutPart(R.string.about_warranty_title, R.string.about_warranty, R.string.about_license_link to LICENSE_URL),

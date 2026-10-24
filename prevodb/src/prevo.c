@@ -885,6 +885,8 @@ handle_start_span (WriteData *write_data,
       /* Struck through: written as it is */
     case PDB_SPAN_SOURCE:
       /* The source of an example: written as it is */
+    case PDB_SPAN_LINK:
+      /* A link: written as it is */
     case PDB_SPAN_NONE:
       return;
     }
@@ -926,6 +928,8 @@ handle_end_span (WriteData *write_data,
       /* Struck through: written as it is */
     case PDB_SPAN_SOURCE:
       /* The source of an example: written as it is */
+    case PDB_SPAN_LINK:
+      /* A link: written as it is */
     case PDB_SPAN_NONE:
       return;
     }
