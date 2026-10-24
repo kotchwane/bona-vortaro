@@ -18,6 +18,10 @@
 
 package io.github.kotchwane.bonavortaro
 
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.withStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.AnnotatedString
 import android.content.Intent
 import android.os.Bundle
 import androidx.activity.compose.setContent
@@ -130,6 +134,7 @@ class SearchActivity : BonaActivity() {
         /* Vikivortaro's data, which the search in Esperanto reads too:
          * read meanwhile, rather than at the first word typed */
         lifecycleScope.launch(Dispatchers.IO) { Vikivortaro.preload(applicationContext) }
+        lifecycleScope.launch(Dispatchers.IO) { BonaLingvo.preload(applicationContext) }
 
         searchLanguages = BonaSettings.getSearchLanguages(this)
         selected = (savedInstanceState?.getString(STATE_SELECTED)
@@ -150,6 +155,7 @@ class SearchActivity : BonaActivity() {
                     onLanguageChosen = ::chooseLanguage,
                     onResultClick = ::openArticle,
                     onVikiClick = ::openViki,
+                    onBonaLingvoClick = ::openBonaLingvo,
                     onChooseLanguage = { SelectLanguageActivity.open(this) },
                     onRandomRoot = ::openRandomRoot,
                     onPreferences = { Screens.goPreferences(this) },
@@ -262,6 +268,14 @@ class SearchActivity : BonaActivity() {
         )
     }
 
+    /* A word only "Vortoj de la bona lingvo" has: its page, as a word only
+     * Vikivortaro has; kept in the history */
+    private fun openBonaLingvo(entry: BonaLingvoEntry) {
+        if (keepHistory)
+            lifecycleScope.launch(Dispatchers.IO) { History.add(applicationContext, HistoryEntry("eo", entry.word)) }
+        VikivortaroActivity.open(this, entry.word)
+    }
+
     private fun openArticle(result: SearchResult, language: String) {
         if (keepHistory)
             lifecycleScope.launch(Dispatchers.IO) {
@@ -293,6 +307,7 @@ private fun SearchScreen(
     onLanguageChosen: (String) -> Unit,
     onResultClick: (SearchResult, String) -> Unit,
     onVikiClick: (VikiResult) -> Unit,
+    onBonaLingvoClick: (BonaLingvoEntry) -> Unit,
     onChooseLanguage: () -> Unit,
     onRandomRoot: () -> Unit,
     onPreferences: () -> Unit,
@@ -353,7 +368,7 @@ private fun SearchScreen(
      * Esperanto Wiktionary nor, for them, French */
     val nothingToRead = outcome?.let { found ->
         found.isEmpty || (found.results.isEmpty() && found.lemmas.none { it is FoundWord.InRevo } &&
-            found.wiktionary.all { it.inEsperanto && it.definition == null } && !inFrench)
+            found.wiktionary.all { it.inEsperanto && it.definition == null } && found.bonaLingvo.isEmpty() && !inFrench)
     } == true
     LaunchedEffect(query, nothingToRead, selected, guessWords) {
         if (!nothingToRead || selected != "eo" || isPattern(query) || query.isBlank() || !guessWords) {
@@ -400,6 +415,7 @@ private fun SearchScreen(
                     when (val found = search.found) {
                         is FoundWord.InRevo -> onResultClick(found.result, search.entry.language)
                         is FoundWord.InWiktionary -> onVikiClick(found.result)
+                        is FoundWord.InBonaLingvo -> onBonaLingvoClick(found.entry)
                     }
                 },
                 onRemove = { offerUndo(removed, onRemoveRecent(it)) },
@@ -447,6 +463,7 @@ private fun SearchScreen(
                 inFrench = inFrench,
                 onResultClick = onResultClick,
                 onVikiClick = onVikiClick,
+                onBonaLingvoClick = onBonaLingvoClick,
                 modifier = Modifier.padding(padding).consumeWindowInsets(padding).imePadding(),
             )
         }
@@ -584,6 +601,7 @@ private fun ResultList(
     inFrench: Boolean,
     onResultClick: (SearchResult, String) -> Unit,
     onVikiClick: (VikiResult) -> Unit,
+    onBonaLingvoClick: (BonaLingvoEntry) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val context = LocalContext.current
@@ -630,11 +648,22 @@ private fun ResultList(
                         ResultRow(found.result, wordStyle, inEsperanto, onClick = { onResultClick(found.result, language) }, language = language)
                     is FoundWord.InWiktionary ->
                         VikiResultRow(found.result, onClick = { onVikiClick(found.result) }, inFrench = inFrench)
+                    is FoundWord.InBonaLingvo ->
+                        BonaLingvoRow(found.entry, onClick = { onBonaLingvoClick(found.entry) })
                 }
                 if (index != words.lastIndex)
                     HorizontalDivider(Modifier.padding(horizontal = 20.dp), color = rule)
             }
             /* Where the words not bold come from, quietly, after them */
+            if (outcome.bonaLingvo.isNotEmpty())
+                item {
+                    Text(
+                        stringResource(R.string.bl_not_bold),
+                        style = MaterialTheme.typography.bodySmall.copy(fontStyle = FontStyle.Italic),
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.padding(start = 20.dp, end = 20.dp, top = 12.dp),
+                    )
+                }
             if (outcome.wiktionary.isNotEmpty())
                 item {
                     Text(
@@ -670,6 +699,23 @@ private fun RunningHead(first: String, last: String) {
             modifier = Modifier.padding(horizontal = 10.dp),
         )
         HorizontalDivider(Modifier.weight(1f), color = rule)
+    }
+}
+
+/** "maison → domo": a word of another language, plain, and its
+ * Esperanto, in the colour of the headwords, in the weight of [style]
+ * (bold for Reta Vortaro's); the word alone while the Esperanto is read */
+@Composable
+internal fun translationTitle(foreign: String, esperanto: String?, style: TextStyle): AnnotatedString {
+    val plain = MaterialTheme.colorScheme.onSurface
+    val muted = MaterialTheme.colorScheme.onSurfaceVariant
+    val headword = bonaDesign.headword
+    return buildAnnotatedString {
+        withStyle(SpanStyle(fontWeight = FontWeight.Normal, color = plain)) { append(foreign) }
+        if (!esperanto.isNullOrEmpty()) {
+            withStyle(SpanStyle(fontWeight = FontWeight.Normal, color = muted)) { append(" → ") }
+            withStyle(SpanStyle(fontWeight = style.fontWeight, color = headword)) { append(esperanto) }
+        }
     }
 }
 
@@ -719,8 +765,25 @@ internal fun ResultRow(
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Column(Modifier.weight(1f)) {
+            /* A word of another language: what it is in Esperanto, on its
+             * line, "maison → domo"; the example it is found in, "maison à
+             * colombages → trabfaka domo" */
+            val esperanto = if (inEsperanto) null else example?.example ?: preview?.title
+            /* A word that "Vortoj de la bona lingvo" advises against: marked
+             * so, and what to say instead in place of its definition */
+            val advised = if (inEsperanto) result.word.takeIf { !result.isExample } else esperanto?.takeIf { example == null }
+            val advice by produceState<BonaLingvoEntry?>(null, advised) {
+                value = advised?.let { withContext(Dispatchers.IO) { BonaLingvo.discouraged(context, it) } }
+            }
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(result.word, style = wordStyle, color = bonaDesign.headword, modifier = Modifier.weight(1f))
+                Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.weight(1f)) {
+                    if (inEsperanto)
+                        Text(result.word, style = wordStyle, color = bonaDesign.headword, modifier = Modifier.weight(1f, fill = false))
+                    else
+                        Text(translationTitle(result.word, esperanto, wordStyle), style = wordStyle, modifier = Modifier.weight(1f, fill = false))
+                    if (advice != null)
+                        DiscouragedChip(Modifier.padding(start = 8.dp))
+                }
                 if (label != null)
                     Text(
                         label,
@@ -735,17 +798,11 @@ internal fun ResultRow(
                 val shown = example!!
                 if (inEsperanto)
                     exampleOf + (shown.translation?.let { " — $languageName: " + (if (shown.language == "fr") frenchSpacing(it) else it) } ?: "")
-                else "${shown.example} — $exampleOf"
-            } else preview?.let {
-                when {
-                    inEsperanto -> it.definition
-                    it.definition.isEmpty() -> it.title
-                    else -> "${it.title} — ${it.definition}"
-                }
-            }
+                else exampleOf
+            } else preview?.definition
             /* Keep the height of the row while the preview is loading */
             Text(
-                text ?: "",
+                advice?.let { preferredLine(it) } ?: AnnotatedString(text ?: ""),
                 style = small.copy(fontStyle = FontStyle.Italic),
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 maxLines = 1,
