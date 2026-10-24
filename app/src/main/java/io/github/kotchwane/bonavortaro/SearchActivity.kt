@@ -18,6 +18,9 @@
 
 package io.github.kotchwane.bonavortaro
 
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -667,7 +670,11 @@ private fun ResultList(
             if (outcome.wiktionary.isNotEmpty())
                 item {
                     Text(
-                        stringResource(R.string.viki_not_bold),
+                        stringResource(
+                            /* "The other words not bold" after the list's own: the two
+                             * notes don't contradict each other */
+                            if (outcome.bonaLingvo.isNotEmpty()) R.string.viki_not_bold_others else R.string.viki_not_bold
+                        ),
                         style = MaterialTheme.typography.bodySmall.copy(fontStyle = FontStyle.Italic),
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.padding(horizontal = 20.dp, vertical = 12.dp),
@@ -713,7 +720,8 @@ internal fun translationTitle(foreign: String, esperanto: String?, style: TextSt
     return buildAnnotatedString {
         withStyle(SpanStyle(fontWeight = FontWeight.Normal, color = plain)) { append(foreign) }
         if (!esperanto.isNullOrEmpty()) {
-            withStyle(SpanStyle(fontWeight = FontWeight.Normal, color = muted)) { append(" → ") }
+            /* The arrow goes with the Esperanto when the line wraps */
+            withStyle(SpanStyle(fontWeight = FontWeight.Normal, color = muted)) { append(" →\u00A0") }
             withStyle(SpanStyle(fontWeight = style.fontWeight, color = headword)) { append(esperanto) }
         }
     }
@@ -776,13 +784,19 @@ internal fun ResultRow(
                 value = advised?.let { withContext(Dispatchers.IO) { BonaLingvo.discouraged(context, it) } }
             }
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.weight(1f)) {
+                /* The label after the word, on the next line when it doesn't
+                 * fit: never the word broken to make room for it */
+                FlowRow(
+                    modifier = Modifier.weight(1f),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    itemVerticalAlignment = Alignment.CenterVertically,
+                ) {
                     if (inEsperanto)
-                        Text(result.word, style = wordStyle, color = bonaDesign.headword, modifier = Modifier.weight(1f, fill = false))
+                        Text(result.word, style = wordStyle, color = bonaDesign.headword)
                     else
-                        Text(translationTitle(result.word, esperanto, wordStyle), style = wordStyle, modifier = Modifier.weight(1f, fill = false))
+                        Text(translationTitle(result.word, esperanto, wordStyle), style = wordStyle)
                     if (advice != null)
-                        DiscouragedChip(Modifier.padding(start = 8.dp))
+                        DiscouragedChip()
                 }
                 if (label != null)
                     Text(

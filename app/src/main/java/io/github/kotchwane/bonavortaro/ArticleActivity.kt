@@ -1039,6 +1039,8 @@ internal fun NeighbourRoots(neighbours: List<Neighbour?>, onOpen: (Int) -> Unit,
                             stringResource(if (before) R.string.neighbour_previous else R.string.neighbour_next),
                             style = MaterialTheme.typography.labelMedium,
                             color = muted,
+                            /* Wrapped at a large text, on the side of the root */
+                            textAlign = if (before) TextAlign.Start else TextAlign.End,
                         )
                         Text(
                             neighbour.root,

@@ -17,6 +17,7 @@
 
 package io.github.kotchwane.bonavortaro
 
+import androidx.compose.ui.semantics.clearAndSetSemantics
 import android.text.style.RelativeSizeSpan
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.shape.CircleShape
@@ -713,7 +714,8 @@ fun OfficialBadge(
                 Text(
                     if (level == 0) "F" else "$level",
                     style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold),
-                    modifier = Modifier.padding(horizontal = 6.dp),
+                    /* Read as its label, "1a Oficiala Aldono", not "1" */
+                    modifier = Modifier.padding(horizontal = 6.dp).clearAndSetSemantics {},
                 )
             }
         }

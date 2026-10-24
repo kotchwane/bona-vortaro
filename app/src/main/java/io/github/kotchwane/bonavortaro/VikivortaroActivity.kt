@@ -17,6 +17,9 @@
 
 package io.github.kotchwane.bonavortaro
 
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.ui.text.withStyle
 import java.io.IOException
 import androidx.compose.ui.text.style.TextDecoration
@@ -119,7 +122,13 @@ fun VikiResultRow(
                 value = withContext(Dispatchers.IO) { BonaLingvo.discouraged(context, result.esperanto) }
             }
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.weight(1f)) {
+                /* The label after the word, on the next line when it doesn't
+                 * fit: never the word broken to make room for it */
+                FlowRow(
+                    modifier = Modifier.weight(1f),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    itemVerticalAlignment = Alignment.CenterVertically,
+                ) {
                     /* Not bold: one dictionary, where Reta Vortaro's words,
                      * nearly all of them, keep the weight; the end of the
                      * results says so */
@@ -128,7 +137,6 @@ fun VikiResultRow(
                             result.word,
                             style = MaterialTheme.typography.titleMedium,
                             color = bonaDesign.headword,
-                            modifier = Modifier.weight(1f, fill = false),
                         )
                     /* A French word: "potiron → kukurbo", as Reta Vortaro's,
                      * not bold */
@@ -136,10 +144,9 @@ fun VikiResultRow(
                         Text(
                             translationTitle(result.word, result.esperanto, MaterialTheme.typography.titleMedium),
                             style = MaterialTheme.typography.titleMedium,
-                            modifier = Modifier.weight(1f, fill = false),
                         )
                     if (advice != null)
-                        DiscouragedChip(Modifier.padding(start = 8.dp))
+                        DiscouragedChip()
                 }
                 if (label != null)
                     Text(
@@ -318,15 +325,18 @@ private fun VikiPage(
                         .drawBehind { drawRect(edge, size = Size(4.dp.toPx(), size.height)) }
                         .padding(start = 16.dp, end = 12.dp, top = 12.dp, bottom = 12.dp),
                 ) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
+                    /* The label on the next line rather than the word broken */
+                    FlowRow(
+                        horizontalArrangement = Arrangement.spacedBy(10.dp),
+                        itemVerticalAlignment = Alignment.CenterVertically,
+                    ) {
                         Text(
                             word,
                             style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
                             color = bonaDesign.headword,
-                            modifier = Modifier.weight(1f, fill = false),
                         )
                         if (advice?.discouragedEverywhere == true)
-                            DiscouragedChip(Modifier.padding(start = 10.dp))
+                            DiscouragedChip()
                     }
                     /* Where it comes from, as the search's "laŭ Reta Vortaro" */
                     Text(
@@ -402,7 +412,10 @@ private fun VikiPage(
                 }
             }
             /* Under the card, as in an article */
-            if (read != null) SourcesLine(
+            /* Not without a source to name: a page reached from a word to say
+             * that only has its analysis */
+            val hasSource = read?.let { french.isNotEmpty() || description != null || definition != null || it.inViki || advice != null } == true
+            if (hasSource) SourcesLine(
                 revo = false,
                 /* The French Wiktionary when its French is shown, or
                  * when the word comes from it only */

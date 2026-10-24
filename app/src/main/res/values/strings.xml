@@ -29,11 +29,11 @@
   <string name="clear">Forviŝi</string>
   <string name="share">Kunhavigi</string>
   <string name="remark">RIMARKO</string>
-  <string name="examples_more">%1$d pliaj ekzemploj ▾</string>
-  <string name="examples_one_more">1 plia ekzemplo ▾</string>
-  <string name="examples_less">Faldi la ekzemplojn ▴</string>
-  <string name="note_more">legi plu ▾</string>
-  <string name="note_less">Faldi la rimarkon ▴</string>
+  <string name="examples_more">%1$d pliaj ekzemploj\u00A0▾</string>
+  <string name="examples_one_more">1 plia ekzemplo\u00A0▾</string>
+  <string name="examples_less">Faldi la ekzemplojn\u00A0▴</string>
+  <string name="note_more">legi plu\u00A0▾</string>
+  <string name="note_less">Faldi la rimarkon\u00A0▴</string>
   <string name="translations">TRADUKOJ</string>
   <string name="more_languages">+ %1$d lingvoj</string>
   <string name="fewer_languages">Malpli da lingvoj</string>
@@ -200,6 +200,7 @@
   <!-- What comes from the French Wiktionary, apart from Reta Vortaro -->
   <string name="viki_name">Vikivortaro</string>
   <string name="viki_not_bold">La vortoj ne grasaj venas el Vikivortaro (CC\u00A0BY-SA\u00A04.0).</string>
+  <string name="viki_not_bold_others">La aliaj vortoj ne grasaj venas el Vikivortaro (CC\u00A0BY-SA\u00A04.0).</string>
   <string name="viki_word_source">„%1$s“ venas el Vikivortaro (CC\u00A0BY-SA\u00A04.0).</string>
   <string name="viki_in_french">franca: %1$s</string>
   <string name="not_in_revo">ne en Reta Vortaro</string>
@@ -207,7 +208,7 @@
   <string name="bl_name">Vortoj de la bona lingvo</string>
   <string name="bl_discouraged">malrekomendata</string>
   <string name="bl_preferably">prefere</string>
-  <string name="bl_not_bold">La vortoj ne grasaj kun „prefere“ aŭ „ankaŭ eblas diri“ venas el Vortoj de la bona lingvo.</string>
+  <string name="bl_not_bold">La vortoj ne grasaj kun „prefere …“ aŭ „ankaŭ eblas diri …“ sub ili venas el Vortoj de la bona lingvo.</string>
   <!-- In a remark: "Laŭ Vortoj de la bona lingvo: prefere diru akvokondukilo." -->
   <string name="bl_according">Laŭ %1$s</string>
   <string name="bl_say_instead">prefere diru</string>

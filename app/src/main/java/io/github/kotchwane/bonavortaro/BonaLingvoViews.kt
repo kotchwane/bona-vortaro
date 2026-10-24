@@ -17,6 +17,9 @@
 
 package io.github.kotchwane.bonavortaro
 
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.combinedClickable
@@ -109,15 +112,16 @@ fun BonaLingvoRow(
     ) {
         Column(Modifier.weight(1f)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.weight(1f)) {
-                    Text(
-                        entry.word,
-                        style = MaterialTheme.typography.titleMedium,
-                        color = bonaDesign.headword,
-                        modifier = Modifier.weight(1f, fill = false),
-                    )
+                /* The label after the word, on the next line when it doesn't
+                 * fit: never the word broken to make room for it */
+                FlowRow(
+                    modifier = Modifier.weight(1f),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    itemVerticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Text(entry.word, style = MaterialTheme.typography.titleMedium, color = bonaDesign.headword)
                     if (entry.discouragedEverywhere)
-                        DiscouragedChip(Modifier.padding(start = 8.dp))
+                        DiscouragedChip()
                 }
                 if (label != null)
                     Text(
