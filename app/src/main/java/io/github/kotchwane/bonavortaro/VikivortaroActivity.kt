@@ -463,7 +463,7 @@ private class PageSources(
 /** "Prefere diru rulŝtuparo: Maŝina ŝtuparo, …", as the remark of an
  * article: each word to say a link to its article when Reta Vortaro has
  * it, else to its page if it has one; the first one's definition after
- * it; whether the group has yet to check it. */
+ * it. */
 @Composable
 private fun AdviceText(
     advice: BonaLingvoEntry,
@@ -505,12 +505,5 @@ private fun AdviceText(
             firstDefinition,
             style = MaterialTheme.typography.bodyMedium.copy(fontStyle = FontStyle.Italic),
             color = muted,
-        )
-    if (!advice.checked)
-        Text(
-            stringResource(R.string.bl_unchecked),
-            style = MaterialTheme.typography.bodySmall.copy(fontStyle = FontStyle.Italic),
-            color = muted,
-            modifier = Modifier.padding(top = 6.dp),
         )
 }

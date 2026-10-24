@@ -18,11 +18,15 @@
 # sources ("fun", "1oa"…, "PIV", "ReVo": the last two not yet checked by
 # the group), and the order of the simplifications of a word.
 #
+# Only what the working group has checked is kept (the user's decision,
+# 2026-10-24): a line whose word or word to say comes from PIV or Reta
+# Vortaro without the group's check ("PIV", "ReVo" in its annotations) is
+# left out, and a word left without any line with it.
+#
 # Writes app/src/main/assets/bonalingvo/bl.tsv, one line per
 # simplification, the words in alphabetical order, the simplifications of a
 # word in the group's order. Columns: the word, its context, "→" or "~",
-# the word to say, its context, and "1" if the group has checked it, else
-# "0".
+# the word to say, its context.
 import csv
 import os
 import sys
@@ -63,6 +67,7 @@ for row in rows:
     by_word.setdefault(clean(row["source_word"]), []).append(row)
 
 lines = []
+left_out = 0
 for word in sorted(by_word, key=lambda w: (w.lower().strip("-"), w)):
     seen = set()
     # The group's order; for the same number, the older line first
@@ -73,8 +78,10 @@ for word in sorted(by_word, key=lambda w: (w.lower().strip("-"), w)):
             continue
         seen.add((target, target_context))
         sign = "→" if row["recommendation_type"] == "malrekomendo" else "~"
-        ok = checked(row["source_annotation"]) and checked(row["target_annotation"])
-        lines.append("\t".join([word, clean(row["source_word_context"]), sign, target, target_context, "1" if ok else "0"]))
+        if not (checked(row["source_annotation"]) and checked(row["target_annotation"])):
+            left_out += 1
+            continue
+        lines.append("\t".join([word, clean(row["source_word_context"]), sign, target, target_context]))
 
 latest = max(r["updated_at"] for r in rows)[:10]
 os.makedirs(os.path.dirname(OUT), exist_ok=True)
@@ -82,7 +89,8 @@ with open(OUT, "w", encoding="utf-8") as f:
     f.write("# Vortoj de la bona lingvo (labonalingvo.org), by Renato Corsetti and the working group of La Bona Lingvo,\n"
             "# used with their permission; not under the GPL. With scripts/bona-lingvo.py from data/bona-lingvo.csv.\n"
             f"# Version: {latest} (its last change).\n"
-            "# Columns: the word, its context, \"→\" (advised against) or \"~\" (an alternative), the word to say, its\n"
-            "# context, \"1\" if checked by the group (else \"0\").\n")
+            "# Only what the working group has checked. Columns: the word, its context, \"→\" (advised against) or\n"
+            "# \"~\" (an alternative), the word to say, its context.\n")
     f.write("\n".join(lines) + "\n")
-print(f"{len(by_word)} words, {len(lines)} simplifications, version {latest}")
+kept = {line.split("\t")[0] for line in lines}
+print(f"{len(kept)} words, {len(lines)} simplifications ({left_out} not yet checked, left out), version {latest}")

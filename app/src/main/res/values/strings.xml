@@ -212,7 +212,6 @@
   <string name="bl_according">Laŭ %1$s</string>
   <string name="bl_say_instead">prefere diru</string>
   <string name="bl_also_say">ankaŭ eblas diri</string>
-  <string name="bl_unchecked">(Ankoraŭ ne kontrolita de la laborgrupo.)</string>
   <string name="sources_bl">la rimarkoj pri malrekomendataj vortoj kaj iliaj alternativoj</string>
   <string name="from_viki_not_in_revo">el Vikivortaro · ne en Reta Vortaro</string>
   <string name="from_bl_not_in_revo">el Vortoj de la bona lingvo · ne en Reta Vortaro</string>
@@ -248,7 +247,7 @@
   <string name="about_viki">Kelkaj vortoj kaj tradukoj, kiujn la Reta Vortaro ne havas, venas el Vikivortaro: francaj tradukoj kaj priskriboj el fr.wiktionary.org, kaj la difinoj de kelkcent esperantaj vortoj el eo.wiktionary.org, elektitaj unu post la alia. En la artikoloj ili havas punktitan substrekon, en la serĉo ili ne estas grasaj. Vikivortaro estas verkita de ĝiaj kontribuantoj kaj publikigita laŭ la permesilo CC\u00A0BY-SA\u00A04.0. Tiuj tradukoj kaj difinoj estas elektitaj kaj adaptitaj por Bona vortaro, kaj restas apartaj de la Reta Vortaro.</string>
   <string name="about_viki_link">Vikivortaro</string>
   <string name="about_bl_title">Vortoj de la bona lingvo</string>
-  <string name="about_bl">La vortoj „malrekomendataj“ kaj tio, kion diri anstataŭe, venas el „Vortoj de la bona lingvo“, de Renato Corsetti kaj la laborgrupo de La Bona Lingvo, laŭ ilia permeso. Iuj ankoraŭ ne estas kontrolitaj de la laborgrupo, kaj la rimarkoj diras tion.</string>
+  <string name="about_bl">La vortoj „malrekomendataj“ kaj tio, kion diri anstataŭe, venas el „Vortoj de la bona lingvo“, de Renato Corsetti kaj la laborgrupo de La Bona Lingvo, laŭ ilia permeso. Bona vortaro montras nur tion, kion la laborgrupo jam kontrolis.</string>
   <string name="about_bl_link">labonalingvo.org</string>
   <string name="about_data_link">La Reta Vortaro</string>
   <string name="about_copyright_title">Kopirajto</string>

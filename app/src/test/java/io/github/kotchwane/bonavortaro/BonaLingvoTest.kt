@@ -24,7 +24,7 @@ import org.junit.Test
 
 class BonaLingvoTest {
     private fun advice(word: String, context: String = "", vararg targets: Pair<String, String>) =
-        BonaLingvoEntry(word, context, targets.map { Simplification(it.first, it.second, discouraged = true, checked = true) })
+        BonaLingvoEntry(word, context, targets.map { Simplification(it.first, it.second, discouraged = true) })
 
     @Test
     fun aWordAdvisedAgainstWithoutContextIsSoEverywhere() {

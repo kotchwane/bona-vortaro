@@ -29,8 +29,8 @@ import java.util.Locale
 /** A word to say instead of another: [word], in its [context] ("(en la
  * faka lingvo)"), "" if none; whether the other is advised against
  * ("malrekomendo", →) or only has this simpler alternative ("alternativo",
- * ~); whether the group has checked it. */
-class Simplification(val word: String, val context: String, val discouraged: Boolean, val checked: Boolean)
+ * ~). Only those the working group has checked are in the app. */
+class Simplification(val word: String, val context: String, val discouraged: Boolean)
 
 /** A word of "Vortoj de la bona lingvo", in its [context] ("(en gramatiko)"),
  * "" if none, with the words to say instead, in the group's order. */
@@ -40,9 +40,6 @@ class BonaLingvoEntry(val word: String, val context: String, val simplifications
 
     /** The words to say instead: those of the advice against it, if any */
     val preferred: List<Simplification> get() = simplifications.filter { it.discouraged == discouraged }
-
-    /** Checked by the group: the words from PIV or Reta Vortaro aren't yet */
-    val checked: Boolean get() = preferred.all { it.checked }
 
     /** The advice is for some senses or uses only: the word has a context
      * ("afero (en la senco de konkreta aĵo)"), or every word to say has one
@@ -78,8 +75,8 @@ class BonaLingvoEntry(val word: String, val context: String, val simplifications
 /**
  * "Vortoj de la bona lingvo" (labonalingvo.org), by Renato Corsetti and the
  * working group of La Bona Lingvo: neologisms, and the Esperanto words to
- * say instead, in Claude Piron's spirit. Used with their permission; not
- * under the GPL. In assets/bonalingvo/bl.tsv, written by
+ * say instead, in Claude Piron's spirit; only what the group has checked.
+ * Used with their permission; not under the GPL. In assets/bonalingvo/bl.tsv, written by
  * scripts/bona-lingvo.py from data/bona-lingvo.csv.
  */
 object BonaLingvo {
@@ -112,7 +109,7 @@ object BonaLingvo {
     private fun load(context: Context): Map<String, BonaLingvoEntry> {
         val lines = try {
             context.assets.open("bonalingvo/bl.tsv").bufferedReader().useLines { lines ->
-                lines.filter { !it.startsWith("#") && it.isNotBlank() }.map { it.split('\t') }.filter { it.size == 6 }.toList()
+                lines.filter { !it.startsWith("#") && it.isNotBlank() }.map { it.split('\t') }.filter { it.size == 5 }.toList()
             }
         } catch (e: IOException) {
             Log.w(TAG, "Failed to read the list")
@@ -124,7 +121,7 @@ object BonaLingvo {
             val entry = BonaLingvoEntry(
                 word,
                 lines[0][1],
-                lines.map { Simplification(it[3], it[4], it[2] == "→", it[5] == "1") },
+                lines.map { Simplification(it[3], it[4], it[2] == "→") },
             )
             found[word] = entry
             /* Also without the case of its first letter, as typed */
@@ -204,8 +201,6 @@ object BonaLingvo {
                     append(" $wordsContext")
             }
             append(".")
-            if (!entry.checked)
-                append(" " + context.getString(R.string.bl_unchecked))
         }
 
     /** The words of the list starting with the query that neither Reta
