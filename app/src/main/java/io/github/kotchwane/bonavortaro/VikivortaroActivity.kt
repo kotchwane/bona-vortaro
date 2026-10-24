@@ -324,7 +324,7 @@ private fun VikiPage(
                             color = bonaDesign.headword,
                             modifier = Modifier.weight(1f, fill = false),
                         )
-                        if (advice?.discouraged == true)
+                        if (advice?.discouragedEverywhere == true)
                             DiscouragedChip(Modifier.padding(start = 10.dp))
                     }
                     /* Where it comes from, as the search's "laŭ Reta Vortaro" */
@@ -481,15 +481,19 @@ private fun AdviceText(
                 append("${advice.context} ")
             append(stringResource(if (advice.discouraged) R.string.bl_say_instead else R.string.bl_also_say).replaceFirstChar { it.uppercase() })
             append(" ")
-            preferred.forEachIndexed { number, target ->
-                if (number > 0)
-                    append(", ")
-                val found = targets[target.word]
-                withLink(LinkAnnotation.Clickable(target.word, link) { if (found != null) onOpenEntry(found) else onOpenWord(target.word) }) {
-                    append(target.word)
+            advice.groups.forEachIndexed { group, (words, wordsContext) ->
+                if (group > 0)
+                    append("; ")
+                words.forEachIndexed { number, word ->
+                    if (number > 0)
+                        append(", ")
+                    val found = targets[word]
+                    withLink(LinkAnnotation.Clickable(word, link) { if (found != null) onOpenEntry(found) else onOpenWord(word) }) {
+                        append(word)
+                    }
                 }
-                if (target.context.isNotEmpty())
-                    append(" ${target.context}")
+                if (wordsContext.isNotEmpty())
+                    append(" $wordsContext")
             }
             append(if (firstDefinition != null && preferred.size == 1) ":" else ".")
         },

@@ -68,13 +68,21 @@ fun DiscouragedChip(modifier: Modifier = Modifier) {
 @Composable
 fun preferredLine(entry: BonaLingvoEntry): AnnotatedString {
     val headword = bonaDesign.headword
-    val preferred = entry.preferred
     return buildAnnotatedString {
+        /* With the contexts when the advice is for some senses only */
+        if (entry.limited && entry.context.isNotEmpty())
+            append("${entry.context} ")
         append(stringResource(if (entry.discouraged) R.string.bl_preferably else R.string.bl_also_say) + " ")
-        preferred.forEachIndexed { index, it ->
-            if (index > 0)
-                append(", ")
-            withStyle(SpanStyle(fontStyle = FontStyle.Normal, fontWeight = FontWeight.Bold, color = headword)) { append(it.word) }
+        entry.groups.forEachIndexed { group, (words, context) ->
+            if (group > 0)
+                append("; ")
+            words.forEachIndexed { index, word ->
+                if (index > 0)
+                    append(", ")
+                withStyle(SpanStyle(fontStyle = FontStyle.Normal, fontWeight = FontWeight.Bold, color = headword)) { append(word) }
+            }
+            if (context.isNotEmpty())
+                append(" $context")
         }
     }
 }
@@ -108,7 +116,7 @@ fun BonaLingvoRow(
                         color = bonaDesign.headword,
                         modifier = Modifier.weight(1f, fill = false),
                     )
-                    if (entry.discouraged)
+                    if (entry.discouragedEverywhere)
                         DiscouragedChip(Modifier.padding(start = 8.dp))
                 }
                 if (label != null)

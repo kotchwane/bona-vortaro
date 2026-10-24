@@ -43,6 +43,36 @@ class BonaLingvoEntry(val word: String, val context: String, val simplifications
 
     /** Checked by the group: the words from PIV or Reta Vortaro aren't yet */
     val checked: Boolean get() = preferred.all { it.checked }
+
+    /** The advice is for some senses or uses only: the word has a context
+     * ("afero (en la senco de konkreta aĵo)"), or every word to say has one
+     * ("brava": "obeema (en la senco de obeema, trankvila)", "brile (al
+     * artistoj)"), which doesn't say "laŭ la kunteksto". Such a word isn't
+     * marked "malrekomendata" in the search: "courageux → brava" is right;
+     * its article says in which senses. A word whose senses all have their
+     * word ("agendo": "tagordo (se temas pri listo…)", "taglibro (…)") is so
+     * too, its article saying what to say. */
+    val limited: Boolean
+        get() = (context.isNotEmpty() && context !in GENERAL) || preferred.all { it.context.isNotEmpty() && it.context !in GENERAL }
+
+    /** Advised against in all its senses */
+    val discouragedEverywhere: Boolean get() = discouraged && !limited
+
+    /** The words to say, those with the same context together, in order:
+     * "obeema, trankvila, bonkonduta" "(en la senco de obeema, trankvila)",
+     * "brile, lerte" "(al artistoj)" */
+    val groups: List<Pair<List<String>, String>>
+        get() = preferred.fold(mutableListOf<Pair<MutableList<String>, String>>()) { groups, it ->
+            groups.apply {
+                if (isNotEmpty() && last().second == it.context) last().first.add(it.word)
+                else add(mutableListOf(it.word) to it.context)
+            }
+        }
+
+    private companion object {
+        /* Contexts that don't limit the advice */
+        val GENERAL = setOf("(laŭ la kunteksto)", "(laŭ la senco)", "(laŭ la signifo)", "(ĝenerale)", "(generale)")
+    }
 }
 
 /**
@@ -157,17 +187,21 @@ object BonaLingvo {
             append(": ")
             append(context.getString(if (entry.discouraged) R.string.bl_say_instead else R.string.bl_also_say))
             append(" ")
-            entry.preferred.forEachIndexed { number, it ->
-                if (number > 0)
-                    append(", ")
-                val start = length
-                append(it.word)
-                /* A link, to the word itself, when Reta Vortaro has it */
-                index?.let { index -> Vikivortaro.revoEsperanto(index, it.word) }?.let { found ->
-                    setSpan(ReferenceSpan(found.article, found.mark), start, length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+            entry.groups.forEachIndexed { group, (words, wordsContext) ->
+                if (group > 0)
+                    append("; ")
+                words.forEachIndexed { number, word ->
+                    if (number > 0)
+                        append(", ")
+                    val start = length
+                    append(word)
+                    /* A link, to the word itself, when Reta Vortaro has it */
+                    index?.let { index -> Vikivortaro.revoEsperanto(index, word) }?.let { found ->
+                        setSpan(ReferenceSpan(found.article, found.mark), start, length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+                    }
                 }
-                if (it.context.isNotEmpty())
-                    append(" ${it.context}")
+                if (wordsContext.isNotEmpty())
+                    append(" $wordsContext")
             }
             append(".")
             if (!entry.checked)
@@ -202,5 +236,5 @@ object BonaLingvo {
 
     /** The entry of a word, if the group advises against it. Disk access:
      * not on the main thread. */
-    fun discouraged(context: Context, word: String): BonaLingvoEntry? = entry(context, word)?.takeIf { it.discouraged }
+    fun discouraged(context: Context, word: String): BonaLingvoEntry? = entry(context, word)?.takeIf { it.discouragedEverywhere }
 }
