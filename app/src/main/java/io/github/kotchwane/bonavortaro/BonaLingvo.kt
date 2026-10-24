@@ -56,16 +56,28 @@ object BonaLingvo {
     private const val TAG = "bonalingvo"
     const val SITE = "https://labonalingvo.org/"
 
-    @Volatile private var entries: Map<String, BonaLingvoEntry>? = null
+    private const val MAX_RESULTS = 64
+    private const val MAX_LOOKED_AT = 400
+
+    /** The entries by their word (and in small letters), and in the order
+     * of their keys, for the search */
+    private class Data(val byWord: Map<String, BonaLingvoEntry>, val keys: List<String>, val sorted: List<BonaLingvoEntry>)
+
+    @Volatile private var data: Data? = null
 
     /** Reads the list ahead of the first search. Disk access: not on the
      * main thread. */
     fun preload(context: Context) {
-        entries(context)
+        data(context)
     }
 
     @Synchronized
-    private fun entries(context: Context): Map<String, BonaLingvoEntry> = entries ?: load(context).also { entries = it }
+    private fun data(context: Context): Data = data ?: load(context).let { byWord ->
+        val sorted = byWord.values.distinct().sortedBy { Vikivortaro.key(it.word) }
+        Data(byWord, sorted.map { Vikivortaro.key(it.word) }, sorted)
+    }.also { data = it }
+
+    private fun entries(context: Context): Map<String, BonaLingvoEntry> = data(context).byWord
 
     private fun load(context: Context): Map<String, BonaLingvoEntry> {
         val lines = try {
@@ -161,6 +173,32 @@ object BonaLingvo {
             if (!entry.checked)
                 append(" " + context.getString(R.string.bl_unchecked))
         }
+
+    /** The words of the list starting with the query that neither Reta
+     * Vortaro nor Vikivortaro has (their rows say what the list says of
+     * theirs), in the order of the search in Esperanto. Disk access: not on
+     * the main thread. */
+    fun search(context: Context, query: String, index: Trie, stopped: () -> Boolean = { false }): List<BonaLingvoEntry> {
+        val data = data(context)
+        val typed = query.lowercase(Locale.ROOT).trim()
+        val prefix = Vikivortaro.key(typed)
+        if (prefix.isEmpty())
+            return emptyList()
+        var i = data.keys.binarySearch(prefix).let { if (it < 0) -it - 1 else it }
+        while (i > 0 && data.keys[i - 1].startsWith(prefix)) i--
+        val results = mutableListOf<BonaLingvoEntry>()
+        var looked = 0
+        while (i < data.keys.size && data.keys[i].startsWith(prefix) && looked < MAX_LOOKED_AT &&
+            (looked % 16 != 0 || !stopped())) {
+            val entry = data.sorted[i++]
+            if (!Vikivortaro.matches(typed, entry.word))
+                continue
+            looked++
+            if (Vikivortaro.revoEsperanto(index, entry.word) == null)
+                results.add(entry)
+        }
+        return results.sortedBy { sortKey(it.word, esperanto = true) }.take(MAX_RESULTS)
+    }
 
     /** The entry of a word, if the group advises against it. Disk access:
      * not on the main thread. */

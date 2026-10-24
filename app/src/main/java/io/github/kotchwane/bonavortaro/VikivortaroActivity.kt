@@ -17,6 +17,13 @@
 
 package io.github.kotchwane.bonavortaro
 
+import java.io.IOException
+import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.withLink
+import androidx.compose.ui.text.TextLinkStyles
+import androidx.compose.ui.text.LinkAnnotation
 import androidx.compose.ui.text.AnnotatedString
 import android.content.Context
 import android.content.Intent
@@ -244,16 +251,19 @@ private fun VikiPage(
     val description by produceState<String?>(null, word, inFrench) {
         value = if (inFrench) withContext(Dispatchers.IO) { Vikivortaro.description(context, word) } else null
     }
-    /* Its definition in the Esperanto Wiktionary, for every reader; and
-     * whether it was read: until then, the page doesn't know its source */
-    val read by produceState<Pair<Boolean, EsperantoDefinition?>>(false to null, word) {
-        value = true to withContext(Dispatchers.IO) { Vikivortaro.definition(context, word) }
+    /* Its definition in the Esperanto Wiktionary, for every reader; what
+     * "Vortoj de la bona lingvo" says of it; and whether they were read:
+     * until then, the page doesn't know its sources */
+    val read by produceState<PageSources?>(null, word) {
+        value = withContext(Dispatchers.IO) { PageSources.read(context, word) }
     }
-    val (definitionRead, definition) = read
+    val definitionRead = read != null
+    val definition = read?.definition
+    val advice = read?.advice
     /* Without them, how the word may be built, as for a word nobody has:
      * "femurosto", femur + osto */
     val analysis by produceState<ShownAnalysis?>(null, word, inFrench, guessWords, read) {
-        value = if (definitionRead && definition == null && !inFrench && guessWords)
+        value = if (definitionRead && definition == null && advice == null && !inFrench && guessWords)
             withContext(Dispatchers.IO) { WordAnalyses.find(context, word, needsEnding = true) }
         else null
     }
@@ -307,17 +317,33 @@ private fun VikiPage(
                         .drawBehind { drawRect(edge, size = Size(4.dp.toPx(), size.height)) }
                         .padding(start = 16.dp, end = 12.dp, top = 12.dp, bottom = 12.dp),
                 ) {
-                    Text(
-                        word,
-                        style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
-                        color = bonaDesign.headword,
-                    )
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text(
+                            word,
+                            style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
+                            color = bonaDesign.headword,
+                            modifier = Modifier.weight(1f, fill = false),
+                        )
+                        if (advice?.discouraged == true)
+                            DiscouragedChip(Modifier.padding(start = 10.dp))
+                    }
                     /* Where it comes from, as the search's "laŭ Reta Vortaro" */
                     Text(
-                        stringResource(R.string.from_viki_not_in_revo),
+                        stringResource(
+                            when {
+                                read == null -> R.string.not_in_revo
+                                !(read!!.inViki || french.isNotEmpty() || description != null) -> R.string.from_bl_not_in_revo
+                                advice != null -> R.string.from_viki_bl_not_in_revo
+                                else -> R.string.from_viki_not_in_revo
+                            }
+                        ),
                         style = MaterialTheme.typography.bodySmall.copy(fontStyle = FontStyle.Italic),
                         color = muted,
                     )
+                    /* What to say instead, each word a link to its page */
+                    val sources = read
+                    if (advice != null && sources != null)
+                        AdviceText(advice, sources.targets, onOpenEntry, onOpenWord = { VikivortaroActivity.open(context, it) }, firstDefinition = sources.firstDefinition)
                     /* The definition in Esperanto, its senses numbered when
                      * there are several */
                     definition?.let { definition ->
@@ -374,14 +400,15 @@ private fun VikiPage(
                 }
             }
             /* Under the card, as in an article */
-            if (definitionRead) SourcesLine(
+            if (read != null) SourcesLine(
                 revo = false,
                 /* The French Wiktionary when its French is shown, or
                  * when the word comes from it only */
-                viki = french.isNotEmpty() || description != null || definition == null,
+                viki = french.isNotEmpty() || description != null || (definition == null && read!!.inViki),
                 vikiWord = word,
                 vikiDescription = french.isNotEmpty() || description != null,
                 vikiEsperanto = definition,
+                bonaLingvo = advice != null,
                 modifier = Modifier.padding(horizontal = 8.dp, vertical = 10.dp),
             )
             neighbours?.let {
@@ -396,4 +423,90 @@ private fun VikiPage(
         }
       }
     }
+}
+
+/** What the page of a word Reta Vortaro doesn't have shows, read off the
+ * main thread: its definition from the Esperanto Wiktionary, what "Vortoj
+ * de la bona lingvo" says of it with Reta Vortaro's entries of the words to
+ * say, and the definition of the first one; whether Vikivortaro has the
+ * word at all. */
+private class PageSources(
+    val definition: EsperantoDefinition?,
+    val advice: BonaLingvoEntry?,
+    val targets: Map<String, SearchResult>,
+    val firstDefinition: String?,
+    val inViki: Boolean,
+) {
+    companion object {
+        fun read(context: Context, word: String): PageSources {
+            val advice = BonaLingvo.entry(context, word)
+            val index = try {
+                TrieCache.getTrie(context, "eo")
+            } catch (e: IOException) {
+                null
+            }
+            val targets = advice?.preferred.orEmpty().mapNotNull { target ->
+                index?.let { Vikivortaro.revoEsperanto(it, target.word) }?.let { target.word to it }
+            }.toMap()
+            val first = advice?.preferred?.firstOrNull()?.let { targets[it.word] }
+            return PageSources(
+                definition = Vikivortaro.definition(context, word),
+                advice = advice,
+                targets = targets,
+                firstDefinition = first?.let { SearchPreviews.get(context, it)?.definition },
+                inViki = Vikivortaro.esperantoResult(context, word) != null || Vikivortaro.frenchOf(context, word).isNotEmpty(),
+            )
+        }
+    }
+}
+
+/** "Prefere diru rulŝtuparo: Maŝina ŝtuparo, …", as the remark of an
+ * article: each word to say a link to its article when Reta Vortaro has
+ * it, else to its page if it has one; the first one's definition after
+ * it; whether the group has yet to check it. */
+@Composable
+private fun AdviceText(
+    advice: BonaLingvoEntry,
+    targets: Map<String, SearchResult>,
+    onOpenEntry: (SearchResult) -> Unit,
+    onOpenWord: (String) -> Unit,
+    firstDefinition: String?,
+) {
+    val link = TextLinkStyles(SpanStyle(color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Bold, textDecoration = TextDecoration.Underline))
+    val muted = MaterialTheme.colorScheme.onSurfaceVariant
+    val preferred = advice.preferred
+    Text(
+        buildAnnotatedString {
+            if (advice.context.isNotEmpty())
+                append("${advice.context} ")
+            append(stringResource(if (advice.discouraged) R.string.bl_say_instead else R.string.bl_also_say).replaceFirstChar { it.uppercase() })
+            append(" ")
+            preferred.forEachIndexed { number, target ->
+                if (number > 0)
+                    append(", ")
+                val found = targets[target.word]
+                withLink(LinkAnnotation.Clickable(target.word, link) { if (found != null) onOpenEntry(found) else onOpenWord(target.word) }) {
+                    append(target.word)
+                }
+                if (target.context.isNotEmpty())
+                    append(" ${target.context}")
+            }
+            append(if (firstDefinition != null && preferred.size == 1) ":" else ".")
+        },
+        style = MaterialTheme.typography.bodyLarge,
+        modifier = Modifier.padding(top = 10.dp),
+    )
+    if (firstDefinition != null && preferred.size == 1)
+        Text(
+            firstDefinition,
+            style = MaterialTheme.typography.bodyMedium.copy(fontStyle = FontStyle.Italic),
+            color = muted,
+        )
+    if (!advice.checked)
+        Text(
+            stringResource(R.string.bl_unchecked),
+            style = MaterialTheme.typography.bodySmall.copy(fontStyle = FontStyle.Italic),
+            color = muted,
+            modifier = Modifier.padding(top = 6.dp),
+        )
 }

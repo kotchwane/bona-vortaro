@@ -207,6 +207,7 @@
   <string name="bl_name">Vortoj de la bona lingvo</string>
   <string name="bl_discouraged">malrekomendata</string>
   <string name="bl_preferably">prefere</string>
+  <string name="bl_not_bold">La vortoj ne grasaj kun „prefere“ aŭ „ankaŭ eblas diri“ venas el Vortoj de la bona lingvo.</string>
   <!-- In a remark: "Laŭ Vortoj de la bona lingvo: prefere diru akvokondukilo." -->
   <string name="bl_according">Laŭ %1$s</string>
   <string name="bl_say_instead">prefere diru</string>
@@ -214,6 +215,8 @@
   <string name="bl_unchecked">(Ankoraŭ ne kontrolita de la laborgrupo.)</string>
   <string name="sources_bl">la rimarkoj pri malrekomendataj vortoj kaj iliaj alternativoj</string>
   <string name="from_viki_not_in_revo">el Vikivortaro · ne en Reta Vortaro</string>
+  <string name="from_bl_not_in_revo">el Vortoj de la bona lingvo · ne en Reta Vortaro</string>
+  <string name="from_viki_bl_not_in_revo">el Vikivortaro kaj Vortoj de la bona lingvo · ne en Reta Vortaro</string>
   <!-- In a search result, an example of a word: "abunde — ekzemplo ĉe abunda" -->
   <string name="example_of">ekzemplo ĉe %1$s</string>
   <string name="revo_name">Reta Vortaro</string>

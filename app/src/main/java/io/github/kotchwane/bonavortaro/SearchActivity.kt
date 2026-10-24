@@ -155,6 +155,7 @@ class SearchActivity : BonaActivity() {
                     onLanguageChosen = ::chooseLanguage,
                     onResultClick = ::openArticle,
                     onVikiClick = ::openViki,
+                    onBonaLingvoClick = ::openBonaLingvo,
                     onChooseLanguage = { SelectLanguageActivity.open(this) },
                     onRandomRoot = ::openRandomRoot,
                     onPreferences = { Screens.goPreferences(this) },
@@ -267,6 +268,14 @@ class SearchActivity : BonaActivity() {
         )
     }
 
+    /* A word only "Vortoj de la bona lingvo" has: its page, as a word only
+     * Vikivortaro has; kept in the history */
+    private fun openBonaLingvo(entry: BonaLingvoEntry) {
+        if (keepHistory)
+            lifecycleScope.launch(Dispatchers.IO) { History.add(applicationContext, HistoryEntry("eo", entry.word)) }
+        VikivortaroActivity.open(this, entry.word)
+    }
+
     private fun openArticle(result: SearchResult, language: String) {
         if (keepHistory)
             lifecycleScope.launch(Dispatchers.IO) {
@@ -298,6 +307,7 @@ private fun SearchScreen(
     onLanguageChosen: (String) -> Unit,
     onResultClick: (SearchResult, String) -> Unit,
     onVikiClick: (VikiResult) -> Unit,
+    onBonaLingvoClick: (BonaLingvoEntry) -> Unit,
     onChooseLanguage: () -> Unit,
     onRandomRoot: () -> Unit,
     onPreferences: () -> Unit,
@@ -358,7 +368,7 @@ private fun SearchScreen(
      * Esperanto Wiktionary nor, for them, French */
     val nothingToRead = outcome?.let { found ->
         found.isEmpty || (found.results.isEmpty() && found.lemmas.none { it is FoundWord.InRevo } &&
-            found.wiktionary.all { it.inEsperanto && it.definition == null } && !inFrench)
+            found.wiktionary.all { it.inEsperanto && it.definition == null } && found.bonaLingvo.isEmpty() && !inFrench)
     } == true
     LaunchedEffect(query, nothingToRead, selected, guessWords) {
         if (!nothingToRead || selected != "eo" || isPattern(query) || query.isBlank() || !guessWords) {
@@ -405,6 +415,7 @@ private fun SearchScreen(
                     when (val found = search.found) {
                         is FoundWord.InRevo -> onResultClick(found.result, search.entry.language)
                         is FoundWord.InWiktionary -> onVikiClick(found.result)
+                        is FoundWord.InBonaLingvo -> onBonaLingvoClick(found.entry)
                     }
                 },
                 onRemove = { offerUndo(removed, onRemoveRecent(it)) },
@@ -452,6 +463,7 @@ private fun SearchScreen(
                 inFrench = inFrench,
                 onResultClick = onResultClick,
                 onVikiClick = onVikiClick,
+                onBonaLingvoClick = onBonaLingvoClick,
                 modifier = Modifier.padding(padding).consumeWindowInsets(padding).imePadding(),
             )
         }
@@ -589,6 +601,7 @@ private fun ResultList(
     inFrench: Boolean,
     onResultClick: (SearchResult, String) -> Unit,
     onVikiClick: (VikiResult) -> Unit,
+    onBonaLingvoClick: (BonaLingvoEntry) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val context = LocalContext.current
@@ -635,11 +648,22 @@ private fun ResultList(
                         ResultRow(found.result, wordStyle, inEsperanto, onClick = { onResultClick(found.result, language) }, language = language)
                     is FoundWord.InWiktionary ->
                         VikiResultRow(found.result, onClick = { onVikiClick(found.result) }, inFrench = inFrench)
+                    is FoundWord.InBonaLingvo ->
+                        BonaLingvoRow(found.entry, onClick = { onBonaLingvoClick(found.entry) })
                 }
                 if (index != words.lastIndex)
                     HorizontalDivider(Modifier.padding(horizontal = 20.dp), color = rule)
             }
             /* Where the words not bold come from, quietly, after them */
+            if (outcome.bonaLingvo.isNotEmpty())
+                item {
+                    Text(
+                        stringResource(R.string.bl_not_bold),
+                        style = MaterialTheme.typography.bodySmall.copy(fontStyle = FontStyle.Italic),
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.padding(start = 20.dp, end = 20.dp, top = 12.dp),
+                    )
+                }
             if (outcome.wiktionary.isNotEmpty())
                 item {
                     Text(
