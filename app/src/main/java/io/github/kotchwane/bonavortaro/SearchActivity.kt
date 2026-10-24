@@ -18,6 +18,10 @@
 
 package io.github.kotchwane.bonavortaro
 
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.withStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.AnnotatedString
 import android.content.Intent
 import android.os.Bundle
 import androidx.activity.compose.setContent
@@ -673,6 +677,23 @@ private fun RunningHead(first: String, last: String) {
     }
 }
 
+/** "maison → domo": a word of another language, plain, and its
+ * Esperanto, in the colour of the headwords, in the weight of [style]
+ * (bold for Reta Vortaro's); the word alone while the Esperanto is read */
+@Composable
+internal fun translationTitle(foreign: String, esperanto: String?, style: TextStyle): AnnotatedString {
+    val plain = MaterialTheme.colorScheme.onSurface
+    val muted = MaterialTheme.colorScheme.onSurfaceVariant
+    val headword = bonaDesign.headword
+    return buildAnnotatedString {
+        withStyle(SpanStyle(fontWeight = FontWeight.Normal, color = plain)) { append(foreign) }
+        if (!esperanto.isNullOrEmpty()) {
+            withStyle(SpanStyle(fontWeight = FontWeight.Normal, color = muted)) { append(" → ") }
+            withStyle(SpanStyle(fontWeight = style.fontWeight, color = headword)) { append(esperanto) }
+        }
+    }
+}
+
 /** A search result: the word, and under it the start of its definition,
  * read from its article once the row is shown. */
 @OptIn(ExperimentalFoundationApi::class)
@@ -719,8 +740,15 @@ internal fun ResultRow(
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Column(Modifier.weight(1f)) {
+            /* A word of another language: what it is in Esperanto, on its
+             * line, "maison → domo"; the example it is found in, "maison à
+             * colombages → trabfaka domo" */
+            val esperanto = if (inEsperanto) null else example?.example ?: preview?.title
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(result.word, style = wordStyle, color = bonaDesign.headword, modifier = Modifier.weight(1f))
+                if (inEsperanto)
+                    Text(result.word, style = wordStyle, color = bonaDesign.headword, modifier = Modifier.weight(1f))
+                else
+                    Text(translationTitle(result.word, esperanto, wordStyle), style = wordStyle, modifier = Modifier.weight(1f))
                 if (label != null)
                     Text(
                         label,
@@ -735,14 +763,8 @@ internal fun ResultRow(
                 val shown = example!!
                 if (inEsperanto)
                     exampleOf + (shown.translation?.let { " — $languageName: " + (if (shown.language == "fr") frenchSpacing(it) else it) } ?: "")
-                else "${shown.example} — $exampleOf"
-            } else preview?.let {
-                when {
-                    inEsperanto -> it.definition
-                    it.definition.isEmpty() -> it.title
-                    else -> "${it.title} — ${it.definition}"
-                }
-            }
+                else exampleOf
+            } else preview?.definition
             /* Keep the height of the row while the preview is loading */
             Text(
                 text ?: "",

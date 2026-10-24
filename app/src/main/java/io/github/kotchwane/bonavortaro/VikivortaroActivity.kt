@@ -108,12 +108,21 @@ fun VikiResultRow(
                 /* Not bold: one dictionary, where Reta Vortaro's words,
                  * nearly all of them, keep the weight; the end of the
                  * results says so */
-                Text(
-                    result.word,
-                    style = MaterialTheme.typography.titleMedium,
-                    color = bonaDesign.headword,
-                    modifier = Modifier.weight(1f),
-                )
+                if (result.inEsperanto)
+                    Text(
+                        result.word,
+                        style = MaterialTheme.typography.titleMedium,
+                        color = bonaDesign.headword,
+                        modifier = Modifier.weight(1f),
+                    )
+                /* A French word: "potiron → kukurbo", as Reta Vortaro's,
+                 * not bold */
+                else
+                    Text(
+                        translationTitle(result.word, result.esperanto, MaterialTheme.typography.titleMedium),
+                        style = MaterialTheme.typography.titleMedium,
+                        modifier = Modifier.weight(1f),
+                    )
                 if (label != null)
                     Text(
                         label,
@@ -134,7 +143,7 @@ fun VikiResultRow(
                             (result.description?.let { " — $it" } ?: "")
                     /* Nothing in the reader's languages */
                     else stringResource(R.string.not_in_revo)
-                else result.esperanto + (definition?.let { " — $it" } ?: ""),
+                else definition ?: result.description ?: "",
                 style = small.copy(fontStyle = FontStyle.Italic),
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 maxLines = 1,
