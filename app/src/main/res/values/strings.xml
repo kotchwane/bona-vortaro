@@ -122,7 +122,7 @@
   <string name="guide_wildcards_title">Ĵokeroj: * kaj ?</string>
   <string name="guide_wildcards">La steleto „*“ anstataŭas ajnajn literojn, eĉ neniun, kaj la demandosigno „?“ ĝuste unu literon. Tiel _*ologio_ trovas ĉiujn vortojn, kiuj finiĝas per „ologio“ (biologio, geologio…), kaj _?rbo_ trovas ĉiujn vortojn de kvar literoj, kiuj finiĝas per „rbo“, kiel „arbo“.</string>
   <string name="guide_guess_title">Mankantaj vortoj</string>
-  <string name="guide_guess">Se vorto ne estas en la vortaro, la serĉo en esperanto proponas, el kiuj radikoj kaj afiksoj ĝi eble konsistas: _kafejestro_ estas eble „kafej + estro“. Tuŝu parton por legi ĝian artikolon. Tio estas diveno, ne difino. Same, kiam vi tenas premita vorton de artikolo, kiu mankas en la vortaro. Vi povas malŝalti ĝin en la agordoj („Diveni mankantajn vortojn“).</string>
+  <string name="guide_guess">Se vorto ne estas en la vortaro, la serĉo en esperanto proponas, el kiuj radikoj kaj afiksoj ĝi eble konsistas: _kafejestro_ estas eble „kafej\u00A0+\u00A0estro“. Tuŝu parton por legi ĝian artikolon. Tio estas diveno, ne difino. Same, kiam vi tenas premita vorton de artikolo, kiu mankas en la vortaro. Vi povas malŝalti ĝin en la agordoj („Diveni mankantajn vortojn“).</string>
   <string name="guide_history_title">La lastaj serĉoj</string>
   <string name="guide_history">Kiam nenio estas tajpita, la serĉo montras la vortojn, kiujn vi laste malfermis. Tenu unu premita por forviŝi ĝin. En la agordoj vi povas malŝalti la historion.</string>
   <string name="guide_links_title">Ligiloj kaj ekzemploj</string>
@@ -130,7 +130,7 @@
   <string name="guide_translations_title">Tradukoj</string>
   <string name="guide_translations">La tradukoj aperas en la lingvoj elektitaj en la agordoj („Tradukoj en la artikoloj“), en ilia ordo. „+ N lingvoj“ montras la aliajn. Post la tradukoj de la vorto venas tiuj de ĝiaj ekzemploj, ĉiu post sia ekzemplo, kaj ankaŭ ili troviĝas per la serĉo: _bonjour_ kondukas al „saluton!“, ĉe „saluto“. Tiam la linio de la ekzemplo estas emfazita; tuŝu ĝin por forigi la emfazon.</string>
   <string name="guide_vikivortaro_title">Vikivortaro</string>
-  <string name="guide_vikivortaro">La vortoj kaj tradukoj, kiujn Reta Vortaro ne havas, venas el Vikivortaro (CC BY-SA 4.0): ne grasaj en la serĉo, punktite substrekitaj en la artikoloj. Tuŝu tian vorton por scii, de kie ĝi venas. La esperantaj difinoj de kelkcent vortoj aperas por ĉiuj; la francaj vortoj kaj tradukoj nur, se la franca estas inter la tradukoj en la agordoj.</string>
+  <string name="guide_vikivortaro">La vortoj kaj tradukoj, kiujn Reta Vortaro ne havas, venas el Vikivortaro (CC\u00A0BY-SA\u00A04.0): ne grasaj en la serĉo, punktite substrekitaj en la artikoloj. Tuŝu tian vorton por scii, de kie ĝi venas. La esperantaj difinoj de kelkcent vortoj aperas por ĉiuj; la francaj vortoj kaj tradukoj nur, se la franca estas inter la tradukoj en la agordoj.</string>
   <string name="guide_official_title">Oficialeco</string>
   <string name="guide_official">La etikedoj „Fundamento“ kaj „9a Oficiala Aldono“ montras, ke radiko aŭ vorto estas oficiala, kaj ekde kiam. Tuŝu ilin por scii pli kaj vidi la listojn.</string>
   <string name="guide_neighbours_title">Legi plu</string>
@@ -151,7 +151,7 @@
   <string name="ending_u">volitivo: ordono, peto, deziro</string>
   <string name="word_not_found">Nenio troviĝis por „%1$s“.</string>
   <string name="officiality_title">Oficialeco de la vortoj</string>
-  <string name="officiality_summary">Kion signifas „Fundamento“ kaj „Oficiala Aldono“</string>
+  <string name="officiality_summary">Kion signifas „Fundamento“ kaj „Oficiala\u00A0Aldono“</string>
   <string name="officiality_intro">Iuj vortoj havas etikedon, kiu montras, ke ili apartenas al la oficiala vortaro de Esperanto, kaj kiam ili eniris ĝin. La etikedo apud la nomo de artikolo, supre, koncernas ĝian radikon; tiu sur vorto koncernas la vorton mem.</string>
   <string name="officiality_fundamento_title">La Fundamento (1905)</string>
   <string name="officiality_fundamento_text">La Fundamento de Esperanto estas la baza verko de la lingvo: ĝi enhavas la gramatikon, la Ekzercaron kaj la Universalan Vortaron de Zamenhof. La Bulonja Deklaracio, akceptita ĉe la unua Universala Kongreso en 1905, faris ĝin netuŝebla: neniu rajtas ŝanĝi ĝin. La vortoj kun la etikedo „Fundamento“ venas el ĝi.</string>
@@ -197,10 +197,11 @@
   <string name="about_data">La difinoj kaj la tradukoj estas tiuj de la Reta Vortaro (ReVo), verkitaj de ĝiaj redaktantoj kaj publikigitaj laŭ la GPL, versio 2.</string>
   <!-- What comes from the French Wiktionary, apart from Reta Vortaro -->
   <string name="viki_name">Vikivortaro</string>
-  <string name="viki_not_bold">La vortoj ne grasaj venas el Vikivortaro (CC BY-SA 4.0).</string>
-  <string name="viki_word_source">„%1$s“ venas el Vikivortaro (CC BY-SA 4.0).</string>
+  <string name="viki_not_bold">La vortoj ne grasaj venas el Vikivortaro (CC\u00A0BY-SA\u00A04.0).</string>
+  <string name="viki_word_source">„%1$s“ venas el Vikivortaro (CC\u00A0BY-SA\u00A04.0).</string>
   <string name="viki_in_french">franca: %1$s</string>
   <string name="not_in_revo">ne en Reta Vortaro</string>
+  <string name="from_viki_not_in_revo">el Vikivortaro · ne en Reta Vortaro</string>
   <!-- In a search result, an example of a word: "abunde — ekzemplo ĉe abunda" -->
   <string name="example_of">ekzemplo ĉe %1$s</string>
   <string name="revo_name">Reta Vortaro</string>
@@ -229,7 +230,7 @@
   <string name="sources_viki_fr_translations_adapted">la francaj tradukoj adaptitaj por Bona vortaro</string>
   <string name="sources_viki_word">„%1$s“ kaj ĝia priskribo, adaptitaj por Bona vortaro</string>
   <string name="about_viki_title">Vikivortaro</string>
-  <string name="about_viki">Kelkaj vortoj kaj tradukoj, kiujn la Reta Vortaro ne havas, venas el Vikivortaro: francaj tradukoj kaj priskriboj el fr.wiktionary.org, kaj la difinoj de kelkcent esperantaj vortoj el eo.wiktionary.org, elektitaj unu post la alia. En la artikoloj ili havas punktitan substrekon, en la serĉo ili ne estas grasaj. Vikivortaro estas verkita de ĝiaj kontribuantoj kaj publikigita laŭ la permesilo CC BY-SA 4.0. Tiuj tradukoj kaj difinoj estas elektitaj kaj adaptitaj por Bona vortaro, kaj restas apartaj de la Reta Vortaro.</string>
+  <string name="about_viki">Kelkaj vortoj kaj tradukoj, kiujn la Reta Vortaro ne havas, venas el Vikivortaro: francaj tradukoj kaj priskriboj el fr.wiktionary.org, kaj la difinoj de kelkcent esperantaj vortoj el eo.wiktionary.org, elektitaj unu post la alia. En la artikoloj ili havas punktitan substrekon, en la serĉo ili ne estas grasaj. Vikivortaro estas verkita de ĝiaj kontribuantoj kaj publikigita laŭ la permesilo CC\u00A0BY-SA\u00A04.0. Tiuj tradukoj kaj difinoj estas elektitaj kaj adaptitaj por Bona vortaro, kaj restas apartaj de la Reta Vortaro.</string>
   <string name="about_viki_link">Vikivortaro</string>
   <string name="about_data_link">La Reta Vortaro</string>
   <string name="about_copyright_title">Kopirajto</string>
@@ -246,7 +247,7 @@
   <string name="selected_languages">Elektitaj (%1$d)</string>
   <string name="unfold_examples">Ĉiam malfaldi ekzemplojn kaj rimarkojn</string>
   <string name="show_sources">Montri la fontojn de la ekzemploj</string>
-  <string name="show_sources_summary">Post ĉiu ekzemplo, el kiu verko ĝi venas: „— Zamenhof, Fundamento de Esperanto“. Tuŝu la fonton por legi la verkon en la reto, kiam ĝi estas tie.</string>
+  <string name="show_sources_summary">Post ĉiu ekzemplo, el kiu verko ĝi venas: „—\u00A0Zamenhof, Fundamento de Esperanto“. Tuŝu la fonton por legi la verkon en la reto, kiam ĝi estas tie.</string>
   <string name="unfold_examples_summary">Montri la longajn ekzemplojn kaj la tutan tekston de la longaj rimarkoj, anstataŭ faldi ilin</string>
   <string name="translations_order_help">La tradukoj aperas en la artikoloj en ĉi tiu ordo. Tenu lingvon premita por movi ĝin.</string>
   <string name="drag_to_reorder">Tenu kaj movu por ŝanĝi la ordon</string>
@@ -279,7 +280,7 @@
   <string name="tip_typing">Vi povas tajpi „cx“ por „ĉ“ (same gx, hx, jx, sx, ux), kaj ignori la supersignojn: „cevalo“ trovas „ĉevalo“.</string>
   <string name="search_section">Serĉo</string>
   <string name="guess_words">Diveni mankantajn vortojn</string>
-  <string name="guess_words_summary">Se vorto ne estas en la vortaro, proponi el kiuj radikoj kaj afiksoj ĝi eble konsistas: „kafejestro“ → kafej + estro.</string>
+  <string name="guess_words_summary">Se vorto ne estas en la vortaro, proponi el kiuj radikoj kaj afiksoj ĝi eble konsistas: „kafejestro“ → kafej\u00A0+\u00A0estro.</string>
   <string name="keep_history">Konservi la historion</string>
   <string name="keep_history_summary">La vortoj, kiujn vi malfermas el la serĉo, aperas sub „Lastaj serĉoj“. Malŝalti ĝin ankaŭ forviŝas ĝin.</string>
   <string name="clear_history_question">Ĉu forviŝi la tutan historion?</string>

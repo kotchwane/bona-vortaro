@@ -2254,6 +2254,56 @@ pdb_db_before_sncref (const GString *buf)
   return PDB_DB_BEFORE_SNCREF_WORD;
 }
 
+/* Whether the text ends with one of two words, case aside */
+static gboolean
+pdb_db_ends_with_word (const GString *buf,
+                       const char *word1,
+                       const char *word2)
+{
+  int end = buf->len;
+
+  while (end > 0 && buf->str[end - 1] == ' ')
+    end--;
+
+  int start = end;
+
+  while (start > 0 && buf->str[start - 1] != ' ' && buf->str[start - 1] != '\n')
+    start--;
+
+  return ((strlen (word1) == end - start &&
+           !g_ascii_strncasecmp (buf->str + start, word1, end - start)) ||
+          (strlen (word2) == end - start &&
+           !g_ascii_strncasecmp (buf->str + start, word2, end - start)));
+}
+
+/* Whether the element is in a <ref> with text before it, a word or a
+ * <tld/>: “<ref …>flanke de<sncref/></ref>”, not “<ref …><sncref/></ref>” */
+static gboolean
+pdb_db_has_text_before (PdbDocElementNode *element)
+{
+  PdbDocNode *parent = element->node.parent;
+
+  if (parent == NULL || parent->type != PDB_DOC_NODE_TYPE_ELEMENT ||
+      strcmp (((PdbDocElementNode *) parent)->name, "ref"))
+    return FALSE;
+
+  for (PdbDocNode *node = parent->first_child;
+       node && node != &element->node;
+       node = node->next)
+    {
+      if (node->type == PDB_DOC_NODE_TYPE_ELEMENT)
+        return TRUE;
+
+      PdbDocTextNode *text = (PdbDocTextNode *) node;
+
+      for (int i = 0; i < text->len; i++)
+        if (!g_ascii_isspace (text->data[i]))
+          return TRUE;
+    }
+
+  return FALSE;
+}
+
 static gboolean
 pdb_db_handle_sncref (PdbDb *db,
                       PdbDbParseState *state,
@@ -2275,8 +2325,17 @@ pdb_db_handle_sncref (PdbDb *db,
    * space before the tag, eg. “<tld/>i <sncref …/> brutojn”; but not
    * after “senco” or “kaj”, where it stands on its own */
   gboolean plain;
+  PdbDbBeforeSncref before = pdb_db_before_sncref (state->buf);
 
-  switch (pdb_db_before_sncref (state->buf))
+  /* “de” and “sub” are the word itself when they are the text of the
+   * reference: “<ref …>De<sncref/></ref>”, “<ref …>flanke de<sncref/>
+   * </ref>”, the sense 4 of “de” */
+  if (before == PDB_DB_BEFORE_SNCREF_SENCE &&
+      pdb_db_ends_with_word (state->buf, "de", "sub") &&
+      pdb_db_has_text_before (element))
+    before = PDB_DB_BEFORE_SNCREF_WORD;
+
+  switch (before)
     {
     case PDB_DB_BEFORE_SNCREF_SENCE:
       plain = TRUE;
@@ -3240,6 +3299,24 @@ pdb_db_handle_var (PdbDb *db,
   return TRUE;
 }
 
+/* A link to a page outside the dictionary, in the text: its address,
+ * once the entities are expanded ("&PMEG;…"), when it is one */
+static gboolean
+pdb_db_handle_url (PdbDb *db,
+                   PdbDbParseState *state,
+                   PdbDocElementNode *element,
+                   PdbSpan *span,
+                   GError **error)
+{
+  const char *url = pdb_doc_get_attribute (element, "ref");
+
+  if (url && (g_str_has_prefix (url, "http://") ||
+              g_str_has_prefix (url, "https://")))
+    span->data1 = pdb_db_get_source_url_number (db, url);
+
+  return TRUE;
+}
+
 static PdbDbElementSpan
 pdb_db_element_spans[] =
   {
@@ -3302,6 +3379,7 @@ pdb_db_element_spans[] =
       .handler = pdb_db_handle_vspec
     },
     { .name = "trd", .type = PDB_SPAN_ITALIC, },
+    { .name = "url", .type = PDB_SPAN_LINK, .handler = pdb_db_handle_url },
   };
 
 static gboolean

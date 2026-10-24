@@ -121,8 +121,10 @@ public class LanguageList
   public String getLanguageName (String languageCode,
                                  boolean withArticle)
   {
+    /* As the other languages, an adjective: "esperanta, franca", "la
+     * esperanta" */
     if (languageCode.equals ("eo"))
-      return "esperanto";
+      return withArticle ? "la esperanta" : "esperanta";
 
     int lang = Arrays.binarySearch (languagesByCode,
                                     new Language ("", languageCode),

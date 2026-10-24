@@ -293,8 +293,9 @@ private fun VikiPage(
                         style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
                         color = bonaDesign.headword,
                     )
+                    /* Where it comes from, as the search's "laŭ Reta Vortaro" */
                     Text(
-                        stringResource(R.string.not_in_revo),
+                        stringResource(R.string.from_viki_not_in_revo),
                         style = MaterialTheme.typography.bodySmall.copy(fontStyle = FontStyle.Italic),
                         color = muted,
                     )
@@ -303,18 +304,27 @@ private fun VikiPage(
                     definition?.let { definition ->
                         Column(Modifier.padding(top = 10.dp, bottom = 4.dp)) {
                             definition.senses.forEachIndexed { index, sense ->
-                                Text(
-                                    if (definition.senses.size > 1) "${index + 1}. $sense" else sense,
-                                    style = MaterialTheme.typography.bodyLarge,
-                                    modifier = Modifier.padding(top = if (index > 0) 6.dp else 0.dp),
-                                )
+                                val top = Modifier.padding(top = if (index > 0) 6.dp else 0.dp)
+                                if (definition.senses.size > 1)
+                                    /* The number apart, the sense's lines under
+                                     * its first word, not under the number */
+                                    Row(top) {
+                                        Text(
+                                            "${index + 1}.",
+                                            style = MaterialTheme.typography.bodyLarge,
+                                            modifier = Modifier.widthIn(min = 24.dp).padding(end = 6.dp),
+                                        )
+                                        Text(sense, style = MaterialTheme.typography.bodyLarge)
+                                    }
+                                else
+                                    Text(sense, style = MaterialTheme.typography.bodyLarge, modifier = top)
                             }
                         }
                     }
                     if (french.isNotEmpty() || description != null) {
                         /* The French words, then the description when it
                          * says more than them */
-                        Row(Modifier.padding(top = 10.dp, bottom = 12.dp)) {
+                        Row(Modifier.padding(top = 10.dp)) {
                             Text(
                                 LanguageList.getDefault(context).getLanguageName("fr"),
                                 style = MaterialTheme.typography.bodySmall.copy(fontStyle = FontStyle.Italic),
@@ -342,20 +352,19 @@ private fun VikiPage(
                         HorizontalDivider(Modifier.padding(top = 12.dp), color = muted.copy(alpha = 0.25f))
                         WordAnalysisView(it, onOpen = onOpenEntry)
                     }
-                    if (definition != null || french.isNotEmpty() || description != null || analysis != null)
-                        HorizontalDivider(color = muted.copy(alpha = 0.25f))
-                    if (definitionRead) SourcesLine(
-                        revo = false,
-                        /* The French Wiktionary when its French is shown, or
-                         * when the word comes from it only */
-                        viki = french.isNotEmpty() || description != null || definition == null,
-                        vikiWord = word,
-                        vikiDescription = french.isNotEmpty() || description != null,
-                        vikiEsperanto = definition,
-                        modifier = Modifier.padding(top = 2.dp),
-                    )
                 }
             }
+            /* Under the card, as in an article */
+            if (definitionRead) SourcesLine(
+                revo = false,
+                /* The French Wiktionary when its French is shown, or
+                 * when the word comes from it only */
+                viki = french.isNotEmpty() || description != null || definition == null,
+                vikiWord = word,
+                vikiDescription = french.isNotEmpty() || description != null,
+                vikiEsperanto = definition,
+                modifier = Modifier.padding(horizontal = 8.dp, vertical = 10.dp),
+            )
             neighbours?.let {
                 UnscaledText {
                     NeighbourRoots(

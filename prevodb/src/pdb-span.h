@@ -64,6 +64,10 @@ typedef enum
    * after it, from the dash, or "; Goethe, …" for a second one. data1 is
    * the number of its address in assets/sources.txt, from 1, or 0 */
   PDB_SPAN_SOURCE,
+  /* A link to a page outside the dictionary in the text, ReVo's <url>
+   * outside a source: "PMEG: Neoficialaj vortetoj". data1 is the number
+   * of its address in assets/sources.txt, from 1, or 0 */
+  PDB_SPAN_LINK,
   PDB_SPAN_NONE
 } PdbSpanType;
 
