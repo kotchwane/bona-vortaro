@@ -17,6 +17,7 @@
 
 package io.github.kotchwane.bonavortaro
 
+import androidx.compose.ui.text.AnnotatedString
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
@@ -104,25 +105,34 @@ fun VikiResultRow(
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Column(Modifier.weight(1f)) {
+            /* Advised against by "Vortoj de la bona lingvo", as Reta
+             * Vortaro's words */
+            val advice by produceState<BonaLingvoEntry?>(null, result.esperanto) {
+                value = withContext(Dispatchers.IO) { BonaLingvo.discouraged(context, result.esperanto) }
+            }
             Row(verticalAlignment = Alignment.CenterVertically) {
-                /* Not bold: one dictionary, where Reta Vortaro's words,
-                 * nearly all of them, keep the weight; the end of the
-                 * results says so */
-                if (result.inEsperanto)
-                    Text(
-                        result.word,
-                        style = MaterialTheme.typography.titleMedium,
-                        color = bonaDesign.headword,
-                        modifier = Modifier.weight(1f),
-                    )
-                /* A French word: "potiron → kukurbo", as Reta Vortaro's,
-                 * not bold */
-                else
-                    Text(
-                        translationTitle(result.word, result.esperanto, MaterialTheme.typography.titleMedium),
-                        style = MaterialTheme.typography.titleMedium,
-                        modifier = Modifier.weight(1f),
-                    )
+                Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.weight(1f)) {
+                    /* Not bold: one dictionary, where Reta Vortaro's words,
+                     * nearly all of them, keep the weight; the end of the
+                     * results says so */
+                    if (result.inEsperanto)
+                        Text(
+                            result.word,
+                            style = MaterialTheme.typography.titleMedium,
+                            color = bonaDesign.headword,
+                            modifier = Modifier.weight(1f, fill = false),
+                        )
+                    /* A French word: "potiron → kukurbo", as Reta Vortaro's,
+                     * not bold */
+                    else
+                        Text(
+                            translationTitle(result.word, result.esperanto, MaterialTheme.typography.titleMedium),
+                            style = MaterialTheme.typography.titleMedium,
+                            modifier = Modifier.weight(1f, fill = false),
+                        )
+                    if (advice != null)
+                        DiscouragedChip(Modifier.padding(start = 8.dp))
+                }
                 if (label != null)
                     Text(
                         label,
@@ -135,7 +145,7 @@ fun VikiResultRow(
             /* Found in Esperanto: its Esperanto definition, for everyone;
              * else what it says in French, saying so */
             Text(
-                if (result.inEsperanto)
+                advice?.let { preferredLine(it) } ?: AnnotatedString(if (result.inEsperanto)
                     if (result.definition != null)
                         result.definition
                     else if (inFrench)
@@ -143,7 +153,7 @@ fun VikiResultRow(
                             (result.description?.let { " — $it" } ?: "")
                     /* Nothing in the reader's languages */
                     else stringResource(R.string.not_in_revo)
-                else definition ?: result.description ?: "",
+                else definition ?: result.description ?: ""),
                 style = small.copy(fontStyle = FontStyle.Italic),
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 maxLines = 1,

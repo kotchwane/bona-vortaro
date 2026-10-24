@@ -1264,6 +1264,8 @@ fun SourcesLine(
     /** The definition of [vikiWord] from the Esperanto Wiktionary that the
      * page shows, if any */
     vikiEsperanto: EsperantoDefinition? = null,
+    /** Whether the page shows a remark from "Vortoj de la bona lingvo" */
+    bonaLingvo: Boolean = false,
 ) {
     var open by rememberSaveable { mutableStateOf(false) }
     val context = LocalContext.current
@@ -1277,6 +1279,7 @@ fun SourcesLine(
     }
     val revoName = stringResource(R.string.revo_name)
     val vikiName = stringResource(R.string.viki_name)
+    val blName = stringResource(R.string.bl_name)
     val muted = MaterialTheme.colorScheme.onSurfaceVariant
 
     /* A button, as high as one should be to be tapped */
@@ -1287,7 +1290,7 @@ fun SourcesLine(
         contentAlignment = Alignment.CenterStart,
     ) {
         Text(
-            stringResource(R.string.sources_line, listOfNotNull(revoName.takeIf { revo }, vikiName.takeIf { viki || vikiEsperanto != null }).joinToString(" · ")),
+            stringResource(R.string.sources_line, listOfNotNull(revoName.takeIf { revo }, vikiName.takeIf { viki || vikiEsperanto != null }, blName.takeIf { bonaLingvo }).joinToString(" · ")),
             style = MaterialTheme.typography.bodySmall.copy(fontStyle = FontStyle.Italic),
             color = muted,
         )
@@ -1368,6 +1371,8 @@ fun SourcesLine(
                             else stringResource(R.string.sources_viki),
                             if (vikiWord != null) VIKI_SITE + "wiki/" + Uri.encode(vikiWord.replace(' ', '_')) else VIKI_SITE,
                         )
+                    if (bonaLingvo)
+                        Source(blName, stringResource(R.string.sources_bl), BonaLingvo.SITE)
                 }
             },
         )

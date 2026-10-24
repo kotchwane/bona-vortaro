@@ -134,6 +134,7 @@ class SearchActivity : BonaActivity() {
         /* Vikivortaro's data, which the search in Esperanto reads too:
          * read meanwhile, rather than at the first word typed */
         lifecycleScope.launch(Dispatchers.IO) { Vikivortaro.preload(applicationContext) }
+        lifecycleScope.launch(Dispatchers.IO) { BonaLingvo.preload(applicationContext) }
 
         searchLanguages = BonaSettings.getSearchLanguages(this)
         selected = (savedInstanceState?.getString(STATE_SELECTED)
@@ -744,11 +745,21 @@ internal fun ResultRow(
              * line, "maison → domo"; the example it is found in, "maison à
              * colombages → trabfaka domo" */
             val esperanto = if (inEsperanto) null else example?.example ?: preview?.title
+            /* A word that "Vortoj de la bona lingvo" advises against: marked
+             * so, and what to say instead in place of its definition */
+            val advised = if (inEsperanto) result.word.takeIf { !result.isExample } else esperanto?.takeIf { example == null }
+            val advice by produceState<BonaLingvoEntry?>(null, advised) {
+                value = advised?.let { withContext(Dispatchers.IO) { BonaLingvo.discouraged(context, it) } }
+            }
             Row(verticalAlignment = Alignment.CenterVertically) {
-                if (inEsperanto)
-                    Text(result.word, style = wordStyle, color = bonaDesign.headword, modifier = Modifier.weight(1f))
-                else
-                    Text(translationTitle(result.word, esperanto, wordStyle), style = wordStyle, modifier = Modifier.weight(1f))
+                Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.weight(1f)) {
+                    if (inEsperanto)
+                        Text(result.word, style = wordStyle, color = bonaDesign.headword, modifier = Modifier.weight(1f, fill = false))
+                    else
+                        Text(translationTitle(result.word, esperanto, wordStyle), style = wordStyle, modifier = Modifier.weight(1f, fill = false))
+                    if (advice != null)
+                        DiscouragedChip(Modifier.padding(start = 8.dp))
+                }
                 if (label != null)
                     Text(
                         label,
@@ -767,7 +778,7 @@ internal fun ResultRow(
             } else preview?.definition
             /* Keep the height of the row while the preview is loading */
             Text(
-                text ?: "",
+                advice?.let { preferredLine(it) } ?: AnnotatedString(text ?: ""),
                 style = small.copy(fontStyle = FontStyle.Italic),
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 maxLines = 1,
