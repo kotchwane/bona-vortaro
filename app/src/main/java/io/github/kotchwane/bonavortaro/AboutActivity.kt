@@ -55,6 +55,7 @@ private const val RETA_VORTARO_URL = "https://reta-vortaro.de/"
 private const val LICENSE_URL = "https://www.gnu.org/licenses/old-licenses/gpl-2.0-standalone.html"
 private const val PRIVACY_URL = "https://kotchwane.github.io/bona-vortaro/privacy"
 private const val VIKIVORTARO_URL = "https://fr.wiktionary.org/"
+private const val VIKIVORTARO_EO_URL = "https://eo.wiktionary.org/"
 private const val CC_BY_SA_URL = "https://creativecommons.org/licenses/by-sa/4.0/"
 
 /** About the app: what it is, that it is free software, works without
@@ -79,13 +80,13 @@ class AboutActivity : BonaActivity() {
 }
 
 /* The parts of the page: a title, a text, and maybe a link */
-/** A part of the page: its title, its text, maybe with one of its words
- * as a link ([textLink]), and a link under it */
+/** A part of the page: its title, its text, maybe with some of its words
+ * as links ([textLinks]: the words and their addresses), and a link under it */
 private class AboutPart(
     val title: Int,
     val text: Int,
     val link: Pair<Int, String>? = null,
-    val textLink: Pair<String, String>? = null,
+    val textLinks: List<Pair<String, String>> = emptyList(),
 )
 
 private val PARTS = listOf(
@@ -96,7 +97,11 @@ private val PARTS = listOf(
     AboutPart(R.string.about_data_title, R.string.about_data, R.string.about_data_link to RETA_VORTARO_URL),
     AboutPart(
         R.string.about_viki_title, R.string.about_viki, R.string.about_viki_link to VIKIVORTARO_URL,
-        textLink = "CC\u00A0BY-SA\u00A04.0" to CC_BY_SA_URL,
+        textLinks = listOf(
+            "fr.wiktionary.org" to VIKIVORTARO_URL,
+            "eo.wiktionary.org" to VIKIVORTARO_EO_URL,
+            "CC\u00A0BY-SA\u00A04.0" to CC_BY_SA_URL,
+        ),
     ),
     AboutPart(R.string.about_bl_title, R.string.about_bl, R.string.about_bl_link to BonaLingvo.SITE),
     AboutPart(R.string.about_copyright_title, R.string.about_copyright),
@@ -133,10 +138,10 @@ private fun AboutPage(onBack: () -> Unit) {
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
             Spacer(Modifier.height(8.dp))
-            Text(withLinks(stringResource(R.string.about_intro), "Retan Vortaron" to RETA_VORTARO_URL), style = body)
+            Text(withLinks(stringResource(R.string.about_intro), listOf("Retan Vortaron" to RETA_VORTARO_URL)), style = body)
             /* Where it comes from, at once: PReVo is its starting point */
             Spacer(Modifier.height(8.dp))
-            Text(withLinks(stringResource(R.string.about_origin), "PReVo" to PREVO_URL), style = body)
+            Text(withLinks(stringResource(R.string.about_origin), listOf("PReVo" to PREVO_URL)), style = body)
 
             for (part in PARTS) {
                 Spacer(Modifier.height(20.dp))
@@ -148,7 +153,7 @@ private fun AboutPage(onBack: () -> Unit) {
                 )
                 Spacer(Modifier.height(4.dp))
                 val text = stringResource(part.text)
-                Text(part.textLink?.let { withLinks(text, it) } ?: withItalics(text), style = body)
+                Text(if (part.textLinks.isNotEmpty()) withLinks(text, part.textLinks) else withItalics(text), style = body)
                 part.link?.let { (label, url) -> Link(label, url) }
             }
             Spacer(Modifier.height(32.dp))
@@ -156,25 +161,30 @@ private fun AboutPage(onBack: () -> Unit) {
     }
 }
 
-/** The text with its italics, and a word of it as a link to a website */
+/** The text with its italics, and some of its words as links to websites,
+ * each followed by "↗": a page outside the app */
 @Composable
-private fun withLinks(text: String, link: Pair<String, String>): AnnotatedString {
+private fun withLinks(text: String, links: List<Pair<String, String>>): AnnotatedString {
     val style = TextLinkStyles(
         SpanStyle(color = MaterialTheme.colorScheme.primary, textDecoration = TextDecoration.Underline)
     )
     val italics = withItalics(text)
+    /* In the order of the text */
+    val found = links.mapNotNull { (label, url) ->
+        italics.text.indexOf(label).takeIf { it >= 0 }?.let { Triple(it, it + label.length, url) }
+    }.sortedBy { it.first }
 
-    val (label, url) = link
-    val start = italics.text.indexOf(label)
-    if (start < 0)
-        return italics
-    val end = start + label.length
     return buildAnnotatedString {
-        append(italics.subSequence(0, end))
-        addLink(LinkAnnotation.Url(url, style), start, end)
-        /* "↗" after it: a page outside the app */
-        append("\u00A0$OUTSIDE_SIGN")
-        append(italics.subSequence(end, italics.length))
+        var at = 0
+        for ((start, end, url) in found) {
+            append(italics.subSequence(at, start))
+            val linkStart = length
+            append(italics.subSequence(start, end))
+            addLink(LinkAnnotation.Url(url, style), linkStart, length)
+            append("\u00A0$OUTSIDE_SIGN")
+            at = end
+        }
+        append(italics.subSequence(at, italics.length))
     }
 }
 
