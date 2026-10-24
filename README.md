@@ -41,9 +41,7 @@ el [PReVo](https://github.com/bpeel/prevo), la vortaro de Neil Roberts.
 
 Por la franca, ĝi aldonas la tradukojn, kiujn Reta Vortaro ne havas, el
 [Vikivortaro](https://fr.wiktionary.org/). Ĝi montras ankaŭ la difinojn de kelkcent
-vortoj el la esperanta [Vikivortaro](https://eo.wiktionary.org/), kaj la vortojn,
-kiujn [Vortoj de la bona lingvo](https://labonalingvo.org/) malrekomendas, kun tio,
-kion diri anstataŭe.
+vortoj el la esperanta [Vikivortaro](https://eo.wiktionary.org/).
 
 ### Kion ĝi faras
 
@@ -67,9 +65,6 @@ kion diri anstataŭe.
   miloj da pliaj francaj vortoj troveblaj (*potiron* trovas *kukurbo*), kaj
   miloj da tradukoj aldonitaj en la artikoloj, kun punktita substreko. Ili
   aperas nur, se la franca estas inter viaj lingvoj.
-- **Malrekomendataj vortoj** laŭ *Vortoj de la bona lingvo*, de Renato Corsetti kaj
-  la laborgrupo de La Bona Lingvo: *eskalatoro*, prefere *rulŝtuparo*. Nur tio,
-  kion la laborgrupo jam kontrolis.
 - **Difinoj el la esperanta Vikivortaro** por 683 vortoj, kiujn Reta Vortaro ne
   havas (*GLAT*, *pi*), elektitaj unu post la alia.
 - **La fontoj de la ekzemploj** (Zamenhof, Monato…), kun ligilo al la verko,
@@ -92,8 +87,7 @@ kies historio estas konservita en ĉi tiu deponejo. Ĝi havas novan interfacon
 redaktoroj de [Reta Vortaro](https://github.com/revuloj/revo-fonto); la aldonaj
 francaj tradukoj, de la kontribuantoj de la franca [Vikivortaro](https://fr.wiktionary.org/),
 per la eltiro de [Kaikki](https://kaikki.org/); la esperantaj difinoj, de la
-kontribuantoj de la esperanta [Vikivortaro](https://eo.wiktionary.org/); la
-malrekomendoj, de [La Bona Lingvo](https://labonalingvo.org/).
+kontribuantoj de la esperanta [Vikivortaro](https://eo.wiktionary.org/).
 
 La ilo, kiu konvertas Retan Vortaron por la apo, [prevodb](https://github.com/bpeel/prevodb),
 ankaŭ de Neil Roberts, troviĝas en `prevodb/`, kun sia historio.
@@ -129,12 +123,10 @@ python3 scripts/vikivortaro.py https://kaikki.org/dictionary/downloads/fr/fr-ext
 
 Same la esperantaj difinoj, el la eltiro de la esperanta Vikivortaro (la vortoj
 elektitaj estas en `data/vikivortaro-eo-words.txt`, la korektoj en
-`data/vikivortaro-eo-fixes.tsv`), kaj la listo de La Bona Lingvo, el ĝia CSV
-(kopiita en `data/bona-lingvo.csv`):
+`data/vikivortaro-eo-fixes.tsv`):
 
 ```bash
 python3 scripts/vikivortaro-eo.py https://dumps.wikimedia.org/eowiktionary/latest/eowiktionary-latest-pages-articles.xml.bz2
-python3 scripts/bona-lingvo.py [nova-eksporto.csv]
 ```
 
 | Dosierujo | Enhavo |
@@ -143,9 +135,8 @@ python3 scripts/bona-lingvo.py [nova-eksporto.csv]
 | `prevodb/` | la konvertilo de la XML de ReVo al la dosieroj de la apo (C) |
 | `extern/revo-fonto`, `extern/voko-grundo` | la fontoj de Reta Vortaro (submoduloj) |
 | `app/src/main/assets/vikivortaro/` | la francaj tradukoj kaj la esperantaj difinoj el Vikivortaro (CC BY-SA 4.0) |
-| `app/src/main/assets/bonalingvo/` | la listo de La Bona Lingvo (laŭ permeso, ne laŭ la GPL) |
-| `data/` | la elektoj kaj korektoj de Vikivortaro, la CSV de La Bona Lingvo, la artikoloj de Vikipedio |
-| `scripts/` | la konstruado de la vortaro, la eltiroj el Vikivortaro kaj La Bona Lingvo, la piktogramoj |
+| `data/` | la elektoj kaj korektoj de Vikivortaro, la artikoloj de Vikipedio |
+| `scripts/` | la konstruado de la vortaro, la eltiroj el Vikivortaro, la piktogramoj |
 | `fastlane/` | la tekstoj kaj ekrankopioj por la vendejoj |
 
 ### Permesilo
@@ -157,10 +148,6 @@ La datumoj de Vikivortaro, verkitaj de ĝiaj kontribuantoj, estas laŭ la permes
 [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/). Ili restas en
 apartaj dosieroj, en `app/src/main/assets/vikivortaro/`, kies kapoj diras ilian
 fonton kaj daton; la apo montras ilian fonton ĉe ĉiu paĝo, kie ili aperas.
-
-La listo *Vortoj de la bona lingvo*, de Renato Corsetti kaj la laborgrupo de La Bona
-Lingvo (`data/bona-lingvo.csv`, `app/src/main/assets/bonalingvo/`), estas uzata laŭ
-la permeso de ĝiaj aŭtoroj. Ĝi **ne** estas laŭ la GPL.
 
 ---
 
@@ -176,9 +163,7 @@ Neil Roberts' dictionary.
 For French, it adds the translations that Reta Vortaro lacks, from the French
 [Wiktionary](https://fr.wiktionary.org/) ("Vikivortaro"). It also shows the
 definitions of a few hundred words from the Esperanto
-[Wiktionary](https://eo.wiktionary.org/), and the words that
-[Vortoj de la bona lingvo](https://labonalingvo.org/) advises against, with what to
-say instead.
+[Wiktionary](https://eo.wiktionary.org/).
 
 ### What it does
 
@@ -202,9 +187,6 @@ say instead.
   thousands more French words to search (*potiron* finds *kukurbo*), and
   thousands of translations added in the articles, with a dotted underline.
   They only show if French is among your languages.
-- **Words advised against** by *Vortoj de la bona lingvo*, by Renato Corsetti and
-  the working group of La Bona Lingvo: *eskalatoro*, preferably *rulŝtuparo*.
-  Only what the working group has checked.
 - **Definitions from the Esperanto Wiktionary** for 683 words Reta Vortaro lacks
   (*GLAT*, *pi*), chosen one by one.
 - **The sources of the examples** (Zamenhof, Monato…), with a link to the work,
@@ -229,8 +211,7 @@ Compose), a new look and new features. The data comes from the editors of
 [Reta Vortaro](https://github.com/revuloj/revo-fonto); the added French
 translations, from the contributors of the French [Wiktionary](https://fr.wiktionary.org/),
 through [Kaikki](https://kaikki.org/)'s extract; the Esperanto definitions, from the
-contributors of the Esperanto [Wiktionary](https://eo.wiktionary.org/); the advice,
-from [La Bona Lingvo](https://labonalingvo.org/).
+contributors of the Esperanto [Wiktionary](https://eo.wiktionary.org/).
 
 The tool that converts Reta Vortaro for the app, [prevodb](https://github.com/bpeel/prevodb),
 also by Neil Roberts, lives in `prevodb/`, with its history.
@@ -266,12 +247,10 @@ python3 scripts/vikivortaro.py https://kaikki.org/dictionary/downloads/fr/fr-ext
 
 The same for the Esperanto definitions, from the Esperanto Wiktionary's dump (the
 chosen words are in `data/vikivortaro-eo-words.txt`, the corrections in
-`data/vikivortaro-eo-fixes.tsv`), and for La Bona Lingvo's list, from its CSV
-(copied into `data/bona-lingvo.csv`):
+`data/vikivortaro-eo-fixes.tsv`):
 
 ```bash
 python3 scripts/vikivortaro-eo.py https://dumps.wikimedia.org/eowiktionary/latest/eowiktionary-latest-pages-articles.xml.bz2
-python3 scripts/bona-lingvo.py [new-export.csv]
 ```
 
 | Folder | What it holds |
@@ -280,9 +259,8 @@ python3 scripts/bona-lingvo.py [new-export.csv]
 | `prevodb/` | the converter from ReVo's XML to the app's files (C) |
 | `extern/revo-fonto`, `extern/voko-grundo` | the sources of Reta Vortaro (submodules) |
 | `app/src/main/assets/vikivortaro/` | the French translations and the Esperanto definitions from Wiktionary (CC BY-SA 4.0) |
-| `app/src/main/assets/bonalingvo/` | La Bona Lingvo's list (with permission, not under the GPL) |
-| `data/` | the Wiktionary choices and corrections, La Bona Lingvo's CSV, the Wikipedia articles |
-| `scripts/` | the dictionary build, the Wiktionary and La Bona Lingvo extractions, the icons |
+| `data/` | the Wiktionary choices and corrections, the Wikipedia articles |
+| `scripts/` | the dictionary build, the Wiktionary extractions, the icons |
 | `fastlane/` | the store texts and screenshots |
 
 ### License
@@ -294,7 +272,3 @@ The Wiktionary data, by its contributors, is under the
 [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/) license. It stays
 in separate files, in `app/src/main/assets/vikivortaro/`, whose headers give its
 source and date; the app credits it on every page where it appears.
-
-The list *Vortoj de la bona lingvo*, by Renato Corsetti and the working group of
-La Bona Lingvo (`data/bona-lingvo.csv`, `app/src/main/assets/bonalingvo/`), is used
-with its authors' permission. It is **not** under the GPL.

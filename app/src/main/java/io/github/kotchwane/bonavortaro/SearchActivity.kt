@@ -18,9 +18,6 @@
 
 package io.github.kotchwane.bonavortaro
 
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -137,7 +134,6 @@ class SearchActivity : BonaActivity() {
         /* Vikivortaro's data, which the search in Esperanto reads too:
          * read meanwhile, rather than at the first word typed */
         lifecycleScope.launch(Dispatchers.IO) { Vikivortaro.preload(applicationContext) }
-        lifecycleScope.launch(Dispatchers.IO) { BonaLingvo.preload(applicationContext) }
 
         searchLanguages = BonaSettings.getSearchLanguages(this)
         selected = (savedInstanceState?.getString(STATE_SELECTED)
@@ -158,7 +154,6 @@ class SearchActivity : BonaActivity() {
                     onLanguageChosen = ::chooseLanguage,
                     onResultClick = ::openArticle,
                     onVikiClick = ::openViki,
-                    onBonaLingvoClick = ::openBonaLingvo,
                     onChooseLanguage = { SelectLanguageActivity.open(this) },
                     onRandomRoot = ::openRandomRoot,
                     onPreferences = { Screens.goPreferences(this) },
@@ -271,14 +266,6 @@ class SearchActivity : BonaActivity() {
         )
     }
 
-    /* A word only "Vortoj de la bona lingvo" has: its page, as a word only
-     * Vikivortaro has; kept in the history */
-    private fun openBonaLingvo(entry: BonaLingvoEntry) {
-        if (keepHistory)
-            lifecycleScope.launch(Dispatchers.IO) { History.add(applicationContext, HistoryEntry("eo", entry.word)) }
-        VikivortaroActivity.open(this, entry.word)
-    }
-
     private fun openArticle(result: SearchResult, language: String) {
         if (keepHistory)
             lifecycleScope.launch(Dispatchers.IO) {
@@ -310,7 +297,6 @@ private fun SearchScreen(
     onLanguageChosen: (String) -> Unit,
     onResultClick: (SearchResult, String) -> Unit,
     onVikiClick: (VikiResult) -> Unit,
-    onBonaLingvoClick: (BonaLingvoEntry) -> Unit,
     onChooseLanguage: () -> Unit,
     onRandomRoot: () -> Unit,
     onPreferences: () -> Unit,
@@ -371,7 +357,7 @@ private fun SearchScreen(
      * Esperanto Wiktionary nor, for them, French */
     val nothingToRead = outcome?.let { found ->
         found.isEmpty || (found.results.isEmpty() && found.lemmas.none { it is FoundWord.InRevo } &&
-            found.wiktionary.all { it.inEsperanto && it.definition == null } && found.bonaLingvo.isEmpty() && !inFrench)
+            found.wiktionary.all { it.inEsperanto && it.definition == null } && !inFrench)
     } == true
     LaunchedEffect(query, nothingToRead, selected, guessWords) {
         if (!nothingToRead || selected != "eo" || isPattern(query) || query.isBlank() || !guessWords) {
@@ -418,7 +404,6 @@ private fun SearchScreen(
                     when (val found = search.found) {
                         is FoundWord.InRevo -> onResultClick(found.result, search.entry.language)
                         is FoundWord.InWiktionary -> onVikiClick(found.result)
-                        is FoundWord.InBonaLingvo -> onBonaLingvoClick(found.entry)
                     }
                 },
                 onRemove = { offerUndo(removed, onRemoveRecent(it)) },
@@ -466,7 +451,6 @@ private fun SearchScreen(
                 inFrench = inFrench,
                 onResultClick = onResultClick,
                 onVikiClick = onVikiClick,
-                onBonaLingvoClick = onBonaLingvoClick,
                 modifier = Modifier.padding(padding).consumeWindowInsets(padding).imePadding(),
             )
         }
@@ -604,7 +588,6 @@ private fun ResultList(
     inFrench: Boolean,
     onResultClick: (SearchResult, String) -> Unit,
     onVikiClick: (VikiResult) -> Unit,
-    onBonaLingvoClick: (BonaLingvoEntry) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val context = LocalContext.current
@@ -651,30 +634,15 @@ private fun ResultList(
                         ResultRow(found.result, wordStyle, inEsperanto, onClick = { onResultClick(found.result, language) }, language = language)
                     is FoundWord.InWiktionary ->
                         VikiResultRow(found.result, onClick = { onVikiClick(found.result) }, inFrench = inFrench)
-                    is FoundWord.InBonaLingvo ->
-                        BonaLingvoRow(found.entry, onClick = { onBonaLingvoClick(found.entry) })
                 }
                 if (index != words.lastIndex)
                     HorizontalDivider(Modifier.padding(horizontal = 20.dp), color = rule)
             }
             /* Where the words not bold come from, quietly, after them */
-            if (outcome.bonaLingvo.isNotEmpty())
-                item {
-                    Text(
-                        stringResource(R.string.bl_not_bold),
-                        style = MaterialTheme.typography.bodySmall.copy(fontStyle = FontStyle.Italic),
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.padding(start = 20.dp, end = 20.dp, top = 12.dp),
-                    )
-                }
             if (outcome.wiktionary.isNotEmpty())
                 item {
                     Text(
-                        stringResource(
-                            /* "The other words not bold" after the list's own: the two
-                             * notes don't contradict each other */
-                            if (outcome.bonaLingvo.isNotEmpty()) R.string.viki_not_bold_others else R.string.viki_not_bold
-                        ),
+                        stringResource(R.string.viki_not_bold),
                         style = MaterialTheme.typography.bodySmall.copy(fontStyle = FontStyle.Italic),
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.padding(horizontal = 20.dp, vertical = 12.dp),
@@ -777,27 +745,11 @@ internal fun ResultRow(
              * line, "maison → domo"; the example it is found in, "maison à
              * colombages → trabfaka domo" */
             val esperanto = if (inEsperanto) null else example?.example ?: preview?.title
-            /* A word that "Vortoj de la bona lingvo" advises against: marked
-             * so, and what to say instead in place of its definition */
-            val advised = if (inEsperanto) result.word.takeIf { !result.isExample } else esperanto?.takeIf { example == null }
-            val advice by produceState<BonaLingvoEntry?>(null, advised) {
-                value = advised?.let { withContext(Dispatchers.IO) { BonaLingvo.discouraged(context, it) } }
-            }
             Row(verticalAlignment = Alignment.CenterVertically) {
-                /* The label after the word, on the next line when it doesn't
-                 * fit: never the word broken to make room for it */
-                FlowRow(
-                    modifier = Modifier.weight(1f),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    itemVerticalAlignment = Alignment.CenterVertically,
-                ) {
-                    if (inEsperanto)
-                        Text(result.word, style = wordStyle, color = bonaDesign.headword)
-                    else
-                        Text(translationTitle(result.word, esperanto, wordStyle), style = wordStyle)
-                    if (advice != null)
-                        DiscouragedChip()
-                }
+                if (inEsperanto)
+                    Text(result.word, style = wordStyle, color = bonaDesign.headword, modifier = Modifier.weight(1f))
+                else
+                    Text(translationTitle(result.word, esperanto, wordStyle), style = wordStyle, modifier = Modifier.weight(1f))
                 if (label != null)
                     Text(
                         label,
@@ -816,7 +768,7 @@ internal fun ResultRow(
             } else preview?.definition
             /* Keep the height of the row while the preview is loading */
             Text(
-                advice?.let { preferredLine(it) } ?: AnnotatedString(text ?: ""),
+                text ?: "",
                 style = small.copy(fontStyle = FontStyle.Italic),
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 maxLines = 1,

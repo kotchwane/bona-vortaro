@@ -91,9 +91,6 @@ fun findRecentSearches(context: Context, entries: List<HistoryEntry>): List<Rece
         (inFile.firstOrNull { it.mark == entry.section } ?: inFile.firstOrNull()
             ?: found.firstOrNull { !it.isExample } ?: found.firstOrNull())
             ?.let { RecentSearch(entry, FoundWord.InRevo(it)) }
-            /* A word only "Vortoj de la bona lingvo" has */
-            ?: entry.takeIf { it.language == "eo" }?.let { BonaLingvo.entry(context, it.word) }
-                ?.let { RecentSearch(entry, FoundWord.InBonaLingvo(it)) }
     }
 }
 
@@ -200,13 +197,6 @@ fun RecentSearches(
                             )
                             is FoundWord.InWiktionary -> VikiResultRow(
                                 found.result,
-                                onClick = { onOpen(search) },
-                                label = label,
-                                onLongClick = onLongClick,
-                                action = action,
-                            )
-                            is FoundWord.InBonaLingvo -> BonaLingvoRow(
-                                found.entry,
                                 onClick = { onOpen(search) },
                                 label = label,
                                 onLongClick = onLongClick,

@@ -36,11 +36,6 @@ sealed class FoundWord {
     class InWiktionary(val result: VikiResult) : FoundWord() {
         override val word: String get() = result.word
     }
-
-    /** A word of "Vortoj de la bona lingvo" that neither has */
-    class InBonaLingvo(val entry: BonaLingvoEntry) : FoundWord() {
-        override val word: String get() = entry.word
-    }
 }
 
 /** The result of a search: the matching words, the index of the language
@@ -56,20 +51,13 @@ class SearchOutcome(
     /** The language where the words were found */
     val language: String = "eo",
     val lemmas: List<FoundWord> = emptyList(),
-    /** The words of "Vortoj de la bona lingvo" that neither has */
-    val bonaLingvo: List<BonaLingvoEntry> = emptyList(),
 ) {
-    val isEmpty get() = results.isEmpty() && wiktionary.isEmpty() && lemmas.isEmpty() && bonaLingvo.isEmpty()
+    val isEmpty get() = results.isEmpty() && wiktionary.isEmpty() && lemmas.isEmpty()
 
-    /** All the words, Wiktionary's and the list's among Reta Vortaro's in
-     * alphabetical order, as in a printed dictionary */
+    /** All the words, Wiktionary's among Reta Vortaro's in alphabetical
+     * order, as in a printed dictionary */
     val words: List<FoundWord> = lemmas +
-        mixed(
-            mixed(results.map { FoundWord.InRevo(it) }, wiktionary.map { FoundWord.InWiktionary(it) }, query, esperanto) { it.word },
-            bonaLingvo.map { FoundWord.InBonaLingvo(it) },
-            query,
-            esperanto,
-        ) { it.word }
+        mixed(results.map { FoundWord.InRevo(it) }, wiktionary.map { FoundWord.InWiktionary(it) }, query, esperanto) { it.word }
             .filter { found -> lemmas.none { it.word == found.word } }
 }
 
@@ -188,7 +176,7 @@ object DictionarySearch {
                     return SearchOutcome(emptyList(), 0)
                 val outcome = searchAs(context, trie, typed, language, esperanto, stopped)
                 if (!outcome.isEmpty)
-                    return SearchOutcome(outcome.results, index, outcome.wiktionary, typed, esperanto, language, outcome.lemmas, outcome.bonaLingvo)
+                    return SearchOutcome(outcome.results, index, outcome.wiktionary, typed, esperanto, language, outcome.lemmas)
             }
         }
 
@@ -200,9 +188,8 @@ object DictionarySearch {
         val results: List<SearchResult>,
         val wiktionary: List<VikiResult>,
         val lemmas: List<FoundWord> = emptyList(),
-        val bonaLingvo: List<BonaLingvoEntry> = emptyList(),
     ) {
-        val isEmpty get() = results.isEmpty() && wiktionary.isEmpty() && lemmas.isEmpty() && bonaLingvo.isEmpty()
+        val isEmpty get() = results.isEmpty() && wiktionary.isEmpty() && lemmas.isEmpty()
     }
 
     private fun spellings(filter: String): List<String> =
@@ -249,29 +236,20 @@ object DictionarySearch {
              * its double entries were left out */
             .filter { count < limit || found.isEmpty() || !isBeyond(it.word, found.last().word, filter, esperanto) }
 
-        /* In Esperanto, the words of "Vortoj de la bona lingvo" that
-         * neither has, "eskalatoro": advised against, what to say instead */
-        val bonaLingvo = if (esperanto && !isPattern(filter))
-            BonaLingvo.search(context, filter, trie, stopped)
-                .filter { entry -> wiktionary.none { it.word == entry.word } }
-                .filter { count < limit || found.isEmpty() || !isBeyond(it.word, found.last().word, filter, esperanto) }
-        else emptyList()
-
         /* An Esperanto word with its endings, "hundoj", "kuris": its
          * entries first, as a long press finds them, Reta Vortaro's or
          * Vikivortaro's; also when what is typed starts other words,
          * "kuristo" */
         val typed = filter.lowercase(Locale.ROOT)
         val exact = found.any { it.word.lowercase(Locale.ROOT) == typed } ||
-            wiktionary.any { it.word.lowercase(Locale.ROOT) == typed } ||
-            bonaLingvo.any { it.word.lowercase(Locale.ROOT) == typed }
+            wiktionary.any { it.word.lowercase(Locale.ROOT) == typed }
         if (esperanto && !isPattern(filter) && !exact &&
             ((found.isEmpty() && wiktionary.isEmpty()) || INFLECTED.matches(typed) || typed in PRONOUNS)) {
             val lemmas = inflected(context, trie, filter)
             if (lemmas.isNotEmpty())
-                return Found(found, wiktionary.filter { viki -> lemmas.none { it.word == viki.word } }, lemmas, bonaLingvo)
+                return Found(found, wiktionary.filter { viki -> lemmas.none { it.word == viki.word } }, lemmas)
         }
-        return Found(found, wiktionary, bonaLingvo = bonaLingvo)
+        return Found(found, wiktionary)
     }
 
     /* An Esperanto word with an ending, which, typed, finds its entries
