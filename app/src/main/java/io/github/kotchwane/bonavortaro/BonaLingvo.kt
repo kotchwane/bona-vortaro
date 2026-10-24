@@ -125,7 +125,10 @@ object BonaLingvo {
             )
             found[word] = entry
             /* Also without the case of its first letter, as typed */
-            found.putIfAbsent(word.lowercase(Locale.ROOT), entry)
+            /* Not putIfAbsent: Android 6 lacks it */
+            val small = word.lowercase(Locale.ROOT)
+            if (small !in found)
+                found[small] = entry
         }
         return found
     }
