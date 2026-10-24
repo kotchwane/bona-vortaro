@@ -18,6 +18,7 @@
 
 package io.github.kotchwane.bonavortaro
 
+import androidx.compose.ui.text.withStyle
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -163,12 +164,17 @@ private fun withLinks(text: String, link: Pair<String, String>): AnnotatedString
     )
     val italics = withItalics(text)
 
+    val (label, url) = link
+    val start = italics.text.indexOf(label)
+    if (start < 0)
+        return italics
+    val end = start + label.length
     return buildAnnotatedString {
-        append(italics)
-        val (label, url) = link
-        val start = italics.text.indexOf(label)
-        if (start >= 0)
-            addLink(LinkAnnotation.Url(url, style), start, start + label.length)
+        append(italics.subSequence(0, end))
+        addLink(LinkAnnotation.Url(url, style), start, end)
+        /* "↗" after it: a page outside the app */
+        append("\u00A0$OUTSIDE_SIGN")
+        append(italics.subSequence(end, italics.length))
     }
 }
 
@@ -178,8 +184,12 @@ private fun Link(label: Int, url: String) {
     val context = LocalContext.current
 
     Text(
-        stringResource(label),
-        style = MaterialTheme.typography.bodyLarge.copy(textDecoration = TextDecoration.Underline),
+        /* Underlined, then "↗": a page outside the app */
+        buildAnnotatedString {
+            withStyle(SpanStyle(textDecoration = TextDecoration.Underline)) { append(stringResource(label)) }
+            append("\u00A0$OUTSIDE_SIGN")
+        },
+        style = MaterialTheme.typography.bodyLarge,
         color = MaterialTheme.colorScheme.primary,
         modifier = Modifier
             .clickable { context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url))) }

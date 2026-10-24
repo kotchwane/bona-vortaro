@@ -880,8 +880,19 @@ private fun foldNote(
     /* "deduktas…", not "deduktas,…" */
     val cutText = android.text.SpannableStringBuilder(text.subSequence(0, cut).trimEnd { it.isWhitespace() || it in ",;:" })
     /* "…" against the last word, "legi plu ▾" the link, if there is one */
-    if (more.isEmpty())
-        return FoldedNote(cutText.append("…"), width, paint.textSize)
+    if (more.isEmpty()) {
+        /* "…" in the colour of the links, a tap unfolds: the rest is there */
+        val start = cutText.length
+        cutText.append("…")
+        cutText.setSpan(object : android.text.style.ClickableSpan() {
+            override fun onClick(widget: android.view.View) = onMore()
+            override fun updateDrawState(ds: android.text.TextPaint) {
+                ds.color = linkColor
+                ds.isUnderlineText = false
+            }
+        }, start, cutText.length, android.text.Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+        return FoldedNote(cutText, width, paint.textSize)
+    }
     cutText.append("… ")
     val start = cutText.length
     cutText.append(more)
@@ -1314,10 +1325,11 @@ fun SourcesLine(
                             buildAnnotatedString {
                                 append(stringResource(R.string.sources_revo_article) + " ")
                                 withLink(LinkAnnotation.Url(page, link)) { append(stringResource(R.string.sources_revo_read)) }
-                                append(" · ")
+                                append("\u00A0$OUTSIDE_SIGN · ")
                                 withLink(LinkAnnotation.Url(page.replace("/art/", "/hst/"), link)) {
                                     append(stringResource(R.string.sources_revo_history))
                                 }
+                                append("\u00A0$OUTSIDE_SIGN")
                             },
                             style = MaterialTheme.typography.bodyMedium,
                         )
@@ -1407,6 +1419,9 @@ private fun Source(name: String, what: String, url: String? = null, links: List<
                 if (at >= 0)
                     addLink(LinkAnnotation.Url(address, link), at, at + text.length)
             }
+            /* Pages outside the app, as the guide says of "↗" */
+            if (url != null || links.isNotEmpty())
+                append("\u00A0$OUTSIDE_SIGN")
             append(" — ")
             append(what)
         },
