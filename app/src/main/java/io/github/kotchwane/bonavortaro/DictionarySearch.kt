@@ -263,9 +263,10 @@ object DictionarySearch {
     }
 
     /* An Esperanto word with an ending, which, typed, finds its entries
-     * before the words it starts: "kuris", "grandan", "bonaj", not "bon"
-     * ("bo" with an accusative) */
-    private val INFLECTED = Regex("^\\p{L}{2,}([oae]j?n|[oa]j|(a|i|o|u)s|u)$")
+     * before the words it starts: "kuris", "grandan", "bonaj", also with
+     * another ending than its entry's, "malva" (malvo) before "malvarma";
+     * not "bon" ("bo" with an accusative) */
+    private val INFLECTED = Regex("^\\p{L}{2,}([oae]j?n|[oa]j|(a|i|o|u)s|u|[oae])$")
     private val PRONOUNS = setOf("min", "vin", "lin", "ŝin", "ĝin", "sin", "nin", "ilin", "onin")
 
     /* Each entry once: by its word, case aside, its article and its mark */
