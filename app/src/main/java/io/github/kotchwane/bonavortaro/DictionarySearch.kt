@@ -146,7 +146,9 @@ object DictionarySearch {
      * first one that has any. Typing the x-system is accepted in Esperanto
      * (cx → ĉ), and the accents can be left out ("eleve" finds "élève").
      * With "*" (any letters) or "?" (one letter), the query is a pattern
-     * for whole words.
+     * for whole words. A space after the word asks for that word only,
+     * not the longer ones it starts: "malva " finds "malvo", not
+     * "malvacoj".
      * This does disk access, so it shouldn't run on the main thread. */
     fun search(
         context: Context,
@@ -156,6 +158,7 @@ object DictionarySearch {
          * it stops, its outcome unused */
         stopped: () -> Boolean = { false },
     ): SearchOutcome {
+        val whole = query.isNotBlank() && query.last().isWhitespace()
         for ((index, language) in languages.withIndex()) {
             val filter = searchFilter(query, language)
             val trie = try {
@@ -174,7 +177,7 @@ object DictionarySearch {
             for (typed in spellings(filter)) {
                 if (stopped())
                     return SearchOutcome(emptyList(), 0)
-                val outcome = searchAs(context, trie, typed, language, esperanto, stopped)
+                val outcome = searchAs(context, trie, typed, language, esperanto, whole, stopped)
                 if (!outcome.isEmpty)
                     return SearchOutcome(outcome.results, index, outcome.wiktionary, typed, esperanto, language, outcome.lemmas)
             }
@@ -202,6 +205,7 @@ object DictionarySearch {
         filter: String,
         language: String,
         esperanto: Boolean,
+        whole: Boolean,
         stopped: () -> Boolean,
     ): Found {
         val count: Int
@@ -221,7 +225,12 @@ object DictionarySearch {
         /* The index has some entries twice, the same word for the same
          * sense; or with its other case, "Januaro, januaro": once, as
          * typed if it is so */
-        val found = inTypedCase(once(results.take(count).filterNotNull(), filter), filter)
+        val all = inTypedCase(once(results.take(count).filterNotNull(), filter), filter)
+        /* The word only, accents and case aside: "malva " leaves out
+         * "malvacoj"; "eleve " finds "élève" */
+        val key = Vikivortaro.key(filter)
+        val wanted = { word: String -> !whole || isPattern(filter) || Vikivortaro.key(word) == key }
+        val found = all.filter { wanted(it.word) }
         /* What Reta Vortaro lacks, from Vikivortaro: in French; in
          * Esperanto, its words, for everyone: the same dictionary, what
          * it says of them only in the languages each reader chose */
@@ -231,10 +240,11 @@ object DictionarySearch {
             esperanto -> Vikivortaro.searchEsperanto(context, filter, stopped)
             else -> emptyList()
         }
+            .filter { wanted(it.word) }
             /* When Reta Vortaro's words stop at the limit, those after the
              * last one aren't shown either: by what the index gave, before
              * its double entries were left out */
-            .filter { count < limit || found.isEmpty() || !isBeyond(it.word, found.last().word, filter, esperanto) }
+            .filter { count < limit || all.isEmpty() || !isBeyond(it.word, all.last().word, filter, esperanto) }
 
         /* An Esperanto word with its endings, "hundoj", "kuris": its
          * entries first, as a long press finds them, Reta Vortaro's or
