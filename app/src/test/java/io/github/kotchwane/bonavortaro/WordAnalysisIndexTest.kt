@@ -98,6 +98,22 @@ class WordAnalysisIndexTest {
     }
 
     @Test
+    fun ofTwoEntriesWrittenAlikeTheOfficialOneIsShown() {
+        val officiality = File("src/main/assets/officiality.txt")
+        assumeTrue("the dictionary isn't built", file.exists() && officiality.exists())
+        val entries = OfficialLists.parse(officiality.readText())
+        val levels = OfficialLists.articleLevels(entries)
+        val index = IndexEntries(file.inputStream().use { Trie(it) }) { levels[it] }
+        /* kor·lando: "koro" the heart (Fundamento), not the measure of
+         * volume (issue #1) */
+        val heart = entries.first { it.isRoot && it.text == "kor/o" }.article
+        assertEquals("kor·land·o", shown(WordAnalyser.analyse("korlando", index).first()))
+        assertEquals(heart, index.result("koro")?.article)
+        /* Without officiality, the index's first: the measure */
+        assert(IndexEntries(file.inputStream().use { Trie(it) }).result("koro")?.article != heart)
+    }
+
+    @Test
     fun aSuffixOpensItsOwnWordNotAnotherOne() {
         val analyse = analyser()
         /* "eta", small, not "eto", the Greek letter */

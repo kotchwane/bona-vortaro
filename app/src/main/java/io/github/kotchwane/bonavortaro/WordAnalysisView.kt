@@ -65,7 +65,8 @@ object WordAnalyses {
     @Synchronized
     fun find(context: Context, word: String, needsEnding: Boolean = false): ShownAnalysis? {
         val index = entries ?: try {
-            IndexEntries(TrieCache.getTrie(context, "eo")).also { entries = it }
+            val levels = OfficialLists.articleLevels(OfficialLists.get(context))
+            IndexEntries(TrieCache.getTrie(context, "eo")) { levels[it] }.also { entries = it }
         } catch (e: IOException) {
             Log.w(TAG, "Failed to load the index of Esperanto")
             return null

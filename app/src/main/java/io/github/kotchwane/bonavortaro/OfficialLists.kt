@@ -98,6 +98,12 @@ object OfficialLists {
         return groups.sortedBy { sortKey(it.title) }
     }
 
+    /** The oldest officiality of the root of each article: 0 for the
+     * Fundamento, n for the nth addition. The articles whose root isn't
+     * official are left out. */
+    internal fun articleLevels(entries: List<OfficialEntry>): Map<Int, Int> =
+        entries.filter { it.isRoot }.groupBy { it.article }.mapValues { (_, roots) -> roots.minOf { it.level } }
+
     /** How many roots and words a level has, as shown in its list. */
     internal fun counts(groups: List<OfficialGroup>): Pair<Int, Int> =
         groups.count { it.root != null } to groups.sumOf { it.words.size }

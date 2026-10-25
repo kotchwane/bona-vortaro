@@ -67,6 +67,13 @@ class OfficialListsTest {
     }
 
     @Test
+    fun anArticleHasTheOldestOfficialityOfItsRoot() {
+        /* arĥaism/o: Fundamento and 7th addition; Nigra Arbaro, a word,
+         * doesn't make its article of the 10th */
+        assertEquals(mapOf(767 to 0, 6379 to 9, 801 to 0), OfficialLists.articleLevels(entries))
+    }
+
+    @Test
     fun theCountsAreThoseShown() {
         assertEquals(1 to 2, OfficialLists.counts(OfficialLists.groups(entries, 9)))
         assertEquals(2 to 0, OfficialLists.counts(OfficialLists.groups(entries, 0)))

@@ -317,15 +317,23 @@ object WordAnalyser {
  * written ("hundo", "-ej", "mal-"). Nothing is kept from one word to the
  * next: the analysis keeps what it looked up for its word, and a cache
  * here would grow all the time the app is open. Not thread-safe. */
-class IndexEntries(private val trie: Trie) : (String) -> String? {
-    private val results = arrayOfNulls<SearchResult>(8)
+class IndexEntries(
+    private val trie: Trie,
+    /** The officiality of the root of an article (0 for the Fundamento),
+     * null if it has none */
+    private val articleLevel: (Int) -> Int? = { null },
+) : (String) -> String? {
+    private val results = arrayOfNulls<SearchResult>(16)
 
-    /** The entry written exactly so, if the index has it */
+    /** The entry written exactly so, if the index has it; of two written
+     * alike, the official one, the oldest: "koro" the heart (Fundamento),
+     * not the measure of volume */
     fun result(form: String): SearchResult? {
         /* The index leaves out the hyphens of "-ej" and "mal-", and gives
          * the words of the node first */
         val count = trie.search(form.replace("-", ""), results)
-        return results.take(count).filterNotNull().firstOrNull { it.word.lowercase(Locale.ROOT) == form }
+        return results.take(count).filterNotNull().filter { it.word.lowercase(Locale.ROOT) == form }
+            .minByOrNull { articleLevel(it.article) ?: Int.MAX_VALUE }
     }
 
     override fun invoke(form: String): String? = result(form)?.let { form }
