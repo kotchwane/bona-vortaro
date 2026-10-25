@@ -103,7 +103,6 @@ def buildDictionary = tasks.register('buildDictionary', Exec) {
     outputs.file 'src/main/assets/officiality.txt'
     outputs.file 'src/main/assets/fields.txt'
     outputs.file 'src/main/assets/sources.txt'
-    outputs.file 'src/main/assets/attestations.txt'
     outputs.file 'src/main/assets/vikipedio.txt'
     outputs.file 'src/main/res/xml/languages.xml'
 

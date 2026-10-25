@@ -1283,11 +1283,6 @@ fun SourcesLine(
     val revoPage by produceState<String?>(null, revoArticle) {
         value = revoArticle?.let { withContext(Dispatchers.IO) { RevoFiles.page(context, it)?.toString() } }
     }
-    /* The dictionaries its headwords are in */
-    val dictionaries by produceState(emptyList<Pair<String, String>>(), revoArticle) {
-        value = revoArticle?.let { article -> withContext(Dispatchers.IO) { Attestations.of(context, article) } }
-            ?: emptyList()
-    }
     val revoName = stringResource(R.string.revo_name)
     val vikiName = stringResource(R.string.viki_name)
     val muted = MaterialTheme.colorScheme.onSurfaceVariant
@@ -1327,22 +1322,6 @@ fun SourcesLine(
                                     append(stringResource(R.string.sources_revo_history))
                                 }
                                 append("\u00A0$OUTSIDE_SIGN")
-                            },
-                            style = MaterialTheme.typography.bodyMedium,
-                        )
-                    }
-                    if (revo && dictionaries.isNotEmpty()) {
-                        /* "En la vortaroj: aboli — …", the words in italics */
-                        val line = stringResource(R.string.sources_dictionaries, "\u0000")
-                        Text(
-                            buildAnnotatedString {
-                                append(line.substringBefore('\u0000'))
-                                dictionaries.forEachIndexed { index, (form, works) ->
-                                    if (index > 0) append("; ")
-                                    withStyle(SpanStyle(fontStyle = FontStyle.Italic)) { append(form) }
-                                    append(" — $works")
-                                }
-                                append(line.substringAfter('\u0000'))
                             },
                             style = MaterialTheme.typography.bodyMedium,
                         )

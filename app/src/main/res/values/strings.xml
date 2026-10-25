@@ -213,7 +213,6 @@
   <string name="sources_revo_read">legi kaj korekti</string>
   <string name="sources_revo_history">ĝia historio</string>
   <!-- In "Fontoj": the dictionaries the headwords are in, "aboli — Plena Ilustrita Vortaro (1970); abolicii — …" -->
-  <string name="sources_dictionaries">En la vortaroj: %1$s</string>
   <string name="sources_viki">la tradukoj kun punktita substreko, elektitaj kaj adaptitaj por Bona vortaro</string>
   <string name="sources_viki_word_only">la vorto „%1$s“</string>
   <!-- The Esperanto Wiktionary's definition of a word Reta Vortaro doesn't have -->
