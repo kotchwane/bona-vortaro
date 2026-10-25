@@ -123,14 +123,16 @@ enum class LinkFamily { HIERARCHY, PARTS, EQUIVALENCE, OTHER }
 /**
  * @param markLabel called for each field or kind of word left within the
  *   text (eg. at the start of a sense, "a) muziko …"), with the code of the
- *   field if it is one ("MUZ"), to return the span that shows it as a label
+ *   field if it is one ("MUZ"), to return the span that shows it as a label;
+ *   a field with several names is one label in pieces, each told whether
+ *   it opens and closes the label
  * @param markLinkType called for each symbol of the type of a link, with
  *   the word to show instead, to return the span that shows it
  */
 fun layoutArticle(
     article: Article,
     preferredLanguages: List<String>,
-    markLabel: (field: String?) -> Any,
+    markLabel: (field: String?, first: Boolean, last: Boolean) -> Any,
     markLinkType: (LinkType, String) -> Any,
     /** The words for the kinds of abbreviations (R.array.abbreviation_kinds) */
     abbreviationKinds: List<String> = emptyList(),
@@ -548,7 +550,7 @@ private fun leadingAbbreviations(content: Spanned, spans: List<LabelSpan>): List
  * stays text. */
 private val LABEL_SEPARATOR = Regex(""",\s*""")
 
-private fun markInlineLabels(content: Spanned, markLabel: (String?) -> Any, abbreviationKinds: List<String>): Spanned {
+private fun markInlineLabels(content: Spanned, markLabel: (String?, Boolean, Boolean) -> Any, abbreviationKinds: List<String>): Spanned {
     val all = labelSpans(content, 0, content.length)
     val spans = all.filter { it.abbreviation < 0 } + leadingAbbreviations(content, all)
     if (spans.isEmpty())
@@ -564,22 +566,18 @@ private fun markInlineLabels(content: Spanned, markLabel: (String?) -> Any, abbr
             val label = "$kind: ${content.subSequence(span.start, span.end)}"
             marked.replace(span.start, span.end, label)
             end = span.start + label.length
-            marked.setSpan(markLabel(null), span.start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+            marked.setSpan(markLabel(null, true, true), span.start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
             continue
         }
-        /* "hortikulturo, arbokulturo, silvikulturo": one label each,
-         * apart, so that they go to the next line instead of past the
-         * edge, which a label, drawn in one piece, would */
-        for (piece in LABEL_SEPARATOR.findAll(content.subSequence(span.start, span.end)).toList().reversed()) {
-            val at = span.start + piece.range.first
-            if (at + piece.value.length < end)
-                marked.setSpan(markLabel(span.field), at + piece.value.length, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-            marked.replace(at, at + piece.value.length, " ")
-            end = at
-        }
-        /* Each piece with the icon: "ŝipkonstruado, navigado" is one
-         * field, in two labels */
-        marked.setSpan(markLabel(span.field), span.start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+        /* "hortikulturo, arbokulturo, silvikulturo" is one field: one
+         * label, with one icon, but in pieces cut after the commas, so that
+         * it goes to the next line there instead of past the edge, which a
+         * label drawn in one piece would */
+        val cuts = LABEL_SEPARATOR.findAll(content.subSequence(span.start, span.end))
+            .map { span.start + it.range.last + 1 }.filter { it < end }.toList()
+        val bounds = listOf(span.start) + cuts + end
+        for (i in 0 until bounds.size - 1)
+            marked.setSpan(markLabel(span.field, i == 0, i == bounds.size - 2), bounds[i], bounds[i + 1], Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
     }
     return marked
 }

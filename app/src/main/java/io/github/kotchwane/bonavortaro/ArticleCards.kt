@@ -540,13 +540,17 @@ private fun LabelChip(label: Label, modifier: Modifier = Modifier) {
 
 /** Draws a field or a kind of word left within the text, eg. at the
  * start of a sense, as a small label with a tinted background, after the
- * icon of the field if it has one, as high as the letters. */
+ * icon of the field if it has one, as high as the letters. A label in
+ * pieces ("politiko, sociologio, administrado") is drawn joined, rounded
+ * only where it opens and closes, as a highlight going on to the next line. */
 class InlineLabelSpan(
     private val background: Int,
     private val foreground: Int,
     private val radius: Float,
     private val padding: Float,
     private val icon: Drawable? = null,
+    private val first: Boolean = true,
+    private val last: Boolean = true,
 ) : ReplacementSpan() {
 
     private fun labelPaint(paint: Paint) = Paint(paint).apply { textSize = paint.textSize * 0.85f }
@@ -569,8 +573,13 @@ class InlineLabelSpan(
     ): Int {
         val label = labelPaint(paint)
         fm?.let { fitPill(it, paint, label, padding, 0f) }
-        return (label.measureText(text, start, end) + iconWidth(label) + 2 * padding).roundToInt()
+        return width(label, text, start, end).roundToInt()
     }
+
+    private fun before(label: Paint) = if (first) padding + iconWidth(label) else 0f
+
+    private fun width(label: Paint, text: CharSequence, start: Int, end: Int) =
+        before(label) + label.measureText(text, start, end) + if (last) padding else 0f
 
     override fun draw(
         canvas: Canvas,
@@ -584,10 +593,15 @@ class InlineLabelSpan(
         paint: Paint,
     ) {
         val label = labelPaint(paint)
-        val width = label.measureText(text, start, end) + iconWidth(label) + 2 * padding
+        val width = width(label, text, start, end)
         val rect = RectF(x, y + label.ascent() - padding / 2, x + width, y + label.descent() + padding / 2)
 
-        canvas.drawRoundRect(rect, radius, radius, Paint(paint).apply { color = background })
+        val fill = Paint(paint).apply { color = background }
+        canvas.drawRoundRect(rect, radius, radius, fill)
+        if (!first)
+            canvas.drawRect(rect.left, rect.top, rect.left + radius, rect.bottom, fill)
+        if (!last)
+            canvas.drawRect(rect.right - radius, rect.top, rect.right, rect.bottom, fill)
         icon?.let {
             /* Centred on the letters without descender */
             val size = iconSize(label)
@@ -602,7 +616,7 @@ class InlineLabelSpan(
             it.draw(canvas)
         }
         label.color = foreground
-        canvas.drawText(text, start, end, x + padding + iconWidth(label), y.toFloat(), label)
+        canvas.drawText(text, start, end, x + before(label), y.toFloat(), label)
     }
 }
 
