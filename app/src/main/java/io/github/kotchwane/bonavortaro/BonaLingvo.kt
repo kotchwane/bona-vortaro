@@ -163,30 +163,40 @@ object BonaLingvo {
                 null
             else
                 word.section to SpannableStringBuilder().apply {
-                    found.forEachIndexed { number, (headword, entry) ->
-                        if (number > 0)
-                            append("\n")
-                        /* Whose it is, when the word has several */
-                        if (headwords.size > 1)
-                            append("„$headword“: ")
-                        append(remark(context, entry, index))
-                    }
+                    append(credit(context))
+                    /* The list named once; when the word has several
+                     * headwords, what it says of each on its own line */
+                    if (headwords.size > 1) {
+                        append(":")
+                        for ((headword, entry) in found) {
+                            append("\n„$headword“")
+                            append(remark(context, entry, index))
+                        }
+                    } else
+                        append(remark(context, found[0].second, index))
                 }
         }.toMap()
     }
 
-    private fun remark(context: Context, entry: BonaLingvoEntry, index: Trie?): CharSequence =
+    /* "Laŭ Vortoj de la bona lingvo ⓘ", the ⓘ saying what the list is, as
+     * it gives no reason for each word: kept with the name, never alone at
+     * the start of a line */
+    private fun credit(context: Context): CharSequence =
         SpannableStringBuilder().apply {
             val according = context.getString(R.string.bl_according, "\u0000")
             append(according.substringBefore('\u0000'))
             val name = context.getString(R.string.bl_name)
             append(name)
             setSpan(StyleSpan(Typeface.ITALIC), length - name.length, length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-            /* What the list is, as it gives no reason for each word */
-            append(" ")
+            append("\u00A0")
             append("ⓘ")
             setSpan(BonaLingvoInfoSpan(), length - 1, length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
             append(according.substringAfter('\u0000'))
+        }
+
+    /* " (en la senco de …): prefere diru akvokondukilo." */
+    private fun remark(context: Context, entry: BonaLingvoEntry, index: Trie?): CharSequence =
+        SpannableStringBuilder().apply {
             if (entry.context.isNotEmpty())
                 append(" ${entry.context}")
             append(": ")
