@@ -17,6 +17,13 @@
 
 package io.github.kotchwane.bonavortaro
 
+import android.content.ContextWrapper
+import android.net.Uri
+import android.text.style.ClickableSpan
+import android.view.View
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.TextButton
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.FlowRow
@@ -27,7 +34,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.sp
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -132,14 +138,56 @@ fun BonaLingvoRow(
                         modifier = Modifier.padding(start = 12.dp),
                     )
             }
+            /* All the words to say, on several lines if need be */
             Text(
                 preferredLine(entry),
                 style = MaterialTheme.typography.bodyMedium.copy(fontStyle = FontStyle.Italic),
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
             )
         }
         action?.invoke()
+    }
+}
+
+/** What "Vortoj de la bona lingvo" is, from the "ⓘ" after its name: its
+ * principle, in its own words (labonalingvo.org), as it gives no reason
+ * for each word, and who made it */
+@Composable
+fun BonaLingvoInfoDialog(onDismiss: () -> Unit) {
+    val context = LocalContext.current
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(stringResource(R.string.bl_name)) },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                Text(stringResource(R.string.bl_principle_intro))
+                Text(stringResource(R.string.bl_principle), fontStyle = FontStyle.Italic)
+                Text(stringResource(R.string.bl_authors), style = MaterialTheme.typography.bodySmall)
+            }
+        },
+        confirmButton = {
+            TextButton(onClick = onDismiss) { Text(stringResource(R.string.close)) }
+        },
+        dismissButton = {
+            TextButton(onClick = { openOutside(context, Uri.parse(BonaLingvo.SITE)) }) {
+                Text("${stringResource(R.string.about_bl_link)} $OUTSIDE_SIGN")
+            }
+        },
+    )
+}
+
+/** A screen that shows what "Vortoj de la bona lingvo" is, when its "ⓘ"
+ * is tapped in a text */
+interface BonaLingvoInfoHost {
+    fun showBonaLingvoInfo()
+}
+
+/** The "ⓘ" after the name of the list in a remark of an article */
+class BonaLingvoInfoSpan : ClickableSpan() {
+    override fun onClick(widget: View) {
+        var context = widget.context
+        while (context !is BonaLingvoInfoHost && context is ContextWrapper)
+            context = context.baseContext
+        (context as? BonaLingvoInfoHost)?.showBonaLingvoInfo()
     }
 }

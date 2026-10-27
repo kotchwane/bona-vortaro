@@ -777,12 +777,10 @@ internal fun ResultRow(
              * line, "maison → domo"; the example it is found in, "maison à
              * colombages → trabfaka domo" */
             val esperanto = if (inEsperanto) null else example?.example ?: preview?.title
-            /* A word that "Vortoj de la bona lingvo" advises against: marked
-             * so, and what to say instead in place of its definition */
-            val advised = if (inEsperanto) result.word.takeIf { !result.isExample } else esperanto?.takeIf { example == null }
-            val advice by produceState<BonaLingvoEntry?>(null, advised) {
-                value = advised?.let { withContext(Dispatchers.IO) { BonaLingvo.discouraged(context, it) } }
-            }
+            /* What "Vortoj de la bona lingvo" says of a word of Reta Vortaro
+             * isn't in the search, only in its article, where it is
+             * credited: the search shows the dictionary's description, as
+             * for every word (user, 2026-10-27) */
             Row(verticalAlignment = Alignment.CenterVertically) {
                 /* The label after the word, on the next line when it doesn't
                  * fit: never the word broken to make room for it */
@@ -795,8 +793,6 @@ internal fun ResultRow(
                         Text(result.word, style = wordStyle, color = bonaDesign.headword)
                     else
                         Text(translationTitle(result.word, esperanto, wordStyle), style = wordStyle)
-                    if (advice != null)
-                        DiscouragedChip()
                 }
                 if (label != null)
                     Text(
@@ -816,7 +812,7 @@ internal fun ResultRow(
             } else preview?.definition
             /* Keep the height of the row while the preview is loading */
             Text(
-                advice?.let { preferredLine(it) } ?: AnnotatedString(text ?: ""),
+                text ?: "",
                 style = small.copy(fontStyle = FontStyle.Italic),
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 maxLines = 1,

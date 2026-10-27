@@ -61,6 +61,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.produceState
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
@@ -171,7 +172,8 @@ fun VikiResultRow(
                 else definition ?: result.description ?: ""),
                 style = small.copy(fontStyle = FontStyle.Italic),
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
-                maxLines = 1,
+                /* All the words to say, on several lines if need be */
+                maxLines = if (advice != null) Int.MAX_VALUE else 1,
                 overflow = TextOverflow.Ellipsis,
             )
         }
@@ -339,19 +341,32 @@ private fun VikiPage(
                             DiscouragedChip()
                     }
                     /* Where it comes from, as the search's "laŭ Reta Vortaro" */
+                    val origin = stringResource(
+                        when {
+                            read == null -> R.string.not_in_revo
+                            !(read!!.inViki || french.isNotEmpty() || description != null) ->
+                                if (advice != null) R.string.from_bl_not_in_revo else R.string.not_in_revo
+                            advice != null -> R.string.from_viki_bl_not_in_revo
+                            else -> R.string.from_viki_not_in_revo
+                        }
+                    )
+                    /* With the list: an "ⓘ" saying what it is, as it gives no
+                     * reason for each word */
+                    var blInfo by remember { mutableStateOf(false) }
+                    val infoLabel = stringResource(R.string.bl_info)
                     Text(
-                        stringResource(
-                            when {
-                                read == null -> R.string.not_in_revo
-                                !(read!!.inViki || french.isNotEmpty() || description != null) ->
-                                    if (advice != null) R.string.from_bl_not_in_revo else R.string.not_in_revo
-                                advice != null -> R.string.from_viki_bl_not_in_revo
-                                else -> R.string.from_viki_not_in_revo
+                        buildAnnotatedString {
+                            append(origin)
+                            if (advice != null) {
+                                append(" ")
+                                withLink(LinkAnnotation.Clickable(infoLabel) { blInfo = true }) { append("ⓘ") }
                             }
-                        ),
+                        },
                         style = MaterialTheme.typography.bodySmall.copy(fontStyle = FontStyle.Italic),
                         color = muted,
                     )
+                    if (blInfo)
+                        BonaLingvoInfoDialog(onDismiss = { blInfo = false })
                     /* What to say instead, each word a link to its page */
                     val sources = read
                     if (advice != null && sources != null)

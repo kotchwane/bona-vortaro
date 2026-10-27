@@ -182,6 +182,10 @@ object BonaLingvo {
             val name = context.getString(R.string.bl_name)
             append(name)
             setSpan(StyleSpan(Typeface.ITALIC), length - name.length, length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+            /* What the list is, as it gives no reason for each word */
+            append(" ")
+            append("ⓘ")
+            setSpan(BonaLingvoInfoSpan(), length - 1, length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
             append(according.substringAfter('\u0000'))
             if (entry.context.isNotEmpty())
                 append(" ${entry.context}")
