@@ -534,8 +534,10 @@ private fun ArticleScreen(
 
     /* What "Vortoj de la bona lingvo" says of its words, when Reta
      * Vortaro's remarks don't: a remark after the others, once read */
-    val bonaLingvo by produceState<Map<Int, CharSequence>>(emptyMap(), revoLayout) {
-        value = revoLayout?.let { withContext(Dispatchers.IO) { BonaLingvo.remarks(context, it) } } ?: emptyMap()
+    val bonaLingvo by produceState<Map<Int, CharSequence>>(emptyMap(), revoLayout, articleNumber) {
+        value = revoLayout?.let {
+            withContext(Dispatchers.IO) { BonaLingvo.remarks(context, it, RevoFiles.fileOf(context, articleNumber)) }
+        } ?: emptyMap()
     }
     val layout = remember(revoLayout, bonaLingvo) { revoLayout?.withRemarks(bonaLingvo) }
 

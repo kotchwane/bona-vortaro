@@ -23,18 +23,63 @@
 # Vortaro without the group's check ("PIV", "ReVo" in its annotations) is
 # left out, and a word left without any line with it.
 #
+# A word that is the headword of several articles of Reta Vortaro ("vato",
+# the wadding and the watt) has each of its lines put with one of them, by
+# hand, in data/bona-lingvo-homonyms.tsv; a line left out of it is shown in
+# no article, and said here.
+#
 # Writes app/src/main/assets/bonalingvo/bl.tsv, one line per
 # simplification, the words in alphabetical order, the simplifications of a
 # word in the group's order. Columns: the word, its context, "→" or "~",
-# the word to say, its context.
+# the word to say, its context, and the file of the article it is about
+# ("" for any, "-" for none).
 import csv
+import glob
 import os
+import re
 import sys
+import unicodedata
 
 ROOT = os.path.join(os.path.dirname(__file__), "..")
 DATA = os.path.join(ROOT, "data", "bona-lingvo.csv")
 OUT = os.path.join(ROOT, "app", "src", "main", "assets", "bonalingvo", "bl.tsv")
 UNCHECKED = ("PIV", "ReVo")
+HOMONYMS = os.path.join(ROOT, "data", "bona-lingvo-homonyms.tsv")
+REVO = os.path.join(ROOT, "extern", "revo-fonto", "revo")
+LETTERS = {"Ccirc": "Ĉ", "ccirc": "ĉ", "Gcirc": "Ĝ", "gcirc": "ĝ", "Hcirc": "Ĥ", "hcirc": "ĥ",
+           "Jcirc": "Ĵ", "jcirc": "ĵ", "Scirc": "Ŝ", "scirc": "ŝ", "Ubreve": "Ŭ", "ubreve": "ŭ"}
+
+
+def revo_articles():
+    """The files of Reta Vortaro's articles where each headword is"""
+    files = {}
+    for path in glob.glob(os.path.join(REVO, "*.xml")):
+        with open(path, encoding="utf-8") as f:
+            text = re.sub(r"&(\w+);", lambda m: LETTERS.get(m.group(1), ""), f.read())
+        root = re.search(r"<rad[^>]*>([^<]*)</rad>", text)
+        if not root:
+            continue
+        root = root.group(1)
+        name = os.path.basename(path)[:-4]
+        for headword in re.findall(r"<kap>(.*?)</kap>", text, re.S):
+            headword = re.sub(r'<tld\s+lit="(.)"\s*/>', lambda m: m.group(1) + root[1:], headword)
+            headword = re.sub(r"<(fnt|ofc)>.*?</\1>", "", headword.replace("<tld/>", root), flags=re.S)
+            for word in re.sub(r"<[^>]+>", "", headword).split(","):
+                word = " ".join(word.split())
+                if word:
+                    files.setdefault(word, set()).add(name)
+    return files
+
+
+def nfc(text):
+    return unicodedata.normalize("NFC", text)
+
+
+def homonyms():
+    """The article of each line of a word of several articles, by the word and the word to say"""
+    with open(HOMONYMS, encoding="utf-8") as f:
+        return {(nfc(fields[0]), nfc(fields[1])): fields[2]
+                for fields in (line.rstrip("\n").split("\t") for line in f if not line.startswith("#") and line.strip())}
 
 
 def copy_export(source):
@@ -53,7 +98,9 @@ def checked(annotation):
 
 
 def clean(text):
-    return " ".join(text.replace("\t", " ").split())
+    # Some letters with a hat are written as a letter and the hat apart
+    # ("grafikaĵo"): as one, as Reta Vortaro does
+    return " ".join(unicodedata.normalize("NFC", text).replace("\t", " ").split())
 
 
 if len(sys.argv) > 1:
@@ -72,6 +119,8 @@ for word, word_rows in by_word.items():
     if len(contexts) > 1:
         print(f"warning: {word} has several contexts {sorted(contexts)}; only the first is kept", file=sys.stderr)
 
+articles = revo_articles()
+chosen = homonyms()
 lines = []
 left_out = 0
 for word in sorted(by_word, key=lambda w: (w.lower().strip("-"), w)):
@@ -87,7 +136,14 @@ for word in sorted(by_word, key=lambda w: (w.lower().strip("-"), w)):
             continue
         seen.add((target, target_context))
         sign = "→" if row["recommendation_type"] == "malrekomendo" else "~"
-        lines.append("\t".join([word, clean(row["source_word_context"]), sign, target, target_context]))
+        article = ""
+        if len(articles.get(word, ())) > 1:
+            article = chosen.get((nfc(word), nfc(target)), "-")
+            if article == "-":
+                print(f"warning: {word} → {target}: which of {sorted(articles[word])}? Shown in none", file=sys.stderr)
+            elif article == "*":
+                article = ""
+        lines.append("\t".join([word, clean(row["source_word_context"]), sign, target, target_context, article]))
 
 latest = max(r["updated_at"] for r in rows)[:10]
 os.makedirs(os.path.dirname(OUT), exist_ok=True)
@@ -97,7 +153,8 @@ with open(OUT, "w", encoding="utf-8") as f:
             "# Adapted with scripts/bona-lingvo.py from data/bona-lingvo.csv.\n"
             f"# Version: {latest} (its last change).\n"
             "# Only what the working group has checked. Columns: the word, its context, \"→\" (advised against) or\n"
-            "# \"~\" (an alternative), the word to say, its context.\n")
+            "# \"~\" (an alternative), the word to say, its context, the file of the article it is about\n"
+            "# when the word heads several (data/bona-lingvo-homonyms.tsv; \"-\": none).\n")
     f.write("\n".join(lines) + "\n")
 kept = {line.split("\t")[0] for line in lines}
 print(f"{len(kept)} words, {len(lines)} simplifications ({left_out} not yet checked, left out), version {latest}")

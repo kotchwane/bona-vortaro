@@ -30,7 +30,15 @@ import java.util.Locale
  * faka lingvo)"), "" if none; whether the other is advised against
  * ("malrekomendo", →) or only has this simpler alternative ("alternativo",
  * ~). Only those the working group has checked are in the app. */
-class Simplification(val word: String, val context: String, val discouraged: Boolean)
+class Simplification(
+    val word: String,
+    val context: String,
+    val discouraged: Boolean,
+    /** For a word that heads several articles of Reta Vortaro ("vato", the
+     * wadding and the watt), the file of the one it is about, "-" for none;
+     * null for any */
+    val article: String? = null,
+)
 
 /** A word of "Vortoj de la bona lingvo", in its [context] ("(en gramatiko)"),
  * "" if none, with the words to say instead, in the group's order. */
@@ -115,7 +123,7 @@ object BonaLingvo {
     private fun load(context: Context): Map<String, BonaLingvoEntry> {
         val lines = try {
             context.assets.open("bonalingvo/bl.tsv").bufferedReader().useLines { lines ->
-                lines.filter { !it.startsWith("#") && it.isNotBlank() }.map { it.split('\t') }.filter { it.size == 5 }.toList()
+                lines.filter { !it.startsWith("#") && it.isNotBlank() }.map { it.split('\t') }.filter { it.size >= 5 }.toList()
             }
         } catch (e: IOException) {
             Log.w(TAG, "Failed to read the list")
@@ -127,7 +135,7 @@ object BonaLingvo {
             val entry = BonaLingvoEntry(
                 word,
                 lines[0][1],
-                lines.map { Simplification(it[3], it[4], it[2] == "→") },
+                lines.map { Simplification(it[3], it[4], it[2] == "→", it.getOrNull(5)?.takeIf { article -> article.isNotEmpty() }) },
             )
             found[word] = entry
             /* Also without the case of its first letter, as typed */
@@ -152,7 +160,7 @@ object BonaLingvo {
      * words to say a link to their article when Reta Vortaro has them.
      * About 1,750 of its words have such a remark already ("Laŭ BL…"). Disk
      * access: not on the main thread. */
-    fun remarks(context: Context, layout: ArticleLayout): Map<Int, CharSequence> {
+    fun remarks(context: Context, layout: ArticleLayout, file: String?): Map<Int, CharSequence> {
         val index = try {
             TrieCache.getTrie(context, "eo")
         } catch (e: IOException) {
@@ -164,7 +172,13 @@ object BonaLingvo {
             /* Each of its headwords: "faraĉi, fuŝfari" */
             val headwords = word.title.toString().split(",").map { it.trim() }.filter { it.isNotEmpty() }
             /* As written: "Xyz" the name isn't the list's "xyz" */
-            val found = headwords.mapNotNull { headword -> entries(context)[headword]?.takeIf { it.word == headword }?.let { headword to it } }
+            val found = headwords.mapNotNull { headword ->
+                entries(context)[headword]?.takeIf { it.word == headword }?.let { entry ->
+                    /* Of a word that heads several articles, what is about this one */
+                    val here = entry.simplifications.filter { it.article == null || it.article == file }
+                    if (here.isEmpty()) null else headword to BonaLingvoEntry(entry.word, entry.context, here)
+                }
+            }
             if (found.isEmpty())
                 null
             else

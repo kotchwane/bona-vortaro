@@ -1,0 +1,114 @@
+# Words of Vortoj de la bona lingvo that are headwords of several articles of Reta Vortaro
+# ("vato", the wadding and the watt): the article each line of the list is about, by its file
+# (extern/revo-fonto/revo/<file>.xml), chosen by hand from the line's context and the articles'
+# definitions; "*" for every article. A line of such a word not listed here is shown nowhere.
+# Read by scripts/bona-lingvo.py. Columns: the word, the word to say, the article's file.
+atlaso	maparo	atlas
+atlaso	sateno	atlas1
+balano	peniskapo	balan
+balano	glano	balan
+blendo	kiraso	blend1
+datumo	inform(er)o	datum
+datumo	donitaĵo	datum
+elipso	(vorto)ellaso	elips1
+elipso	ovalo	elips
+estrado	podio	estrad
+fado	faduo	fad1
+faŭno	bestaro	fauxn1
+faŭno	kaproviro	fauxn
+integri	enpreni	integr
+integri	kunigi	integr
+integri	ensorbi	integr
+integri	ensociigi	integr
+investi	(solene) enoficigi	invest2
+jardo	horizontala velstango	jard
+kanono	pafilego	kanon1
+kanono	ĉenkanto	kanon2
+kanono	rada kanto	kanon2
+kanono	leĝo	kanon
+kanono	listo	kanon
+kanono	akceptita tekstaro	kanon
+kardinalo	kvantonombro	kardinal1
+kardinalo	kvanta nombrovorto	kardinal1
+kardinalo	baza nombrovorto	kardinal1
+kino	filmarto	kin
+kino	kinkono	kin1
+kino	kinkonŝelo	kin1
+kliko	grupo	klik
+kliko	bando	klik
+kliko	grupaĉo	klik
+kliko	figrupo	klik
+kliko	klinko	klik1
+koncentra	samcentra	koncen1
+kronika	longedaŭra	kronik
+kurio	administrantaro	kuri
+kurio	registaro	kuri
+kvarto	kvara intervalo	kvart
+likvido	flua konsonanto	likvid1
+lombardo	garantiprunto	lombard
+medo	mielvino	med1
+medo	mielakvo	med1
+monismo	unuismo	monism
+nefrito	renbrulumo	nefrit1
+nefrito	reninflamo	nefrit1
+patelo	genuosto	patel
+pato	egalo	pat1
+pedologio	infanstudado	pedolo
+pedologio	infanscienco	pedolo
+pedologio	grundoscienco	pedolo1
+peono	terlaboristo	peon1
+peono	soldato	peon
+planto	kreskaĵo	plant1
+planto	vegetaĵo	plant1
+popo	ortodoksa pastro	pop
+reciti	deklami	recit
+rundo	patrolrondiro	rund
+rundo	balotado	rund1
+septo	maldika vandeto	sept1
+taro	ujpezo	tar
+taro	manĝebla kolokazio	tar1
+teksturo	teksmaniero	tekstur
+teksturo	surfaca eco	tekstur
+teksturo	surfaco	tekstur
+teksturo	tuŝaspekto	tekstur
+teksturo	konsisto	tekstur
+teksturo	konsistaranĝo	tekstur
+teksturo	konsistaspekto	tekstur
+terminalo	flugstacio	terminal1
+terminalo	finaparato	terminal
+tino	(ligna) kuvo	tin
+toniko	(gama) baztono	tonik1
+toniko	gambazo	tonik1
+toniko	gam-bazo	tonik1
+trinkmono	dankmono	*
+troglodito	kavernulo	troglo
+trolo	marfunda trenreto/tirreto	trol1
+trolo	(reta)ĝenulo	trol
+trolo	disputinstiganto	trol
+trolo	provokisto	trol
+varianto	variaĵo	varian
+vasko	eŭsko	vask
+vasko	(fontana) konkego	vask1
+vato	kotonfloro	vat
+velaro	vela konsonanto	velar
+ĝino	feo	gxin1
+ĝino	koboldo	gxin1
+ĝino	juniperbrando	gxin
+ĵako	ŝtopilingo	jxak1
+ĵigo	kunmetenigmo	jxig1
+devizo	fremda mono	deviz1
+devizo	fremda ĉeko	deviz1
+devizo	fremda valuto	deviz1
+gamo	ĉiomo	gam
+gamo	tuta serio	gam
+gamo	tonskalo	gam
+gamo	tonsinsekvo	gam
+grafo	grafeo	graf1
+grafo	grafikaĵo	graf1
+halo	saluton	hola
+katarakto	akvofalego	katarakt
+kilo	funda ŝiptrabo	kil
+roto	taĉmento	rot
+trako	sono	trak
+trako	sonparto	trak
+trako	sondokumento	trak
