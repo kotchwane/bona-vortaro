@@ -493,7 +493,7 @@ private fun ArticleScreen(
     val colors = MaterialTheme.colorScheme
     val density = LocalDensity.current.density
     val abbreviationKinds = stringArrayResource(R.array.abbreviation_kinds).toList()
-    val layout = remember(article, preferredLanguages, colors) {
+    val revoLayout = remember(article, preferredLanguages, colors) {
         article?.let {
             layoutArticle(
                 it,
@@ -531,6 +531,13 @@ private fun ArticleScreen(
             )
         }
     }
+
+    /* What "Vortoj de la bona lingvo" says of its words, when Reta
+     * Vortaro's remarks don't: a remark after the others, once read */
+    val bonaLingvo by produceState<Map<Int, CharSequence>>(emptyMap(), revoLayout) {
+        value = revoLayout?.let { withContext(Dispatchers.IO) { BonaLingvo.remarks(context, it) } } ?: emptyMap()
+    }
+    val layout = remember(revoLayout, bonaLingvo) { revoLayout?.withRemarks(bonaLingvo) }
 
     /* Where the card of each section is in the list */
     val positions = remember(layout) {
@@ -574,9 +581,11 @@ private fun ArticleScreen(
 
     /* Of every card, not only those drawn: the article may open at a later
      * one, and the credit is due all the same */
-    val articleViki by produceState(false, layout, vikiShown, vikiSearch, searched) {
+    /* Reta Vortaro's layout: the list's remarks, coming after, change no
+     * translation */
+    val articleViki by produceState(false, revoLayout, vikiShown, vikiSearch, searched) {
         value = false
-        val all = layout?.words ?: return@produceState
+        val all = revoLayout?.words ?: return@produceState
         if (vikiShown)
             value = withContext(Dispatchers.IO) {
                 all.any { word ->
@@ -702,7 +711,7 @@ private fun ArticleScreen(
                      * narrow cards keep their words whole */
                     if (layout != null)
                         item(key = "sources") {
-                            SourcesLine(revo = true, viki = withViki, revoArticle = articleNumber, modifier = Modifier.padding(horizontal = 8.dp))
+                            SourcesLine(revo = true, viki = withViki, revoArticle = articleNumber, bonaLingvo = bonaLingvo.isNotEmpty(), modifier = Modifier.padding(horizontal = 8.dp))
                         }
                     if (layout != null && neighbours != null)
                         item(key = "neighbours") {

@@ -130,6 +130,8 @@
   <string name="guide_translations_title">Tradukoj</string>
   <string name="guide_translations">La tradukoj aperas en la lingvoj elektitaj en la agordoj („Tradukoj en la artikoloj“), en ilia ordo. „+ N lingvoj“ montras la aliajn. Post la tradukoj de la vorto venas tiuj de ĝiaj ekzemploj, ĉiu post sia ekzemplo, kaj ankaŭ ili troviĝas per la serĉo: _bonjour_ kondukas al „saluton!“, ĉe „saluto“. Tiam la linio de la ekzemplo estas emfazita; tuŝu ĝin por forigi la emfazon.</string>
   <string name="guide_vikivortaro_title">Vikivortaro</string>
+  <string name="guide_bl_title">Malrekomendataj vortoj</string>
+  <string name="guide_bl">Iujn vortojn, ofte novajn kaj internaciajn, „Vortoj de la bona lingvo“ malrekomendas, kaj proponas diri alie, per vortoj faritaj el konataj radikoj: „eskalatoro“, prefere „rulŝtuparo“. En la serĉo ili havas la etikedon „malrekomendata“; en la artikoloj rimarko diras, kion diri anstataŭe.</string>
   <string name="guide_vikivortaro">La vortoj kaj tradukoj, kiujn Reta Vortaro ne havas, venas el Vikivortaro (CC\u00A0BY-SA\u00A04.0): ne grasaj en la serĉo, punktite substrekitaj en la artikoloj. Tuŝu tian vorton por scii, de kie ĝi venas. La esperantaj difinoj de kelkcent vortoj aperas por ĉiuj; la francaj vortoj kaj tradukoj nur, se la franca estas inter la tradukoj en la agordoj.</string>
   <string name="guide_official_title">Oficialeco</string>
   <string name="guide_official">La etikedoj „Fundamento“ kaj „9a Oficiala Aldono“ montras, ke radiko aŭ vorto estas oficiala, kaj ekde kiam. Tuŝu ilin por scii pli kaj vidi la listojn.</string>
@@ -198,10 +200,23 @@
   <!-- What comes from the French Wiktionary, apart from Reta Vortaro -->
   <string name="viki_name">Vikivortaro</string>
   <string name="viki_not_bold">La vortoj ne grasaj venas el Vikivortaro (CC\u00A0BY-SA\u00A04.0).</string>
+  <string name="viki_not_bold_others">La aliaj vortoj ne grasaj venas el Vikivortaro (CC\u00A0BY-SA\u00A04.0).</string>
   <string name="viki_word_source">„%1$s“ venas el Vikivortaro (CC\u00A0BY-SA\u00A04.0).</string>
   <string name="viki_in_french">franca: %1$s</string>
   <string name="not_in_revo">ne en Reta Vortaro</string>
+  <!-- Vortoj de la bona lingvo (labonalingvo.org) -->
+  <string name="bl_name">Vortoj de la bona lingvo</string>
+  <string name="bl_discouraged">malrekomendata</string>
+  <string name="bl_preferably">prefere</string>
+  <string name="bl_not_bold">La vortoj ne grasaj kun „prefere …“ aŭ „ankaŭ eblas diri …“ sub ili venas el Vortoj de la bona lingvo.</string>
+  <!-- In a remark: "Laŭ Vortoj de la bona lingvo: prefere diru akvokondukilo." -->
+  <string name="bl_according">Laŭ %1$s</string>
+  <string name="bl_say_instead">prefere diru</string>
+  <string name="bl_also_say">ankaŭ eblas diri</string>
+  <string name="sources_bl">la rimarkoj pri malrekomendataj vortoj kaj iliaj alternativoj</string>
   <string name="from_viki_not_in_revo">el Vikivortaro · ne en Reta Vortaro</string>
+  <string name="from_bl_not_in_revo">el Vortoj de la bona lingvo · ne en Reta Vortaro</string>
+  <string name="from_viki_bl_not_in_revo">el Vikivortaro kaj Vortoj de la bona lingvo · ne en Reta Vortaro</string>
   <!-- In a search result, an example of a word: "abunde — ekzemplo ĉe abunda" -->
   <string name="example_of">ekzemplo ĉe %1$s</string>
   <string name="revo_name">Reta Vortaro</string>
@@ -231,6 +246,9 @@
   <string name="about_viki_title">Vikivortaro</string>
   <string name="about_viki">Kelkaj vortoj kaj tradukoj, kiujn la Reta Vortaro ne havas, venas el Vikivortaro: francaj tradukoj kaj priskriboj el fr.wiktionary.org, kaj la difinoj de kelkcent esperantaj vortoj el eo.wiktionary.org, elektitaj unu post la alia. En la artikoloj ili havas punktitan substrekon, en la serĉo ili ne estas grasaj. Vikivortaro estas verkita de ĝiaj kontribuantoj kaj publikigita laŭ la permesilo CC\u00A0BY-SA\u00A04.0. Tiuj tradukoj kaj difinoj estas elektitaj kaj adaptitaj por Bona vortaro, kaj restas apartaj de la Reta Vortaro.</string>
   <string name="about_viki_link">Vikivortaro</string>
+  <string name="about_bl_title">Vortoj de la bona lingvo</string>
+  <string name="about_bl">La vortoj „malrekomendataj“ kaj tio, kion diri anstataŭe, venas el „Vortoj de la bona lingvo“, publikigita laŭ la permesilo CC\u00A0BY\u00A04.0. Atribuo: Renato Corsetti, Noam Mohr, kaj la laborgrupo de la Bona Lingvo, labonalingvo.org. La listo estas adaptita por Bona vortaro, kiu montras nur tion, kion la laborgrupo jam kontrolis.</string>
+  <string name="about_bl_link">labonalingvo.org</string>
   <string name="about_data_link">La Reta Vortaro</string>
   <string name="about_copyright_title">Kopirajto</string>
   <string name="about_copyright">*Bona vortaro*: © 2026 kotchwane. PReVo kaj prevodb: © 2012, 2013, 2016, 2017, 2018, 2019, 2020 Neil Roberts. Ĉiuj tri estas libera programaro, laŭ la GPL, versio 2: ĉiu rajtas uzi, kunhavigi kaj ŝanĝi ilin.</string>

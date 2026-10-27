@@ -103,6 +103,7 @@ private val PARTS = listOf(
             "CC\u00A0BY-SA\u00A04.0" to CC_BY_SA_URL,
         ),
     ),
+    AboutPart(R.string.about_bl_title, R.string.about_bl, R.string.about_bl_link to BonaLingvo.SITE),
     AboutPart(R.string.about_copyright_title, R.string.about_copyright),
     AboutPart(R.string.about_warranty_title, R.string.about_warranty, R.string.about_license_link to LICENSE_URL),
 )
