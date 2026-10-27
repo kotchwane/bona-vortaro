@@ -158,9 +158,9 @@ object DictionarySearch {
      * first one that has any. Typing the x-system is accepted in Esperanto
      * (cx → ĉ), and the accents can be left out ("eleve" finds "élève").
      * With "*" (any letters) or "?" (one letter), the query is a pattern
-     * for whole words. A space after the word asks for that word only,
-     * not the longer ones it starts: "malva " finds "malvo", not
-     * "malvacoj".
+     * for whole words. A space after the word asks for that word as a
+     * whole, not the longer ones it starts: "malva " finds "malvo", not
+     * "malvacoj"; "valet " finds "valet d'écurie", not "valetaille".
      * This does disk access, so it shouldn't run on the main thread. */
     fun search(
         context: Context,
@@ -239,10 +239,15 @@ object DictionarySearch {
          * sense; or with its other case, "Januaro, januaro": once, as
          * typed if it is so */
         val all = inTypedCase(once(results.take(count).filterNotNull(), filter), filter)
-        /* The word only, accents and case aside: "malva " leaves out
-         * "malvacoj"; "eleve " finds "élève" */
+        /* The word as a whole, accents and case aside, alone or followed
+         * by other words: "malva " leaves out "malvacoj"; "eleve " finds
+         * "élève"; "valet " keeps "valet d'écurie" */
         val key = Vikivortaro.key(filter)
-        val wanted = { word: String -> !whole || isPattern(filter) || Vikivortaro.key(word) == key }
+        val wanted = { word: String ->
+            !whole || isPattern(filter) || Vikivortaro.key(word).let {
+                it.startsWith(key) && (it.length == key.length || !it[key.length].isLetterOrDigit())
+            }
+        }
         val found = all.filter { wanted(it.word) }
         /* What Reta Vortaro lacks, from Vikivortaro: in French; in
          * Esperanto, its words, for everyone: the same dictionary, what
