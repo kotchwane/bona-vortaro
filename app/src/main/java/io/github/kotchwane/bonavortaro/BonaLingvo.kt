@@ -88,7 +88,13 @@ object BonaLingvo {
 
     /** The entries by their word (and in small letters), and in the order
      * of their keys, for the search */
-    private class Data(val byWord: Map<String, BonaLingvoEntry>, val keys: List<String>, val sorted: List<BonaLingvoEntry>)
+    private class Data(val byWord: Map<String, BonaLingvoEntry>, val keys: List<String>, val sorted: List<BonaLingvoEntry>) {
+        /** The entries by the key of each of their words to say */
+        val byPreferred: Map<String, List<BonaLingvoEntry>> by lazy {
+            sorted.flatMap { entry -> entry.preferred.map { Vikivortaro.key(it.word) to entry } }
+                .groupBy({ it.first }, { it.second }).mapValues { (_, entries) -> entries.distinct() }
+        }
+    }
 
     @Volatile private var data: Data? = null
 
@@ -178,9 +184,7 @@ object BonaLingvo {
         }.toMap()
     }
 
-    /* "Laŭ Vortoj de la bona lingvo ⓘ", the ⓘ saying what the list is, as
-     * it gives no reason for each word: kept with the name, never alone at
-     * the start of a line */
+    /* "Laŭ Vortoj de la bona lingvo" */
     private fun credit(context: Context): CharSequence =
         SpannableStringBuilder().apply {
             val according = context.getString(R.string.bl_according, "\u0000")
@@ -188,9 +192,6 @@ object BonaLingvo {
             val name = context.getString(R.string.bl_name)
             append(name)
             setSpan(StyleSpan(Typeface.ITALIC), length - name.length, length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-            append("\u00A0")
-            append("ⓘ")
-            setSpan(BonaLingvoInfoSpan(), length - 1, length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
             append(according.substringAfter('\u0000'))
         }
 
@@ -245,6 +246,18 @@ object BonaLingvo {
                 results.add(entry)
         }
         return results.sortedBy { sortKey(it.word, esperanto = true) }.take(MAX_RESULTS)
+    }
+
+    /** A word the list proposes, "uato", that no dictionary has nor the
+     * list as its own word: the words it is proposed instead of, each with
+     * its entry in Reta Vortaro if it has one; empty for any other word.
+     * Disk access: not on the main thread. */
+    fun proposing(context: Context, word: String, index: Trie): List<Pair<BonaLingvoEntry, SearchResult?>> {
+        val by = data(context).byPreferred[Vikivortaro.key(word)] ?: return emptyList()
+        if (entry(context, word) != null || Vikivortaro.revoEsperanto(index, word) != null ||
+            Vikivortaro.esperantoResult(context, word) != null || Vikivortaro.frenchOf(context, word).isNotEmpty())
+            return emptyList()
+        return by.map { it to Vikivortaro.revoEsperanto(index, it.word) }
     }
 
     /** The entry of a word, if the group advises against it. Disk access:

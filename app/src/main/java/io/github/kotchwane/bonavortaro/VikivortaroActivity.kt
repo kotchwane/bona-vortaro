@@ -61,7 +61,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.produceState
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
@@ -357,23 +356,11 @@ private fun VikiPage(
                             else -> R.string.from_viki_not_in_revo
                         }
                     )
-                    /* With the list: an "ⓘ" saying what it is, as it gives no
-                     * reason for each word */
-                    var blInfo by remember { mutableStateOf(false) }
-                    val infoLabel = stringResource(R.string.bl_info)
                     Text(
-                        buildAnnotatedString {
-                            append(origin)
-                            if (advice != null) {
-                                append(" ")
-                                withLink(LinkAnnotation.Clickable(infoLabel) { blInfo = true }) { append("ⓘ") }
-                            }
-                        },
+                        origin,
                         style = MaterialTheme.typography.bodySmall.copy(fontStyle = FontStyle.Italic),
                         color = muted,
                     )
-                    if (blInfo)
-                        BonaLingvoInfoDialog(onDismiss = { blInfo = false })
                     /* What to say instead, each word a link to its page */
                     val sources = read
                     if (advice != null && sources != null)
@@ -506,13 +493,11 @@ private class PageSources(
 
 /** The page of a word only "Vortoj de la bona lingvo" has, which the
  * dictionary doesn't describe: "konsenso ne estas en la vortaro. Laŭ Vortoj
- * de la bona lingvo ⓘ, ĝi estas malrekomendata. Prefere diru …" */
+ * de la bona lingvo, ĝi estas malrekomendata. Prefere diru …" */
 @Composable
 private fun ListOnlyNote(word: String, advice: BonaLingvoEntry, sources: PageSources, onOpenEntry: (SearchResult) -> Unit) {
     val context = LocalContext.current
     val muted = MaterialTheme.colorScheme.onSurfaceVariant
-    var info by remember { mutableStateOf(false) }
-    val infoLabel = stringResource(R.string.bl_info)
     Column(Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 12.dp)) {
         val notHere = stringResource(R.string.bl_only_not_here, "\u0000")
         Text(
@@ -531,9 +516,6 @@ private fun ListOnlyNote(word: String, advice: BonaLingvoEntry, sources: PageSou
                 append(says.substringBefore('\u0000'))
                 append(according.substringBefore('\u0000'))
                 withStyle(SpanStyle(fontStyle = FontStyle.Italic)) { append(stringResource(R.string.bl_name)) }
-                /* The ⓘ kept with the name */
-                append("\u00A0")
-                withLink(LinkAnnotation.Clickable(infoLabel) { info = true }) { append("ⓘ") }
                 append(according.substringAfter('\u0000'))
                 append(says.substringAfter('\u0000'))
             },
@@ -541,8 +523,6 @@ private fun ListOnlyNote(word: String, advice: BonaLingvoEntry, sources: PageSou
             color = muted,
             modifier = Modifier.padding(top = 4.dp, bottom = 12.dp),
         )
-        if (info)
-            BonaLingvoInfoDialog(onDismiss = { info = false })
         AdviceText(advice, sources.targets, sources.withPage, onOpenEntry, onOpenWord = { VikivortaroActivity.open(context, it) }, firstDefinition = sources.firstDefinition)
     }
 }

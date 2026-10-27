@@ -51,15 +51,19 @@ class SearchOutcome(
     val results: List<SearchResult>,
     val languageIndex: Int,
     val wiktionary: List<VikiResult> = emptyList(),
-    query: String = "",
+    /** What was searched, as typed */
+    val query: String = "",
     esperanto: Boolean = false,
     /** The language where the words were found */
     val language: String = "eo",
     val lemmas: List<FoundWord> = emptyList(),
     /** The words of "Vortoj de la bona lingvo" that neither has */
     val bonaLingvo: List<BonaLingvoEntry> = emptyList(),
+    /** Typed in full, a word that the list proposes and nobody has, "uato":
+     * the words it is proposed instead of, with their entries */
+    val proposedInstead: List<Pair<BonaLingvoEntry, SearchResult?>> = emptyList(),
 ) {
-    val isEmpty get() = results.isEmpty() && wiktionary.isEmpty() && lemmas.isEmpty() && bonaLingvo.isEmpty()
+    val isEmpty get() = results.isEmpty() && wiktionary.isEmpty() && lemmas.isEmpty() && bonaLingvo.isEmpty() && proposedInstead.isEmpty()
 
     /** All the words, Wiktionary's and the list's among Reta Vortaro's in
      * alphabetical order, as in a printed dictionary */
@@ -191,7 +195,7 @@ object DictionarySearch {
                     return SearchOutcome(emptyList(), 0)
                 val outcome = searchAs(context, trie, typed, language, esperanto, whole, stopped)
                 if (!outcome.isEmpty)
-                    return SearchOutcome(outcome.results, index, outcome.wiktionary, typed, esperanto, language, outcome.lemmas, outcome.bonaLingvo)
+                    return SearchOutcome(outcome.results, index, outcome.wiktionary, typed, esperanto, language, outcome.lemmas, outcome.bonaLingvo, outcome.proposedInstead)
             }
         }
 
@@ -204,8 +208,9 @@ object DictionarySearch {
         val wiktionary: List<VikiResult>,
         val lemmas: List<FoundWord> = emptyList(),
         val bonaLingvo: List<BonaLingvoEntry> = emptyList(),
+        val proposedInstead: List<Pair<BonaLingvoEntry, SearchResult?>> = emptyList(),
     ) {
-        val isEmpty get() = results.isEmpty() && wiktionary.isEmpty() && lemmas.isEmpty() && bonaLingvo.isEmpty()
+        val isEmpty get() = results.isEmpty() && wiktionary.isEmpty() && lemmas.isEmpty() && bonaLingvo.isEmpty() && proposedInstead.isEmpty()
     }
 
     private fun spellings(filter: String): List<String> =
@@ -286,7 +291,12 @@ object DictionarySearch {
             if (lemmas.isNotEmpty())
                 return Found(found, wiktionary.filter { viki -> lemmas.none { it.word == viki.word } }, lemmas, bonaLingvo)
         }
-        return Found(found, wiktionary, bonaLingvo = bonaLingvo)
+        /* A word typed in full that only the list proposes, "uato": what
+         * it is proposed instead of, rather than nothing */
+        val proposedInstead = if (esperanto && !isPattern(filter) && !exact)
+            BonaLingvo.proposing(context, filter.trim(), trie)
+        else emptyList()
+        return Found(found, wiktionary, bonaLingvo = bonaLingvo, proposedInstead = proposedInstead)
     }
 
     /* An Esperanto word with an ending, which, typed, finds its entries

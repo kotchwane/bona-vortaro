@@ -17,13 +17,6 @@
 
 package io.github.kotchwane.bonavortaro
 
-import android.content.ContextWrapper
-import android.net.Uri
-import android.text.style.ClickableSpan
-import android.view.View
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.TextButton
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.FlowRow
@@ -45,6 +38,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.withLink
+import androidx.compose.ui.text.TextLinkStyles
+import androidx.compose.ui.text.LinkAnnotation
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -149,45 +146,35 @@ fun BonaLingvoRow(
     }
 }
 
-/** What "Vortoj de la bona lingvo" is, from the "ⓘ" after its name: its
- * principle, in its own words (labonalingvo.org), as it gives no reason
- * for each word, and who made it */
+/** "Vortoj de la bona lingvo proponas „uato“ anstataŭ ŭato.", for a word
+ * the list proposes that no dictionary has, typed in full: each word it is
+ * proposed instead of a link, to its article or its page */
 @Composable
-fun BonaLingvoInfoDialog(onDismiss: () -> Unit) {
-    val context = LocalContext.current
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = { Text(stringResource(R.string.bl_name)) },
-        text = {
-            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                Text(stringResource(R.string.bl_principle_intro))
-                Text(stringResource(R.string.bl_principle), fontStyle = FontStyle.Italic)
-                Text(stringResource(R.string.bl_authors), style = MaterialTheme.typography.bodySmall)
+fun ProposedInstead(
+    word: String,
+    instead: List<Pair<BonaLingvoEntry, SearchResult?>>,
+    onOpenEntry: (SearchResult) -> Unit,
+    onOpenListWord: (BonaLingvoEntry) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val link = TextLinkStyles(SpanStyle(color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Bold, textDecoration = TextDecoration.Underline))
+    val text = stringResource(R.string.bl_proposes, "\u0001", word, "\u0002")
+    val name = stringResource(R.string.bl_name)
+    Text(
+        buildAnnotatedString {
+            append(text.substringBefore('\u0001'))
+            withStyle(SpanStyle(fontStyle = FontStyle.Italic)) { append(name) }
+            append(text.substringAfter('\u0001').substringBefore('\u0002'))
+            instead.forEachIndexed { index, (entry, found) ->
+                if (index > 0)
+                    append(", ")
+                withLink(LinkAnnotation.Clickable(entry.word, link) { if (found != null) onOpenEntry(found) else onOpenListWord(entry) }) {
+                    append(entry.word)
+                }
             }
+            append(text.substringAfter('\u0002'))
         },
-        confirmButton = {
-            TextButton(onClick = onDismiss) { Text(stringResource(R.string.close)) }
-        },
-        dismissButton = {
-            TextButton(onClick = { openOutside(context, Uri.parse(BonaLingvo.SITE)) }) {
-                Text("${stringResource(R.string.about_bl_link)} $OUTSIDE_SIGN")
-            }
-        },
+        style = MaterialTheme.typography.bodyLarge,
+        modifier = modifier.padding(horizontal = 20.dp, vertical = 16.dp),
     )
-}
-
-/** A screen that shows what "Vortoj de la bona lingvo" is, when its "ⓘ"
- * is tapped in a text */
-interface BonaLingvoInfoHost {
-    fun showBonaLingvoInfo()
-}
-
-/** The "ⓘ" after the name of the list in a remark of an article */
-class BonaLingvoInfoSpan : ClickableSpan() {
-    override fun onClick(widget: View) {
-        var context = widget.context
-        while (context !is BonaLingvoInfoHost && context is ContextWrapper)
-            context = context.baseContext
-        (context as? BonaLingvoInfoHost)?.showBonaLingvoInfo()
-    }
 }

@@ -370,7 +370,8 @@ private fun SearchScreen(
      * reader's languages to say of it: neither a definition from the
      * Esperanto Wiktionary nor, for them, French */
     val nothingToRead = outcome?.let { found ->
-        found.isEmpty || (found.results.isEmpty() && found.lemmas.none { it is FoundWord.InRevo } &&
+        /* A word that only the list proposes, "glandinflamo", too */
+        found.isEmpty || found.words.isEmpty() || (found.results.isEmpty() && found.lemmas.none { it is FoundWord.InRevo } &&
             found.wiktionary.all { it.inEsperanto && it.definition == null } && found.bonaLingvo.isEmpty() && !inFrench)
     } == true
     LaunchedEffect(query, nothingToRead, selected, guessWords) {
@@ -633,7 +634,8 @@ private fun ResultList(
             }
 
             val words = outcome.words
-            item { RunningHead(words.first().word, words.last().word) }
+            if (words.isNotEmpty())
+                item { RunningHead(words.first().word, words.last().word) }
 
             /* For a search in another language, the preview starts with the
              * Esperanto word that the result translates */
@@ -657,6 +659,16 @@ private fun ResultList(
                 if (index != words.lastIndex)
                     HorizontalDivider(Modifier.padding(horizontal = 20.dp), color = rule)
             }
+            /* A word the list proposes, typed in full: what instead of */
+            if (outcome.proposedInstead.isNotEmpty())
+                item {
+                    ProposedInstead(
+                        outcome.query.trim(),
+                        outcome.proposedInstead,
+                        onOpenEntry = { onResultClick(it, "eo") },
+                        onOpenListWord = onBonaLingvoClick,
+                    )
+                }
             /* Where the words not bold come from, quietly, after them */
             if (outcome.bonaLingvo.isNotEmpty())
                 item {

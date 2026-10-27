@@ -109,7 +109,7 @@ import java.io.IOException
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.launch
 
-class ArticleActivity : BonaActivity(), BonaLingvoInfoHost {
+class ArticleActivity : BonaActivity() {
 
     companion object {
         const val EXTRA_ARTICLE_NUMBER = "io.github.kotchwane.bonavortaro.ArticleNumber"
@@ -160,11 +160,6 @@ class ArticleActivity : BonaActivity(), BonaLingvoInfoHost {
     /* Whether Vikivortaro's French is shown: with the French translations */
     private var vikiShown by mutableStateOf(false)
     private var showNoFlashcard by mutableStateOf(false)
-    private var showBonaLingvoInfo by mutableStateOf(false)
-
-    override fun showBonaLingvoInfo() {
-        showBonaLingvoInfo = true
-    }
 
     /* The translations that were shown when the article was loaded, to
      * reload it if they are changed in the settings */
@@ -235,8 +230,6 @@ class ArticleActivity : BonaActivity(), BonaLingvoInfoHost {
                 )
               }
 
-                if (showBonaLingvoInfo)
-                    BonaLingvoInfoDialog(onDismiss = { showBonaLingvoInfo = false })
                 if (showNoFlashcard) {
                     AlertDialog(
                         onDismissRequest = { showNoFlashcard = false },
