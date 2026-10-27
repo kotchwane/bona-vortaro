@@ -499,13 +499,15 @@ private fun ArticleScreen(
                 it,
                 preferredLanguages,
                 abbreviationKinds = abbreviationKinds,
-                markLabel = { field ->
+                markLabel = { field, first, last ->
                     InlineLabelSpan(
                         background = colors.secondaryContainer.toArgb(),
                         foreground = colors.onSecondaryContainer.toArgb(),
                         radius = 6 * density,
                         padding = 4 * density,
-                        icon = field?.let { FIELD_ICONS[it] }?.let { context.getDrawable(it)?.mutate() },
+                        icon = field?.takeIf { first }?.let { FIELD_ICONS[it] }?.let { context.getDrawable(it)?.mutate() },
+                        first = first,
+                        last = last,
                     )
                 },
                 markLinkType = { type, label ->

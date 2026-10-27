@@ -135,10 +135,6 @@ typedef struct
 
   /* A list of PdbDbSections */
   GList *sections;
-
-  /* The dictionaries that its headwords are in, one a line, "aboli\t
-   * Plena Ilustrita Vortaro (1970)", for assets/attestations.txt */
-  GString *attestations;
 } PdbDbArticle;
 
 /* A reference represents a position in an article. The reference can
@@ -2605,14 +2601,13 @@ pdb_db_append_element_in_span (PdbDbParseState *state,
   g_string_free (text, TRUE);
 }
 
-/* A work of the bibliography: its title, its author's surname, its
- * address and its year, each NULL if ReVo doesn't give it */
+/* A work of the bibliography: its title, its author's surname and its
+ * address, each NULL if ReVo doesn't give it */
 typedef struct
 {
   char *title;
   char *author;
   char *url;
-  char *year;
 } PdbDbWork;
 
 static void
@@ -2621,7 +2616,6 @@ pdb_db_work_free (PdbDbWork *work)
   g_free (work->title);
   g_free (work->author);
   g_free (work->url);
-  g_free (work->year);
   g_slice_free (PdbDbWork, work);
 }
 
@@ -2723,8 +2717,6 @@ pdb_db_load_works (PdbRevo *revo)
         }
       work->url =
         pdb_db_get_element_text (pdb_doc_get_child_element (node, "url"));
-      work->year =
-        pdb_db_get_element_text (pdb_db_find_element (node, "dat"));
 
       g_hash_table_insert (works, g_strdup (code), work);
     }
@@ -3805,41 +3797,6 @@ pdb_db_add_kap_index (PdbDb *db,
   g_string_free (buf, TRUE);
 }
 
-/* Appends a form of a headword as it reads, "aboli" for <kap><rad>abol
- * </rad>/i <fnt>…</fnt>, <var>…</var></kap>: without its variants, its
- * sources and its officiality */
-static void
-pdb_db_append_kap_form (PdbDb *db,
-                        PdbDocNode *node,
-                        GString *buf)
-{
-  PdbDocNode *child;
-
-  for (child = node->first_child; child; child = child->next)
-    {
-      if (child->type == PDB_DOC_NODE_TYPE_TEXT)
-        {
-          PdbDocTextNode *text = (PdbDocTextNode *) child;
-          int i;
-
-          for (i = 0; i < text->len; i++)
-            if (text->data[i] != '/')
-              g_string_append_c (buf, text->data[i]);
-        }
-      else
-        {
-          PdbDocElementNode *element = (PdbDocElementNode *) child;
-
-          if (!strcmp (element->name, "tld"))
-            pdb_db_append_tld (db, buf, element->atts);
-          else if (strcmp (element->name, "var") &&
-                   strcmp (element->name, "fnt") &&
-                   strcmp (element->name, "ofc"))
-            pdb_db_append_kap_form (db, child, buf);
-        }
-    }
-}
-
 /* A copy of a string with all of a piece replaced */
 static char *
 pdb_db_replace_all (const char *text,
@@ -3852,100 +3809,6 @@ pdb_db_replace_all (const char *text,
   g_strfreev (parts);
 
   return result;
-}
-
-/* Adds a line to the attestations of an article for a headword, and for
- * each of its variants, that names the dictionaries it is in: <kap>…
- * <fnt><bib>PIV1</bib></fnt></kap> */
-static void
-pdb_db_add_attestations (PdbDb *db,
-                         PdbDbArticle *article,
-                         PdbDocElementNode *kap)
-{
-  GString *works = g_string_new (NULL);
-  PdbDocNode *child;
-
-  for (child = kap->node.first_child; child; child = child->next)
-    {
-      PdbDocElementNode *element = (PdbDocElementNode *) child;
-      PdbDocNode *bib;
-
-      if (child->type != PDB_DOC_NODE_TYPE_ELEMENT)
-        continue;
-
-      if (strcmp (element->name, "fnt"))
-        continue;
-
-      for (bib = child->first_child; bib; bib = bib->next)
-        {
-          PdbDbWork *work;
-          char *code;
-
-          if (bib->type != PDB_DOC_NODE_TYPE_ELEMENT ||
-              strcmp (((PdbDocElementNode *) bib)->name, "bib"))
-            continue;
-
-          code = pdb_db_get_element_text ((PdbDocElementNode *) bib);
-          work = code ? g_hash_table_lookup (db->work_details, code) : NULL;
-
-          if (work && work->title)
-            {
-              if (works->len > 0)
-                g_string_append (works, "; ");
-              g_string_append (works, work->title);
-              if (work->year)
-                g_string_append_printf (works, " (%s)", work->year);
-            }
-
-          g_free (code);
-        }
-    }
-
-  if (works->len > 0)
-    {
-      GString *form = g_string_new (NULL);
-      char **words;
-
-      pdb_db_append_kap_form (db, &kap->node, form);
-      /* One space between the words, no comma at the end; the no-break
-       * spaces too ("Novo-Zelando" in zeland.xml) */
-      {
-        char *plain = pdb_db_replace_all (form->str, "\xe2\x80\xaf", " ");
-        char *plainer = pdb_db_replace_all (plain, "\xc2\xa0", " ");
-
-        words = g_strsplit_set (plainer, " \t\n,", -1);
-        g_free (plain);
-        g_free (plainer);
-      }
-      g_string_truncate (form, 0);
-      for (char **word = words; *word; word++)
-        if (**word)
-          {
-            if (form->len > 0)
-              g_string_append_c (form, ' ');
-            g_string_append (form, *word);
-          }
-      g_strfreev (words);
-
-      g_string_append_printf (article->attestations,
-                              "%s\t%s\n",
-                              form->str,
-                              works->str);
-      g_string_free (form, TRUE);
-    }
-
-  g_string_free (works, TRUE);
-
-  /* Then the variants, after the main form */
-  for (child = kap->node.first_child; child; child = child->next)
-    if (child->type == PDB_DOC_NODE_TYPE_ELEMENT &&
-        !strcmp (((PdbDocElementNode *) child)->name, "var"))
-      {
-        PdbDocElementNode *var_kap = pdb_doc_get_child_element (child, "kap");
-
-        if (var_kap)
-          pdb_db_add_attestations (db, article, var_kap);
-      }
 }
 
 static PdbDbSection *
@@ -3972,7 +3835,6 @@ pdb_db_parse_drv (PdbDb *db,
   section = pdb_db_section_new ("eo");
 
   pdb_db_add_kap_index (db, kap, article, section);
-  pdb_db_add_attestations (db, article, kap);
 
   if (pdb_db_parse_spannable_string (db, kap, &section->title, error))
     {
@@ -4297,8 +4159,6 @@ pdb_db_parse_article (PdbDb *db,
   g_queue_init (&sections);
 
   article = g_slice_new (PdbDbArticle);
-  article->attestations = g_string_new (NULL);
-  pdb_db_add_attestations (db, article, kap);
 
   if (pdb_db_parse_spannable_string (db, kap, &article->title, error))
     {
@@ -4409,7 +4269,6 @@ pdb_db_parse_article (PdbDb *db,
   else
     {
       pdb_db_free_section_list (sections.head);
-      g_string_free (article->attestations, TRUE);
       g_slice_free (PdbDbArticle, article);
       return NULL;
     }
@@ -4758,7 +4617,6 @@ pdb_db_free (PdbDb *db)
       pdb_db_destroy_spannable_string (&article->title);
       pdb_db_free_section_list (article->sections);
 
-      g_string_free (article->attestations, TRUE);
       g_slice_free (PdbDbArticle, article);
     }
 
@@ -5034,48 +4892,6 @@ pdb_db_save_article_files (PdbDb *db,
   return ret;
 }
 
-/* Writes assets/attestations.txt: for each headword that names the
- * dictionaries it is in, a line "article\tform\tworks", eg. "12\taboli\t
- * Plena Ilustrita Vortaro (1970)", the article counted from 0 */
-static gboolean
-pdb_db_save_attestations (PdbDb *db,
-                          const char *dir,
-                          GError **error)
-{
-  GString *out = g_string_new (NULL);
-  char *file_name;
-  gboolean ret;
-  int i;
-
-  for (i = 0; i < db->articles->len; i++)
-    {
-      PdbDbArticle *article = g_ptr_array_index (db->articles, i);
-      char **lines = g_strsplit (article->attestations->str, "\n", -1);
-
-      /* The same headword can name its dictionaries both in the
-       * article's <kap> and in the <drv>'s */
-      for (char **line = lines; *line; line++)
-        {
-          char **earlier = lines;
-
-          while (earlier < line && strcmp (*earlier, *line))
-            earlier++;
-
-          if (**line && earlier == line)
-            g_string_append_printf (out, "%d\t%s\n", i, *line);
-        }
-
-      g_strfreev (lines);
-    }
-
-  file_name = g_build_filename (dir, "assets", "attestations.txt", NULL);
-  ret = g_file_set_contents (file_name, out->str, out->len, error);
-  g_free (file_name);
-  g_string_free (out, TRUE);
-
-  return ret;
-}
-
 /* Without the list, no assets/vikipedio.txt: one left from an earlier
  * run wouldn't match the articles any more */
 gboolean
@@ -5289,9 +5105,6 @@ pdb_db_save (PdbDb *db,
     ret = FALSE;
 
   if (ret && !pdb_db_save_lines (db->source_urls, dir, "sources.txt", error))
-    ret = FALSE;
-
-  if (ret && !pdb_db_save_attestations (db, dir, error))
     ret = FALSE;
 
   if (ret && !pdb_db_save_officiality (db, dir, error))
