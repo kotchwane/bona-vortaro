@@ -213,8 +213,6 @@
   <string name="bl_according">Laŭ %1$s</string>
   <string name="bl_say_instead">prefere diru</string>
   <string name="bl_also_say">ankaŭ eblas diri</string>
-  <string name="bl_principle_intro">La listo ne klarigas ĉiun rekomendon. Jen ĝia principo:</string>
-  <string name="bl_principle">„Por bela, klara, internacia lingvo, neniam uzu malutilan novan radikon aŭ nacilingvan enporton, kiam simpla alternativo ekzistas.“</string>
   <string name="bl_proposes">%1$s proponas „%2$s“ anstataŭ %3$s.</string>
   <string name="bl_only_not_here">%1$s ne estas en la vortaro.</string>
   <string name="bl_only_discouraged">%1$s, ĝi estas malrekomendata.</string>

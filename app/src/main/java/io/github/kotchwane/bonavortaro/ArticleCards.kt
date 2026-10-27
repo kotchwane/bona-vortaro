@@ -1378,16 +1378,8 @@ fun SourcesLine(
                             else stringResource(R.string.sources_viki),
                             if (vikiWord != null) VIKI_SITE + "wiki/" + Uri.encode(vikiWord.replace(' ', '_')) else VIKI_SITE,
                         )
-                    if (bonaLingvo) {
+                    if (bonaLingvo)
                         Source(blName, stringResource(R.string.sources_bl), BonaLingvo.SITE)
-                        /* It gives no reason for each word: its principle,
-                         * in its own words */
-                        Text(
-                            stringResource(R.string.bl_principle_intro) + " " + stringResource(R.string.bl_principle),
-                            style = MaterialTheme.typography.bodySmall.copy(fontStyle = FontStyle.Italic),
-                            color = muted,
-                        )
-                    }
                 }
             },
         )
