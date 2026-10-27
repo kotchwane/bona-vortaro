@@ -374,12 +374,20 @@ private fun SearchScreen(
         found.isEmpty || found.words.isEmpty() || (found.results.isEmpty() && found.lemmas.none { it is FoundWord.InRevo } &&
             found.wiktionary.all { it.inEsperanto && it.definition == null } && found.bonaLingvo.isEmpty() && !inFrench)
     } == true
-    LaunchedEffect(query, nothingToRead, selected, guessWords) {
-        if (!nothingToRead || selected != "eo" || isPattern(query) || query.isBlank() || !guessWords) {
+    /* A word the list proposes: its parts as the group cut it, rather
+     * than a guess, even when the words aren't guessed */
+    val listParts = outcome?.let { found ->
+        found.proposedInstead.flatMap { it.first.preferred }
+            .firstOrNull { Vikivortaro.key(it.word) == Vikivortaro.key(found.query.trim()) && it.parts != null }?.parts
+    }
+    LaunchedEffect(query, nothingToRead, selected, guessWords, listParts) {
+        if (!nothingToRead || selected != "eo" || isPattern(query) || query.isBlank() || !guessWords && listParts == null) {
             analysis = null
             return@LaunchedEffect
         }
-        analysis = withContext(Dispatchers.IO) { WordAnalyses.find(context, normaliseQuery(query)) }
+        analysis = withContext(Dispatchers.IO) {
+            listParts?.let { WordAnalyses.fromList(context, it) } ?: WordAnalyses.find(context, normaliseQuery(query))
+        }
     }
 
     BonaScaffold(
@@ -390,6 +398,9 @@ private fun SearchScreen(
                 Wordmark()
                 SearchField(
                     newSearch = newSearch,
+                    /* Opened on a word, from a link: its results, without
+                     * the keyboard over them */
+                    openKeyboard = initialQuery.isEmpty(),
                     query = query,
                     onQueryChange = { editing = false; query = it },
                     onPreferences = { editing = false; onPreferences() },
@@ -501,6 +512,7 @@ private fun Wordmark() {
 @Composable
 private fun SearchField(
     newSearch: Int,
+    openKeyboard: Boolean,
     query: String,
     onQueryChange: (String) -> Unit,
     onPreferences: () -> Unit,
@@ -513,6 +525,8 @@ private fun SearchField(
     /* Like the original search screen, start with the keyboard open, and
      * again for each new search */
     LaunchedEffect(newSearch) {
+        if (!openKeyboard && newSearch == 0)
+            return@LaunchedEffect
         focusRequester.requestFocus()
         keyboard?.show()
     }

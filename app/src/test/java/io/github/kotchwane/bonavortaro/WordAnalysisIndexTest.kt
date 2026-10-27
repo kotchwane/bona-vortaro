@@ -114,6 +114,26 @@ class WordAnalysisIndexTest {
     }
 
     @Test
+    fun theListsPartsAreKeptAndExplained() {
+        val officiality = File("src/main/assets/officiality.txt")
+        assumeTrue("the dictionary isn't built", file.exists() && officiality.exists())
+        val levels = OfficialLists.articleLevels(OfficialLists.parse(officiality.readText()))
+        val index = IndexEntries(file.inputStream().use { Trie(it) }) { levels[it] }
+        fun read(parts: String) = WordAnalyser.fromParts(parts, index).pieces.map { "${it.text}:${it.kind}:${it.entry}" }
+        assertEquals(listOf("urin:ROOT:urino", "kanal:ROOT:kanalo", "inflam:ROOT:inflamo", "o:ENDING:null"), read("urin·kanal·inflam·o"))
+        /* The -o- of a compound, a suffix by its own word */
+        val pieces = WordAnalyser.fromParts("alt·o·tim·eg·o", index).pieces
+        assertEquals(listOf("ROOT", "LINK", "ROOT", "SUFFIX", "ENDING"), pieces.map { it.kind.name })
+        assertEquals("ega", pieces[3].entry)
+        /* The roots of the Fundamento, high and fear: not "alto" the voice */
+        assertEquals(index.result("alta")?.article, index.result(pieces[0].entry!!)?.article)
+        assertEquals(index.result("timi")?.article, index.result(pieces[2].entry!!)?.article)
+        /* A prefix, even after a root */
+        assertEquals("el:PREFIX:el", read("sperm·el·ĵet·i")[1])
+        assertEquals("mal:PREFIX:mal-", read("alt·o·tim·mal·san·o")[3])
+    }
+
+    @Test
     fun aSuffixOpensItsOwnWordNotAnotherOne() {
         val analyse = analyser()
         /* "eta", small, not "eto", the Greek letter */

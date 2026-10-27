@@ -21,8 +21,10 @@ import android.content.Context
 import android.graphics.Typeface
 import android.text.SpannableStringBuilder
 import android.text.Spanned
+import android.text.style.ClickableSpan
 import android.text.style.StyleSpan
 import android.util.Log
+import android.view.View
 import java.io.IOException
 import java.util.Locale
 
@@ -38,6 +40,9 @@ class Simplification(
      * wadding and the watt), the file of the one it is about, "-" for none;
      * null for any */
     val article: String? = null,
+    /** The parts of the word as the group cut it, "urin·kanal·inflam·o";
+     * null if it isn't one word, or they weren't given */
+    val parts: String? = null,
 )
 
 /** A word of "Vortoj de la bona lingvo", in its [context] ("(en gramatiko)"),
@@ -135,7 +140,13 @@ object BonaLingvo {
             val entry = BonaLingvoEntry(
                 word,
                 lines[0][1],
-                lines.map { Simplification(it[3], it[4], it[2] == "→", it.getOrNull(5)?.takeIf { article -> article.isNotEmpty() }) },
+                lines.map {
+                    Simplification(
+                        it[3], it[4], it[2] == "→",
+                        article = it.getOrNull(5)?.takeIf { article -> article.isNotEmpty() },
+                        parts = it.getOrNull(6)?.takeIf { parts -> parts.isNotEmpty() },
+                    )
+                },
             )
             found[word] = entry
             /* Also without the case of its first letter, as typed */
@@ -157,7 +168,8 @@ object BonaLingvo {
     /** For the words of an article that Reta Vortaro's remarks don't say
      * anything of from the list, by their section: what the list says,
      * "Laŭ Vortoj de la bona lingvo: prefere diru akvokondukilo.", the
-     * words to say a link to their article when Reta Vortaro has them.
+     * words to say links: to their article when Reta Vortaro has them, else
+     * to their search.
      * About 1,750 of its words have such a remark already ("Laŭ BL…"). Disk
      * access: not on the main thread. */
     fun remarks(context: Context, layout: ArticleLayout, file: String?): Map<Int, CharSequence> {
@@ -209,6 +221,11 @@ object BonaLingvo {
             append(according.substringAfter('\u0000'))
         }
 
+    /** Opens the search on a word that Reta Vortaro doesn't have */
+    private class SearchSpan(private val word: String) : ClickableSpan() {
+        override fun onClick(view: View) = Screens.searchFor(view.context, word)
+    }
+
     /* " (en la senco de …): prefere diru akvokondukilo." */
     private fun remark(context: Context, entry: BonaLingvoEntry, index: Trie?): CharSequence =
         SpannableStringBuilder().apply {
@@ -225,10 +242,12 @@ object BonaLingvo {
                         append(", ")
                     val start = length
                     append(word)
-                    /* A link, to the word itself, when Reta Vortaro has it */
-                    index?.let { index -> Vikivortaro.revoEsperanto(index, word) }?.let { found ->
-                        setSpan(ReferenceSpan(found.article, found.mark), start, length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-                    }
+                    /* A link, to the word itself when Reta Vortaro has it,
+                     * else to its search: what the list says of it, and how
+                     * it is built */
+                    val found = index?.let { index -> Vikivortaro.revoEsperanto(index, word) }
+                    val link = if (found != null) ReferenceSpan(found.article, found.mark) else SearchSpan(word)
+                    setSpan(link, start, length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
                 }
                 if (wordsContext.isNotEmpty())
                     append(" $wordsContext")

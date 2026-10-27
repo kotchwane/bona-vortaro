@@ -31,8 +31,10 @@
 # Writes app/src/main/assets/bonalingvo/bl.tsv, one line per
 # simplification, the words in alphabetical order, the simplifications of a
 # word in the group's order. Columns: the word, its context, "→" or "~",
-# the word to say, its context, and the file of the article it is about
-# ("" for any, "-" for none).
+# the word to say, its context, the file of the article it is about
+# ("" for any, "-" for none), and the parts of the word to say as the group
+# cut it ("urin·kanal·inflam·o"), "" when it isn't one word of letters or
+# the parts don't spell it.
 import csv
 import glob
 import os
@@ -93,6 +95,17 @@ def copy_export(source):
             writer.writerow({c: row[c] for c in columns})
 
 
+def parts(row, target):
+    """The group's cut of the word to say, if it spells it, a single word"""
+    # A space slipped in beside a cut ("mjel·inflam ·o") isn't meant
+    cut = re.sub(r"\s*·\s*", "·", clean(row["target_word_divided"]))
+    # Letters only: not "ikso-koordinato", "fil(in)igi", which the search
+    # doesn't cut either
+    if not target.isalpha() or "·" not in cut or cut.replace("·", "") != target:
+        return ""
+    return cut
+
+
 def checked(annotation):
     return not any(code in annotation.split("+") for code in UNCHECKED)
 
@@ -123,6 +136,7 @@ articles = revo_articles()
 chosen = homonyms()
 lines = []
 left_out = 0
+uncut = 0
 for word in sorted(by_word, key=lambda w: (w.lower().strip("-"), w)):
     seen = set()
     # The group's order; for the same number, the older line first
@@ -143,7 +157,10 @@ for word in sorted(by_word, key=lambda w: (w.lower().strip("-"), w)):
                 print(f"warning: {word} → {target}: which of {sorted(articles[word])}? Shown in none", file=sys.stderr)
             elif article == "*":
                 article = ""
-        lines.append("\t".join([word, clean(row["source_word_context"]), sign, target, target_context, article]))
+        cut = parts(row, target)
+        if not cut and target.isalpha():
+            uncut += 1
+        lines.append("\t".join([word, clean(row["source_word_context"]), sign, target, target_context, article, cut]))
 
 latest = max(r["updated_at"] for r in rows)[:10]
 os.makedirs(os.path.dirname(OUT), exist_ok=True)
@@ -154,7 +171,9 @@ with open(OUT, "w", encoding="utf-8") as f:
             f"# Version: {latest} (its last change).\n"
             "# Only what the working group has checked. Columns: the word, its context, \"→\" (advised against) or\n"
             "# \"~\" (an alternative), the word to say, its context, the file of the article it is about\n"
-            "# when the word heads several (data/bona-lingvo-homonyms.tsv; \"-\": none).\n")
+            "# when the word heads several (data/bona-lingvo-homonyms.tsv; \"-\": none), the parts of the word to\n"
+            "# say as the group cut it (\"\" if it isn't one word of letters or they don't spell it).\n")
     f.write("\n".join(lines) + "\n")
 kept = {line.split("\t")[0] for line in lines}
 print(f"{len(kept)} words, {len(lines)} simplifications ({left_out} not yet checked, left out), version {latest}")
+print(f"{uncut} single words to say without the group's parts (none given, or not spelling the word)")

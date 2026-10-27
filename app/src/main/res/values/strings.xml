@@ -143,6 +143,7 @@
   <string name="word_label">Vorto</string>
   <!-- How a word missing from the dictionary may be built -->
   <string name="analysis_maybe">Eble:</string>
+  <string name="analysis_parts">Ĝiaj partoj:</string>
   <string name="analysis_or">Aŭ:</string>
   <string name="analysis_note">Analizo laŭ la radikoj, ne difino.</string>
   <string name="analysis_more">%1$d pliaj partoj ▾</string>

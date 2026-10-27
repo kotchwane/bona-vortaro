@@ -529,8 +529,8 @@ private fun ListOnlyNote(word: String, advice: BonaLingvoEntry, sources: PageSou
 
 /** "Prefere diru rulŝtuparo: Maŝina ŝtuparo, …", as the remark of an
  * article: each word to say a link to its article when Reta Vortaro has
- * it, else to its page if it has one; the first one's definition after
- * it. */
+ * it, else to its page if it has one, else to its search; the first one's
+ * definition after it. */
 @Composable
 private fun AdviceText(
     advice: BonaLingvoEntry,
@@ -540,6 +540,7 @@ private fun AdviceText(
     onOpenWord: (String) -> Unit,
     firstDefinition: String?,
 ) {
+    val context = LocalContext.current
     val link = TextLinkStyles(SpanStyle(color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Bold, textDecoration = TextDecoration.Underline))
     val muted = MaterialTheme.colorScheme.onSurfaceVariant
     val preferred = advice.preferred
@@ -559,8 +560,9 @@ private fun AdviceText(
                     when {
                         found != null -> withLink(LinkAnnotation.Clickable(word, link) { onOpenEntry(found) }) { append(word) }
                         word in withPage -> withLink(LinkAnnotation.Clickable(word, link) { onOpenWord(word) }) { append(word) }
-                        /* Nowhere to read it: in bold, without a link */
-                        else -> withStyle(SpanStyle(fontWeight = FontWeight.Bold)) { append(word) }
+                        /* Nowhere to read it: its search, which says what the
+                         * list proposes it for and how it is built */
+                        else -> withLink(LinkAnnotation.Clickable(word, link) { Screens.searchFor(context, word) }) { append(word) }
                     }
                 }
                 if (wordsContext.isNotEmpty())
