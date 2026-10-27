@@ -47,6 +47,14 @@ object Screens {
         )
     }
 
+    /** The search in Esperanto on a word, above the screen it comes
+     * from: back returns to it. */
+    fun searchFor(context: Context, word: String) {
+        context.startActivity(
+            searchIntent(context, "eo").putExtra(SearchActivity.EXTRA_SEARCH_TERM, word)
+        )
+    }
+
     fun goPreferences(context: Context) {
         context.startActivity(Intent(context, PreferenceActivity::class.java))
     }

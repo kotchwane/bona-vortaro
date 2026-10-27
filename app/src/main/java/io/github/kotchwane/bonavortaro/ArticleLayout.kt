@@ -88,6 +88,19 @@ class WordEntry(
     val translations: List<Translation>,
 )
 
+/** The words with a remark more after their blocks, by their section */
+fun ArticleLayout.withRemarks(remarks: Map<Int, CharSequence>): ArticleLayout =
+    if (remarks.isEmpty()) this
+    else ArticleLayout(
+        words.map { word ->
+            remarks[word.section]?.let { remark ->
+                WordEntry(word.section, word.source, word.official, word.forms, word.title, word.labels,
+                    word.blocks + ContentBlock.Note(remark), word.translations)
+            } ?: word
+        },
+        otherTranslations,
+    )
+
 /** The same word with other translations */
 fun WordEntry.withTranslations(translations: List<Translation>) =
     WordEntry(section, source, official, forms, title, labels, blocks, translations)

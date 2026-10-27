@@ -52,8 +52,9 @@ class ShownPiece(val label: String, val result: SearchResult?, val gloss: String
 class ShownReading(val analysis: WordAnalysis, val pieces: List<ShownPiece>)
 
 /** The readings of a word, the likeliest first; a second one only if it
- * is nearly as likely. */
-class ShownAnalysis(val readings: List<ShownReading>)
+ * is nearly as likely. [fromList]: the one "Vortoj de la bona lingvo"
+ * gives, not a guess. */
+class ShownAnalysis(val readings: List<ShownReading>, val fromList: Boolean = false)
 
 object WordAnalyses {
     private const val TAG = "bonaanalysis"
@@ -64,18 +65,30 @@ object WordAnalyses {
      * thread. */
     @Synchronized
     fun find(context: Context, word: String, needsEnding: Boolean = false): ShownAnalysis? {
-        val index = entries ?: try {
-            val levels = OfficialLists.articleLevels(OfficialLists.get(context))
-            IndexEntries(TrieCache.getTrie(context, "eo")) { levels[it] }.also { entries = it }
-        } catch (e: IOException) {
-            Log.w(TAG, "Failed to load the index of Esperanto")
-            return null
-        }
+        val index = index(context) ?: return null
         /* Nothing worth showing for a beginning without its root */
         val readings = WordAnalyser.analyse(word, index, needsEnding = needsEnding)
             .filter { analysis -> analysis.pieces.any { it.kind == WordPiece.Kind.ROOT } }
             .map { ShownReading(it, shownPieces(context, index, it)) }
         return if (readings.isEmpty()) null else ShownAnalysis(readings)
+    }
+
+    /** A word "Vortoj de la bona lingvo" proposes, as the group cut it
+     * ("urin·kanal·inflam·o"), with what its parts mean. Disk access: not
+     * on the main thread. */
+    @Synchronized
+    fun fromList(context: Context, parts: String): ShownAnalysis? {
+        val index = index(context) ?: return null
+        val analysis = WordAnalyser.fromParts(parts, index)
+        return ShownAnalysis(listOf(ShownReading(analysis, shownPieces(context, index, analysis))), fromList = true)
+    }
+
+    private fun index(context: Context): IndexEntries? = entries ?: try {
+        val levels = OfficialLists.articleLevels(OfficialLists.get(context))
+        IndexEntries(TrieCache.getTrie(context, "eo")) { levels[it] }.also { entries = it }
+    } catch (e: IOException) {
+        Log.w(TAG, "Failed to load the index of Esperanto")
+        null
     }
 
     private fun shownPieces(context: Context, index: IndexEntries, analysis: WordAnalysis) =
@@ -119,8 +132,9 @@ fun WordAnalysisView(shown: ShownAnalysis, onOpen: (SearchResult) -> Unit, modif
     val rows = if (all || !folds) reading.pieces else reading.pieces.take(SHOWN_PIECES)
 
     Column(modifier.fillMaxWidth().padding(horizontal = 20.dp)) {
+        /* The group's parts, not a guess: the list is named just above */
         Text(
-            stringResource(R.string.analysis_maybe),
+            stringResource(if (shown.fromList) R.string.analysis_parts else R.string.analysis_maybe),
             style = MaterialTheme.typography.bodyMedium.copy(fontStyle = FontStyle.Italic),
             color = muted,
             modifier = Modifier.padding(top = 8.dp),

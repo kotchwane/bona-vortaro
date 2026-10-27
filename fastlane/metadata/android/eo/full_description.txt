@@ -7,6 +7,7 @@ Bona vortaro estas vortaro de Esperanto por Android. Ĝi enhavas la tutan <a hre
 • Vorto, kiu mankas en la vortaro? La serĉo proponas, el kiuj radikoj kaj afiksoj ĝi eble konsistas: „malsanulejestrano“ = malsanulej + estr + ano.
 • Pli da francaj tradukoj: miloj da francaj vortoj, kiujn Reta Vortaro ne havas, el Vikivortaro, kun punktita substreko en la artikoloj.
 • Difinoj el la esperanta Vikivortaro por centoj da vortoj, kiujn Reta Vortaro ne havas.
+• Malrekomendataj vortoj laŭ „Vortoj de la bona lingvo“ (labonalingvo.org), kun tio, kion diri anstataŭe: „eskalatoro“, prefere „rulŝtuparo“.
 • Post ĉiu ekzemplo, el kiu verko ĝi venas; piktogramoj de la fakoj.
 • Foliumu la vortaron de radiko al radiko, aŭ malkovru hazardan radikon.
 • Viaj lastaj serĉoj, tagaj kaj noktaj koloroj, la grandeco de la teksto.

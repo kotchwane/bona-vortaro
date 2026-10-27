@@ -36,6 +36,11 @@ sealed class FoundWord {
     class InWiktionary(val result: VikiResult) : FoundWord() {
         override val word: String get() = result.word
     }
+
+    /** A word of "Vortoj de la bona lingvo" that neither has */
+    class InBonaLingvo(val entry: BonaLingvoEntry) : FoundWord() {
+        override val word: String get() = entry.word
+    }
 }
 
 /** The result of a search: the matching words, the index of the language
@@ -46,18 +51,29 @@ class SearchOutcome(
     val results: List<SearchResult>,
     val languageIndex: Int,
     val wiktionary: List<VikiResult> = emptyList(),
-    query: String = "",
+    /** What was searched, as typed */
+    val query: String = "",
     esperanto: Boolean = false,
     /** The language where the words were found */
     val language: String = "eo",
     val lemmas: List<FoundWord> = emptyList(),
+    /** The words of "Vortoj de la bona lingvo" that neither has */
+    val bonaLingvo: List<BonaLingvoEntry> = emptyList(),
+    /** Typed in full, a word that the list proposes and nobody has, "uato":
+     * the words it is proposed instead of, with their entries */
+    val proposedInstead: List<Pair<BonaLingvoEntry, SearchResult?>> = emptyList(),
 ) {
-    val isEmpty get() = results.isEmpty() && wiktionary.isEmpty() && lemmas.isEmpty()
+    val isEmpty get() = results.isEmpty() && wiktionary.isEmpty() && lemmas.isEmpty() && bonaLingvo.isEmpty() && proposedInstead.isEmpty()
 
-    /** All the words, Wiktionary's among Reta Vortaro's in alphabetical
-     * order, as in a printed dictionary */
+    /** All the words, Wiktionary's and the list's among Reta Vortaro's in
+     * alphabetical order, as in a printed dictionary */
     val words: List<FoundWord> = lemmas +
-        mixed(results.map { FoundWord.InRevo(it) }, wiktionary.map { FoundWord.InWiktionary(it) }, query, esperanto) { it.word }
+        mixed(
+            mixed(results.map { FoundWord.InRevo(it) }, wiktionary.map { FoundWord.InWiktionary(it) }, query, esperanto) { it.word },
+            bonaLingvo.map { FoundWord.InBonaLingvo(it) },
+            query,
+            esperanto,
+        ) { it.word }
             .filter { found -> lemmas.none { it.word == found.word } }
 }
 
@@ -146,9 +162,9 @@ object DictionarySearch {
      * first one that has any. Typing the x-system is accepted in Esperanto
      * (cx → ĉ), and the accents can be left out ("eleve" finds "élève").
      * With "*" (any letters) or "?" (one letter), the query is a pattern
-     * for whole words. A space after the word asks for that word only,
-     * not the longer ones it starts: "malva " finds "malvo", not
-     * "malvacoj".
+     * for whole words. A space after the word asks for that word as a
+     * whole, not the longer ones it starts: "malva " finds "malvo", not
+     * "malvacoj"; "valet " finds "valet d'écurie", not "valetaille".
      * This does disk access, so it shouldn't run on the main thread. */
     fun search(
         context: Context,
@@ -179,7 +195,7 @@ object DictionarySearch {
                     return SearchOutcome(emptyList(), 0)
                 val outcome = searchAs(context, trie, typed, language, esperanto, whole, stopped)
                 if (!outcome.isEmpty)
-                    return SearchOutcome(outcome.results, index, outcome.wiktionary, typed, esperanto, language, outcome.lemmas)
+                    return SearchOutcome(outcome.results, index, outcome.wiktionary, typed, esperanto, language, outcome.lemmas, outcome.bonaLingvo, outcome.proposedInstead)
             }
         }
 
@@ -191,8 +207,10 @@ object DictionarySearch {
         val results: List<SearchResult>,
         val wiktionary: List<VikiResult>,
         val lemmas: List<FoundWord> = emptyList(),
+        val bonaLingvo: List<BonaLingvoEntry> = emptyList(),
+        val proposedInstead: List<Pair<BonaLingvoEntry, SearchResult?>> = emptyList(),
     ) {
-        val isEmpty get() = results.isEmpty() && wiktionary.isEmpty() && lemmas.isEmpty()
+        val isEmpty get() = results.isEmpty() && wiktionary.isEmpty() && lemmas.isEmpty() && bonaLingvo.isEmpty() && proposedInstead.isEmpty()
     }
 
     private fun spellings(filter: String): List<String> =
@@ -226,10 +244,15 @@ object DictionarySearch {
          * sense; or with its other case, "Januaro, januaro": once, as
          * typed if it is so */
         val all = inTypedCase(once(results.take(count).filterNotNull(), filter), filter)
-        /* The word only, accents and case aside: "malva " leaves out
-         * "malvacoj"; "eleve " finds "élève" */
+        /* The word as a whole, accents and case aside, alone or followed
+         * by other words: "malva " leaves out "malvacoj"; "eleve " finds
+         * "élève"; "valet " keeps "valet d'écurie" */
         val key = Vikivortaro.key(filter)
-        val wanted = { word: String -> !whole || isPattern(filter) || Vikivortaro.key(word) == key }
+        val wanted = { word: String ->
+            !whole || isPattern(filter) || Vikivortaro.key(word).let {
+                it.startsWith(key) && (it.length == key.length || !it[key.length].isLetterOrDigit())
+            }
+        }
         val found = all.filter { wanted(it.word) }
         /* What Reta Vortaro lacks, from Vikivortaro: in French; in
          * Esperanto, its words, for everyone: the same dictionary, what
@@ -246,20 +269,34 @@ object DictionarySearch {
              * its double entries were left out */
             .filter { count < limit || all.isEmpty() || !isBeyond(it.word, all.last().word, filter, esperanto) }
 
+        /* In Esperanto, the words of "Vortoj de la bona lingvo" that
+         * neither has, "eskalatoro": advised against, what to say instead */
+        val bonaLingvo = if (esperanto && !isPattern(filter))
+            BonaLingvo.search(context, filter, trie, stopped)
+                .filter { entry -> wiktionary.none { it.word == entry.word } }
+                .filter { count < limit || found.isEmpty() || !isBeyond(it.word, found.last().word, filter, esperanto) }
+        else emptyList()
+
         /* An Esperanto word with its endings, "hundoj", "kuris": its
          * entries first, as a long press finds them, Reta Vortaro's or
          * Vikivortaro's; also when what is typed starts other words,
          * "kuristo" */
         val typed = filter.lowercase(Locale.ROOT)
         val exact = found.any { it.word.lowercase(Locale.ROOT) == typed } ||
-            wiktionary.any { it.word.lowercase(Locale.ROOT) == typed }
+            wiktionary.any { it.word.lowercase(Locale.ROOT) == typed } ||
+            bonaLingvo.any { it.word.lowercase(Locale.ROOT) == typed }
         if (esperanto && !isPattern(filter) && !exact &&
             ((found.isEmpty() && wiktionary.isEmpty()) || INFLECTED.matches(typed) || typed in PRONOUNS)) {
             val lemmas = inflected(context, trie, filter)
             if (lemmas.isNotEmpty())
-                return Found(found, wiktionary.filter { viki -> lemmas.none { it.word == viki.word } }, lemmas)
+                return Found(found, wiktionary.filter { viki -> lemmas.none { it.word == viki.word } }, lemmas, bonaLingvo)
         }
-        return Found(found, wiktionary)
+        /* A word typed in full that only the list proposes, "uato": what
+         * it is proposed instead of, rather than nothing */
+        val proposedInstead = if (esperanto && !isPattern(filter) && !exact)
+            BonaLingvo.proposing(context, filter.trim(), trie)
+        else emptyList()
+        return Found(found, wiktionary, bonaLingvo = bonaLingvo, proposedInstead = proposedInstead)
     }
 
     /* An Esperanto word with an ending, which, typed, finds its entries

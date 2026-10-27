@@ -18,6 +18,9 @@
 
 package io.github.kotchwane.bonavortaro
 
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -134,6 +137,7 @@ class SearchActivity : BonaActivity() {
         /* Vikivortaro's data, which the search in Esperanto reads too:
          * read meanwhile, rather than at the first word typed */
         lifecycleScope.launch(Dispatchers.IO) { Vikivortaro.preload(applicationContext) }
+        lifecycleScope.launch(Dispatchers.IO) { BonaLingvo.preload(applicationContext) }
 
         searchLanguages = BonaSettings.getSearchLanguages(this)
         selected = (savedInstanceState?.getString(STATE_SELECTED)
@@ -154,6 +158,7 @@ class SearchActivity : BonaActivity() {
                     onLanguageChosen = ::chooseLanguage,
                     onResultClick = ::openArticle,
                     onVikiClick = ::openViki,
+                    onBonaLingvoClick = ::openBonaLingvo,
                     onChooseLanguage = { SelectLanguageActivity.open(this) },
                     onRandomRoot = ::openRandomRoot,
                     onPreferences = { Screens.goPreferences(this) },
@@ -266,6 +271,14 @@ class SearchActivity : BonaActivity() {
         )
     }
 
+    /* A word only "Vortoj de la bona lingvo" has: its page, as a word only
+     * Vikivortaro has; kept in the history */
+    private fun openBonaLingvo(entry: BonaLingvoEntry) {
+        if (keepHistory)
+            lifecycleScope.launch(Dispatchers.IO) { History.add(applicationContext, HistoryEntry("eo", entry.word)) }
+        VikivortaroActivity.open(this, entry.word)
+    }
+
     private fun openArticle(result: SearchResult, language: String) {
         if (keepHistory)
             lifecycleScope.launch(Dispatchers.IO) {
@@ -297,6 +310,7 @@ private fun SearchScreen(
     onLanguageChosen: (String) -> Unit,
     onResultClick: (SearchResult, String) -> Unit,
     onVikiClick: (VikiResult) -> Unit,
+    onBonaLingvoClick: (BonaLingvoEntry) -> Unit,
     onChooseLanguage: () -> Unit,
     onRandomRoot: () -> Unit,
     onPreferences: () -> Unit,
@@ -356,15 +370,24 @@ private fun SearchScreen(
      * reader's languages to say of it: neither a definition from the
      * Esperanto Wiktionary nor, for them, French */
     val nothingToRead = outcome?.let { found ->
-        found.isEmpty || (found.results.isEmpty() && found.lemmas.none { it is FoundWord.InRevo } &&
-            found.wiktionary.all { it.inEsperanto && it.definition == null } && !inFrench)
+        /* A word that only the list proposes, "glandinflamo", too */
+        found.isEmpty || found.words.isEmpty() || (found.results.isEmpty() && found.lemmas.none { it is FoundWord.InRevo } &&
+            found.wiktionary.all { it.inEsperanto && it.definition == null } && found.bonaLingvo.isEmpty() && !inFrench)
     } == true
-    LaunchedEffect(query, nothingToRead, selected, guessWords) {
-        if (!nothingToRead || selected != "eo" || isPattern(query) || query.isBlank() || !guessWords) {
+    /* A word the list proposes: its parts as the group cut it, rather
+     * than a guess, even when the words aren't guessed */
+    val listParts = outcome?.let { found ->
+        found.proposedInstead.flatMap { it.first.preferred }
+            .firstOrNull { Vikivortaro.key(it.word) == Vikivortaro.key(found.query.trim()) && it.parts != null }?.parts
+    }
+    LaunchedEffect(query, nothingToRead, selected, guessWords, listParts) {
+        if (!nothingToRead || selected != "eo" || isPattern(query) || query.isBlank() || !guessWords && listParts == null) {
             analysis = null
             return@LaunchedEffect
         }
-        analysis = withContext(Dispatchers.IO) { WordAnalyses.find(context, normaliseQuery(query)) }
+        analysis = withContext(Dispatchers.IO) {
+            listParts?.let { WordAnalyses.fromList(context, it) } ?: WordAnalyses.find(context, normaliseQuery(query))
+        }
     }
 
     BonaScaffold(
@@ -375,6 +398,9 @@ private fun SearchScreen(
                 Wordmark()
                 SearchField(
                     newSearch = newSearch,
+                    /* Opened on a word, from a link: its results, without
+                     * the keyboard over them */
+                    openKeyboard = initialQuery.isEmpty(),
                     query = query,
                     onQueryChange = { editing = false; query = it },
                     onPreferences = { editing = false; onPreferences() },
@@ -404,6 +430,7 @@ private fun SearchScreen(
                     when (val found = search.found) {
                         is FoundWord.InRevo -> onResultClick(found.result, search.entry.language)
                         is FoundWord.InWiktionary -> onVikiClick(found.result)
+                        is FoundWord.InBonaLingvo -> onBonaLingvoClick(found.entry)
                     }
                 },
                 onRemove = { offerUndo(removed, onRemoveRecent(it)) },
@@ -451,6 +478,7 @@ private fun SearchScreen(
                 inFrench = inFrench,
                 onResultClick = onResultClick,
                 onVikiClick = onVikiClick,
+                onBonaLingvoClick = onBonaLingvoClick,
                 modifier = Modifier.padding(padding).consumeWindowInsets(padding).imePadding(),
             )
         }
@@ -484,6 +512,7 @@ private fun Wordmark() {
 @Composable
 private fun SearchField(
     newSearch: Int,
+    openKeyboard: Boolean,
     query: String,
     onQueryChange: (String) -> Unit,
     onPreferences: () -> Unit,
@@ -496,6 +525,8 @@ private fun SearchField(
     /* Like the original search screen, start with the keyboard open, and
      * again for each new search */
     LaunchedEffect(newSearch) {
+        if (!openKeyboard && newSearch == 0)
+            return@LaunchedEffect
         focusRequester.requestFocus()
         keyboard?.show()
     }
@@ -588,6 +619,7 @@ private fun ResultList(
     inFrench: Boolean,
     onResultClick: (SearchResult, String) -> Unit,
     onVikiClick: (VikiResult) -> Unit,
+    onBonaLingvoClick: (BonaLingvoEntry) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val context = LocalContext.current
@@ -616,7 +648,8 @@ private fun ResultList(
             }
 
             val words = outcome.words
-            item { RunningHead(words.first().word, words.last().word) }
+            if (words.isNotEmpty())
+                item { RunningHead(words.first().word, words.last().word) }
 
             /* For a search in another language, the preview starts with the
              * Esperanto word that the result translates */
@@ -634,15 +667,40 @@ private fun ResultList(
                         ResultRow(found.result, wordStyle, inEsperanto, onClick = { onResultClick(found.result, language) }, language = language)
                     is FoundWord.InWiktionary ->
                         VikiResultRow(found.result, onClick = { onVikiClick(found.result) }, inFrench = inFrench)
+                    is FoundWord.InBonaLingvo ->
+                        BonaLingvoRow(found.entry, onClick = { onBonaLingvoClick(found.entry) })
                 }
                 if (index != words.lastIndex)
                     HorizontalDivider(Modifier.padding(horizontal = 20.dp), color = rule)
             }
+            /* A word the list proposes, typed in full: what instead of */
+            if (outcome.proposedInstead.isNotEmpty())
+                item {
+                    ProposedInstead(
+                        outcome.query.trim(),
+                        outcome.proposedInstead,
+                        onOpenEntry = { onResultClick(it, "eo") },
+                        onOpenListWord = onBonaLingvoClick,
+                    )
+                }
             /* Where the words not bold come from, quietly, after them */
+            if (outcome.bonaLingvo.isNotEmpty())
+                item {
+                    Text(
+                        stringResource(R.string.bl_not_bold),
+                        style = MaterialTheme.typography.bodySmall.copy(fontStyle = FontStyle.Italic),
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.padding(start = 20.dp, end = 20.dp, top = 12.dp),
+                    )
+                }
             if (outcome.wiktionary.isNotEmpty())
                 item {
                     Text(
-                        stringResource(R.string.viki_not_bold),
+                        stringResource(
+                            /* "The other words not bold" after the list's own: the two
+                             * notes don't contradict each other */
+                            if (outcome.bonaLingvo.isNotEmpty()) R.string.viki_not_bold_others else R.string.viki_not_bold
+                        ),
                         style = MaterialTheme.typography.bodySmall.copy(fontStyle = FontStyle.Italic),
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.padding(horizontal = 20.dp, vertical = 12.dp),
@@ -745,11 +803,23 @@ internal fun ResultRow(
              * line, "maison → domo"; the example it is found in, "maison à
              * colombages → trabfaka domo" */
             val esperanto = if (inEsperanto) null else example?.example ?: preview?.title
+            /* What "Vortoj de la bona lingvo" says of a word of Reta Vortaro
+             * isn't in the search, only in its article, where it is
+             * credited: the search shows the dictionary's description, as
+             * for every word (user, 2026-10-27) */
             Row(verticalAlignment = Alignment.CenterVertically) {
-                if (inEsperanto)
-                    Text(result.word, style = wordStyle, color = bonaDesign.headword, modifier = Modifier.weight(1f))
-                else
-                    Text(translationTitle(result.word, esperanto, wordStyle), style = wordStyle, modifier = Modifier.weight(1f))
+                /* The label after the word, on the next line when it doesn't
+                 * fit: never the word broken to make room for it */
+                FlowRow(
+                    modifier = Modifier.weight(1f),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    itemVerticalAlignment = Alignment.CenterVertically,
+                ) {
+                    if (inEsperanto)
+                        Text(result.word, style = wordStyle, color = bonaDesign.headword)
+                    else
+                        Text(translationTitle(result.word, esperanto, wordStyle), style = wordStyle)
+                }
                 if (label != null)
                     Text(
                         label,

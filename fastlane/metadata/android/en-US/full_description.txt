@@ -7,6 +7,7 @@ Bona vortaro is an Esperanto dictionary for Android. It contains the whole <a hr
 • Meet a word that isn't in the dictionary? The search suggests the roots and affixes it may be built from: "malsanulejestrano" = malsanulej + estr + ano.
 • More French translations: thousands of French words that Reta Vortaro lacks, from the French Wiktionary, with a dotted underline in the articles.
 • Definitions from the Esperanto Wiktionary for hundreds of words that Reta Vortaro lacks.
+• Words advised against by "Vortoj de la bona lingvo" (labonalingvo.org), with what to say instead: "eskalatoro", preferably "rulŝtuparo".
 • After each example, the work it comes from; icons for the fields.
 • Leaf through the dictionary from root to root, or discover a random root.
 • Your recent searches, day and night colours, text size.

@@ -94,6 +94,45 @@ object WordAnalyser {
         return readings.firstOrNull { it.firstOrNull()?.complete == true } ?: readings.firstOrNull { it.isNotEmpty() }.orEmpty()
     }
 
+    /** A word as "Vortoj de la bona lingvo" cut it, "urin·kanal·inflam·o":
+     * what each part is, and its entry, as [analyse] would have found
+     * them, but where the group cut it. A part without an entry stays,
+     * without anything to open. */
+    fun fromParts(parts: String, entryOf: IndexEntries): WordAnalysis {
+        val texts = parts.lowercase(Locale.ROOT).split('·')
+        /* The grammar at the end: "glor·o·n" */
+        var end = texts.size
+        while (end > 1 && (texts[end - 1] in ENDINGS || texts[end - 1] in listOf("j", "n")))
+            end--
+        val ending = texts.getOrNull(end)
+        var rootSeen = false
+        val pieces = texts.subList(0, end).mapIndexed { i, text ->
+            val next = texts.getOrNull(i + 1)
+            val afterPiece = i > 0 && texts[i - 1].length > 1
+            when {
+                /* The -o- between the roots of a compound: alt·o·tim·eg·o */
+                text.length == 1 && text[0] in LINKS && afterPiece -> WordPiece(text, WordPiece.Kind.LINK, null)
+                /* A prefix before what it modifies: sperm·el·ĵet·i */
+                i < end - 1 && next !in SUFFIXES && (entryOf("$text-")
+                    ?: if (text in PREFIXES || text in PREPOSITIONS) entryOf(text) else null) != null ->
+                    WordPiece(text, WordPiece.Kind.PREFIX, entryOf("$text-") ?: entryOf(text))
+                text in SUFFIXES && rootSeen -> WordPiece(text, WordPiece.Kind.SUFFIX, OWN_WORDS[text]?.let(entryOf) ?: entryOf("-$text"))
+                else -> {
+                    rootSeen = true
+                    /* The most official word of the root: "alta" and "timi"
+                     * (Fundamento), not "alto" the voice and "timo"; of one
+                     * article, the last root with the word's own ending:
+                     * inflam·o, "inflamo" */
+                    val endings = if (i == end - 1 && ending in WORD_ENDINGS) listOf(ending!!) + WORD_ENDINGS else WORD_ENDINGS
+                    val entry = (if (text in WHOLE_WORDS) entryOf(text) else null)
+                        ?: endings.mapNotNull { entryOf(text + it) }.minByOrNull { entryOf.level(it) ?: Int.MAX_VALUE }
+                    WordPiece(text, WordPiece.Kind.ROOT, entry)
+                }
+            }
+        }
+        return WordAnalysis(pieces + texts.subList(end, texts.size).map { WordPiece(it, WordPiece.Kind.ENDING, null) }, "")
+    }
+
     /** The readings of a stem, with the ending pieces after it */
     private fun analyseStem(
         lower: String,
@@ -337,6 +376,10 @@ class IndexEntries(
     }
 
     override fun invoke(form: String): String? = result(form)?.let { form }
+
+    /** The officiality of the entry written so (0 for the Fundamento),
+     * null if it has none or isn't there */
+    fun level(form: String): Int? = result(form)?.let { articleLevel(it.article) }
 }
 
 fun indexEntries(trie: Trie) = IndexEntries(trie)
