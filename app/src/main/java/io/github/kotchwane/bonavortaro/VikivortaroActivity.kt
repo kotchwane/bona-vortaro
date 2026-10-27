@@ -315,6 +315,13 @@ private fun VikiPage(
              * The word analysis only when there is no French to read: the
              * French says what the word means, a guess from its pieces can
              * be wrong ("potirono" isn't po + tir + ono). */
+            /* A word only "Vortoj de la bona lingvo" has: not an entry, a
+             * note that it isn't in the dictionary, and what to say instead
+             * (user, 2026-10-27) */
+            val onlyInList = read?.inViki == false && definition == null && french.isEmpty() && description == null
+            if (onlyInList && advice != null)
+                ListOnlyNote(word, advice, read!!, onOpenEntry)
+            else
             Card(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(14.dp),
@@ -494,6 +501,49 @@ private class PageSources(
                 inViki = Vikivortaro.esperantoResult(context, word) != null || Vikivortaro.frenchOf(context, word).isNotEmpty(),
             )
         }
+    }
+}
+
+/** The page of a word only "Vortoj de la bona lingvo" has, which the
+ * dictionary doesn't describe: "konsenso ne estas en la vortaro. Laŭ Vortoj
+ * de la bona lingvo ⓘ, ĝi estas malrekomendata. Prefere diru …" */
+@Composable
+private fun ListOnlyNote(word: String, advice: BonaLingvoEntry, sources: PageSources, onOpenEntry: (SearchResult) -> Unit) {
+    val context = LocalContext.current
+    val muted = MaterialTheme.colorScheme.onSurfaceVariant
+    var info by remember { mutableStateOf(false) }
+    val infoLabel = stringResource(R.string.bl_info)
+    Column(Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 12.dp)) {
+        val notHere = stringResource(R.string.bl_only_not_here, "\u0000")
+        Text(
+            buildAnnotatedString {
+                append(notHere.substringBefore('\u0000'))
+                withStyle(SpanStyle(fontStyle = FontStyle.Italic)) { append(word) }
+                append(notHere.substringAfter('\u0000'))
+            },
+            style = MaterialTheme.typography.titleMedium,
+            color = muted,
+        )
+        val says = stringResource(if (advice.discouraged) R.string.bl_only_discouraged else R.string.bl_only_simpler, "\u0000")
+        val according = stringResource(R.string.bl_according, "\u0000")
+        Text(
+            buildAnnotatedString {
+                append(says.substringBefore('\u0000'))
+                append(according.substringBefore('\u0000'))
+                withStyle(SpanStyle(fontStyle = FontStyle.Italic)) { append(stringResource(R.string.bl_name)) }
+                /* The ⓘ kept with the name */
+                append("\u00A0")
+                withLink(LinkAnnotation.Clickable(infoLabel) { info = true }) { append("ⓘ") }
+                append(according.substringAfter('\u0000'))
+                append(says.substringAfter('\u0000'))
+            },
+            style = MaterialTheme.typography.bodyMedium,
+            color = muted,
+            modifier = Modifier.padding(top = 4.dp, bottom = 12.dp),
+        )
+        if (info)
+            BonaLingvoInfoDialog(onDismiss = { info = false })
+        AdviceText(advice, sources.targets, sources.withPage, onOpenEntry, onOpenWord = { VikivortaroActivity.open(context, it) }, firstDefinition = sources.firstDefinition)
     }
 }
 

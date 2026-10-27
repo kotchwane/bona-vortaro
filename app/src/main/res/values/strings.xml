@@ -217,6 +217,9 @@
   <string name="bl_principle">„Por bela, klara, internacia lingvo, neniam uzu malutilan novan radikon aŭ nacilingvan enporton, kiam simpla alternativo ekzistas.“</string>
   <string name="bl_authors">La listo estas verkita de Renato Corsetti, Noam Mohr kaj la laborgrupo de la Bona Lingvo. Bona vortaro montras nur tion, kion la laborgrupo jam kontrolis.</string>
   <string name="bl_info">pri Vortoj de la bona lingvo</string>
+  <string name="bl_only_not_here">%1$s ne estas en la vortaro.</string>
+  <string name="bl_only_discouraged">%1$s, ĝi estas malrekomendata.</string>
+  <string name="bl_only_simpler">%1$s, ekzistas pli simplaj vortoj.</string>
   <string name="sources_bl">la rimarkoj pri malrekomendataj vortoj kaj iliaj alternativoj</string>
   <string name="from_viki_not_in_revo">el Vikivortaro · ne en Reta Vortaro</string>
   <string name="from_bl_not_in_revo">el Vortoj de la bona lingvo · ne en Reta Vortaro</string>
