@@ -105,6 +105,10 @@ object SearchPreviews {
         return translationSense(article(context, result.article) ?: return null, language, result.word, result.mark)
     }
 
+    /** The title of an article, "am/i", from the articles kept for the
+     * previews. Disk access: not on the main thread. */
+    fun title(context: Context, number: Int): String? = article(context, number)?.title?.toString()
+
     private fun article(context: Context, number: Int): Article? = articles.get(number) ?: try {
         ArticleLoader.load(context, number, onShowSection = {}, quoteColor = 0, sources = false)
             .also { articles.put(number, it) }
