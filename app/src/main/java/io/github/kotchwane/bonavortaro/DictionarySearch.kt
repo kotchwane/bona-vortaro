@@ -305,9 +305,6 @@ object DictionarySearch {
      * another ending than its entry's, "malva" (malvo) before "malvarma";
      * not "bon" ("bo" with an accusative) */
     private val INFLECTED = Regex("^\\p{L}{2,}([oae]j?n|[oa]j|(a|i|o|u)s|u|[oae])$")
-    /* A root of two letters with another ending: "ama" (ami), but not
-     * "pre" (pro, a word of its own, with no root and ending) */
-    private val SHORT_ROOT = Regex("^\\p{L}{2}[oae]$")
     private val PRONOUNS = setOf("min", "vin", "lin", "ŝin", "ĝin", "sin", "nin", "ilin", "onin")
 
     /* Each entry once: by its word, case aside, its article and its mark */
@@ -354,7 +351,10 @@ object DictionarySearch {
             /* The word itself before its examples in other articles */
             val revo = results.take(count).filterNotNull().filter { it.word.lowercase(Locale.ROOT) == form }
                 .distinctBy { Triple(it.word, it.article, it.mark) }.sortedBy { it.isExample }
-                .filter { !SHORT_ROOT.matches(word.lowercase(Locale.ROOT)) || hasRoot(context, it.article) }
+                /* A root of two letters with an ending: "ama" (ami), but
+                 * not "pre" or "pros" (pro, pri, words of their own, with
+                 * no root and ending) */
+                .filter { form.length > 3 || hasRoot(context, it.article) }
             val viki = Vikivortaro.searchEsperanto(context, form).filter { it.esperanto.lowercase(Locale.ROOT) == form }
             if (revo.isNotEmpty() || viki.isNotEmpty())
                 return revo.map { FoundWord.InRevo(it) } + viki.map { FoundWord.InWiktionary(it) }
