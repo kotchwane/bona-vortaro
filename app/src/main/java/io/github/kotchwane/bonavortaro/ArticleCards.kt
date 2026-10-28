@@ -317,8 +317,11 @@ private fun SenseText(text: CharSequence, senseAt: Int?, scrolled: Boolean, onLo
     val markColor = MaterialTheme.colorScheme.tertiaryContainer.copy(alpha = 0.7f)
     val density = LocalDensity.current
     val margin = with(density) { 48.dp.toPx() }
-    /* Room below it, so that it comes near the top rather than at the bottom */
-    val below = with(density) { (LocalConfiguration.current.screenHeightDp * 0.8f).dp.toPx() }
+    /* Room below it, so that it comes near the top rather than at the
+     * bottom; less than the list's height, the bars aside, or the list
+     * would show the bottom of that room rather than the sense (landscape) */
+    val screenHeight = LocalConfiguration.current.screenHeightDp
+    val below = with(density) { minOf(screenHeight * 0.8f, screenHeight - 160f).coerceAtLeast(0f).dp.toPx() }
     LaunchedEffect(senseAt, scrolled, view != null) {
         val at = senseAt ?: return@LaunchedEffect
         if (!scrolled || brought)
