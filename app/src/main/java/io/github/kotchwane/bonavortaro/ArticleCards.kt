@@ -168,6 +168,9 @@ fun WordCard(
     /** Whether the list was scrolled to the card it was opened at: the
      * example's line is brought into view after */
     scrolled: Boolean = true,
+    /** The sense a link pointed to, from 1 ("De⁴"): brought into view
+     * after, like the example */
+    sense: Int? = null,
 ) {
     /* What the French Wiktionary adds to the French translation of this
      * word, for each of its forms ("kukurbeto, itala kukurbo"); the French
@@ -244,13 +247,15 @@ fun WordCard(
             for ((index, group) in groupExamples(entry.blocks, exampleColor).withIndex()) {
                 when (group) {
                     is BlockGroup.Single -> when (val block = group.block) {
-                        is ContentBlock.Text -> SpannedText(
-                            compactParagraphs(block.text),
-                            style = MaterialTheme.typography.bodyLarge,
-                            color = MaterialTheme.colorScheme.onSurface,
-                            onLongPress = onLongPressText,
-                            modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
-                        )
+                        is ContentBlock.Text -> {
+                            val shown = compactParagraphs(block.text)
+                            SenseText(
+                                shown,
+                                senseAt = sense?.let { senseOffset(shown, it) },
+                                scrolled = scrolled,
+                                onLongPress = onLongPressText,
+                            )
+                        }
                         is ContentBlock.Example -> ExampleLine(block.text, onLongPressText)
                         is ContentBlock.Note ->
                             NoteBox(block.text, key = "${entry.section}-note-$index", unfolded = unfoldExamples, onLongPressText)
@@ -287,6 +292,41 @@ private fun compactParagraphs(text: CharSequence): CharSequence {
         at = result.indexOf("\n\n", at + 2)
     }
     return result
+}
+
+/** Where sense [sense] starts in a text of a word: its number, "4.", at
+ * the start of a paragraph; null if it isn't there */
+internal fun senseOffset(text: CharSequence, sense: Int): Int? =
+    Regex("""(^|\n)\s*($sense\.)\s""").find(text)?.groups?.get(2)?.range?.first
+
+/** A text of a word; the sense a link pointed to in it, if any, brought
+ * near the top of the screen once the list is at the card */
+@Composable
+private fun SenseText(text: CharSequence, senseAt: Int?, scrolled: Boolean, onLongPress: (String?) -> Unit) {
+    val bringIntoView = remember { BringIntoViewRequester() }
+    var view by remember { mutableStateOf<TextView?>(null) }
+    var brought by rememberSaveable { mutableStateOf(false) }
+    val margin = with(LocalDensity.current) { 48.dp.toPx() }
+    /* Room below it, so that it comes near the top rather than at the bottom */
+    val below = with(LocalDensity.current) { (LocalConfiguration.current.screenHeightDp * 0.8f).dp.toPx() }
+    LaunchedEffect(senseAt, scrolled, view != null) {
+        val at = senseAt ?: return@LaunchedEffect
+        if (!scrolled || brought)
+            return@LaunchedEffect
+        delay(300)
+        val layout = view?.layout ?: return@LaunchedEffect
+        val top = layout.getLineTop(layout.getLineForOffset(at)).toFloat()
+        bringIntoView.bringIntoView(Rect(0f, top - margin, layout.width.toFloat(), top + below))
+        brought = true
+    }
+    SpannedText(
+        text,
+        style = MaterialTheme.typography.bodyLarge,
+        color = MaterialTheme.colorScheme.onSurface,
+        onLongPress = onLongPress,
+        onLayout = if (senseAt != null) ({ view = it }) else null,
+        modifier = Modifier.fillMaxWidth().padding(top = 8.dp).bringIntoViewRequester(bringIntoView),
+    )
 }
 
 /** The blocks of a word, with the runs of several examples together. */

@@ -614,7 +614,7 @@ private val SENSE_NUMBER = Regex("""^(\d+\.|[a-z]\))\s*""")
  * to a translation section; in that case the first word of the article is
  * used. Returns null if the article has no word.
  */
-fun previewOf(article: Article, mark: Int): WordPreview? {
+fun previewOf(article: Article, mark: Int, sense: String? = null): WordPreview? {
     val section = article.sections.getOrNull(mark)?.takeIf { it.isWord() }
         ?: article.sections.firstOrNull { it.isWord() }
         ?: return null
@@ -656,10 +656,12 @@ fun previewOf(article: Article, mark: Int): WordPreview? {
         withoutLabels.delete(start, end)
 
     /* The first paragraph that says something: not a lone sense number,
-     * nor a label in brackets such as "(malofte)" */
-    val definition = splitBlocks(withoutLabels)
+     * nor a label in brackets such as "(malofte)"; of the sense asked
+     * for, if the word has it */
+    val paragraphs = splitBlocks(withoutLabels)
         .filterIsInstance<ContentBlock.Text>()
         .flatMap { it.text.toString().split("\n\n") }
+    val definition = fromSense(paragraphs, sense)
         .map { it.replace(SENSE_NUMBER, "").replace(Regex("""\s+"""), " ").trim() }
         .firstOrNull { it.length > 3 && !(it.startsWith("(") && it.endsWith(")")) }
         ?.removeSuffix(":")
@@ -669,6 +671,43 @@ fun previewOf(article: Article, mark: Int): WordPreview? {
 
     return WordPreview(title.toString(), definition)
 }
+
+/** The paragraphs of a word from its sense [sense] ("2"), which starts
+ * with its number ("2. Nobela…"); all of them if there is none */
+internal fun fromSense(paragraphs: List<String>, sense: String?): List<String> {
+    if (sense.isNullOrEmpty())
+        return paragraphs
+    val start = paragraphs.indexOfFirst { it.trimStart().startsWith("$sense.") }
+    return if (start < 0) paragraphs else paragraphs.drop(start)
+}
+
+/** The sense ("2") of the word of a section that a translation is of, as
+ * the translations of the article say it ("~o 2: maison (lignée),
+ * lignée"), with the section: only if it is found once, and for one
+ * sense, not for the whole word. Disk access: none. */
+fun translationSense(article: Article, language: String, translation: String): Pair<Int, String>? {
+    val parts = article.sections.filter { !it.isWord() && it.language == language }
+        .flatMap { splitTranslations(it.content).orEmpty() }
+        .filter { it.example == null }
+        .map { Triple(it.section, it.sense, it.text) }
+    return uniqueSense(parts, translation)
+}
+
+/** Of the translations of an article, (section, sense, text), the section
+ * and sense of the one that has [translation] among its words, if there is
+ * one only, for one sense */
+internal fun uniqueSense(parts: List<Triple<Int, String, String>>, translation: String): Pair<Int, String>? {
+    val searched = translationKey(translation)
+    val found = parts.filter { (_, _, text) -> text.split(',', ';').any { translationKey(it) == searched } }
+        .map { (section, sense, _) -> section to sense }
+        .distinct()
+    return found.singleOrNull()?.takeIf { it.second.isNotEmpty() }
+}
+
+/* A translation compared: its case and spaces aside */
+private fun translationKey(text: String) =
+    java.text.Normalizer.normalize(text.lowercase(java.util.Locale.ROOT), java.text.Normalizer.Form.NFC)
+        .replace('\u00a0', ' ').replace('\u202f', ' ').replace(Regex("\\s+"), " ").trim()
 
 private const val SUPERSCRIPTS = "0⁰1¹2²3³4⁴5⁵6⁶7⁷8⁸9⁹+⁺-⁻−⁻=⁼(⁽)⁾aᵃbᵇcᶜdᵈeᵉfᶠgᵍhʰiⁱjʲkᵏlˡmᵐnⁿoᵒpᵖrʳsˢtᵗuᵘvᵛwʷxˣyʸzᶻ*﹡"
 private const val SUBSCRIPTS = "0₀1₁2₂3₃4₄5₅6₆7₇8₈9₉+₊-₋−₋=₌(₍)₎aₐeₑhₕiᵢjⱼkₖlₗmₘnₙoₒpₚrᵣsₛtₜuᵤvᵥxₓ"

@@ -26,14 +26,34 @@ public class ReferenceSpan extends ClickableSpan
 {
   private int articleNumber;
   private int sectionNumber;
+  /* The sense it points to, from 1, or -1 for the word: "De⁴" */
+  private int senseNumber;
 
   private static String TAG = "BonaReference";
 
   public ReferenceSpan (int articleNumber,
                         int sectionNumber)
   {
+    this (articleNumber, sectionNumber, -1);
+  }
+
+  public ReferenceSpan (int articleNumber,
+                        int sectionNumber,
+                        int senseNumber)
+  {
     this.articleNumber = articleNumber;
     this.sectionNumber = sectionNumber;
+    this.senseNumber = senseNumber;
+  }
+
+  public int getArticleNumber ()
+  {
+    return articleNumber;
+  }
+
+  public int getSectionNumber ()
+  {
+    return sectionNumber;
   }
 
   @Override
@@ -48,6 +68,9 @@ public class ReferenceSpan extends ClickableSpan
                      articleNumber);
     intent.putExtra (ArticleActivity.EXTRA_MARK_NUMBER,
                      sectionNumber);
+    if (senseNumber > 0)
+      intent.putExtra (ArticleActivity.EXTRA_SENSE_NUMBER,
+                       senseNumber);
     view.getContext ().startActivity (intent);
   }
 }

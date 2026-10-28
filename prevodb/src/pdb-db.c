@@ -1792,6 +1792,18 @@ pdb_db_resolve_links (PdbDb *db)
             {
               link->span->data1 = article_num;
               link->span->data2 = section_num;
+
+              /* And the sence it points to, if any, in a span of its
+               * own over the same text */
+              if (sence_num > 0 && link->span->type == PDB_SPAN_REFERENCE)
+                {
+                  PdbSpan *sense = g_slice_new0 (PdbSpan);
+                  sense->type = PDB_SPAN_SENSE;
+                  sense->span_start = link->span->span_start;
+                  sense->span_length = link->span->span_length;
+                  sense->data1 = sence_num;
+                  pdb_list_insert (&link->span->link, &sense->link);
+                }
             }
         }
       else

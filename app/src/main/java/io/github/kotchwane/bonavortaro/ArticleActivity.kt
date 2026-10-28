@@ -114,6 +114,8 @@ class ArticleActivity : BonaActivity() {
     companion object {
         const val EXTRA_ARTICLE_NUMBER = "io.github.kotchwane.bonavortaro.ArticleNumber"
         const val EXTRA_MARK_NUMBER = "io.github.kotchwane.bonavortaro.MarkNumber"
+        /** The sense of the word of [EXTRA_MARK_NUMBER] to show, from 1 */
+        const val EXTRA_SENSE_NUMBER = "io.github.kotchwane.bonavortaro.SenseNumber"
         /** The French word searched, which only the French Wiktionary
          * translates by the Esperanto word of [EXTRA_VIKI_WORD] */
         const val EXTRA_VIKI_FRENCH = "io.github.kotchwane.bonavortaro.VikiFrench"
@@ -177,6 +179,7 @@ class ArticleActivity : BonaActivity() {
                 ?: listOf(intent.getIntExtra(EXTRA_ARTICLE_NUMBER, -1))
         )
         val mark = intent.getIntExtra(EXTRA_MARK_NUMBER, -1)
+        val sense = intent.getIntExtra(EXTRA_SENSE_NUMBER, -1)
         val vikiSearch = intent.getStringExtra(EXTRA_VIKI_FRENCH)?.let { french ->
             intent.getStringExtra(EXTRA_VIKI_WORD)?.let { VikiSearch(french, it) }
         }
@@ -210,6 +213,7 @@ class ArticleActivity : BonaActivity() {
                     vikiShown = vikiShown,
                     /* The section of the intent, for the root it opened */
                     initialSection = if (savedInstanceState == null && depth == 1) mark else -1,
+                    initialSense = if (savedInstanceState == null && depth == 1) sense else -1,
                     /* For the root the search opened */
                     vikiSearch = if (depth == 1) vikiSearch else null,
                     searched = if (depth == 1) searched else null,
@@ -432,6 +436,8 @@ private fun ArticleScreen(
     preferredLanguages: List<String>,
     vikiShown: Boolean,
     initialSection: Int,
+    /** The sense of its word to show, from 1, or -1 */
+    initialSense: Int,
     vikiSearch: VikiSearch?,
     /** The example searched, whose line is shown */
     searched: ExampleSearch?,
@@ -697,6 +703,7 @@ private fun ArticleScreen(
                             vikiShown = vikiShown,
                             example = example.takeIf { word.section == searched?.section },
                             scrolled = showedSection,
+                            sense = initialSense.takeIf { it > 0 && word.section == initialSection },
                             onViki = { vikiSections[word.section] = it },
                             onLongPress = { showActions(word.source, word.section) },
                             onLongPressWord = { pressed, language -> wordFor = pressed to language },

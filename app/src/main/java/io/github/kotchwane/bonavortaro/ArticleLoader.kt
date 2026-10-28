@@ -203,6 +203,8 @@ object ArticleLoader {
     /* ReVo's <url> in the text, "PMEG: Neoficialaj vortetoj", with the
      * number of its address in sources.txt */
     private const val SPAN_LINK = 14
+    /* The sense a reference points to (data1, from 1), over its text */
+    private const val SPAN_SENSE = 15
     private const val SUBSCRIPT_DIGITS = "0123456789+-−=()"
     private const val SUBSCRIPTS = "₀₁₂₃₄₅₆₇₈₉₊₋₋₌₍₎"
     /* After a source that opens a page outside the app */
@@ -323,6 +325,8 @@ object ArticleLoader {
             val links = mutableListOf<Triple<Int, Int, Int>>()
             /* The subscripts: start and end */
             val subscripts = mutableListOf<Pair<Int, Int>>()
+            /* The senses of the references: start, end and sense */
+            val senses = mutableListOf<Triple<Int, Int, Int>>()
 
             while (true) {
                 val spanLength = input.readShort()
@@ -349,6 +353,8 @@ object ArticleLoader {
                     links.add(Triple(spanStart, spanEnd, data1))
                 else if (spanType == SPAN_SUBSCRIPT)
                     subscripts.add(spanStart to spanEnd)
+                else if (spanType == SPAN_SENSE)
+                    senses.add(Triple(spanStart, spanEnd, data1))
                 else
                     for (span in createSpans(spanType, data1, data2))
                         string.setSpan(span, spanStart, spanEnd, 0)
@@ -356,6 +362,14 @@ object ArticleLoader {
 
             for ((start, end) in misuses)
                 string.setSpan(MisuseSpan(), start, end, 0)
+
+            /* A reference to another article opens it at its sense: "De⁴" */
+            for ((start, end, sense) in senses)
+                for (reference in string.getSpans(start, end, ReferenceSpan::class.java))
+                    if (string.getSpanStart(reference) == start && string.getSpanEnd(reference) == end) {
+                        string.removeSpan(reference)
+                        string.setSpan(ReferenceSpan(reference.articleNumber, reference.sectionNumber, sense), start, end, 0)
+                    }
 
             /* Digits in subscript written as such, "C₂H₅OH", the same
              * length: a lowered span would make its line taller than the
