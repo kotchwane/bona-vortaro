@@ -303,9 +303,11 @@ object DictionarySearch {
     /* An Esperanto word with an ending, which, typed, finds its entries
      * before the words it starts: "kuris", "grandan", "bonaj", also with
      * another ending than its entry's, "malva" (malvo) before "malvarma";
-     * not "bon" ("bo" with an accusative), nor "pre" (pro): a root of two
-     * letters with another ending is rather a beginning */
-    private val INFLECTED = Regex("^\\p{L}{2,}([oae]j?n|[oa]j|(a|i|o|u)s|u)$|^\\p{L}{3,}[oae]$")
+     * not "bon" ("bo" with an accusative) */
+    private val INFLECTED = Regex("^\\p{L}{2,}([oae]j?n|[oa]j|(a|i|o|u)s|u|[oae])$")
+    /* A root of two letters with another ending: "ama" (ami), but not
+     * "pre" (pro, a word of its own, with no root and ending) */
+    private val SHORT_ROOT = Regex("^\\p{L}{2}[oae]$")
     private val PRONOUNS = setOf("min", "vin", "lin", "ŝin", "ĝin", "sin", "nin", "ilin", "onin")
 
     /* Each entry once: by its word, case aside, its article and its mark */
@@ -337,6 +339,14 @@ object DictionarySearch {
      * as typed, in Reta Vortaro or Vikivortaro: "hundoj" as "hundo";
      * "abortigoj" as Vikivortaro's "abortigo" before Reta Vortaro's
      * "abortigi" */
+    /* Whether an article is of a root and its endings, "am/i", rather
+     * than of a word of its own, "pro" */
+    private fun hasRoot(context: Context, article: Int): Boolean = try {
+        '/' in ArticleLoader.load(context, article, onShowSection = {}, quoteColor = 0, sources = false).title
+    } catch (e: java.io.IOException) {
+        false
+    }
+
     private fun inflected(context: Context, trie: Trie, word: String): List<FoundWord> {
         val results = arrayOfNulls<SearchResult>(16)
         for (form in WordLookup.candidates(word).drop(1)) {
@@ -344,6 +354,7 @@ object DictionarySearch {
             /* The word itself before its examples in other articles */
             val revo = results.take(count).filterNotNull().filter { it.word.lowercase(Locale.ROOT) == form }
                 .distinctBy { Triple(it.word, it.article, it.mark) }.sortedBy { it.isExample }
+                .filter { !SHORT_ROOT.matches(word.lowercase(Locale.ROOT)) || hasRoot(context, it.article) }
             val viki = Vikivortaro.searchEsperanto(context, form).filter { it.esperanto.lowercase(Locale.ROOT) == form }
             if (revo.isNotEmpty() || viki.isNotEmpty())
                 return revo.map { FoundWord.InRevo(it) } + viki.map { FoundWord.InWiktionary(it) }

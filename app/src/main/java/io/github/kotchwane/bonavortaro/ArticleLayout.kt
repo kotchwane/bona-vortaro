@@ -697,13 +697,13 @@ fun translationSense(article: Article, language: String, translation: String, ma
 
 /** Of the translations of an article, (section, sense, text), the section
  * and sense of the one that has [translation] among its words, if there is
- * one only, for one sense; only those of the section [mark] if it has it */
+ * one only, for one sense; only those of the section [mark] if given */
 internal fun uniqueSense(parts: List<Triple<Int, String, String>>, translation: String, mark: Int? = null): Pair<Int, String>? {
     val searched = translationKey(translation)
     val all = parts.filter { (_, _, text) -> text.split(',', ';').any { translationKey(it) == searched } }
         .map { (section, sense, _) -> section to sense }
         .distinct()
-    val found = all.filter { it.first == mark }.ifEmpty { all }
+    val found = if (mark == null) all else all.filter { it.first == mark }
     return found.singleOrNull()?.takeIf { it.second.isNotEmpty() }
 }
 

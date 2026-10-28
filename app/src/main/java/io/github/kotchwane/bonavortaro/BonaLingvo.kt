@@ -223,8 +223,9 @@ object BonaLingvo {
 
     /* A proposed word without what the list says of it in brackets:
      * "(kristana) monaĥestro" → "monaĥestro" */
-    fun withoutBrackets(word: String) =
-        word.replace(Regex("\\([^)]*\\)"), " ").replace(Regex("\\s+"), " ").trim()
+    fun withoutBrackets(word: String) = word.replace(BRACKETS, " ").replace(SPACES, " ").trim()
+    private val BRACKETS = Regex("\\([^)]*\\)")
+    private val SPACES = Regex("\\s+")
 
     /** Opens the search on a word that Reta Vortaro doesn't have */
     private class SearchSpan(private val word: String) : ClickableSpan() {

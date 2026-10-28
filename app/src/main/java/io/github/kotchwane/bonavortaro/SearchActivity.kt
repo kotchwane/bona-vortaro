@@ -131,8 +131,10 @@ class SearchActivity : BonaActivity() {
     private var inFrench by mutableStateOf(false)
     /* Counts the new searches asked for with the magnifier of an article */
     private var newSearch by mutableIntStateOf(0)
-    /* The article being opened: a second tap meanwhile opens nothing */
+    /* The article being opened, and whether it was: a second tap
+     * meanwhile, or before it shows, opens nothing */
     private var opening: Job? = null
+    private var opened = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -282,15 +284,14 @@ class SearchActivity : BonaActivity() {
         VikivortaroActivity.open(this, entry.word)
     }
 
+    override fun onResume() {
+        super.onResume()
+        opened = false
+    }
+
     private fun openArticle(result: SearchResult, language: String) {
-        if (opening?.isActive == true)
+        if (opening?.isActive == true || opened)
             return
-        if (keepHistory)
-            lifecycleScope.launch(Dispatchers.IO) {
-                /* With its place, for a word found in several */
-                val entry = HistoryEntry(language, result.word, file = RevoFiles.fileOf(applicationContext, result.article), section = result.mark)
-                History.add(applicationContext, entry)
-            }
 
         opening = lifecycleScope.launch {
             /* A translation of one sense opens the word at that sense, the
@@ -299,6 +300,12 @@ class SearchActivity : BonaActivity() {
             /* Not once the reader has left the search */
             if (!lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED))
                 return@launch
+            if (keepHistory)
+                lifecycleScope.launch(Dispatchers.IO) {
+                    /* With its place, for a word found in several */
+                    val entry = HistoryEntry(language, result.word, file = RevoFiles.fileOf(applicationContext, result.article), section = result.mark)
+                    History.add(applicationContext, entry)
+                }
             val intent = Intent(this@SearchActivity, ArticleActivity::class.java)
             intent.putExtra(ArticleActivity.EXTRA_ARTICLE_NUMBER, result.article)
             intent.putExtra(ArticleActivity.EXTRA_MARK_NUMBER, place?.first ?: result.mark)
@@ -308,6 +315,7 @@ class SearchActivity : BonaActivity() {
                 intent.putExtra(ArticleActivity.EXTRA_EXAMPLE_WORD, result.word)
                 intent.putExtra(ArticleActivity.EXTRA_EXAMPLE_LANGUAGE, language)
             }
+            opened = true
             startActivity(intent)
         }
     }
