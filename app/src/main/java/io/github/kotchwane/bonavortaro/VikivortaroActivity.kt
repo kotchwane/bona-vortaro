@@ -157,9 +157,15 @@ fun VikiResultRow(
                         modifier = Modifier.padding(start = 12.dp),
                     )
             }
+            /* A French word that Reta Vortaro doesn't have, of which the
+             * French Wiktionary says nothing ("maison de thé → teejo"): no
+             * second line, rather than an empty one. One that Reta Vortaro
+             * has keeps its line while its definition is read. */
+            val nothingToSay = advice == null && !result.inEsperanto && result.revo == null &&
+                (definition ?: result.description).isNullOrEmpty()
             /* Found in Esperanto: its Esperanto definition, for everyone;
              * else what it says in French, saying so */
-            Text(
+            if (!nothingToSay) Text(
                 advice?.let { preferredLine(it) } ?: AnnotatedString(if (result.inEsperanto)
                     if (result.definition != null)
                         result.definition
