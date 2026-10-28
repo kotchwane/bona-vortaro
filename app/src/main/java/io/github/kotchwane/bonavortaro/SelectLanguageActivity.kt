@@ -71,8 +71,11 @@ class SelectLanguageActivity : BonaActivity() {
         firstStart = intent.getBooleanExtra(EXTRA_FIRST_START, false)
         chosen = savedInstanceState?.getStringArrayList("chosen")
             /* Esperanto is ticked to start with, as this is an Esperanto
-             * dictionary; it can be unticked */
-            ?: if (firstStart) listOf("eo") else BonaSettings.getChosenSearchLanguages(this)
+             * dictionary, and the main language of the phone if the
+             * dictionary has it; both can be unticked */
+            ?: if (firstStart) listOf("eo") + BonaSettings.phoneLanguages(this).take(1)
+                .filter { it != "eo" && LanguageList.getDefault(this).hasLanguage(it) }
+            else BonaSettings.getChosenSearchLanguages(this)
 
         val languages = LanguageList.getDefault(this).allLanguages.toList()
 
