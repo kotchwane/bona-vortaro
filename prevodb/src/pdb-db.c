@@ -3486,8 +3486,9 @@ pdb_db_keeps_space_before (const GString *buf,
 
 /* Whether a text is quoted or isn't Reta Vortaro's own prose: an
  * example, but not what Reta Vortaro adds to it, "(vd emancipi)"; its
- * source, the initials of the author of a remark, "pp", an
- * abbreviation marked as such, a note to the editors */
+ * source, the initials of the author of a remark, "pp", a word cited,
+ * "<ctl>vd.</ctl>", an expression given as such, an abbreviation
+ * marked as such, a note to the editors */
 static gboolean
 pdb_db_is_quoted (PdbDocNode *node)
 {
@@ -3510,6 +3511,8 @@ pdb_db_is_quoted (PdbDocNode *node)
         }
       else if (!strcmp (name, "fnt") ||
                !strcmp (name, "aut") ||
+               !strcmp (name, "ctl") ||
+               !strcmp (name, "ke") ||
                !strcmp (name, "bib") ||
                !strcmp (name, "mlg") ||
                !strcmp (name, "adm") ||
@@ -3521,18 +3524,18 @@ pdb_db_is_quoted (PdbDocNode *node)
   return FALSE;
 }
 
-/* Whether a byte is part of a word: a letter, a digit, or a byte of a
- * letter such as "ĉ" */
+/* Whether a character is part of a word: a letter, a digit, or the
+ * hyphen of "18-a" */
 static gboolean
-pdb_db_is_word_byte (char c)
+pdb_db_is_word_character (gunichar c)
 {
-  return g_ascii_isalnum (c) || (c & 0x80) || c == '-';
+  return g_unichar_isalnum (c) || c == '-';
 }
 
 /* The character after a text node, as far as a word goes: the first of
  * the next text, which the parser may have cut anywhere, "sk|alo"; a
  * letter for the headword, "sk<tld/>"; otherwise a space */
-static char
+static gunichar
 pdb_db_next_character (PdbDocNode *node)
 {
   PdbDocNode *next = node->next;
@@ -3540,7 +3543,11 @@ pdb_db_next_character (PdbDocNode *node)
   if (next == NULL)
     return ' ';
   if (next->type == PDB_DOC_NODE_TYPE_TEXT)
-    return ((PdbDocTextNode *) next)->len > 0 ? ((PdbDocTextNode *) next)->data[0] : ' ';
+    {
+      PdbDocTextNode *text = (PdbDocTextNode *) next;
+
+      return text->len > 0 ? g_utf8_get_char_validated (text->data, text->len) : ' ';
+    }
   if (next->type == PDB_DOC_NODE_TYPE_ELEMENT &&
       !strcmp (((PdbDocElementNode *) next)->name, "tld"))
     return 'a';
@@ -3548,25 +3555,29 @@ pdb_db_next_character (PdbDocNode *node)
 }
 
 /* The abbreviation to spell out that starts at p, "ks", "Kp", as a
- * whole word, with what it stands for in expansion and its length in
- * length, a full stop of its own included; FALSE if there is none */
-static gboolean
+ * whole word: what it stands for in full, and its length in length, a
+ * full stop of its own included; NULL if there is none */
+static const char *
 pdb_db_find_spelled_out (PdbDb *db,
                          PdbDbParseState *state,
                          PdbDocNode *node,
                          const char *p,
                          const char *end,
-                         GString *expansion,
                          size_t *length)
 {
   int i;
 
   /* At the start of a word */
   if (state->queued_space == PDB_DB_QUEUED_SPACE_TYPE_NONE &&
-      state->buf->len > 0 &&
-      (pdb_db_is_word_byte (state->buf->str[state->buf->len - 1]) ||
-       state->buf->str[state->buf->len - 1] == '.'))
-    return FALSE;
+      state->buf->len > 0)
+    {
+      const char *buf_end = state->buf->str + state->buf->len;
+      const char *last = g_utf8_find_prev_char (state->buf->str, buf_end);
+      gunichar c = last ? g_utf8_get_char_validated (last, buf_end - last) : 0;
+
+      if (pdb_db_is_word_character (c) || c == '.')
+        return NULL;
+    }
 
   for (i = 0; i < G_N_ELEMENTS (pdb_db_spelled_out); i++)
     {
@@ -3585,7 +3596,9 @@ pdb_db_find_spelled_out (PdbDb *db,
         continue;
 
       after = p + len;
-      if (pdb_db_is_word_byte (after < end ? *after : pdb_db_next_character (node)))
+      if (pdb_db_is_word_character (after < end ?
+                                    g_utf8_get_char_validated (after, end - after) :
+                                    pdb_db_next_character (node)))
         continue;
 
       full = g_hash_table_lookup (db->abbreviations, entry->abbreviation);
@@ -3593,32 +3606,32 @@ pdb_db_find_spelled_out (PdbDb *db,
         continue;
 
       /* Its own full stop: always for some, otherwise when the
-       * sentence goes on in lower case, "ks. kaj probable"; not before
-       * a capital nor at the end of the text, "ks. La franca" */
+       * sentence goes on in lower case, "ks. kaj probable", also on
+       * the next line of the XML; not before a capital, maybe after an
+       * opening quote, nor at the end of the text, "ks. La franca" */
       if (after < end && *after == '.')
         {
           const char *next = after + 1;
+          gunichar c = 0;
 
-          while (next < end && *next == ' ')
-            next++;
+          while (next < end)
+            {
+              c = g_utf8_get_char_validated (next, end - next);
+              if (!g_unichar_isspace (c) && c != 0x201e && c != 0x201c && c != '"' && c != '(')
+                break;
+              next = g_utf8_next_char (next);
+            }
 
-          if (entry->takes_stop ||
-              (next < end && *next != '\n' &&
-               !g_unichar_isupper (g_utf8_get_char_validated (next, end - next))))
+          if (entry->takes_stop || (next < end && !g_unichar_isupper (c)))
             after++;
         }
 
-      g_string_assign (expansion, full);
-      if (g_ascii_isupper (*p))
-        expansion->str[0] = g_ascii_toupper (expansion->str[0]);
-      else
-        expansion->str[0] = g_ascii_tolower (expansion->str[0]);
       *length = after - p;
 
-      return TRUE;
+      return full;
     }
 
-  return FALSE;
+  return NULL;
 }
 
 static gboolean
@@ -3711,7 +3724,7 @@ pdb_db_parse_node (PdbDb *db,
         PdbDocTextNode *text = (PdbDocTextNode *) node;
         const char *p, *end;
         gboolean quoted = pdb_db_is_quoted (node);
-        GString *expansion = g_string_new (NULL);
+        const char *full;
         size_t length;
 
         for (p = text->data, end = text->data + text->len;
@@ -3748,10 +3761,17 @@ pdb_db_parse_node (PdbDb *db,
                 /* "ks", "jc": spelled out, as the reader may not know
                  * them */
                 if (!quoted &&
-                    pdb_db_find_spelled_out (db, state, node, p, end, expansion, &length))
+                    (full = pdb_db_find_spelled_out (db, state, node, p, end, &length)))
                   {
+                    size_t at;
+
                     pdb_db_start_text (state);
-                    g_string_append (state->buf, expansion->str);
+                    at = state->buf->len;
+                    g_string_append (state->buf, full);
+                    /* In the case it is written: "vidu", "Vidu" */
+                    state->buf->str[at] = g_ascii_isupper (*p) ?
+                      g_ascii_toupper (full[0]) :
+                      g_ascii_tolower (full[0]);
                     p += length - 1;
                     continue;
                   }
@@ -3761,7 +3781,6 @@ pdb_db_parse_node (PdbDb *db,
               }
           }
 
-        g_string_free (expansion, TRUE);
       }
       break;
     }
