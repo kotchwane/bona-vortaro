@@ -478,10 +478,11 @@ private class PageSources(
                 null
             }
             val targets = advice?.preferred.orEmpty().mapNotNull { target ->
-                index?.let { Vikivortaro.revoEsperanto(it, target.word) }?.let { target.word to it }
+                index?.let { Vikivortaro.revoEsperanto(it, BonaLingvo.withoutBrackets(target.word)) }?.let { target.word to it }
             }.toMap()
             val first = advice?.preferred?.firstOrNull()?.let { targets[it.word] }
-            val withPage = advice?.preferred.orEmpty().map { it.word }.filter { it !in targets }.filter { target ->
+            val withPage = advice?.preferred.orEmpty().map { it.word }.filter { it !in targets }.filter {
+                val target = BonaLingvo.withoutBrackets(it)
                 Vikivortaro.esperantoResult(context, target) != null || Vikivortaro.frenchOf(context, target).isNotEmpty() ||
                     BonaLingvo.entry(context, target) != null
             }.toSet()
@@ -563,13 +564,22 @@ private fun AdviceText(
                     if (number > 0)
                         append(", ")
                     val found = targets[word]
+                    /* What is in brackets is said of the word, not part
+                     * of the link: "(kristana) monaĥestro" */
+                    val bare = BonaLingvo.withoutBrackets(word)
+                    val at = word.indexOf(bare).takeIf { bare.isNotEmpty() && it >= 0 }
+                    val linked = if (at != null) bare else word
+                    if (at != null)
+                        append(word.take(at))
                     when {
-                        found != null -> withLink(LinkAnnotation.Clickable(word, link) { onOpenEntry(found) }) { append(word) }
-                        word in withPage -> withLink(LinkAnnotation.Clickable(word, link) { onOpenWord(word) }) { append(word) }
+                        found != null -> withLink(LinkAnnotation.Clickable(word, link) { onOpenEntry(found) }) { append(linked) }
+                        word in withPage -> withLink(LinkAnnotation.Clickable(word, link) { onOpenWord(linked) }) { append(linked) }
                         /* Nowhere to read it: its search, which says what the
                          * list proposes it for and how it is built */
-                        else -> withLink(LinkAnnotation.Clickable(word, link) { Screens.searchFor(context, word) }) { append(word) }
+                        else -> withLink(LinkAnnotation.Clickable(word, link) { Screens.searchFor(context, linked) }) { append(linked) }
                     }
+                    if (at != null)
+                        append(word.drop(at + bare.length))
                 }
                 if (wordsContext.isNotEmpty())
                     append(" $wordsContext")

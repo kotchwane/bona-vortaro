@@ -104,7 +104,7 @@ object BonaLingvo {
     private class Data(val byWord: Map<String, BonaLingvoEntry>, val keys: List<String>, val sorted: List<BonaLingvoEntry>) {
         /** The entries by the key of each of their words to say */
         val byPreferred: Map<String, List<BonaLingvoEntry>> by lazy {
-            sorted.flatMap { entry -> entry.preferred.map { Vikivortaro.key(it.word) to entry } }
+            sorted.flatMap { entry -> entry.preferred.map { Vikivortaro.key(withoutBrackets(it.word)) to entry } }
                 .groupBy({ it.first }, { it.second }).mapValues { (_, entries) -> entries.distinct() }
         }
     }
@@ -221,6 +221,11 @@ object BonaLingvo {
             append(according.substringAfter('\u0000'))
         }
 
+    /* A proposed word without what the list says of it in brackets:
+     * "(kristana) monaĥestro" → "monaĥestro" */
+    fun withoutBrackets(word: String) =
+        word.replace(Regex("\\([^)]*\\)"), " ").replace(Regex("\\s+"), " ").trim()
+
     /** Opens the search on a word that Reta Vortaro doesn't have */
     private class SearchSpan(private val word: String) : ClickableSpan() {
         override fun onClick(view: View) = Screens.searchFor(view.context, word)
@@ -244,10 +249,16 @@ object BonaLingvo {
                     append(word)
                     /* A link, to the word itself when Reta Vortaro has it,
                      * else to its search: what the list says of it, and how
-                     * it is built */
-                    val found = index?.let { index -> Vikivortaro.revoEsperanto(index, word) }
-                    val link = if (found != null) ReferenceSpan(found.article, found.mark) else SearchSpan(word)
-                    setSpan(link, start, length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+                     * it is built; what is in brackets is said of it, not
+                     * part of it: "(kristana) monaĥestro" */
+                    val bare = withoutBrackets(word)
+                    val at = word.indexOf(bare).takeIf { bare.isNotEmpty() && it >= 0 }
+                    val found = index?.let { index -> Vikivortaro.revoEsperanto(index, bare) }
+                    val link = if (found != null) ReferenceSpan(found.article, found.mark) else SearchSpan(bare.ifEmpty { word })
+                    if (at != null)
+                        setSpan(link, start + at, start + at + bare.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+                    else
+                        setSpan(link, start, length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
                 }
                 if (wordsContext.isNotEmpty())
                     append(" $wordsContext")
@@ -286,6 +297,9 @@ object BonaLingvo {
      * its entry in Reta Vortaro if it has one; empty for any other word.
      * Disk access: not on the main thread. */
     fun proposing(context: Context, word: String, index: Trie): List<Pair<BonaLingvoEntry, SearchResult?>> {
+        /* "de (": not a word, though the list proposes "de" */
+        if ('(' in word || ')' in word)
+            return emptyList()
         val by = data(context).byPreferred[Vikivortaro.key(word)] ?: return emptyList()
         if (entry(context, word) != null || Vikivortaro.revoEsperanto(index, word) != null ||
             Vikivortaro.esperantoResult(context, word) != null || Vikivortaro.frenchOf(context, word).isNotEmpty())

@@ -274,7 +274,8 @@ object DictionarySearch {
         val bonaLingvo = if (esperanto && !isPattern(filter))
             BonaLingvo.search(context, filter, trie, stopped)
                 .filter { entry -> wiktionary.none { it.word == entry.word } }
-                .filter { count < limit || found.isEmpty() || !isBeyond(it.word, found.last().word, filter, esperanto) }
+                .filter { wanted(it.word) }
+                .filter { count < limit || all.isEmpty() || !isBeyond(it.word, all.last().word, filter, esperanto) }
         else emptyList()
 
         /* An Esperanto word with its endings, "hundoj", "kuris": its
@@ -302,8 +303,9 @@ object DictionarySearch {
     /* An Esperanto word with an ending, which, typed, finds its entries
      * before the words it starts: "kuris", "grandan", "bonaj", also with
      * another ending than its entry's, "malva" (malvo) before "malvarma";
-     * not "bon" ("bo" with an accusative) */
-    private val INFLECTED = Regex("^\\p{L}{2,}([oae]j?n|[oa]j|(a|i|o|u)s|u|[oae])$")
+     * not "bon" ("bo" with an accusative), nor "pre" (pro): a root of two
+     * letters with another ending is rather a beginning */
+    private val INFLECTED = Regex("^\\p{L}{2,}([oae]j?n|[oa]j|(a|i|o|u)s|u)$|^\\p{L}{3,}[oae]$")
     private val PRONOUNS = setOf("min", "vin", "lin", "ŝin", "ĝin", "sin", "nin", "ilin", "onin")
 
     /* Each entry once: by its word, case aside, its article and its mark */

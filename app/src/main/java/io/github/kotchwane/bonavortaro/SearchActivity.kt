@@ -95,6 +95,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.isActive
@@ -130,6 +131,8 @@ class SearchActivity : BonaActivity() {
     private var inFrench by mutableStateOf(false)
     /* Counts the new searches asked for with the magnifier of an article */
     private var newSearch by mutableIntStateOf(0)
+    /* The article being opened: a second tap meanwhile opens nothing */
+    private var opening: Job? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -280,6 +283,8 @@ class SearchActivity : BonaActivity() {
     }
 
     private fun openArticle(result: SearchResult, language: String) {
+        if (opening?.isActive == true)
+            return
         if (keepHistory)
             lifecycleScope.launch(Dispatchers.IO) {
                 /* With its place, for a word found in several */
@@ -287,14 +292,17 @@ class SearchActivity : BonaActivity() {
                 History.add(applicationContext, entry)
             }
 
-        lifecycleScope.launch {
+        opening = lifecycleScope.launch {
             /* A translation of one sense opens the word at that sense, the
              * one its preview shows ("maison (lignée)": domo 2) */
             val place = withContext(Dispatchers.IO) { SearchPreviews.translationPlace(applicationContext, result, language) }
+            /* Not once the reader has left the search */
+            if (!lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED))
+                return@launch
             val intent = Intent(this@SearchActivity, ArticleActivity::class.java)
             intent.putExtra(ArticleActivity.EXTRA_ARTICLE_NUMBER, result.article)
             intent.putExtra(ArticleActivity.EXTRA_MARK_NUMBER, place?.first ?: result.mark)
-            place?.second?.substringBefore('.')?.toIntOrNull()?.let { intent.putExtra(ArticleActivity.EXTRA_SENSE_NUMBER, it) }
+            place?.second?.toIntOrNull()?.let { intent.putExtra(ArticleActivity.EXTRA_SENSE_NUMBER, it) }
             /* Found in an example: the article shows its line */
             if (result.isExample) {
                 intent.putExtra(ArticleActivity.EXTRA_EXAMPLE_WORD, result.word)
