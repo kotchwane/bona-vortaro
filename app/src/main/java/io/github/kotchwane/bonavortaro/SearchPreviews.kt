@@ -87,9 +87,9 @@ object SearchPreviews {
         val article = article(context, result.article) ?: return null
 
         if (translated) {
-            val text = "$language/${result.article}/${result.word}"
+            val text = "$language/${result.article}/${result.mark}/${result.word}"
             senses.get(text)?.let { return it }
-            translationSense(article, language!!, result.word)?.let { (section, sense) ->
+            translationSense(article, language!!, result.word, result.mark)?.let { (section, sense) ->
                 return previewOf(article, section, sense)?.also { senses.put(text, it) }
             }
         }
@@ -102,7 +102,7 @@ object SearchPreviews {
     fun translationPlace(context: Context, result: SearchResult, language: String): Pair<Int, String>? {
         if (language == "eo" || result.isExample)
             return null
-        return translationSense(article(context, result.article) ?: return null, language, result.word)
+        return translationSense(article(context, result.article) ?: return null, language, result.word, result.mark)
     }
 
     private fun article(context: Context, number: Int): Article? = articles.get(number) ?: try {

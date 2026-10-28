@@ -40,6 +40,15 @@ class PreviewSenseTest {
     }
 
     @Test
+    fun anotherWordOfTheArticleWithTheSameTranslationDoesntHideTheSense() {
+        /* kaf/o: kafujo 3 and kafskatolo are both "boîte à café" */
+        val kafo = listOf(Triple(3, "1", "caféier"), Triple(3, "3", "boîte à café"), Triple(5, "", "boîte à café"))
+        assertEquals(3 to "3", uniqueSense(kafo, "boîte à café", mark = 3))
+        assertNull(uniqueSense(kafo, "boîte à café", mark = 5))
+        assertNull(uniqueSense(kafo, "boîte à café"))
+    }
+
+    @Test
     fun aTranslationOfTheWholeWordOrOfSeveralSensesGivesNone() {
         assertNull(uniqueSense(domo, "masure"))
         assertNull(uniqueSense(domo + Triple(0, "3", "maison (construction)"), "maison (construction)"))

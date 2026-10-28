@@ -684,23 +684,26 @@ internal fun fromSense(paragraphs: List<String>, sense: String?): List<String> {
 /** The sense ("2") of the word of a section that a translation is of, as
  * the translations of the article say it ("~o 2: maison (lignée),
  * lignée"), with the section: only if it is found once, and for one
- * sense, not for the whole word. Disk access: none. */
-fun translationSense(article: Article, language: String, translation: String): Pair<Int, String>? {
+ * sense, not for the whole word; in the word [mark] first, as another
+ * word of the article may have the same translation ("boîte à café":
+ * kafujo 3, and kafskatolo). Disk access: none. */
+fun translationSense(article: Article, language: String, translation: String, mark: Int? = null): Pair<Int, String>? {
     val parts = article.sections.filter { !it.isWord() && it.language == language }
         .flatMap { splitTranslations(it.content).orEmpty() }
         .filter { it.example == null }
         .map { Triple(it.section, it.sense, it.text) }
-    return uniqueSense(parts, translation)
+    return uniqueSense(parts, translation, mark)
 }
 
 /** Of the translations of an article, (section, sense, text), the section
  * and sense of the one that has [translation] among its words, if there is
- * one only, for one sense */
-internal fun uniqueSense(parts: List<Triple<Int, String, String>>, translation: String): Pair<Int, String>? {
+ * one only, for one sense; only those of the section [mark] if it has it */
+internal fun uniqueSense(parts: List<Triple<Int, String, String>>, translation: String, mark: Int? = null): Pair<Int, String>? {
     val searched = translationKey(translation)
-    val found = parts.filter { (_, _, text) -> text.split(',', ';').any { translationKey(it) == searched } }
+    val all = parts.filter { (_, _, text) -> text.split(',', ';').any { translationKey(it) == searched } }
         .map { (section, sense, _) -> section to sense }
         .distinct()
+    val found = all.filter { it.first == mark }.ifEmpty { all }
     return found.singleOrNull()?.takeIf { it.second.isNotEmpty() }
 }
 
