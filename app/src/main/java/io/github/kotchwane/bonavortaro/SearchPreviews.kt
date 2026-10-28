@@ -84,13 +84,7 @@ object SearchPreviews {
         if (!translated)
             previews.get(key)?.let { return it }
 
-        val article = articles.get(result.article) ?: try {
-            ArticleLoader.load(context, result.article, onShowSection = {}, quoteColor = 0, sources = false)
-                .also { articles.put(result.article, it) }
-        } catch (e: IOException) {
-            Log.w(TAG, "Failed to load article ${result.article}")
-            return null
-        }
+        val article = article(context, result.article) ?: return null
 
         if (translated) {
             val text = "$language/${result.article}/${result.word}"
@@ -100,6 +94,23 @@ object SearchPreviews {
             }
         }
         return previewOf(article, result.mark)?.also { previews.put(key, it) }
+    }
+
+    /** The section and sense ("2") of the word a translation is of, to
+     * open the article there; null if the article doesn't say it once.
+     * Disk access: not on the main thread. */
+    fun translationPlace(context: Context, result: SearchResult, language: String): Pair<Int, String>? {
+        if (language == "eo" || result.isExample)
+            return null
+        return translationSense(article(context, result.article) ?: return null, language, result.word)
+    }
+
+    private fun article(context: Context, number: Int): Article? = articles.get(number) ?: try {
+        ArticleLoader.load(context, number, onShowSection = {}, quoteColor = 0, sources = false)
+            .also { articles.put(number, it) }
+    } catch (e: IOException) {
+        Log.w(TAG, "Failed to load article $number")
+        null
     }
 }
 

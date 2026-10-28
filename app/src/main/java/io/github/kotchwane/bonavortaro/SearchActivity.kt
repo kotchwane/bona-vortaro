@@ -287,15 +287,21 @@ class SearchActivity : BonaActivity() {
                 History.add(applicationContext, entry)
             }
 
-        val intent = Intent(this, ArticleActivity::class.java)
-        intent.putExtra(ArticleActivity.EXTRA_ARTICLE_NUMBER, result.article)
-        intent.putExtra(ArticleActivity.EXTRA_MARK_NUMBER, result.mark)
-        /* Found in an example: the article shows its line */
-        if (result.isExample) {
-            intent.putExtra(ArticleActivity.EXTRA_EXAMPLE_WORD, result.word)
-            intent.putExtra(ArticleActivity.EXTRA_EXAMPLE_LANGUAGE, language)
+        lifecycleScope.launch {
+            /* A translation of one sense opens the word at that sense, the
+             * one its preview shows ("maison (lignée)": domo 2) */
+            val place = withContext(Dispatchers.IO) { SearchPreviews.translationPlace(applicationContext, result, language) }
+            val intent = Intent(this@SearchActivity, ArticleActivity::class.java)
+            intent.putExtra(ArticleActivity.EXTRA_ARTICLE_NUMBER, result.article)
+            intent.putExtra(ArticleActivity.EXTRA_MARK_NUMBER, place?.first ?: result.mark)
+            place?.second?.substringBefore('.')?.toIntOrNull()?.let { intent.putExtra(ArticleActivity.EXTRA_SENSE_NUMBER, it) }
+            /* Found in an example: the article shows its line */
+            if (result.isExample) {
+                intent.putExtra(ArticleActivity.EXTRA_EXAMPLE_WORD, result.word)
+                intent.putExtra(ArticleActivity.EXTRA_EXAMPLE_LANGUAGE, language)
+            }
+            startActivity(intent)
         }
-        startActivity(intent)
     }
 }
 
