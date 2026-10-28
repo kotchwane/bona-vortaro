@@ -212,12 +212,16 @@ fun layoutArticle(
 }
 
 /** Joins the translations of the senses of a word, merging the senses that
- * have the same one: [(1, a), (3, a), (4, b)] → "(1, 3) a; (4) b". */
+ * have the same one: [(1, a), (3, a), (4, b)] → "(1, 3) a; (4) b". Those of
+ * the whole word first, which would read as the last sense's after it:
+ * "house; (3) home", not "(3) home; house". */
 private fun joinSenses(texts: List<Pair<String, String>>): String =
-    texts.groupBy({ it.second }, { it.first }).entries.joinToString("; ") { (text, senses) ->
-        val numbers = senses.filter { it.isNotEmpty() }
-        if (numbers.isEmpty()) text else "(${numbers.joinToString(", ")}) $text"
-    }
+    texts.groupBy({ it.second }, { it.first }).entries
+        .sortedBy { (_, senses) -> senses.any { it.isNotEmpty() } }
+        .joinToString("; ") { (text, senses) ->
+            val numbers = senses.filter { it.isNotEmpty() }
+            if (numbers.isEmpty()) text else "(${numbers.joinToString(", ")}) $text"
+        }
 
 /** A part of the translations of an article: the section it points to,
  * its sense ("" for the whole word), its text, and for a translation of
