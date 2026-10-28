@@ -236,6 +236,10 @@ struct _PdbDb
    * abbreviation, eg. "BL", from cfg/bibliogr.xml */
   GHashTable *works;
 
+  /* What the abbreviations of cfg/mallongigoj.xml stand for, indexed
+   * by the abbreviation, eg. "kaj similaj" for "ks" */
+  GHashTable *abbreviations;
+
   /* The codes of the fields, sorted. The span of a field has the
    * number of its code in this list, from 1, written one a line in
    * assets/fields.txt, so that applications can show its icon */
@@ -307,6 +311,33 @@ pdb_db_styles[] =
     { "RAR", "(malofte) " },
     { "POE", "(poezie) " },
     { "NEO", "(neologismo) " }
+  };
+
+/* The abbreviations of cfg/mallongigoj.xml that are spelled out in
+ * the text of Reta Vortaro, outside the examples: those a reader of
+ * Esperanto may not know, unlike "ktp", "t.e." or "ekz." */
+typedef struct
+{
+  const char *abbreviation;
+  /* Whether a full stop after it is its own, not the end of the
+   * sentence: "Kp. ĉe la komenco" */
+  gboolean takes_stop;
+} PdbDbSpelledOut;
+
+static const PdbDbSpelledOut
+pdb_db_spelled_out[] =
+  {
+    { "ks", FALSE },
+    { "kc", FALSE },
+    { "jc", FALSE },
+    { "pp", TRUE },
+    { "sk", TRUE },
+    { "Vd", TRUE },
+    { "Kp", TRUE },
+    { "resp.", FALSE },
+    /* Not "i.a." while cfg/mallongigoj.xml gives "interalia" for the
+     * adverb "interalie" */
+    { "simb.", FALSE }
   };
 
 static void
@@ -3453,6 +3484,143 @@ pdb_db_keeps_space_before (const GString *buf,
                            const char *next,
                            const char *end);
 
+/* Whether a text is quoted or isn't Reta Vortaro's own prose: an
+ * example, but not what Reta Vortaro adds to it, "(vd emancipi)"; its
+ * source, the initials of the author of a remark, "pp", an
+ * abbreviation marked as such, a note to the editors */
+static gboolean
+pdb_db_is_quoted (PdbDocNode *node)
+{
+  gboolean added = FALSE;
+
+  for (node = node->parent; node; node = node->parent)
+    {
+      const char *name;
+
+      if (node->type != PDB_DOC_NODE_TYPE_ELEMENT)
+        continue;
+
+      name = ((PdbDocElementNode *) node)->name;
+      if (!strcmp (name, "klr"))
+        added = TRUE;
+      else if (!strcmp (name, "ekz"))
+        {
+          if (!added)
+            return TRUE;
+        }
+      else if (!strcmp (name, "fnt") ||
+               !strcmp (name, "aut") ||
+               !strcmp (name, "bib") ||
+               !strcmp (name, "mlg") ||
+               !strcmp (name, "adm") ||
+               !strcmp (name, "trd") ||
+               !strcmp (name, "trdgrp"))
+        return TRUE;
+    }
+
+  return FALSE;
+}
+
+/* Whether a byte is part of a word: a letter, a digit, or a byte of a
+ * letter such as "ĉ" */
+static gboolean
+pdb_db_is_word_byte (char c)
+{
+  return g_ascii_isalnum (c) || (c & 0x80) || c == '-';
+}
+
+/* The character after a text node, as far as a word goes: the first of
+ * the next text, which the parser may have cut anywhere, "sk|alo"; a
+ * letter for the headword, "sk<tld/>"; otherwise a space */
+static char
+pdb_db_next_character (PdbDocNode *node)
+{
+  PdbDocNode *next = node->next;
+
+  if (next == NULL)
+    return ' ';
+  if (next->type == PDB_DOC_NODE_TYPE_TEXT)
+    return ((PdbDocTextNode *) next)->len > 0 ? ((PdbDocTextNode *) next)->data[0] : ' ';
+  if (next->type == PDB_DOC_NODE_TYPE_ELEMENT &&
+      !strcmp (((PdbDocElementNode *) next)->name, "tld"))
+    return 'a';
+  return ' ';
+}
+
+/* The abbreviation to spell out that starts at p, "ks", "Kp", as a
+ * whole word, with what it stands for in expansion and its length in
+ * length, a full stop of its own included; FALSE if there is none */
+static gboolean
+pdb_db_find_spelled_out (PdbDb *db,
+                         PdbDbParseState *state,
+                         PdbDocNode *node,
+                         const char *p,
+                         const char *end,
+                         GString *expansion,
+                         size_t *length)
+{
+  int i;
+
+  /* At the start of a word */
+  if (state->queued_space == PDB_DB_QUEUED_SPACE_TYPE_NONE &&
+      state->buf->len > 0 &&
+      (pdb_db_is_word_byte (state->buf->str[state->buf->len - 1]) ||
+       state->buf->str[state->buf->len - 1] == '.'))
+    return FALSE;
+
+  for (i = 0; i < G_N_ELEMENTS (pdb_db_spelled_out); i++)
+    {
+      const PdbDbSpelledOut *entry = pdb_db_spelled_out + i;
+      size_t len = strlen (entry->abbreviation);
+      const char *full, *after;
+
+      /* As it is written, or with its first letter in the other
+       * case: "vd" for "Vd" */
+      if (end - p < len ||
+          (*p != entry->abbreviation[0] &&
+           *p != (g_ascii_isupper (entry->abbreviation[0]) ?
+                  g_ascii_tolower (entry->abbreviation[0]) :
+                  g_ascii_toupper (entry->abbreviation[0]))) ||
+          strncmp (p + 1, entry->abbreviation + 1, len - 1))
+        continue;
+
+      after = p + len;
+      if (pdb_db_is_word_byte (after < end ? *after : pdb_db_next_character (node)))
+        continue;
+
+      full = g_hash_table_lookup (db->abbreviations, entry->abbreviation);
+      if (full == NULL)
+        continue;
+
+      /* Its own full stop: always for some, otherwise when the
+       * sentence goes on in lower case, "ks. kaj probable"; not before
+       * a capital nor at the end of the text, "ks. La franca" */
+      if (after < end && *after == '.')
+        {
+          const char *next = after + 1;
+
+          while (next < end && *next == ' ')
+            next++;
+
+          if (entry->takes_stop ||
+              (next < end && *next != '\n' &&
+               !g_unichar_isupper (g_utf8_get_char_validated (next, end - next))))
+            after++;
+        }
+
+      g_string_assign (expansion, full);
+      if (g_ascii_isupper (*p))
+        expansion->str[0] = g_ascii_toupper (expansion->str[0]);
+      else
+        expansion->str[0] = g_ascii_tolower (expansion->str[0]);
+      *length = after - p;
+
+      return TRUE;
+    }
+
+  return FALSE;
+}
+
 static gboolean
 pdb_db_parse_node (PdbDb *db,
                    PdbDbParseState *state,
@@ -3542,6 +3710,9 @@ pdb_db_parse_node (PdbDb *db,
       {
         PdbDocTextNode *text = (PdbDocTextNode *) node;
         const char *p, *end;
+        gboolean quoted = pdb_db_is_quoted (node);
+        GString *expansion = g_string_new (NULL);
+        size_t length;
 
         for (p = text->data, end = text->data + text->len;
              p < end;
@@ -3574,10 +3745,23 @@ pdb_db_parse_node (PdbDb *db,
                   state->queued_space = PDB_DB_QUEUED_SPACE_TYPE_NONE;
                 state->space_before_skipped = FALSE;
 
+                /* "ks", "jc": spelled out, as the reader may not know
+                 * them */
+                if (!quoted &&
+                    pdb_db_find_spelled_out (db, state, node, p, end, expansion, &length))
+                  {
+                    pdb_db_start_text (state);
+                    g_string_append (state->buf, expansion->str);
+                    p += length - 1;
+                    continue;
+                  }
+
                 pdb_db_start_text (state);
                 g_string_append_c (state->buf, *p);
               }
           }
+
+        g_string_free (expansion, TRUE);
       }
       break;
     }
@@ -4487,6 +4671,11 @@ pdb_db_new (PdbRevo *revo,
                                  "mll",
                                  "tit");
   db->work_details = pdb_db_load_works (revo);
+  db->abbreviations = pdb_db_load_codes (revo,
+                                         "cfg/mallongigoj.xml",
+                                         "mallongigo",
+                                         "mll",
+                                         NULL /* text_name */);
 
   {
     GHashTableIter iter;
@@ -4643,6 +4832,7 @@ pdb_db_free (PdbDb *db)
   g_ptr_array_free (db->field_codes, TRUE);
   g_hash_table_destroy (db->fields);
   g_hash_table_destroy (db->works);
+  g_hash_table_destroy (db->abbreviations);
   g_hash_table_destroy (db->work_details);
   g_hash_table_destroy (db->source_url_numbers);
   g_ptr_array_free (db->source_urls, TRUE);
