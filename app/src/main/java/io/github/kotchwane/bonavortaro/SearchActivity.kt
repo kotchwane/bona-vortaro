@@ -787,7 +787,16 @@ internal fun ResultRow(
                 SearchPreviews.example(context, result, language, BonaSettings.getTranslationOrder(context))
             }
     }
-    val exampleOf = example?.let { stringResource(R.string.example_of, it.word) }
+    /* The word in bold: two rows of the same example, a proverb of two
+     * articles, differ only by it ("kie estas volo, tie estas vojo") */
+    val exampleOfText = stringResource(R.string.example_of, "\u0000")
+    val exampleOf = example?.let {
+        buildAnnotatedString {
+            append(exampleOfText.substringBefore('\u0000'))
+            withStyle(SpanStyle(fontWeight = FontWeight.Bold)) { append(it.word) }
+            append(exampleOfText.substringAfter('\u0000'))
+        }
+    }
     val languageName = example?.language?.let { LanguageList.getDefault(context).getLanguageName(it) }
     val small = MaterialTheme.typography.bodyMedium
 
@@ -833,12 +842,12 @@ internal fun ResultRow(
             val text = if (example != null) {
                 val shown = example!!
                 if (inEsperanto)
-                    exampleOf + (shown.translation?.let { " — $languageName: " + (if (shown.language == "fr") frenchSpacing(it) else it) } ?: "")
-                else exampleOf
-            } else preview?.definition
+                    exampleOf!! + AnnotatedString(shown.translation?.let { " — $languageName: " + (if (shown.language == "fr") frenchSpacing(it) else it) } ?: "")
+                else exampleOf!!
+            } else AnnotatedString(preview?.definition ?: "")
             /* Keep the height of the row while the preview is loading */
             Text(
-                text ?: "",
+                text,
                 style = small.copy(fontStyle = FontStyle.Italic),
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 maxLines = 1,
