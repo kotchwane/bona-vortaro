@@ -464,10 +464,10 @@ private fun FoldedExamples(
     /* The first example cut at the end of its last shown line, for the
      * width and the size it was measured with; null while it fits. Kept
      * while unfolded, so that folding again doesn't show it whole first */
-    var folded by remember(first) { mutableStateOf<FoldedNote?>(null) }
+    var folded by remember(first, link) { mutableStateOf<FoldedNote?>(null) }
     /* The lines of the others, at the same width and size */
-    var othersLines by remember(first) { mutableStateOf<Int?>(null) }
-    var measuredFor by remember(first) { mutableStateOf<Pair<Int, Float>?>(null) }
+    var othersLines by remember(first, link) { mutableStateOf<Int?>(null) }
+    var measuredFor by remember(first, link) { mutableStateOf<Pair<Int, Float>?>(null) }
     val measure: (TextView) -> Unit = { view ->
         val width = view.layout.width
         val size = view.paint.textSize
@@ -828,8 +828,9 @@ private fun NoteBox(text: CharSequence, key: String, unfolded: Boolean, onLongPr
     val (expanded, setExpanded) = unfoldedState(key, unfolded)
     val more = stringResource(R.string.note_more)
     /* The text cut at the end of its last shown line, for the width and
-     * the size it was measured with; null while it fits */
-    var folded by remember(text) { mutableStateOf<FoldedNote?>(null) }
+     * the size it was measured with; null while it fits. Cut again with
+     * the colour of the links of another theme */
+    var folded by remember(text, link) { mutableStateOf<FoldedNote?>(null) }
 
     val isFolded = folded != null && !expanded
     val start = remember { BringIntoViewRequester() }
