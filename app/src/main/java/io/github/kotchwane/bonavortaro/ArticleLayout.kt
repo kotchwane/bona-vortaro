@@ -220,7 +220,8 @@ private fun joinSenses(texts: List<Pair<String, String>>): String =
     texts.groupBy({ it.second }, { it.first }).entries
         .sortedBy { (_, senses) -> "" !in senses }
         .joinToString("; ") { (text, senses) ->
-            if ("" in senses) text else "(${senses.joinToString(", ")}) $text"
+            /* The number kept on the line of its translation */
+            if ("" in senses) text else "(${senses.joinToString(", ")})\u00A0$text"
         }
 
 /** A part of the translations of an article: the section it points to,

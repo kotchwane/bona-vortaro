@@ -169,7 +169,7 @@ internal fun exampleOf(
      * missing between two ("annexe (ajout) appendice (ajout)"), or be in it
      * ("man soll das Fell des Bären nicht verteilen, bevor…") */
     val words = Regex("(^|\\W)" + Regex.escape(plainText(word)) + "($|\\W)")
-    fun has(text: String) = text.split(',', ';').any { phraseKey(it.replace(Regex("^\\(\\d+(, *\\d+)*\\) *"), "")) == searched } ||
+    fun has(text: String) = text.split(',', ';').any { phraseKey(it.replace(Regex("^\\(\\d+(, *\\d+)*\\)[ \u00A0]*"), "")) == searched } ||
         words.containsMatchIn(plainText(text))
     if (has(translation.text))
         return null
