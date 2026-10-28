@@ -114,6 +114,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.geometry.CornerRadius
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.tween
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.res.stringResource
@@ -300,15 +303,19 @@ internal fun senseOffset(text: CharSequence, sense: Int): Int? =
     Regex("""(^|\n)\s*($sense\.)\s""").find(text)?.groups?.get(2)?.range?.first
 
 /** A text of a word; the sense a link pointed to in it, if any, brought
- * near the top of the screen once the list is at the card */
+ * near the top of the screen once the list is at the card, and marked for
+ * a moment, as it doesn't always come first on the screen */
 @Composable
 private fun SenseText(text: CharSequence, senseAt: Int?, scrolled: Boolean, onLongPress: (String?) -> Unit) {
     val bringIntoView = remember { BringIntoViewRequester() }
     var view by remember { mutableStateOf<TextView?>(null) }
     var brought by rememberSaveable { mutableStateOf(false) }
-    val margin = with(LocalDensity.current) { 48.dp.toPx() }
+    val mark = remember { Animatable(0f) }
+    val markColor = MaterialTheme.colorScheme.tertiaryContainer.copy(alpha = 0.7f)
+    val density = LocalDensity.current
+    val margin = with(density) { 48.dp.toPx() }
     /* Room below it, so that it comes near the top rather than at the bottom */
-    val below = with(LocalDensity.current) { (LocalConfiguration.current.screenHeightDp * 0.8f).dp.toPx() }
+    val below = with(density) { (LocalConfiguration.current.screenHeightDp * 0.8f).dp.toPx() }
     LaunchedEffect(senseAt, scrolled, view != null) {
         val at = senseAt ?: return@LaunchedEffect
         if (!scrolled || brought)
@@ -318,6 +325,9 @@ private fun SenseText(text: CharSequence, senseAt: Int?, scrolled: Boolean, onLo
         val top = layout.getLineTop(layout.getLineForOffset(at)).toFloat()
         bringIntoView.bringIntoView(Rect(0f, top - margin, layout.width.toFloat(), top + below))
         brought = true
+        mark.snapTo(1f)
+        delay(1500)
+        mark.animateTo(0f, tween(1500))
     }
     SpannedText(
         text,
@@ -325,7 +335,28 @@ private fun SenseText(text: CharSequence, senseAt: Int?, scrolled: Boolean, onLo
         color = MaterialTheme.colorScheme.onSurface,
         onLongPress = onLongPress,
         onLayout = if (senseAt != null) ({ view = it }) else null,
-        modifier = Modifier.fillMaxWidth().padding(top = 8.dp).bringIntoViewRequester(bringIntoView),
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(top = 8.dp)
+            .bringIntoViewRequester(bringIntoView)
+            /* The sense up to the next one, its examples and sub-senses
+             * included */
+            .drawBehind {
+                val at = senseAt ?: return@drawBehind
+                val layout = view?.layout ?: return@drawBehind
+                if (mark.value == 0f)
+                    return@drawBehind
+                val end = Regex("""\n\s*\d+\.\s""").find(text, at + 1)?.range?.first ?: text.length
+                val top = layout.getLineTop(layout.getLineForOffset(at)).toFloat()
+                val bottom = layout.getLineBottom(layout.getLineForOffset((end - 1).coerceAtLeast(at))).toFloat()
+                val edge = 4.dp.toPx()
+                drawRoundRect(
+                    markColor.copy(alpha = markColor.alpha * mark.value),
+                    topLeft = Offset(-edge, top - edge / 2),
+                    size = Size(size.width + 2 * edge, bottom - top + edge),
+                    cornerRadius = CornerRadius(edge),
+                )
+            },
     )
 }
 
@@ -464,10 +495,10 @@ private fun FoldedExamples(
     /* The first example cut at the end of its last shown line, for the
      * width and the size it was measured with; null while it fits. Kept
      * while unfolded, so that folding again doesn't show it whole first */
-    var folded by remember(first) { mutableStateOf<FoldedNote?>(null) }
+    var folded by remember(first, link) { mutableStateOf<FoldedNote?>(null) }
     /* The lines of the others, at the same width and size */
-    var othersLines by remember(first) { mutableStateOf<Int?>(null) }
-    var measuredFor by remember(first) { mutableStateOf<Pair<Int, Float>?>(null) }
+    var othersLines by remember(first, link) { mutableStateOf<Int?>(null) }
+    var measuredFor by remember(first, link) { mutableStateOf<Pair<Int, Float>?>(null) }
     val measure: (TextView) -> Unit = { view ->
         val width = view.layout.width
         val size = view.paint.textSize
@@ -828,8 +859,9 @@ private fun NoteBox(text: CharSequence, key: String, unfolded: Boolean, onLongPr
     val (expanded, setExpanded) = unfoldedState(key, unfolded)
     val more = stringResource(R.string.note_more)
     /* The text cut at the end of its last shown line, for the width and
-     * the size it was measured with; null while it fits */
-    var folded by remember(text) { mutableStateOf<FoldedNote?>(null) }
+     * the size it was measured with; null while it fits. Cut again with
+     * the colour of the links of another theme */
+    var folded by remember(text, link) { mutableStateOf<FoldedNote?>(null) }
 
     val isFolded = folded != null && !expanded
     val start = remember { BringIntoViewRequester() }
