@@ -116,6 +116,12 @@ def clean(text):
     return " ".join(unicodedata.normalize("NFC", text).replace("\t", " ").split())
 
 
+def clean_word(text):
+    # A cut mark left in a word ("malver·a"): the word, as its cut form is
+    # in a column of its own
+    return clean(text).replace("·", "")
+
+
 if len(sys.argv) > 1:
     copy_export(sys.argv[1])
 
@@ -124,7 +130,7 @@ with open(DATA, encoding="utf-8") as f:
 
 by_word = {}
 for row in rows:
-    by_word.setdefault(clean(row["source_word"]), []).append(row)
+    by_word.setdefault(clean_word(row["source_word"]), []).append(row)
 
 # The app keeps one context per word: say so if a word ever has several
 for word, word_rows in by_word.items():
@@ -141,7 +147,7 @@ for word in sorted(by_word, key=lambda w: (w.lower().strip("-"), w)):
     seen = set()
     # The group's order; for the same number, the older line first
     for row in sorted(by_word[word], key=lambda r: (int(r["display_order"] or 0), r["created_at"], r["id"])):
-        target = clean(row["target_word"])
+        target = clean_word(row["target_word"])
         target_context = clean(row["target_word_context"])
         if not (checked(row["source_annotation"]) and checked(row["target_annotation"])):
             left_out += 1

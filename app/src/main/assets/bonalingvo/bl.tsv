@@ -1,7 +1,7 @@
 # Vortoj de la bona lingvo, CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/).
 # Atribuo: Renato Corsetti, Noam Mohr, kaj la laborgrupo de la Bona Lingvo, labonalingvo.org.
 # Adapted with scripts/bona-lingvo.py from data/bona-lingvo.csv.
-# Version: 2026-10-24 (its last change).
+# Version: 2026-10-28 (its last change).
 # Only what the working group has checked. Columns: the word, its context, "→" (advised against) or
 # "~" (an alternative), the word to say, its context, the file of the article it is about
 # when the word heads several (data/bona-lingvo-homonyms.tsv; "-": none), the parts of the word to
@@ -1057,6 +1057,7 @@ benko		→	bordo	(en esprimoj kiel 'Okcidenta benko')		bord·o
 benko		→	riverbordo	(en esprimoj kiel 'Okcidenta benko')		river·bord·o
 benko		→	tavolo	(en esprimoj kiel 'glaci-benko')		tavol·o
 benko		→	aro	(en esprimoj kiel 'hanringo-benko')		ar·o
+benzinometro		→	benzinmezurilo			benzin·mezur·il·o
 berbero		~	amaziĥo			amaziĥ·o
 berserko		→	(skandinava) furioza batalanto			
 bestia		→	besteca			best·ec·a
@@ -1275,7 +1276,7 @@ budeno		→	sangokolbaso			sang·o·kolbas·o
 budhismo		~	budaismo			buda·ism·o
 Budho		~	Budao			Buda·o
 budĝeto		→	buĝeto			buĝet·o
-BuenosAjreso		~	Bonaero			Bon·aer·o
+Buenos-Ajreso		~	Bonaero			Bon·aer·o
 bufono		→	amuzisto			amuz·ist·o
 bugri		→	anusfiki			anus·fik·i
 bugri		→	pugseksumi			pug·seks·um·i
@@ -1554,7 +1555,7 @@ dentizi		→	provizi per dentoj
 deontologio		→	profesia etiko			
 departemento	(laŭ la administra signifo en Francujo)	→	distrikto			distrikt·o
 departemento	(laŭ la administra signifo en Francujo)	→	distriktaro			distrikt·ar·o
-dependiga konjunkcio		→	subordigilo			
+dependiga konjunkcio		→	subordigilo			sub·ord·ig·il·o
 depeŝo		~	mesaĝo			mesaĝ·o
 depeŝo		~	rapida mesaĝo			
 deploji		→	dismeti			dis·met·i
@@ -1962,7 +1963,7 @@ ejakuli		→	spermelĵeti			sperm·el·ĵet·i
 ejektivo		→	(aer)elĵeta konsonanto			
 ekarto		→	interspaco			inter·spac·o
 ekliptiko		→	suntera orbitebeno			
-ekliptiko		→	eklipsozono			
+ekliptiko		→	tersuna orbitebeno			
 eko-		→	ekologia			ekologi·a
 ekonomiko		→	ekonomiscienco			ekonomi·scienc·o
 ekonomio	(en la senco de 'ŝparado')	~	ŝparo			ŝpar·o
@@ -2370,7 +2371,7 @@ eĥokardiografo		~	eĥokorbildigilo			eĥo·kor·bild·ig·il·o
 eĥokardiogramo		~	eĥokorbildoj			eĥo·kor·bildoj
 eŝafodo		~	mortigpodio			mort·ig·pod·i·o
 eŭdiometrio		→	gasvolumenmezurado			gas·volumen·mezur·ad·o
-eŭdiometrio		→	gasspacampleksomezurado			
+eŭdiometrio		→	gasspacampleksmezurado			gas·spac·ampleks·mezur·ad·o
 eŭdiometro		→	gasmezurtubo			gas·mezur·tub·o
 eŭdiometro		→	gasvolumenmezurilo			gas·volumen·mezur·il·o
 eŭdiometro		→	gasspacampleksmezurilo			gas·spac·ampleks·mezur·il·o
@@ -2555,7 +2556,7 @@ filigrano		→	retaĵo	(pri teksaĵo)		ret·aĵ·o
 filio		~	branĉoficejo/kompanio			
 filmoteko		→	filmarĥivejo			film·arĥiv·ej·o
 filogenezo		→	kladestiĝo			klad·est·iĝ·o
-filogenezo		→	kladgenezo			
+filogenezo		→	kladekesto			klad·ek·est·o
 filologio	(la senco varias laŭ la landoj)	~	tekstoscienco			tekst·o·scienc·o
 filologio	(la senco varias laŭ la landoj)	~	lingvoscienco			lingv·o·scienc·o
 filologio	(la senco varias laŭ la landoj)	~	scienco pri lingvoj			
@@ -3024,7 +3025,7 @@ grafismo		→	skribaĵo			skrib·aĵ·o
 grafitio		~	murskribaĵo			mur·skrib·aĵ·o
 grafitio		~	murpentraĵo			mur·pentr·aĵ·o
 grafitio		~	pentroskribaĵo			pentr·o·skrib·aĵ·o
--grafo	(en la senco de registra mezurilo)	→	registrilo			
+-grafo	(en la senco de registra mezurilo)	→	-registrilo			
 grafo		→	grafeo	(matematika senco)	graf1	grafe·o
 grafo		→	grafikaĵo	(grafika senco)	graf1	grafik·aĵ·o
 grafologio		~	skribesploro			skrib·esplor·o
@@ -3606,7 +3607,7 @@ inercio		→	inerteco			inert·ec·o
 inercio		→	neŝanĝemo			ne·ŝanĝ·em·o
 inercio		→	malvigleco			mal·vigl·ec·o
 infamii		→	misfamigi			mis·fam·ig·i
-infamio		→	fifamo			
+infamio		→	fifamo			fi·fam·o
 infamio		→	malbonfamo			mal·bon·fam·o
 infanteriano		~	piedsoldato			pied·soldat·o
 infanterio		~	piedsoldataro			pied·soldat·ar·o
@@ -3798,8 +3799,6 @@ IX	(por indiki numeron laŭ la latina metodo)	→	9a
 izo-		~	sama			sam·a
 izo-		~	egala			egal·a
 izocela		→	simetria			simetri·a
--iĉ-	(ne-oficiala sufikso)	→	vir-			
--iĉ-	(ne-oficiala sufikso)	→	vira			vir·a
 iĥtiofagio		→	fiŝomanĝado			fiŝ·o·manĝ·ad·o
 iĥtiokolo		~	fiŝgluo			fiŝ·glu·o
 iĥtiologio		→	fiŝoscienco			fiŝ·o·scienc·o
@@ -4515,7 +4514,7 @@ kosmonaŭto		~	spaciranto			spac·ir·ant·o
 kosmopolita		→	tutmonda			tut·mond·a
 kosmopolita		→	tutmondeca			tut·mond·ec·a
 kosmopolita		→	mondcivitana			mond·civit·an·a
-Kotdivuaro		→	EburBordo			Ebur·Bord·o
+Kotdivuaro		→	Ebur-Bordo			
 koterio		→	premgrupo			prem·grup·o
 koterio		→	fikunularo			fi·kun·ul·ar·o
 kovarda		→	malkuraĝa			mal·kuraĝ·a
@@ -4635,7 +4634,7 @@ ksilografio		→	lignogravuraĵo			lign·o·gravur·aĵ·o
 ksilografo		→	lignogravuristo			lign·o·gravur·ist·o
 kuloto		→	pantaloneto			pantalon·et·o
 kulta	(en la senco de 'klera')	→	klera			kler·a
-kultivaro		→	kultivformo			
+kultivaro		→	kultivoformo			kultiv·o·form·o
 kulturi	(en la senco de laborado de la tero)	→	kultivi			kultiv·i
 kunordiga konjunkcio		~	kunordigilo			kun·ord·ig·il·o
 kupreso		→	cipreso			cipres·o
@@ -4782,7 +4781,7 @@ laŭreato		→	premiito			premi·it·o
 laŭtlegi	(en la senco de 'voĉe legi')	~	voĉlegi			voĉ·leg·i
 lefta		→	politike maldekstra			
 legacio		→	diplomata misio			
-legacio		→	heredaĵo	(en la senco de 'legaco')		hered·aĵ·o
+legacio		→	heredaĵo	(en la senco de 'heredaĵo')		hered·aĵ·o
 legaco		→	heredaĵo al aparta persono			
 legala		→	laŭleĝa			laŭ·leĝ·a
 legalizi		→	laŭleĝigi			laŭ·leĝ·ig·i
@@ -5324,6 +5323,8 @@ miito	(en kuracosciencaj vortoj)	→	muskolinflamo			muskol·inflam·o
 mikado		→	japana imperiestro			
 mikologio		→	fungoscienco			fung·o·scienc·o
 mikologio		→	fungostudo			fung·o·stud·o
+mikologo		→	fungosciencisto			fung·o·scienc·ist·o
+mikologo		→	fungostudanto			fung·o·stud·ant·o
 mikoto		→	fungo			fung·o
 mikro-		→	et-			
 mikro-		→	eta			et·a
@@ -5350,6 +5351,7 @@ mikspoto		~	potmiksaĵo	(en la kuireja signifo)		pot·miks·aĵ·o
 mikspoto		~	hazarda miksaĵo	(en figura senco)		
 milda		~	malakra			mal·akr·a
 milenariismo		→	jarmilismo			jar·mil·ism·o
+milenarismo		→	jarmilismo			jar·mil·ism·o
 mileniismo		→	jarmilismo			jar·mil·ism·o
 milenio		→	jarmilo			jar·mil·o
 mili-	(en scienco kaj teĥniko)	→	milono			mil·on·o
@@ -5403,7 +5405,7 @@ misogeno		→	(vir)inmalestimanto
 mitingo		→	(politika) amaskunveno			
 mitingo		→	renkontiĝo			renkont·iĝ·o
 mitologio	(en la senco de mitoj kune)	→	mitaro			mit·ar·o
-mitralo	(en la senco de 'pafilo')	→	maŝinpafilo			maŝin·paf·il·o
+mitralo		→	maŝinpafilo	(en la senco de 'pafilo')		maŝin·paf·il·o
 mitridatizi		→	mitridati			mitridat·i
 mitridatizi		→	venenimunigi mitridate			
 mitridatizi		→	trakti mitridate			
@@ -5431,6 +5433,7 @@ moderatoro		→	administranto	(en retaj listoj aŭ forumoj)		administr·ant·o
 modli		→	modeli			model·i
 modli		→	formi			form·i
 modli		→	formumi			form·um·i
+Mohamedo		→	Muhamado			Muhamad·o
 mojosa		~	modernjunstila			modern·jun·stil·a
 mojosa		~	laŭmoda			laŭ·mod·a
 mojosa		~	bonega			bon·eg·a
@@ -5439,7 +5442,7 @@ mojosa		~	ŝatindega			ŝat·ind·eg·a
 mojosa		~	bonuma			bon·um·a
 mokaseno		→	felŝuo			fel·ŝu·o
 mokedo		→	plenplanka tapiŝo			
-molaro		→	mueldento			muel·dent·o
+molaro	(pri dento)	→	mueldento			muel·dent·o
 molesti		→	ĝeni			ĝen·i
 monarkio		~	monarĥa reg(ad)o			
 monarkio		~	monarĥreg(ad)o			
@@ -5718,7 +5721,7 @@ o kej		→	ĝuste			ĝust·e
 obeza		→	trodika			tro·dik·a
 obeza		→	dikega			dik·eg·a
 obeza		→	superpeza			super·pez·a
-objektivo		→	celo			cel·o
+objektivo	(en la senco de celo)	→	celo			cel·o
 oblato		~	(pola) kristnaska vaflo	(en la senco de pola kristnaska vaflo)		
 oblato		~	hostio	(en la senco de hostio)		hosti·o
 oblato		~	sigelilo	(en la senco de sigel-aĵo)		sigel·il·o
@@ -6927,7 +6930,7 @@ profilaktiko		→	antaŭmalhelpa/protekta/evitiga kuracado/medicino/fako
 prognata		→	elstarmakzela			el·star·makzel·a
 prognateco		→	makzela elstaro			
 prognateco		→	elstaranta makzelo			
-prohibi		→	malpermesi			malpermes·i
+prohibi		→	malpermesi			mal·permes·i
 prohibicio		→	(drog)malpermeso			
 prokarioto		~	senĉelkernulo			sen·ĉel·kern·ul·o
 proklizo		→	postkunfando			post·kun·fand·o
@@ -7031,6 +7034,10 @@ pruda		→	puritana			puritan·a
 pruda		→	sekse hontema			
 pruo		→	ŝipkapo			ŝip·kap·o
 pruo		→	ŝipantaŭo			ŝip·antaŭ·o
+pseŭda		→	ŝajna			ŝajn·a
+pseŭda		→	kvazaŭa			kvazaŭ·a
+pseŭda		→	mensoga			mensog·a
+pseŭda		→	malvera			mal·ver·a
 pseŭdo-		→	ŝajn-			
 pseŭdo-		→	kvazaŭ-			
 pseŭdo-		→	mensoga/e			
@@ -7455,9 +7462,6 @@ rezoluta		→	certa			cert·a
 rezultato		~	rezulto			rezult·o
 reĝisori		~	enscenigi			en·scen·ig·i
 reĝisoro		~	enscenigisto			en·scen·ig·ist·o
-ri		→	ŝi aŭ li			
-ri		→	ŝili			ŝi·li
-ri		→	ĝi			
 riceli		→	kaŝi ŝtelaĵon			
 ricelisto		→	ŝtelaĵokaŝisto			ŝtel·aĵ·o·kaŝ·ist·o
 ricelisto		→	fiaĉetisto			fi·aĉet·ist·o
@@ -7732,7 +7736,7 @@ sensiveco		→	senskapablo			sens·kapabl·o
 sensivo		→	sentkapablo			sent·kapabl·o
 senso		~	sentilo			sent·il·o
 senso		~	sentumo			sent·um·o
-sensometrio		→	sensomezurado			
+sensometrio		→	sensomezurado			sens·o·mezur·ad·o
 sensometro		→	sensomezurilo			senso·mezur·il·o
 sensora		→	senta			sent·a
 sensora		→	percepta			percept·a
@@ -7754,11 +7758,15 @@ sepalo		→	kalikfolio			kalik·foli·o
 separatismo		→	sendependismo			sen·de·pend·ism·o
 separatismo		→	(naciisma) apartiĝemo			
 separatismo		→	disismo			dis·ism·o
+separatisto		→	sendependisto			sen·de·pend·ist·o
+separatisto		→	disitmo			
 separeo		→	apartejo			apart·ej·o
 separi		→	disigi			dis·ig·i
 separismo		→	sendependismo			sen·de·pend·ism·o
 separismo		→	(naciisma) apartiĝemo			
 separismo		→	disismo			dis·ism·o
+separisto		→	sendependisto			sen·de·pend·ist·o
+separisto		→	disitmo			
 sepsa		→	infekta			infekt·a
 sepsa		→	putriga			putr·ig·a
 sepsemio		→	sangoveneniĝo			sang·o·venen·iĝ·o
@@ -8031,8 +8039,8 @@ spektrogramo		→	spektrobildo			spektr·o·bild·o
 spektrogramo		→	spektrografikaĵo			spektr·o·grafik·aĵ·o
 spektrogramo		→	frekvencogambildo			frekvenc·o·gam·bild·o
 spektrogramo		→	frekvencogamgrafikaĵo			frekvenc·o·gam·grafik·aĵ·o
-spektrometrio		→	spektromezurado			
-spektrometro		→	spektromezurilo			
+spektrometrio		→	spektromezurado			spektr·o·mezur·ad·o
+spektrometro		→	spektromezurilo			spektr·o·mezur·il·o
 spektroskopio		→	spektrobservado			spektr·observ·ad·o
 spektroskopo		→	spektrobservilo			spektr·observ·il·o
 spekulacii	(en la senco de provi diveni)	→	provi diveni			
@@ -8060,7 +8068,7 @@ spirituala		~	spirita			spirit·a
 spirituala		~	spiriteca			spirit·ec·a
 spiritualismo		~	spiritemismo			spirit·em·ism·o
 spiritualismo		~	spiritecismo			spirit·ec·ism·o
-spirometrio		→	spirmezurado			
+spirometrio		→	spirmezurado			spir·mezur·ad·o
 spirometro		→	spirmezurilo			spir·mezur·il·o
 splen-	(en kuracosciencaj vortoj)	→	lien-			
 splenektomio		→	lienofortranĉo			lien·o·for·tranĉ·o
@@ -8172,14 +8180,14 @@ stenotajpilo		→	rapidtajpilo			rapid·tajp·il·o
 stenotajpilo		→	rapidskribmaŝino			rapid·skrib·maŝin·o
 stenotajpisto		→	rapidtajpisto			rapid·tajp·ist·o
 stenotajpisto		→	rapidtajpilisto			rapid·tajp·il·ist·o
-stenotajpisto		→	rapidskribmaŝino			
+stenotajpisto		→	rapidskribmaŝinisto			rapid·skrib·maŝin·ist·o
 stenotipio		→	rapidtajpado			rapid·tajp·ad·o
 stenotipio		→	rapidtajparto			rapid·tajp·art·o
 stenotipio		→	rapidtajpilarto			rapid·tajp·il·art·o
 stenotipio		→	rapidskribmaŝinarto			rapid·skrib·maŝin·art·o
 stenotipisto		→	rapidtajpisto			rapid·tajp·ist·o
 stenotipisto		→	rapidtajpilisto			rapid·tajp·il·ist·o
-stenotipisto		→	rapidskribmaŝino			
+stenotipisto		→	rapidskribmaŝinisto			rapid·skrib·maŝin·ist·o
 stenotipo		→	rapidtajpilo			rapid·tajp·il·o
 stenotipo		→	rapidskribmaŝino			rapid·skrib·maŝin·o
 stereo-		→	relief-			
@@ -8302,10 +8310,12 @@ subjunkcio		~	subordigilo			sub·ord·ig·il·o
 sublima		→	bonega			bon·eg·a
 sublima		→	noblega			nobl·eg·a
 sublimato		~	sublimaĵo			sublim·aĵ·o
+sublimina		→	subsojla			sub·sojl·a
+sublimina		→	subkonscia			sub·konsci·a
 subliminala		→	subsojla			sub·sojl·a
 subliminala		→	subkonscia			sub·konsci·a
 submarino		→	submarŝipo			sub·mar·ŝip·o
-subordiga konjunkcio		~	subordigilo			
+subordiga konjunkcio		~	subordigilo			sub·ord·ig·il·o
 subreto		~	servistino			serv·ist·in·o
 subreto		~	ĉambristino			ĉambr·ist·in·o
 subreto		~	aktorineto	(en teatraĵo)		aktor·in·et·o
@@ -8553,7 +8563,7 @@ tensio	(en ĝenerala senco de streĉiteco)	→	streĉiteco			streĉ·it·ec·o
 tenso		→	(gramatika) tempo			
 teogonio		→	dia genealogio			
 teogonio		→	naskolisto de la dioj			
-teokratio		~	religirego			
+teokratio		~	religireg(ad/ec)o			
 teokrato		~	religireganto			religi·reg·ant·o
 teologio		~	distudo			di·stud·o
 teologio		~	discienco			di·scienc·o
@@ -9246,6 +9256,8 @@ vinkto		~	kunkroĉilo			kun·kroĉ·il·o
 vinkulo		→	kuniga krampo			
 vinkulo		→	kurba krampo			
 vinkulo		→	kuniga (super/sub)linio	(en matematiko)		
+vinologio		→	vinfako			vin·fak·o
+vinologio		→	vinscienco			vin·scienc·o
 vinologo		→	vinfakulo			vin·fak·ul·o
 vinologo		→	vinsciencisto			vin·scienc·ist·o
 vinĉo		→	ŝnurvolva levilo			
@@ -9257,7 +9269,7 @@ viradulto		→	vira samseksemo
 virgametgenezo	(en animaloj)	→	spermoĉelestiĝo			sperm·o·ĉel·est·iĝ·o
 virgametgenezo	(en animaloj)	→	spermoĉelekesto			sperm·o·ĉel·ek·est·o
 virologio		→	virusscienco			virus·scienc·o
-virologo		→	virusosciencisto			
+virologo		→	virussciencisto			virus·scienc·ist·o
 virozo		→	virusmalsano			virus·mal·san·o
 virtualizi		→	virtualigi			virtual·ig·i
 virulenta		→	malsaniga			mal·san·ig·a
@@ -9494,7 +9506,7 @@ zostero	(en la kuracoscienca senco)	~	zonerupcio			zon·erupci·o
 ĵetono		→	ludmarko	(en ludoj)		lud·mark·o
 ĵetono		→	monmarko	(en aliaj okazoj)		mon·mark·o
 ĵetono		→	disketo	(en aliaj okazoj)		disk·et·o
-ĵigo		→	kunmetenigmo		jxig1	kun·met·enigm·o
+ĵigo	(ludo)	→	kunmetenigmo		jxig1	kun·met·enigm·o
 ĵinglo		→	sonsimbolo			son·simbol·o
 ĵinglo		→	sonemblemo			son·emblem·o
 ĵingoismo		~	(japana) militemo			

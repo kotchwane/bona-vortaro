@@ -39,8 +39,6 @@ id,source_word,source_word_divided,source_word_context,source_annotation,target_
 150794,-i-,-i-,,,-scienc-,-scienc-,(en scienco kaj teĥniko),,malrekomendo,2025-07-05 15:18:44,2025-07-05 15:18:44,1,3
 150795,-icido,-icid·o,,,-mortigaĵo,-mort·ig·aĵ·o,,,malrekomendo,2025-07-05 15:18:44,2025-07-05 15:18:44,1,1
 150796,-icido,-icid·o,,,mortigilo,mort·ig·il·o,,,malrekomendo,2025-07-05 15:18:44,2025-07-05 15:18:44,1,2
-150797,-iĉ-,-iĉ-,(ne-oficiala sufikso),,vir-,vir-,,,malrekomendo,2025-07-05 15:18:44,2025-07-05 15:18:44,1,1
-150798,-iĉ-,-iĉ-,(ne-oficiala sufikso),,vira,vir·a,,,malrekomendo,2025-07-05 15:18:44,2025-07-05 15:18:44,1,2
 150802,-io,-io,(landonomoj),,-ujo,-uj·o,,,malrekomendo,2025-07-05 15:18:44,2025-07-05 15:18:44,1,1
 150803,-io,-io,(landonomoj),,lando,land·o,,,malrekomendo,2025-07-05 15:18:44,2025-07-05 15:18:44,1,2
 150805,-iv-,-iv-,,,-pov-,-pov-,,,malrekomendo,2025-07-05 15:18:44,2025-07-05 15:18:44,1,1
@@ -875,7 +873,6 @@ id,source_word,source_word_divided,source_word_context,source_annotation,target_
 151763,budĝeto,budĝet·o,,3oa,buĝeto,buĝet·o,,8oa,malrekomendo,2025-07-05 15:18:44,2025-07-05 15:18:44,1,1
 151764,budhismo,budh·ism·o,,,budaismo,buda·ism·o,,,alternativo,2025-07-05 15:18:44,2025-07-05 15:18:44,1,1
 151765,Budho,Budh·o,,,Budao,Buda·o,,,alternativo,2025-07-05 15:18:44,2025-07-05 15:18:44,1,1
-151766,BuenosAjreso,Buenos·Ajres·o,,,Bonaero,Bon·aer·o,,,alternativo,2025-07-05 15:18:44,2025-07-05 15:18:44,1,1
 151767,bufono,bufon·o,,,amuzisto,amuz·ist·o,,,malrekomendo,2025-07-05 15:18:44,2025-07-05 15:18:44,1,1
 151768,bugri,bugr·i,,,anusfiki,anus·fik·i,,,malrekomendo,2025-07-05 15:18:44,2025-07-05 15:18:44,1,1
 151769,bugri,bugr·i,,,pugseksumi,pug·seks·um·i,,,malrekomendo,2025-07-05 15:18:44,2025-07-05 15:18:44,1,2
@@ -1396,7 +1393,6 @@ a236eddbec4b4895c214ddd7c5c5fbde,daŭbo,daŭb·o,,,barela tabulo,barel·a tabul�
 b580ddb2655a8ef1a538c342a71c2e3f,bangalo,bangal·o,,,(unuetaĝa) dom(et)o,(unu·etaĝ·a) dom(·et)·o,,,malrekomendo,2025-07-05 15:18:44,2025-11-02 14:18:29,1,1
 21b00dbe99be22b9ec5fe8b06b5023c1,ĉaledo,ĉaled·o,,,monta lignodom(et)o,mont·a lign·o·dom(·et)·o,,,malrekomendo,2025-07-05 15:18:44,2025-11-02 14:18:55,1,1
 b1efca65bddeedb077286ea09ff340f8,demokrato,demokrat·o,,2oa,popolregismano,popol·reg·ism·an·o,,,alternativo,2025-07-05 15:18:44,2025-11-11 02:20:23,1,1
-ae1419f2bbec1ba0e09c831dc8f68ed1,-grafo,-graf·o,(en la senco de registra mezurilo),,registrilo,-registr·il·o,,,malrekomendo,2025-07-05 15:18:44,2025-11-22 14:54:51,1,1
 23fb049d789b114679de9ee4d9130884,cimo,cim·o,(pri komputiloj),,(program)eraro,(program·)erar·o,,,malrekomendo,2025-07-05 15:18:44,2025-11-27 18:48:28,1,1
 d3fcb7ca5406d62aef89f3415866d951,desinfektado,desinfekt·ad·o,,,seninfektigo,sen·infekt·ig·o,,,malrekomendo,2025-07-05 15:18:44,2025-11-29 15:01:16,1,2
 c2cbd6370b36ee8920b07210e56b27fb,ĉampano,ĉampan·o,,fun,(ĉampanja) ŝaumvino,(ĉampanj·a) ŝaum·vin·o,,,alternativo,2025-07-05 15:18:44,2026-01-21 04:01:11,1,1
@@ -1415,6 +1411,8 @@ e22c8793859b4df118390a93df231282,adaptometrio,adaptometri·o,,,(retina) adaptiĝ
 ace8cac7252633795db4d466fc993783,devio,devi·o,,zam,diferenco,diferenc·o,(en statistiko),,malrekomendo,2025-07-05 15:18:44,2026-09-28 04:03:18,1,2
 dbeb082904516a321cb8496140e3b99f,devio,devi·o,,zam,devojiĝo,de·voj·iĝ·o,,,malrekomendo,2025-07-05 15:18:44,2026-09-28 04:03:18,1,1
 9924306a86442716f71c42e562720c92,devio,devi·o,,zam,diseco,dis·ec·o,(en statistiko),,malrekomendo,2025-07-05 15:18:44,2026-09-28 04:03:18,1,3
+fab737838bf1b5b34014eba760b375c5,Buenos-Ajreso,Buenos-Ajres·o,,,Bonaero,Bon·aer·o,,,alternativo,2025-07-05 15:18:44,2026-10-26 17:51:38,1,1
+f93e14d3e1df76e1f77ab7fe2b941457,-grafo,-graf·o,(en la senco de registra mezurilo),,-registrilo,-registr·il·o,,,malrekomendo,2025-07-05 15:18:44,2026-10-28 04:35:37,1,1
 152184,diskoteko,diskotek·o,,,dancejo,danc·ej·o,,,malrekomendo,2025-07-05 15:18:45,2025-07-05 15:18:45,1,1
 152185,diskoteko,diskotek·o,,,diskejo,disk·ej·o,,,malrekomendo,2025-07-05 15:18:45,2025-07-05 15:18:45,1,2
 152186,diskoteko,diskotek·o,,,diskodancejo,disk·o·danc·ej·o,,,malrekomendo,2025-07-05 15:18:45,2025-07-05 15:18:45,1,3
@@ -2634,8 +2632,6 @@ f432cca9fd6c547c6699def7d0cf8c55,hapakso,hapaks·o,,,unufoja vorto,unu·foj·a v
 cd019c13c5269225480a46635fc24b5b,estetiko,estetik·o,,,belecscienco,bel·ec·scienc·o,,,alternativo,2025-07-05 15:18:45,2025-11-02 14:12:44,1,2
 921a524dbfbe71a1065b42b97823383d,flar-tabako,flar·tabak·o,,,naztabako,naz·tabak·o,,,alternativo,2025-07-05 15:18:45,2025-11-02 14:12:52,1,1
 456244fb3b303d6eb3f427673818c92c,formiato,formiat·o,,,salo de formika acido,sal·o de formik·a acid·o,,,alternativo,2025-07-05 15:18:45,2025-11-02 14:13:05,1,1
-7b9f5b5ef3f51596f4da0e805fa2d49f,gramofono,gramofon·o,,,diskoturnilo,disk·o·turn·il·o,,,alternativo,2025-07-05 15:18:45,2025-11-02 14:13:34,1,1
-efa4cf14e2a1d158a74984cd75f7c978,gramofono,gramofon·o,,,diskolegilo,disk·o·leg·il·o,,,alternativo,2025-07-05 15:18:45,2025-11-02 14:13:34,1,2
 606449dd07b5c05b73f76e1741680365,droŝko,droŝk·o,,,(lu)kaleŝ(et)o,(lu·)kaleŝ(·et)·o,,,malrekomendo,2025-07-05 15:18:45,2025-11-02 14:19:17,1,1
 5a7d69fa76139a8ba6ecbdc181218697,duno,dun·o,,,sablomont(et)o,sabl·o·mont(·et)·o,,,alternativo,2025-07-05 15:18:45,2025-11-02 14:19:43,1,1
 e2755dd33ffb7d632e095fbc122c0110,fonio,foni·o,,,sona komunik(ad)o,son·a komunik(·ad)·o,,,malrekomendo,2025-07-05 15:18:45,2025-11-02 14:20:03,1,1
@@ -2651,10 +2647,12 @@ d9ec170a5d00e948197d8107931ae3b9,feminismo,feminism·o,,2oa,(vir)inismo,(vir·)i
 39afed4814716a1a374d962544a5e7b4,gineceo,ginece·o,,,flora in(a)seksorganaro,flor·a in·(a·)seks·organ·ar·o,(pri kreskaĵo),,malrekomendo,2025-07-05 15:18:45,2026-03-19 23:31:20,1,2
 a0d6550a6b743d96bf539ca4354e5539,gineceo,ginece·o,,,in(seks)a flororganaro,in·(seks·)a flor·organ·ar·o,(pri kreskaĵo),,malrekomendo,2025-07-05 15:18:45,2026-03-19 23:31:20,1,1
 b9df09d316909c2846ebf5cbb7576d1e,ekliptiko,ekliptik·o,,zam,suntera orbitebeno,sun·ter·a orbit·eben·o,,,malrekomendo,2025-07-05 15:18:45,2026-03-31 01:13:43,1,1
-f4902f82852083b819318e80935531d2,ekliptiko,ekliptik·o,,zam,eklipsozono,ter·sun·a orbit·eben·o,,,malrekomendo,2025-07-05 15:18:45,2026-03-31 01:13:43,1,2
 b0955ae61a1350d98a657335d4609246,elektronika,elektronik·a,,8oa,komputila,komput·il·a,"(en la senco de ""uzante kompuilon"" ekz 'elektronika libro')",,malrekomendo,2025-07-05 15:18:45,2026-04-05 16:25:43,1,2
 b728fdf813f93b32eb4e5ff21cf7f45b,filigrano,filigran·o,,zam,travidebla marko,tra·vid·ebl·a mark·o,(en papero),,malrekomendo,2025-07-05 15:18:45,2026-04-25 04:06:03,1,1
 9f655d7f0bcc36cb63a161668ab2d6a2,ekskluzivi,ekskluziv·i,,2oa,malhavi,mal·hav·i,,,malrekomendo,2025-07-05 15:18:45,2026-10-20 03:53:40,1,1
+d12050b4c8a7b3922b03b190c9a17bb0,gramofono,gramofon·o,,6oa,diskoturnilo,disk·o·turn·il·o,,,alternativo,2025-07-05 15:18:45,2026-10-27 01:53:44,1,1
+b89cfaa80eb56a3d17f42a528373df0b,gramofono,gramofon·o,,6oa,diskolegilo,disk·o·leg·il·o,,,alternativo,2025-07-05 15:18:45,2026-10-27 01:53:44,1,2
+f71a0667bd875d3974573b36c6b52266,ekliptiko,ekliptik·o,,zam,tersuna orbitebeno,ter·sun·a orbit·eben·o,,,malrekomendo,2025-07-05 15:18:45,2026-10-28 04:34:30,1,2
 153447,hipokastano,hipokastan·o,,,(komuna) ĉevalkaŝtanujo,(komun·a) ĉeval·kaŝtan·uj·o,(por la arbo),,alternativo,2025-07-05 15:18:46,2025-07-05 15:18:46,1,1
 153448,hipokastano,hipokastan·o,,,(komuna)ĉevalkaŝtano,(komun·a)ĉeval·kaŝtan·o,(por la frukto),,alternativo,2025-07-05 15:18:46,2025-07-05 15:18:46,1,2
 153449,hipokaŝtano,hipokaŝtan·o,,,(komuna) ĉevalkaŝtanujo,(komun·a) ĉeval·kaŝtan·uj·o,(por la arbo),,alternativo,2025-07-05 15:18:46,2025-07-05 15:18:46,1,1
@@ -2990,7 +2988,6 @@ b728fdf813f93b32eb4e5ff21cf7f45b,filigrano,filigran·o,,zam,travidebla marko,tra
 153836,ĵetono,ĵeton·o,,,ludmarko,lud·mark·o,(en ludoj),,malrekomendo,2025-07-05 15:18:46,2025-07-05 15:18:46,1,1
 153837,ĵetono,ĵeton·o,,,monmarko,mon·mark·o,(en aliaj okazoj),,malrekomendo,2025-07-05 15:18:46,2025-07-05 15:18:46,1,2
 153838,ĵetono,ĵeton·o,,,disketo,disk·et·o,(en aliaj okazoj),,malrekomendo,2025-07-05 15:18:46,2025-07-05 15:18:46,1,3
-153839,ĵigo,ĵig·o,,,kunmetenigmo,kun·met·enigm·o,,,malrekomendo,2025-07-05 15:18:46,2025-07-05 15:18:46,1,1
 153840,ĵinglo,ĵingl·o,,,sonsimbolo,son·simbol·o,,,malrekomendo,2025-07-05 15:18:46,2025-07-05 15:18:46,1,1
 153841,ĵinglo,ĵingl·o,,,sonemblemo,son·emblem·o,,,malrekomendo,2025-07-05 15:18:46,2025-07-05 15:18:46,1,2
 153842,ĵingoismo,ĵingo·ism·o,,,(japana) militemo,(japan·a) milit·em·o,,,alternativo,2025-07-05 15:18:46,2025-07-05 15:18:46,1,1
@@ -3460,7 +3457,6 @@ b728fdf813f93b32eb4e5ff21cf7f45b,filigrano,filigran·o,,zam,travidebla marko,tra
 154397,koŝmaro,koŝmar·o,,,timiga sonĝo,tim·ig·a sonĝ·o,,,malrekomendo,2025-07-05 15:18:46,2025-07-05 15:18:46,1,3
 154398,koŝmaro,koŝmar·o,,,terursonĝo,terur·sonĝ·o,,,malrekomendo,2025-07-05 15:18:46,2025-07-05 15:18:46,1,4
 154399,koŝmaro,koŝmar·o,,,missonĝo,mis·sonĝ·o,,,malrekomendo,2025-07-05 15:18:46,2025-07-05 15:18:46,1,5
-154400,Kotdivuaro,Kotdivuar·o,,,EburBordo,Ebur·Bord·o,,,malrekomendo,2025-07-05 15:18:46,2025-07-05 15:18:46,1,1
 154401,koterio,koteri·o,,,premgrupo,prem·grup·o,,,malrekomendo,2025-07-05 15:18:46,2025-07-05 15:18:46,1,1
 154402,koterio,koteri·o,,,fikunularo,fi·kun·ul·ar·o,,,malrekomendo,2025-07-05 15:18:46,2025-07-05 15:18:46,1,2
 154403,kovarda,kovard·a,,,malkuraĝa,mal·kuraĝ·a,,,malrekomendo,2025-07-05 15:18:46,2025-07-05 15:18:46,1,1
@@ -3636,7 +3632,6 @@ b728fdf813f93b32eb4e5ff21cf7f45b,filigrano,filigran·o,,zam,travidebla marko,tra
 154600,lazurito,lazurit·o,,,lazurŝtono,lazur·ŝton·o,,,malrekomendo,2025-07-05 15:18:46,2025-07-05 15:18:46,1,1
 154601,lefta,left·a,,,politike maldekstra,politik·e mal·dekstr·a,,,malrekomendo,2025-07-05 15:18:46,2025-07-05 15:18:46,1,1
 154602,legacio,legaci·o,,,diplomata misio,diplomat·a misi·o,,,malrekomendo,2025-07-05 15:18:46,2025-07-05 15:18:46,1,1
-154603,legacio,legaci·o,,,heredaĵo,hered·aĵ·o,(en la senco de 'legaco'),,malrekomendo,2025-07-05 15:18:46,2025-07-05 15:18:46,1,2
 154604,legaco,legac·o,,,heredaĵo al aparta persono,hered·aĵ·o al apart·a person·o,,,malrekomendo,2025-07-05 15:18:46,2025-07-05 15:18:46,1,1
 154605,legala,legal·a,,,laŭleĝa,laŭ·leĝ·a,,,malrekomendo,2025-07-05 15:18:46,2025-07-05 15:18:46,1,1
 154607,leĝera,leĝer·a,,,malpeza,mal·pez·a,,,malrekomendo,2025-07-05 15:18:46,2025-07-05 15:18:46,1,1
@@ -4099,7 +4094,6 @@ f452ea3bacb5dabb8fc90ad2353d6f2d,incesto,incest·o,,,interparenca seksumado,inte
 3e5d7a8b839ae0a1d62840edd5fa72e0,kluki,kluki,(kokine),4oa,bleki/kanti,blek·i/kant·i,,,alternativo,2025-07-05 15:18:46,2025-08-25 20:38:51,1,1
 49af8ac2aa81bec2db1570f4d5edc3eb,jonio,joni·o,,,vagino,vagin·o,(en la hinduisma religio ankaŭ religia simbolo),,malrekomendo,2025-07-05 15:18:46,2025-08-27 18:37:59,1,1
 e40646278d42308e68093ac871027be9,lingamo,lingam·o,(en hinduisma religio ankaŭ religia simbolo),,(sankta) peniso,(sankt·a) penis·o,,,malrekomendo,2025-07-05 15:18:46,2025-08-27 18:38:44,1,1
-56e3b89101b4b667e36c4b7efad5d954,kultivaro,kultivar·o,,,kultivformo,kultiv·o·form·o,,,malrekomendo,2025-07-05 15:18:46,2025-08-28 15:15:30,1,1
 62ab749f201bdc33af6f49f725e6d57a,kviki,kvik·i,,,(muse/birde) bleki,(mus·e/bird·e) blek·i,,,malrekomendo,2025-07-05 15:18:46,2025-08-30 14:37:35,1,1
 e691395ad6f42ea11c513be136a97537,inhibi,inhib·i,,,malhelpi,mal·help·i,(en la ĉiutaga lingvo),,malrekomendo,2025-07-05 15:18:46,2025-09-01 06:38:50,1,1
 6c8a6eccaca7fa04c52d1345345f3de3,kripta,kript·a,(skribo aŭ parolo),,sekrete konvencia,sekret·e konvenci·a,,,malrekomendo,2025-07-05 15:18:46,2025-09-02 10:26:02,1,1
@@ -4149,6 +4143,10 @@ b8bb4b4d5fd9d18a3e99f47566e0df23,hipotenuzo,hipotenuz·o,,,kontraŭorta flanko,k
 de90d2a94892a48d9848d27502179205,manometro,manometr·o,,2oa,premmezurilo,prem·mezur·il·o,,,malrekomendo,2025-07-05 15:18:46,2026-09-24 02:16:14,1,1
 6061f2cf09e0ef704fc26389dec3320a,konjunkcio,konjunkci·o,,fun,ligvorto,lig·vort·o,,,alternativo,2025-07-05 15:18:46,2026-09-25 02:25:56,1,1
 5cb0c41a58cfa4f45c502c6b7070ea5c,komplementa,komplement·a,(ekster la gramatika kampo),2oa,kompletiga,komplet·ig·a,,,malrekomendo,2025-07-05 15:18:46,2026-10-09 01:53:22,1,1
+736efda6971ccfdaca7b48221c3143fa,Kotdivuaro,Kotdivuar·o,,,Ebur-Bordo,Ebur·Bord·o,,,malrekomendo,2025-07-05 15:18:46,2026-10-27 04:38:14,1,1
+a9acf72e3469c61abbefaa78bdf44c91,ĵigo,ĵig·o,(ludo),,kunmetenigmo,kun·met·enigm·o,,,malrekomendo,2025-07-05 15:18:46,2026-10-27 20:12:37,1,1
+00fadf200ea0a019a27f2a3602a6365c,legacio,legaci·o,,,heredaĵo,hered·aĵ·o,(en la senco de 'heredaĵo'),,malrekomendo,2025-07-05 15:18:46,2026-10-28 02:37:26,1,2
+aab8da4a93e1ec77b50b436f24308398,kultivaro,kultivar·o,,,kultivoformo,kultiv·o·form·o,,,malrekomendo,2025-07-05 15:18:46,2026-10-28 04:30:30,1,1
 154962,meneĝmento,meneĝment·o,,,direktado,direkt·ad·o,,,malrekomendo,2025-07-05 15:18:47,2025-07-05 15:18:47,1,2
 154963,meneĝmento,meneĝment·o,,,estrado,estr·ad·o,,,malrekomendo,2025-07-05 15:18:47,2025-07-05 15:18:47,1,3
 154964,meneĝmento,meneĝment·o,,,gvidado,gvid·ad·o,,,malrekomendo,2025-07-05 15:18:47,2025-07-05 15:18:47,1,4
@@ -4257,7 +4255,6 @@ de90d2a94892a48d9848d27502179205,manometro,manometr·o,,2oa,premmezurilo,prem·m
 155088,misogeno,misogen·o,,,(vir)inmalamanto,(vir·)in·mal·am·ant·o,,,malrekomendo,2025-07-05 15:18:47,2025-07-05 15:18:47,1,1
 155090,mitingo,miting·o,,,(politika) amaskunveno,(politik·a) amas·kun·ven·o,,,malrekomendo,2025-07-05 15:18:47,2025-07-05 15:18:47,1,1
 155091,mitingo,miting·o,,,renkontiĝo,renkont·iĝ·o,,,malrekomendo,2025-07-05 15:18:47,2025-07-05 15:18:47,1,2
-155092,mitralo,mitral·o,(en la senco de 'pafilo'),,maŝinpafilo,maŝin·paf·il·o,,,malrekomendo,2025-07-05 15:18:47,2025-07-05 15:18:47,1,1
 155093,mizantropo,mizantrop·o,,,hommalamulo,hom·mal·am·ul·o,,,malrekomendo,2025-07-05 15:18:47,2025-07-05 15:18:47,1,1
 155094,mizantropo,mizantrop·o,,,hommalamanto,hom·mal·am·ant·o,,,malrekomendo,2025-07-05 15:18:47,2025-07-05 15:18:47,1,2
 155095,mizerikordo,mizerikord·o,,,favorkoreco,favor·kor·ec·o,,,malrekomendo,2025-07-05 15:18:47,2025-07-05 15:18:47,1,1
@@ -4488,7 +4485,6 @@ de90d2a94892a48d9848d27502179205,manometro,manometr·o,,2oa,premmezurilo,prem·m
 155347,obeza,obez·a,,,trodika,tro·dik·a,,,malrekomendo,2025-07-05 15:18:47,2025-07-05 15:18:47,1,1
 155348,obeza,obez·a,,,dikega,dik·eg·a,,,malrekomendo,2025-07-05 15:18:47,2025-07-05 15:18:47,1,2
 155349,obeza,obez·a,,,superpeza,super·pez·a,,,malrekomendo,2025-07-05 15:18:47,2025-07-05 15:18:47,1,3
-155350,objektivo,objektiv·o,,,celo,cel·o,,,malrekomendo,2025-07-05 15:18:47,2025-07-05 15:18:47,1,1
 155351,obĵeti,obĵet·i,,,kontraŭdiri,kontraŭ·dir·i,,,malrekomendo,2025-07-05 15:18:47,2025-07-05 15:18:47,1,1
 155352,obĵeti,obĵet·i,,,kontraŭi,kontraŭ·i,,,malrekomendo,2025-07-05 15:18:47,2025-07-05 15:18:47,1,2
 155353,obĵeti,obĵet·i,,,tameni,tamen·i,,,malrekomendo,2025-07-05 15:18:47,2025-07-05 15:18:47,1,3
@@ -5243,7 +5239,6 @@ de90d2a94892a48d9848d27502179205,manometro,manometr·o,,2oa,premmezurilo,prem·m
 156240,profano,profan·o,,3oa,nekompetentulo,ne·kompetent·ul·o,,,alternativo,2025-07-05 15:18:47,2025-07-05 15:18:47,1,5
 156241,profano,profan·o,,3oa,nespertulo,ne·spert·ul·o,,,alternativo,2025-07-05 15:18:47,2025-07-05 15:18:47,1,6
 156242,profazo,profaz·o,,,antaŭfazo,antaŭ·faz·o,,,malrekomendo,2025-07-05 15:18:47,2025-07-05 15:18:47,1,1
-156246,prohibi,prohib·i,,,malpermesi,malpermes·i,,,malrekomendo,2025-07-05 15:18:47,2025-07-05 15:18:47,1,1
 156248,proklizo,prokliz·o,,,postkunfando,post·kun·fand·o,,,malrekomendo,2025-07-05 15:18:47,2025-07-05 15:18:47,1,1
 156251,prokuroro,prokuror·o,,,publika/ŝtata akuzisto,publik·a/ŝtat·a akuz·ist·o,(en juĝejo),,alternativo,2025-07-05 15:18:47,2025-07-05 15:18:47,1,1
 156252,prokuroro,prokuror·o,,,enketisto,enket·ist·o,(en aliaj okazoj),,alternativo,2025-07-05 15:18:47,2025-07-05 15:18:47,1,2
@@ -5586,6 +5581,9 @@ f3d25fc541ad177c1a289ad85a2e9894,pluralo,plural·o,,4oa,plurnombro,plur·nombr·
 ef31639a8c39288c04ce3fdbdf393726,polucio,poluci·o,,zam,medimalpurigo,medi·mal·pur·ig·o,(en la senco de malpurigo de la medio),,malrekomendo,2025-07-05 15:18:47,2026-09-26 04:11:45,1,4
 16df2a0663f16646b6b5ce248885372e,politeismo,politeism·o,,2oa,plurdiismo,plur·di·ism·o,,,alternativo,2025-07-05 15:18:47,2026-10-18 03:57:25,1,1
 8f07988dfdae6af960c1e0eb9a5941a0,politeismo,politeism·o,,2oa,multdiismo,mult·di·ism·o,,,alternativo,2025-07-05 15:18:47,2026-10-18 03:57:25,1,2
+a2f54960650302cb6f1474ff2ef9b147,prohibi,prohib·i,,,malpermesi,mal·permes·i,,,malrekomendo,2025-07-05 15:18:47,2026-10-25 06:00:16,1,1
+2a582b31005d3de01214c9b5fcb0f616,objektivo,objektiv·o,(en la senco de celo),,celo,cel·o,,,malrekomendo,2025-07-05 15:18:47,2026-10-27 15:18:24,1,1
+f1acdc1e054aa3984fa2b58169a70440,mitralo,mitral·o,,,maŝinpafilo,maŝin·paf·il·o,(en la senco de 'pafilo'),,malrekomendo,2025-07-05 15:18:47,2026-10-28 15:36:53,1,1
 156423,raguo,ragu·o,(laŭ la kunteksto),,stufaĵo,stuf·aĵ·o,,,malrekomendo,2025-07-05 15:18:48,2025-07-05 15:18:48,1,1
 156424,raguo,ragu·o,(laŭ la kunteksto),,saŭco,saŭc·o,,,malrekomendo,2025-07-05 15:18:48,2025-07-05 15:18:48,1,2
 156426,rajpi,rajp·i,,,frotfiksiĝi,frot·fiks·iĝ·i,,,malrekomendo,2025-07-05 15:18:48,2025-07-05 15:18:48,1,1
@@ -5659,7 +5657,6 @@ ef31639a8c39288c04ce3fdbdf393726,polucio,poluci·o,,zam,medimalpurigo,medi·mal�
 156507,redundo,redund·o,(en lingvistiko kaj en aliaj sciencoj),,ripeteco,ripet·ec·o,,,malrekomendo,2025-07-05 15:18:48,2025-07-05 15:18:48,1,2
 156508,redundo,redund·o,(en lingvistiko kaj en aliaj sciencoj),,(inform)abundo,(inform·)abund·o,,,malrekomendo,2025-07-05 15:18:48,2025-07-05 15:18:48,1,3
 156509,redundo,redund·o,(en lingvistiko kaj en aliaj sciencoj),,balasteco,balast·ec·o,,,malrekomendo,2025-07-05 15:18:48,2025-07-05 15:18:48,1,4
-156510,reduto,redut·o,,zam,fortikaĵeto,fortik·aĵ·et·o,,,malrekomendo,2025-07-05 15:18:48,2025-07-05 15:18:48,1,1
 156511,reelo,reel·o,,,reala nombro,real·a nombr·o,,,malrekomendo,2025-07-05 15:18:48,2025-07-05 15:18:48,1,1
 156512,refektorio,refektori·o,,,(monaĥeja) manĝejo,(monaĥ·ej·a) manĝ·ej·o,,,malrekomendo,2025-07-05 15:18:48,2025-07-05 15:18:48,1,1
 156513,referato,referat·o,,zam,(scienca) raporto,(scienc·a) raport·o,,,malrekomendo,2025-07-05 15:18:48,2025-07-05 15:18:48,1,1
@@ -5824,9 +5821,6 @@ ef31639a8c39288c04ce3fdbdf393726,polucio,poluci·o,,zam,medimalpurigo,medi·mal�
 156694,rezoluta,rezolut·a,,,decidinta,decid·int·a,,,malrekomendo,2025-07-05 15:18:48,2025-07-05 15:18:48,1,2
 156695,rezoluta,rezolut·a,,,certa,cert·a,,,malrekomendo,2025-07-05 15:18:48,2025-07-05 15:18:48,1,3
 156696,rezultato,rezultat·o,,fun,rezulto,rezult·o,,,alternativo,2025-07-05 15:18:48,2025-07-05 15:18:48,1,1
-156697,ri,ri,,,ŝi aŭ li,ŝi aŭ li,,,malrekomendo,2025-07-05 15:18:48,2025-07-05 15:18:48,1,1
-156698,ri,ri,,,ŝili,ŝi·li,,,malrekomendo,2025-07-05 15:18:48,2025-07-05 15:18:48,1,2
-156699,ri,ri,,,ĝi,ĝi,,,malrekomendo,2025-07-05 15:18:48,2025-07-05 15:18:48,1,3
 156700,riceli,ricel·i,,,kaŝi ŝtelaĵon,kaŝ·i ŝtel·aĵ·on,,,malrekomendo,2025-07-05 15:18:48,2025-07-05 15:18:48,1,1
 156701,ricelisto,ricel·ist·o,,,ŝtelaĵokaŝisto,ŝtel·aĵ·o·kaŝ·ist·o,,,malrekomendo,2025-07-05 15:18:48,2025-07-05 15:18:48,1,1
 156702,ricelisto,ricel·ist·o,,,fiaĉetisto,fi·aĉet·ist·o,,,malrekomendo,2025-07-05 15:18:48,2025-07-05 15:18:48,1,2
@@ -6962,7 +6956,6 @@ e022b078c4d615d5af539fabe610d070,rektifiki,rektifik·i,"(ĥemie, meĥanike)",,re
 b6193f341ea31cf5427da46d00c3156d,raĝo,raĝ·o,,,hinda/barata reĝo,hind·a/barat·a reĝ·o,,,alternativo,2025-07-05 15:18:48,2025-09-17 23:11:25,1,1
 c89aaf129b33bd0b40caf1a40636110d,raĵao,raĵa·o,,,hinda/barata reĝo,hind·a/barat·a reĝ·o,,,alternativo,2025-07-05 15:18:48,2025-09-17 23:12:02,1,1
 5393c2a2a3e6372de781b415b3e56f07,sukubo,sukub·o,,,seksumdemonino,seks·um·demon·in·o,,,malrekomendo,2025-07-05 15:18:48,2025-09-19 01:29:55,1,1
-df113f55212b9158f085cfc63e939d3b,teokratio,teokrati·o,,7oa,religirego,religi·reg(·ad/·ec)·o,,,alternativo,2025-07-05 15:18:48,2025-10-13 22:16:35,1,1
 0f8ec6ecb812b0434946d53898bc3323,rosino,rosin·o,,,sekvinbero,sek·vin·ber·o,,,malrekomendo,2025-07-05 15:18:48,2025-11-02 14:08:37,1,1
 232ed49d85bc6bb449d3fd4c722bbe3a,rosino,rosin·o,,,seka vinbero,sek·a vin·ber·o,,,malrekomendo,2025-07-05 15:18:48,2025-11-02 14:08:37,1,2
 e0374bf1d5da10c6fa5f9c108cc8cd7d,ruĵo,ruĵ·o,,,lipoŝminko,lip·o·ŝmink·o,,,malrekomendo,2025-07-05 15:18:48,2025-11-02 14:08:51,1,1
@@ -7014,6 +7007,8 @@ eea67e474e0033a682a22058045b8dfb,suverena,suveren·a,,,sendependa,sen·de·pend�
 d83ebfbda96bdddee58a1e5962320e0c,suvereneco,suveren·ec·o,,,sendependeco,sen·de·pend·ec·o,,,malrekomendo,2025-07-05 15:18:48,2026-08-12 15:31:48,1,2
 3113031c52461ff7cb94d386e6570de5,sor,sor,,,supren,supr·e·n,,,malrekomendo,2025-07-05 15:18:48,2026-08-30 19:05:32,1,1
 9ce7e9600ba61961518383ffb9030b87,telepatio,telepati·o,,9oa,menskomunikado,mens·komunik·ad·o,,,alternativo,2025-07-05 15:18:48,2026-09-15 15:00:46,1,1
+3e976f0ba6ee31d277024d17fc83024f,reduto,redut·o,,,fortikaĵeto,fortik·aĵ·et·o,,zam,malrekomendo,2025-07-05 15:18:48,2026-10-27 15:50:33,1,1
+98bd59d59b28fc50e95be38b58064843,teokratio,teokrati·o,,7oa,religireg(ad/ec)o,religi·reg(·ad/·ec)·o,,,alternativo,2025-07-05 15:18:48,2026-10-28 04:18:33,1,1
 157866,trenda,trend·a,,,laŭmoda,laŭ·mod·a,,,malrekomendo,2025-07-05 15:18:49,2025-07-05 15:18:49,1,1
 157867,trendo,trend·o,,,evolutendenco,evolu·tendenc·o,,,malrekomendo,2025-07-05 15:18:49,2025-07-05 15:18:49,1,1
 157868,trendo,trend·o,,,modo,mod·o,,,malrekomendo,2025-07-05 15:18:49,2025-07-05 15:18:49,1,2
@@ -7496,7 +7491,7 @@ d83f8593e81ea559860ff9907eca8be7,koramikino,kor·amik·in·o,"(en la senco de am
 5b927587b878f6b0555108e97776e5ca,primordio,primordi·o,,,junoformo,jun·o·form·o,,,malrekomendo,2025-07-10 01:54:56,2025-08-15 20:19:34,1,3
 7fa0eda47728a6e4f177e7df158c2c61,primordio,primordi·o,,,juna stadiformo,jun·a stadi·form·o,,,malrekomendo,2025-07-10 01:54:56,2025-08-18 20:41:35,1,2
 158554,hidrogeologo,hidrogeolog·o,,,grundakva sciencisto,grund·akv·a scienc·ist·o,,,malrekomendo,2025-07-11 02:45:54,2025-07-11 02:45:54,1,1
-158555,molaro,molar·o,,,mueldento,muel·dent·o,,,malrekomendo,2025-07-11 02:48:04,2025-07-11 02:48:04,1,2
+ddbf2a9c3b551ba26a6ad87dcbbfdad2,molaro,molar·o,(pri dento),,mueldento,muel·dent·o,,,malrekomendo,2025-07-11 02:48:04,2026-10-27 15:07:40,1,1
 158556,premolaro,premolar·o,,,antaŭmueldento,antaŭ·muel·dent·o,,,malrekomendo,2025-07-11 02:49:15,2025-07-11 02:49:15,1,1
 158557,antaŭmolaro,antaŭ·molar·o,,,antaŭmueldento,antaŭ·muel·dent·o,,,malrekomendo,2025-07-11 02:49:28,2025-07-11 02:49:28,1,1
 63b9979f01e334c7047052a2ccea0091,organizacio,organizaci·o,,zam,organizaĵo,organiz·aĵ·o,,,malrekomendo,2025-07-11 02:51:28,2025-08-01 00:20:33,1,1
@@ -7933,7 +7928,6 @@ d5c907ef99c983cc6ea282af4f1a6111,agregato,agregat·o,(en fiziko),PIV,agregaĵo,a
 db7c69a9fe581107bd150fe400dacbf0,aino,ain·o,,PIV,ajnuo,ajnu·o,,,malrekomendo,2025-07-29 06:24:24,2025-07-29 06:24:24,1,1
 b7ca5eb43c1fb806d478554a9ed5d157,akademio,akademi·o,(en la senco de lernejo),PIV,supera lernejo,super·a lernej·o,,,malrekomendo,2025-07-29 06:24:24,2025-07-29 06:24:24,1,1
 462a70907a2c171553999d38d4886cc9,rifuzi,rifuz·i,,PIV+1oa,malakcepti,mal·akcept·i,,fun,alternativo,2025-07-29 06:24:24,2025-07-29 06:24:24,1,1
-ae87a1d6460e67b533e096d56b906122,akcidenta,akcident·a,(en la senco de akcidenco),PIV,akcidenca,akcidenc·a,,,malrekomendo,2025-07-29 06:24:24,2025-07-29 06:24:24,1,1
 ff2f0885813b6f6dae11a2c766661dce,aĥajano,aĥajan·o,,PIV,heleno,helen·o,,,malrekomendo,2025-07-29 06:24:24,2025-07-29 06:24:24,1,1
 62c0d005b1fdeac63c1998f252c62b50,Aĥajo,Aĥaj·o,,PIV,Helenujo,Helen·uj·o,,,malrekomendo,2025-07-29 06:24:24,2025-07-29 06:24:24,1,1
 cee25a434c112222700eb14d8f53bf17,akolio,akoli·o,,PIV,senegaleco,sen·egal·ec·o,,,malrekomendo,2025-07-29 06:24:24,2025-07-29 06:24:24,1,1
@@ -7991,6 +7985,7 @@ aff336a1dfd25162db823040100fabd5,unualternanca,unu·alternanc·a,,,duononda,du·
 45c4ad2d45a85f73047290a4323f6285,hangulo,hangul·o,,,korea alfabeto,kore·a alfabet·o,,,malrekomendo,2025-07-29 06:24:24,2026-09-25 05:56:42,1,1
 a349e091f215c3b309a1dabdbf198a2c,aktuaro,aktuar·o,,,aktisto,akt·ist·o,,,malrekomendo,2025-07-29 06:24:24,2026-10-08 04:05:11,1,1
 a754c55a00163a09d8d001647bd905a9,kontrahi,kontrah·i,,,kuntiri,kun·tir·i,,,malrekomendo,2025-07-29 06:24:24,2026-10-24 15:37:07,1,1
+ea588c167cb4c3169032a7ffca45c9b6,akcidenta,akcident·a,(en la senco de akcidenco),2oa+PIV,akcidenca,akcidenc·a,,,malrekomendo,2025-07-29 06:24:24,2026-10-26 16:40:45,1,1
 172d0c650c2c58b4fe6f50e2e023675a,hidrofila,hidrofil·a,,,akvoafina,akv·o·afin·a,,PIV,malrekomendo,2025-07-29 06:27:17,2025-07-29 06:27:17,1,2
 15aad8f73862b17a5a89c5f726d9aefd,aerobia,aerobi·a,,,aerbezona,aer·bezon·a,,PIV,malrekomendo,2025-07-29 06:28:00,2025-07-29 06:28:00,1,3
 c13d7227e353d782e442b2b293ea9e70,aldo,ald·o,,2oa,kontralto,kontralt·o,(pri voĉo),PIV,alternativo,2025-07-29 06:29:07,2025-07-29 06:29:07,1,2
@@ -8223,12 +8218,12 @@ fd4b9a7a81b98e47c64cac853576217a,Breksiĝo,Breksiĝ·o,,,Briteliro,Brit·el·ir�
 b8e2a1148f887b535d3c78a14fb40a5d,procesoro,procesor·o,,,datumtraktilo,dat·um·trakt·il·o,,,malrekomendo,2025-08-03 15:54:47,2025-12-11 02:06:52,1,1
 9a0ff21cb57ce76a86544b76c54a44c0,procesilo,proces·il·o,,,datumtraktilo,dat·um·trakt·il·o,,,malrekomendo,2025-08-03 15:54:47,2025-12-11 02:07:04,1,1
 fbe1485b864b7e500a8bc6b7f90c55de,antiutopio,antiutopi·o,,,malutopio,mal·utopi·o,,,malrekomendo,2025-08-03 15:54:47,2026-08-24 02:59:46,1,1
-68a8a8eb0fbb30f39ea4d2e0257c78f6,filogenezo,filogenez·o,,,kladgenezo,klad·ek·est·o,,,malrekomendo,2025-08-03 15:54:47,2026-09-16 03:41:11,1,2
 58ffd9c24b6e6e30c2119b38a7af0ba2,distopio,distopi·o,,,malutopio,mal·utopi·o,,,malrekomendo,2025-08-03 15:54:47,2026-10-06 02:33:32,1,1
 efea48bebde4c1daad946dc1487a0e83,lamenbrankulo,lamen·brank·ul·o,,arĥ,duklapulo,du·klap·ul·o,,,malrekomendo,2025-08-03 15:54:47,2026-10-08 03:53:59,1,1
 a52d95fb41bdb08ed664bd7d3d96c7f6,hagiso,hagis·o,,,skota ŝafstomakaĵo,skot·a ŝaf·stomak·aĵ·o,,,malrekomendo,2025-08-03 15:54:47,2026-10-18 03:23:47,1,1
 b807aea2d4397fd535bf9f2ae6b45ff9,aŭripigmento,aŭripigment·o,,PIV,orpigmento,or·pigment·o,,PIV,malrekomendo,2025-08-03 15:54:47,2026-10-20 03:12:39,1,1
 7e2c2d6588a0904e3e15f399a8ddb741,kroatserbo,kroat·serb·o,,PIV,serbokroato,serb·o·kroat·o,,,malrekomendo,2025-08-03 15:54:47,2026-10-20 03:13:26,1,1
+ea835cabb92f19a086e1fc5578678ced,filogenezo,filogenez·o,,,kladekesto,klad·ek·est·o,,,malrekomendo,2025-08-03 15:54:47,2026-10-28 04:31:33,1,2
 568339536dfd9c6c26628d4eb2fa81f8,brakicefalo,brakicefal·o,,,larĝkraniulo,larĝ·krani·ul·o,,PIV,malrekomendo,2025-08-03 15:58:30,2025-08-03 15:58:30,1,3
 b3f02b0ee3fad7ac5fcd7e6572531866,-izi,-izi,,,-(um)i,-(um·)i,"(pri ies metodo, ekz. pasteŭrizi → pasteŭri, pasteŭrumi)",,malrekomendo,2025-08-03 19:32:37,2025-08-28 04:19:15,1,3
 47cd3ace5f14a7b8a0dfa30babf80412,-izi,-izi,,,-e trakti,-e trakt·i,"(pri ies metodo, ekz. pasteŭrizi → trakti pasteŭre)",,malrekomendo,2025-08-03 19:32:37,2025-08-28 04:19:15,1,4
@@ -8371,7 +8366,6 @@ eed07300d0675a34e19b86374289d13d,dietilmorfino,dietilmorfin·o,,PIV,heroino,hero
 2040b3691c448f0fe2390f073d6f7cf4,diferencii,diferenci·i,,PIV,diferenciali,diferencial·i,,,malrekomendo,2025-08-08 14:34:33,2025-08-08 14:34:33,1,1
 4312015e9c128f482589d1c893c5738c,panteono,panteon·o,,PIV,diaro,di·ar·o,(pri la dioj mem),zam,malrekomendo,2025-08-08 14:34:33,2026-02-13 02:31:05,1,1
 bb42210b05423ff5a3a8e428f90be07f,prodigi,prodig·i,,,malavari,mal·avar·i,,,malrekomendo,2025-08-08 14:39:00,2025-08-08 14:39:00,1,3
-d67bf2f2537a29f3b1adbbb78235d68b,diĝita,diĝit·a,,,bita,bit·a,,PIV,malrekomendo,2025-08-08 15:16:28,2025-11-03 02:27:46,1,2
 003781129060179cef4e31f01ff489a1,difterito,difterit·o,,PIV+arĥ,difterio,difteri·o,,,malrekomendo,2025-08-08 15:50:58,2025-08-08 15:50:58,1,1
 5d7f0306bc724c7dbdf9af1a1828d95b,digitala,digital·a,(pri elektro kaj komputiloj),PIV,bita,bit·a,,,malrekomendo,2025-08-08 15:50:58,2025-08-08 15:50:58,1,2
 eb945dffa187985c3aab704c41778913,Bizancio,Bizanci·o,,,la Bizanca Imperio,la Bizanc·a Imperi·o,,,malrekomendo,2025-08-08 15:50:58,2025-10-23 03:22:18,1,1
@@ -8724,14 +8718,13 @@ d253fa1c6338221554b6d10066271234,termorelajso,termorelajs·o,,PIV,temperaturŝal
 e97c00be63a65c1221398cc5dca45b1e,termorelajso,termorelajs·o,,PIV,temperaturrelajso,temperatur·relajs·o,,PIV,malrekomendo,2025-08-17 15:04:30,2025-08-17 17:31:34,1,3
 fe8ea6be7bde1fa4f86ece1db415f2dd,pistilo,pistil·o,,PIV,fruktofoliaro,frukt·o·foli·ar·o,,PIV,malrekomendo,2025-08-17 15:04:30,2025-08-28 05:00:09,1,3
 1c700eca16fee3c6231d00b3ca26a7cd,pistilo,pistil·o,,PIV,karpelaro,karpel·ar·o,,PIV,malrekomendo,2025-08-17 15:04:30,2025-08-28 05:00:09,1,4
-76518db07998a693a2e1d0c8daa04e4c,termito,termit·o,(pri insekto),PIV+1oa,blanka formiko,blanka formik·o,,,alternativo,2025-08-17 15:04:30,2025-08-30 18:49:10,1,1
 8d54fd68b573b62da2d2e79834de4829,folikulino,folikulin·o,,PIV,estrono,estron·o,,,malrekomendo,2025-08-17 15:04:30,2025-10-19 14:20:38,1,1
 6632c24144ec1fceb43fd302044bdf5f,foliklino,foliklin·o,,PIV,estrono,estron·o,,,malrekomendo,2025-08-17 15:04:30,2025-10-19 14:21:01,1,1
 bfe8e4fb9cf9abdd45683af1c8ae59c4,termofonto,termofont·o,,PIV,hidroterma fonto,hidroterm·a font·o,,PIV,malrekomendo,2025-08-17 15:04:30,2025-12-08 05:08:30,1,2
 44277d7c54e32b22838ef08733d20fe1,fonometrio,fonometri·o,,,sonmezurado,son·mezur·ad·o,,,malrekomendo,2025-08-17 15:04:30,2026-01-19 01:46:26,1,1
+7f4f9c619cd739e375e3afc5885d4401,termito,termit·o,(pri insekto),PIV+1oa,blanka formiko,blank·a formik·o,,,alternativo,2025-08-17 15:04:30,2026-10-25 02:36:52,1,1
 f170cb9414c5e67ef664309e789f5a0b,ŝpato,ŝpat·o,,4oa,platfosilo,plat·fos·il·o,,PIV,alternativo,2025-08-17 16:41:52,2025-08-17 16:41:52,1,2
 cef6be05f4bc58d729f1d96502259a02,ŝpato,ŝpat·o,,4oa,plugileto,plug·il·et·o,,,alternativo,2025-08-17 16:41:52,2025-08-17 16:41:52,1,3
-57a4ff30bd07a45ac0f14f054dacacc0,kohero,koher·o,(pri fiziko),PIV,ligforto,ligfort·o,,,malrekomendo,2025-08-17 18:08:49,2025-08-17 18:08:49,1,1
 6749b29cf11a6598ef4578fc81405016,fuorto,fuort·o,,PIV,fortikaĵeto,fortik·aĵ·et·o,,,malrekomendo,2025-08-17 18:08:49,2025-08-17 18:08:49,1,1
 4b0364748f2fc6064a85c476af9f4ea0,pikpioĉo,pik·pioĉ·o,,PIV+4oa,pikfosilo,pik·fos·il·o,,,alternativo,2025-08-17 18:08:49,2025-08-17 18:08:49,1,1
 784ff00ee1faed84c83b358254da311b,hojli,hojl·i,,PIV,tirboji,tir·boj·i,,,malrekomendo,2025-08-17 18:08:49,2025-08-17 18:08:49,1,1
@@ -8740,16 +8733,15 @@ cef6be05f4bc58d729f1d96502259a02,ŝpato,ŝpat·o,,4oa,plugileto,plug·il·et·o,
 0540b44fd99b85972de4d11c36c9def4,fototerapio,fototerapi·o,,PIV,lumterapio,lum·terapi·o,,,malrekomendo,2025-08-17 18:08:49,2025-08-17 18:08:49,1,2
 de5bb35d095342b176ed9fa0208d94b8,fototropismo,fototropism·o,,PIV,lumtropismo,lum·tropism·o,,,malrekomendo,2025-08-17 18:08:49,2025-08-17 18:08:49,1,1
 18766b4fbb3454d3e92d0505105b0960,frajto,frajt·o,(en la senco de kargo),PIV,kargo,karg·o,,,malrekomendo,2025-08-17 18:08:49,2025-08-17 18:08:49,1,1
-af05d491d7e109bc4139e4d83dc32cb6,frakcio,frakci·o,,PIV,nombrono,nombr·on·o,,,malrekomendo,2025-08-17 18:08:49,2025-08-17 18:08:49,1,1
 4507fe6b43aa730e1f656e9a63c202bf,frakto,frakt·o,,PIV,fraktalo,fraktal·o,,,malrekomendo,2025-08-17 18:08:49,2025-08-17 18:08:49,1,1
 7fd79718998c325199e8844889efa1b0,frakturo,fraktur·o,(en kuracado),PIV,ostrompiĝo,ost·romp·iĝ·o,,,malrekomendo,2025-08-17 18:08:49,2025-08-17 18:08:49,1,1
-920924c58504667f6707fc97d2affe5e,galicismo,galicism·o,,PIV,francismo,francism·o,,,malrekomendo,2025-08-17 18:08:49,2025-08-17 18:08:49,1,1
 13089eff136d056ed8ab9f24eb1825a3,franciumo,francium·o,,PIV,francio,franci·o,,,malrekomendo,2025-08-17 18:08:49,2025-08-17 18:08:49,1,1
 9d2abfa9e071efc6a87fbf10585841dc,suna ikto,sun·a ikt·o,,PIV,sunfrapo,sunfrap·o,,,malrekomendo,2025-08-17 18:08:49,2025-08-17 18:08:49,1,1
-826aa7823be260e179d71b14241a5d7f,insolventa,insolvent·a,,PIV,nepagokapabla,ne·pag·o·kapabl·a,,,malrekomendo,2025-08-17 18:08:49,2025-08-17 18:08:49,1,1
 aa4fb25dde1de3b4b7d14cdb3f440980,fototerapio,fototerapi·o,,PIV,lumkuracado,lum·kurac·ad·o,,,malrekomendo,2025-08-17 18:08:49,2025-08-18 15:00:02,1,1
-513254330008b4af53a0d589b58b0f07,insolventa,insolvent·a,,PIV,nepagopova,ne·pag·o·pov·a,,,malrekomendo,2025-08-17 18:08:50,2025-08-17 18:08:50,1,2
-bccbdcea4b496542ae554b609db4f9f4,insolventa,insolvent·a,,PIV,nesolventa,ne·solvent·a,,,malrekomendo,2025-08-17 18:08:50,2025-08-17 18:08:50,1,3
+38c5fd2b918979757b3e64618a739351,frakcio,frakci·o,,1oa+PIV,nombrono,nombr·on·o,,,alternativo,2025-08-17 18:08:49,2026-10-25 04:04:52,1,1
+d360c70b60b38dd43f8439331a4d5d1b,kohero,koher·o,(pri fiziko),9oa+PIV,ligforto,lig·fort·o,,,alternativo,2025-08-17 18:08:49,2026-10-25 04:21:07,1,1
+d81699ae783dc7a6c8f6fe6013b08779,galicismo,galicism·o,,zam+PIV,francismo,franc·ism·o,,,malrekomendo,2025-08-17 18:08:49,2026-10-25 04:52:33,1,1
+8c05600dc99b75ae18a4915ed9805916,insolventa,insolvent·a,,zam+PIV,nepagokapabla,ne·pag·o·kapabl·a,,,malrekomendo,2025-08-17 18:08:49,2026-10-25 05:05:37,1,1
 4bb62b50018e712b5903fcafc29a0c9e,vicfrato,vic·frat·o,,PIV,duonfrato,du·on·frat·o,,,malrekomendo,2025-08-17 18:08:50,2025-08-17 18:08:50,1,1
 b39239fe774614c553fa31592a122268,vicfratino,vic·frat·in·o,,PIV,duonfratino,du·on·frat·in·o,,,malrekomendo,2025-08-17 18:08:50,2025-08-17 18:08:50,1,1
 f06ffee543de2f23e9109aaaed51bd81,frazeologismo,frazeologism·o,,PIV,frazaranĝaĵo,fraz·aranĝ·aĵ·o,,,malrekomendo,2025-08-17 18:08:50,2025-08-17 18:08:50,1,1
@@ -8763,6 +8755,8 @@ ffa5e9470394b5c040985c9ce5fe7738,muzikfrekvenco,muzik·frekvenc·o,,PIV,aŭdfrek
 bc3e7cf4299f4e969f8186c2e4cd005d,proceduro,procedur·o,(pri juĝo),PIV+2oa,juĝagado,juĝ·ag·ad·o,,,alternativo,2025-08-17 18:08:50,2025-08-30 18:45:16,1,1
 de46f1f153b0ae2a551e1df7890ce961,fraŭlo,fraŭl·o,(en la senco de paĝio),PIV+fun,paĝio,paĝi·o,,,alternativo,2025-08-17 18:08:50,2025-08-30 18:48:53,1,1
 7ad8f68d1843410aadbbb9ef2c27ff01,frontispico,frontispic·o,,,titolbildo,titol·bild·o,(en libro),,malrekomendo,2025-08-17 18:08:50,2026-06-30 02:10:00,1,2
+54d2cd42df60af0386de88d1fd51d0c2,insolventa,insolvent·a,,zam+PIV,nepagopova,ne·pag·o·pov·a,,,malrekomendo,2025-08-17 18:08:50,2026-10-25 05:05:37,1,2
+815fd3f07510239a09f20cd85ff9289c,insolventa,insolvent·a,,zam+PIV,nesolventa,ne·solvent·a,,,malrekomendo,2025-08-17 18:08:50,2026-10-25 05:05:37,1,3
 a50c4f2d748ed21e15f550724e076c1f,hojo,hoj·o,,,hakfosilo,hak·fos·il·o,,PIV,malrekomendo,2025-08-17 18:10:27,2025-11-03 03:07:51,1,2
 fc77cb81cd3dcd4fe161b2878457258a,hojo,hoj·o,,,plugpioĉo,plug·pioĉ·o,,PIV,malrekomendo,2025-08-17 18:10:27,2025-11-03 03:07:51,1,3
 fa31f52165d35b771924cba3a17d4a4b,franzi,franz·i,,,vulvoleki,vulv·o·lek·i,,,malrekomendo,2025-08-17 18:12:18,2025-08-17 18:12:18,1,1
@@ -8782,8 +8776,6 @@ ed8642b3ff1242a60bc4c095bc1e35fc,puniko,punik·o,,,granatarbo,granat·arb·o,(kr
 3007ef74a02c7e93d7ff3534495b8861,fuzio,fuzi·o,,,kunfandiĝo de kompanioj,kun·fand·iĝ·o de kompani·o·j,(en ekonomiko),,malrekomendo,2025-08-17 20:06:45,2025-08-18 20:37:49,1,3
 76c09dc377db881e648ec392fd15f2aa,funikularo,funikular·o,,PIV,kablotramo,kabl·o·tram·o,,,malrekomendo,2025-08-17 20:19:15,2025-08-17 20:19:15,1,1
 c45c30896b24d98be0c0d61c170ada85,primitiva funkcio,primitiv·a funkci·o,,PIV,malderivaĵo,mal·deriv·aĵ·o,,,malrekomendo,2025-08-17 20:19:15,2025-08-17 20:19:15,1,1
-b60fb61ee73b4cd87e296a8c2a905c93,furia,furia,,PIV+arĥ,furioza,furioz·a,,,malrekomendo,2025-08-17 20:19:15,2025-08-17 20:19:15,1,1
-aab5835fed95452530d2f0eb5d46d555,fuziliero,fuzilier·o,,PIV,fusilisto,fusil·ist·o,,,malrekomendo,2025-08-17 20:19:15,2025-08-17 20:19:15,1,1
 27a6b11e1d6e6f6cf5e635ab5be6ae62,Ĝengis-Ĥano,Ĝengis-Ĥan·o,,PIV,Ĝingis-Ĥano,Ĝingis-Ĥan·o,,,malrekomendo,2025-08-17 20:19:15,2025-08-17 20:19:15,1,1
 ebcc9dd52da73888a6a94da5fd384df3,ĥaradrio,ĥaradri·o,,PIV,karadrio,karadri·o,,,malrekomendo,2025-08-17 20:19:15,2025-08-17 20:19:15,1,1
 89eb98ebcae6989d083dbf8282f69490,ĥeto,ĥet·o,,PIV,keto,ket·o,,,malrekomendo,2025-08-17 20:19:15,2025-08-17 20:19:15,1,1
@@ -8800,6 +8792,8 @@ ac3ab8a0c4dac1533b2d5422650d95d2,ĥondrostomo,ĥondrostom·o,,PIV,kondrostomo,ko
 99fbf3761ff790e754b871b83284e790,ĥoreografio,ĥoreografi·o,,,danckompono,danc·kompon·o,,,malrekomendo,2025-08-17 20:19:15,2025-08-17 20:19:15,1,2
 c5fa5cd7fa3eb8c770bd4f3315e5de92,ĥoreografo,ĥoreograf·o,,,dancaranĝisto,danc·aranĝ·ist·o,,,malrekomendo,2025-08-17 20:19:15,2025-08-17 20:19:15,1,1
 e5a7f16ae0bb9faf7cd06f89462a9637,ĥoreografo,ĥoreograf·o,,,danckomponisto,danc·kompon·ist·o,,,malrekomendo,2025-08-17 20:19:15,2025-08-17 20:19:15,1,2
+ea92ab40bcc07db02d6e3e06e1040455,fuziliero,fuzilier·o,,zam+PIV,fusilisto,fusil·ist·o,,,malrekomendo,2025-08-17 20:19:15,2026-10-26 02:46:49,1,1
+b2437d0bc2036c92d81c13bb3bd7a8d5,furia,furia,,1oa+arĥ+PIV,furioza,furioz·a,,,malrekomendo,2025-08-17 20:19:15,2026-10-26 02:54:07,1,1
 228775624d5f3f18a6ab71378c039486,idiosinkrazio,idiosinkrazi·o,,,persona strangaĵo,person·a strang·aĵ·o,"(eraraj uzoj laŭ aliaj lingvoj, anglece)",,malrekomendo,2025-08-18 14:49:38,2025-08-18 14:49:38,1,5
 fd89415b01a56789c2200efdfeabdb11,idiosinkrazio,idiosinkrazi·o,,,troreagemo,tro·re·ag·em·o,"(eraraj uzoj laŭ aliaj lingvoj, italece)",,malrekomendo,2025-08-18 14:49:38,2025-08-18 14:49:38,1,6
 fa48be0ac2f48b736b386eee95fc5713,gajako,gajak·o,,PIV,gvajako,gvajak·o,,,malrekomendo,2025-08-18 17:17:38,2025-08-18 17:17:38,1,1
@@ -8903,7 +8897,6 @@ bd8d4e87d47b5acaf5c91b731a6e704b,karnovora,karn·o·vor·a,,PIV,karnomanĝa,karn
 e26212e9f85aa71039c28e297bb5d579,suro,sur·o,(pri korpoparto),PIV,tibikarno,tibi·karn·o,,,malrekomendo,2025-08-22 14:12:25,2025-08-22 14:12:25,1,1
 14523bcff116d32b1af9276ea0cd7f13,karmezina,karmezin·a,,PIV+zam,brile malhelruĝa,bril·e mal·hel·ruĝ·a,,,malrekomendo,2025-08-22 14:12:25,2025-08-22 14:12:25,1,1
 b31799906a21ecfc30f8b123c610be30,kariokinezo,kariokinez·o,,PIV,mitozo,mitoz·o,,,malrekomendo,2025-08-22 14:12:25,2025-08-22 14:12:25,1,1
-3f58d841be55a7740f302a1b592dc68a,Kapstado,Kapstad·o,,PIV,Kab-urbo,Kab-urb·o,,,malrekomendo,2025-08-22 14:12:25,2025-08-22 14:12:25,1,1
 bbe50defa35ec3f142a842dfac8429b9,kapstano,kapstan·o,,PIV+zam,vertikala vinĉo,vertikal·a vinĉ·o,,,malrekomendo,2025-08-22 14:12:25,2025-08-22 14:12:25,1,1
 d7caa8a88b578f692d393e9a69aa5e4f,Karako,Karak·o,,PIV,Karakaso,Karakas·o,,,malrekomendo,2025-08-22 14:12:25,2025-08-22 14:12:25,1,1
 523996aa17ce1f47ebd3a8bc44bc6026,karbamido,karb·amid·o,,PIV+arĥ,ureo,ure·o,,,malrekomendo,2025-08-22 14:12:25,2025-08-22 14:12:25,1,1
@@ -8933,6 +8926,7 @@ e75579342f125e032c3800da8adf3113,karaiba,karaib·a,,PIV,kariba,karib·a,,,malrek
 26e1f61cf4196d8ef51c4f8adff9d14b,kastanjeto,kastanjet·o,,PIV+4oa,klakileto,klak·il·et·o,,,alternativo,2025-08-22 14:12:25,2025-08-25 03:12:54,1,1
 7b5204cc3da2b0594851c0ff7e52043d,karavano,karavan·o,(pri veturilo),,ruldomo,rul·dom·o,,,malrekomendo,2025-08-22 14:12:25,2026-02-13 02:24:37,1,1
 c00ac19e165c015a6c574f0a51856c86,kasavo,kasav·o,,,maniokfaruno,maniok·farun·o,(pri faruno),,malrekomendo,2025-08-22 14:12:25,2026-07-30 11:07:57,1,1
+cd01b6a7c8f7bd775f391b626d56fb83,Kapstado,Kapstad·o,,PIV,Kab-urbo,Kab·urb·o,,,malrekomendo,2025-08-22 14:12:25,2026-10-27 20:18:48,1,1
 5d236e831484227f0db215db2873112b,karakterizi,karakteriz·i,,1oa,difini la karakteron,difin·i la karakter·o·n,,PIV,alternativo,2025-08-22 14:15:29,2025-08-22 14:15:29,1,2
 e247e0325c77a99a732cbc3f33400086,karakterizi,karakteriz·i,,1oa,konsistigi/estigi la karakteron,konsist·ig·i/est·ig·i la karakter·o·n,,PIV,alternativo,2025-08-22 14:15:29,2025-08-22 14:15:29,1,3
 d94cd5ac623ad6a560d3b67f7754c2fe,snejlo,snejl·o,,,gastropodo,gastropod·o,,PIV,malrekomendo,2025-08-22 14:18:23,2025-08-22 14:18:23,1,2
@@ -9367,7 +9361,7 @@ a6c5201e68c5708b00a5a3064b523181,kulmo,kulm·o,(en la senco de kulmino),PIV,kulm
 9a917d299346e31dd02573d2513d6535,kulminacio,kulminaci·o,,zam+PIV,kulmino,kulmin·o,,,malrekomendo,2025-09-02 11:08:16,2026-10-09 04:17:52,1,1
 e09c48a08859cf2b56ca595f28e11baf,legalizi,legaliz·i,,,laŭleĝigi,laŭ·leĝ·ig·i,,,malrekomendo,2025-09-02 11:08:16,2026-10-13 18:41:14,1,1
 82ca3ec737967c1c39292abfe3464c42,legaco,legac·o,,,testamentaĵo,testament·aĵ·o,,PIV,malrekomendo,2025-09-02 11:10:06,2025-09-02 11:10:06,1,2
-920636a99e7bbefa7997ad10af089883,legacio,legaci·o,,,testamentaĵo,testament·aĵ·o,,PIV,malrekomendo,2025-09-02 11:10:20,2025-09-02 11:10:20,1,3
+98b82cb77ed17d16e2ab28aa3365fb0f,legacio,legaci·o,,,testamentaĵo,testament·aĵ·o,(en la senco de 'heredaĵo'),PIV,malrekomendo,2025-09-02 11:10:20,2026-10-28 02:37:26,1,3
 bb02e60fb68c11d8d5f5ab23f904f3d5,luteo,lute·o,,PIV,flava korpo,flav·a korp·o,,,malrekomendo,2025-09-02 11:32:36,2025-09-02 11:32:36,1,1
 6e3aed3f38b77833f304410a2c5cf909,vitreo,vitre·o,,PIV,vitreca korpo,vitr·ec·a korp·o,,,malrekomendo,2025-09-02 11:32:36,2025-09-02 11:32:36,1,1
 60b003a9903e17badc1938caec0d0c7e,koronulo,koronul·o,,PIV,krompetalaro,krom·petal·ar·o,,,malrekomendo,2025-09-02 11:32:36,2025-09-02 11:32:36,1,1
@@ -9629,7 +9623,6 @@ e0bb3f93b4671c27ba6b8e2b68a1cb29,niponano,nipon·an·o,,PIV,japano,japan·o,,,ma
 70fc0bde84918a22d91bd105730f18e9,Njemeno,Njemen·o,,PIV,Nemano,Neman·o,,,malrekomendo,2025-09-16 03:58:57,2025-09-16 03:58:57,1,1
 a86701f8e1e0138bdeafaddbe5dec4bd,nociva,nociv·a,,,malutilipova,mal·util·i·pov·a,,,malrekomendo,2025-09-16 03:58:57,2025-09-16 03:58:57,1,1
 05a211e6564bb47aea6ffea791f14210,noĥĉo,noĥĉ·o,,PIV,ĉeĉeno,ĉeĉen·o,,,malrekomendo,2025-09-16 03:58:57,2025-09-16 03:58:57,1,1
-86343bc08e904b9828b91f5bd8e3a675,nokaŭti,nokaŭt·i,,PIV,knokaŭti,knokaŭt·i,,,malrekomendo,2025-09-16 03:58:57,2025-09-16 03:58:57,1,1
 1c5efc8dc797411f0f4351076e3e87b0,atomnombro,atom·nombr·o,,PIV,atomnumero,atom·numer·o,,,malrekomendo,2025-09-16 03:58:57,2025-10-23 03:00:01,1,1
 506d6a68e6ed953554e4ed4033c62f0c,nomeso,nomes·o,,PIV,nomarĥio,nomarĥi·o,,,malrekomendo,2025-09-16 03:58:57,2026-04-10 22:12:38,1,1
 db1e15c95dac5b335b78f6e29bbf06b8,trialo,trial·o,,,trinombro,tri·nombr·o,,,malrekomendo,2025-09-16 03:58:57,2026-09-19 16:15:20,1,1
@@ -9782,7 +9775,6 @@ c4bb17212b1ea34f2db46dcf8bcdd35b,plutokratio,plutokrati·o,,3oa,plutokrataro,plu
 e93e0bc9c40cf1c6b50eb9c1745289c6,infinitivo,infinitiv·o,,2oa,sendifina modo,sen·difin·a mod·o,,,alternativo,2025-10-15 03:40:54,2025-10-15 03:40:54,1,2
 395bb5067fcffdda01ecbbc8dbf02357,preterito,preterit·o,,2oa,istempo,is·temp·o,,,malrekomendo,2025-10-15 03:42:08,2025-10-15 03:43:21,1,2
 81d4eae00464a1b678ab6b28a8a9213d,prezenco,prezenc·o,,,astempo,as·temp·o,,,malrekomendo,2025-10-15 03:43:37,2025-10-17 00:57:57,1,3
-eddac677b6fa75d7d00b4a54be928469,infamio,infami·o,,,fifamo,fi·fam·a,,,malrekomendo,2025-10-15 23:20:39,2025-10-15 23:20:39,1,1
 5a4ecff5fd490774cf2e9233cceebeda,infamio,infami·o,,,malbonfamo,mal·bon·fam·o,,,malrekomendo,2025-10-15 23:20:39,2025-10-15 23:20:39,1,2
 6e2b52c18c9a4e0d73f8704d30419990,volitivo,volitiv·o,,,vola modo,vol·a mod·o,,,malrekomendo,2025-10-15 23:20:39,2025-10-15 23:20:39,1,1
 dbb643ea06cedc70612772c235f1acfa,volumeno,volumen·o,,4oa,spacamplekso,spac·ampleks·o,,,alternativo,2025-10-15 23:20:39,2025-10-15 23:20:39,1,1
@@ -9790,6 +9782,7 @@ d286771b302e031aa61889ab04187023,papiloto,papilot·o,,,frizpapero,friz·paper·o
 c4de39f8b374e401856db66db9b796ba,papiloto,papilot·o,,,papera buklilo,paper·a bukl·il·o,,,malrekomendo,2025-10-15 23:20:39,2025-10-15 23:20:39,1,2
 f292234a1b1ef31aacaac4cc9c78d5f6,papiloto,papilot·o,,,papera frizilo,paper·a friz·il·o,,,malrekomendo,2025-10-15 23:20:39,2025-10-15 23:20:39,1,3
 5b29b1c87f79f87e93f15356ce743bda,altitudo,altitud·o,,,(supermara/supertera) alteco,(super·mar·a/super·ter·a) alt·ec·o,,,malrekomendo,2025-10-15 23:20:39,2025-10-15 23:20:39,1,1
+bfb17baf4b72984a7d897572e67110e9,infamio,infami·o,,,fifamo,fi·fam·o,,,malrekomendo,2025-10-15 23:20:39,2026-10-28 04:30:59,1,1
 be5d37e726953d6b6156c0897a79b48a,altitudo,altitud·o,,,altangulo,alt·angul·o,(en astroscienco),,malrekomendo,2025-10-17 00:07:06,2025-10-17 00:07:06,1,2
 a5fe5393f1d969aa0f11ec59cb63c2c7,prezenco,prezenc·o,,,estanta tempo,est·ant·a temp·o,,,malrekomendo,2025-10-17 00:57:57,2025-10-17 00:57:57,1,2
 0f46ea7cdc36558ed04d3870ff2c06b9,volitivo,volitiv·o,,,u-modo,u-mod·o,,,malrekomendo,2025-10-17 00:59:21,2025-10-17 00:59:21,1,2
@@ -9940,7 +9933,6 @@ e6d532709a86ff241348985859145825,endocitozo,endocitoz·o,,PIV,encitozo,en·citoz
 13dacae3c6ca278887f9e2b3b23ff0ee,ekzocitozo,ekzocitoz·o,,PIV,elcitozo,el·citoz·o,,,malrekomendo,2025-11-02 16:59:08,2025-11-02 16:59:08,1,1
 73ca247467e5046c8adc589a670fe4e7,citosolo,citosol·o,,PIV,ĉelsolo,ĉel·sol·o,,,malrekomendo,2025-11-02 16:59:08,2025-11-02 16:59:08,1,1
 6956ed40519d767a75171321aefc2f28,citoskeleto,citoskelet·o,,PIV,ĉelskeleto,ĉel·skelet·o,,,malrekomendo,2025-11-02 16:59:08,2025-11-02 16:59:08,1,1
-0bc9b2d477f14fa3784a2418651fdeda,citato,citat·o,,PIV,citaĵo,cit·aĵ·o,,,malrekomendo,2025-11-02 16:59:08,2025-11-02 16:59:08,1,1
 b6ef5ab967324743cbe664c6f32e60ca,cirkonvalacio,cirkonvalaci·o,,PIV,ĉirkaŭfortikaĵo,ĉirkaŭ·fortik·aĵ·o,,,malrekomendo,2025-11-02 16:59:08,2025-11-02 16:59:08,1,1
 c4cb56e688e48846190bd82881a4e823,Cireno,Ciren·o,,PIV,Kireno,Kiren·o,,,malrekomendo,2025-11-02 16:59:08,2025-11-02 16:59:08,1,1
 cd75245974d436a0370d2c94e463f476,Cirenio,Cireni·o,,PIV,Kirenio,Kireni·o,,,malrekomendo,2025-11-02 16:59:08,2025-11-02 16:59:08,1,1
@@ -9955,6 +9947,7 @@ b18bbab985a5f74f4fc581651ec2d0ec,cinocefalo,cinocefal·o,,PIV,paviano,pavian·o,
 730b08461b21c369da6bb3ab46d624f1,pentagramo,pentagram·o,,2oa,kvinlinia stel(sign)o,kvin·lini·a stel(·sign)·o,,,alternativo,2025-11-02 16:59:08,2025-12-21 19:13:37,1,2
 f758c7041824a0b69b4f381b7638c882,vermiljona,vermiljon·a,,,cinabra,cinabr·a,,fun,malrekomendo,2025-11-02 16:59:08,2026-03-11 03:00:38,1,1
 64138f33d6ee7cbdd6c8728b0115895a,sledo,sled·o,,8oa,glitveturilo,glit·vetur·il·o,,,alternativo,2025-11-02 16:59:08,2026-10-18 03:27:55,1,1
+f46a94027315afac77b41bc7507575b5,citato,citat·o,,zam+PIV,citaĵo,cit·aĵ·o,,,malrekomendo,2025-11-02 16:59:08,2026-10-27 00:47:45,1,1
 8f088a2d3471fb0a2954b07f1f4cfb1e,aŭtonomio,aŭtonomi·o,,,aŭtonomeco,aŭtonom·ec·o,,PIV,malrekomendo,2025-11-03 02:24:42,2025-11-03 02:24:42,1,3
 42af0c72fb789c2f80a3c806464e100b,gvati,gvat·i,,,kaŝobservi,kaŝ·observ·i,,PIV,alternativo,2025-11-03 02:31:23,2025-11-03 02:31:23,1,2
 81e5f2666b162ad77e8113baac8df8c2,gvati,gvat·i,,,deĵore observi,deĵor·e observ·i,,PIV,alternativo,2025-11-03 02:31:23,2025-11-03 02:31:23,1,3
@@ -10120,16 +10113,16 @@ ca8b9c6a5eac33bd9b67ec12840240f6,stenodaktilografi,stenodaktilograf·i,,,rapidta
 1ad86e4843bee6dc14e92efc3082824f,stenotajpilo,sten·o·tajp·il·o,,,rapidskribmaŝino,rapid·skrib·maŝin·o,,,malrekomendo,2025-12-16 18:38:35,2025-12-16 18:38:35,1,2
 f0c39cb6fb9ead53121a2be74b67bb81,stenotajpisto,sten·o·tajp·ist·o,,,rapidtajpisto,rapid·tajp·ist·o,,,malrekomendo,2025-12-16 18:38:35,2025-12-16 18:38:35,1,1
 14f52cd5b1d5bf76b1e27ad3cd351b73,stenotajpisto,sten·o·tajp·ist·o,,,rapidtajpilisto,rapid·tajp·il·ist·o,,,malrekomendo,2025-12-16 18:38:35,2025-12-16 18:38:35,1,2
-873c270da925f08e3a9b8c2b8cb406e9,stenotajpisto,sten·o·tajp·ist·o,,,rapidskribmaŝino,rapid·skrib·maŝin·ist·o,,,malrekomendo,2025-12-16 18:38:35,2025-12-16 18:38:35,1,3
 21e2166ed1e4673db59e26601f96af75,stenotipisto,sten·o·tip·ist·o,,,rapidtajpisto,rapid·tajp·ist·o,,,malrekomendo,2025-12-16 18:38:35,2025-12-16 18:38:35,1,1
 792ab1abbf4644c1654589751cdfbe4b,stenotipisto,sten·o·tip·ist·o,,,rapidtajpilisto,rapid·tajp·il·ist·o,,,malrekomendo,2025-12-16 18:38:35,2025-12-16 18:38:35,1,2
-f8a63ae14ca6a64c246a6e587677d7db,stenotipisto,sten·o·tip·ist·o,,,rapidskribmaŝino,rapid·skrib·maŝin·ist·o,,,malrekomendo,2025-12-16 18:38:35,2025-12-16 18:38:35,1,3
 dd2335f894f15b70c7762779160c61fc,steno,sten·o,(pri skribado),,rapidskribado,rapid·skrib·ad·o,,,malrekomendo,2025-12-16 18:38:35,2025-12-16 18:38:35,1,1
 5ede00cb6266467f7791c6d554e332a9,steno,sten·o,(pri skribado),,stenografado,stenograf·ad·o,,,malrekomendo,2025-12-16 18:38:35,2025-12-16 18:38:35,1,2
 8988bca0bdbf1e93d5093c7684a1930b,steno,sten·o,(pri skribado),,stenografsignaro,stenograf·sign·ar·o,,,malrekomendo,2025-12-16 18:38:35,2025-12-16 18:38:35,1,3
 6539bcce07cc954067907651220415f9,steno,sten·o,(pri skribado),,stenografarto,stenograf·art·o,,,malrekomendo,2025-12-16 18:38:35,2025-12-21 19:08:02,1,5
 36b6e112f4485f706d62c2b61bfdb7f8,steno,sten·o,(pri skribado),,stenografio,stenografi·o,,,malrekomendo,2025-12-16 18:38:35,2025-12-21 19:08:02,1,6
 0f6577d5be0ed24a910e2792a0fb510e,tremao,trema·o,,,superdupunkto,super·du·punkt·o,,,malrekomendo,2025-12-16 18:38:35,2025-12-16 18:38:35,1,1
+1d7eddb5e65705a613f62b39c530456a,stenotipisto,sten·o·tip·ist·o,,,rapidskribmaŝinisto,rapid·skrib·maŝin·ist·o,,,malrekomendo,2025-12-16 18:38:35,2026-10-28 04:21:32,1,3
+f5207337eff02e84e63995931192fe78,stenotajpisto,sten·o·tajp·ist·o,,,rapidskribmaŝinisto,rapid·skrib·maŝin·ist·o,,,malrekomendo,2025-12-16 18:38:35,2026-10-28 04:22:01,1,3
 1e2a64be60b6538fdc4034de81673299,steni,sten·i,,,rapidskribi,rapid·skrib·i,,,malrekomendo,2025-12-16 18:47:56,2025-12-16 18:47:56,1,1
 b9d9193167860ee955f67b02efb2316f,kserofito,kserofit·o,,,sekeja kreskaĵo,sek·ej·a kresk·aĵ·o,,,malrekomendo,2025-12-18 03:45:05,2026-01-04 05:31:59,1,1
 bf7466cf29b129a544dc7f01f83ebb2a,kserofito,kserofit·o,,,sekeja vegetaĵo,sek·ej·a veget·aĵ·o,,,malrekomendo,2025-12-18 03:45:05,2026-01-04 05:31:59,1,2
@@ -10202,8 +10195,8 @@ ae61245f29f0533ae881e5dad6fbd398,sekundara,sekundar·a,,,duagrada,du·a·grad·a
 82f01d175580127490cf661c3ef3714e,bajadero,bajader·o,,,(hindua) templodancistino,(hindu·a) templ·o·danc·ist·in·o,,,alternativo,2026-01-15 05:27:22,2026-01-15 05:27:22,1,1
 3e6d104cf94f36b29347fed5b718e2e7,ĥato,ĥat·o,,,pajlkabano,pajl·kaban·o,,ReVo,malrekomendo,2026-01-15 13:51:39,2026-01-15 13:51:39,1,2
 48250b40de36b4ec0dd3e353b1897cb7,spektroskopio,spektroskopi·o,,,spektrobservado,spektr·observ·ad·o,,,malrekomendo,2026-01-16 02:06:50,2026-01-16 02:06:50,1,1
-1a72cda11afb13c81f6fe5b020114f35,spektrometro,spektrometr·o,,,spektromezurilo,spektr·mezur·il·o,,,malrekomendo,2026-01-16 02:06:50,2026-01-16 02:06:50,1,1
-81ffeb34c1403ac0b9ec58c07f52c99f,spektrometrio,spektrometri·o,,,spektromezurado,spektr·mezur·ad·o,,,malrekomendo,2026-01-16 02:06:50,2026-01-16 02:06:50,1,1
+18f46a769fc5d99cb5e63e7d8d39840c,spektrometro,spektrometr·o,,,spektromezurilo,spektr·o·mezur·il·o,,,malrekomendo,2026-01-16 02:06:50,2026-10-28 04:25:19,1,1
+58e59a337a681a12197dbdaa84d93e2f,spektrometrio,spektrometri·o,,,spektromezurado,spektr·o·mezur·ad·o,,,malrekomendo,2026-01-16 02:06:50,2026-10-28 04:28:46,1,1
 1cc7755fda4ffb4e5228c274a7c4e6f9,elizio,elizi·o,,1oa,finvokala ellaso,fin·vokal·a el·las·o,,,alternativo,2026-01-16 02:06:51,2026-01-16 02:06:51,1,1
 67ac324fb993e5198c3e9bc749e6f825,ekstemporalo,ekstemporal·o,,zam,improvizita ekzerco,improviz·it·a ekzerc·o,,,malrekomendo,2026-01-17 18:14:45,2026-01-17 18:14:45,1,2
 281bfa7fbc316fa01d985dcc36727659,obstetriko,obstetrik·o,,,naskokuracado,nask·o·kurac·ad·o,,,malrekomendo,2026-01-17 18:27:43,2026-01-17 18:27:43,1,2
@@ -10441,19 +10434,18 @@ bc54b071a0c01aa6266e8b06dd024c01,densometrio,densometri·o,,,densomezurado,dens�
 56a9a975d0b1489bac561f0825fd661e,interferometrio,interferometri·o,,,interferomezurado,interfer·o·mezur·ad·o,,,malrekomendo,2026-03-21 19:38:55,2026-03-21 19:38:55,1,1
 56497a010917b9afc810b930750a816a,jodometrio,jodometri·o,,,jodomezurado,jod·o·mezur·ad·o,,,malrekomendo,2026-03-21 19:38:55,2026-03-21 19:38:55,1,1
 4eef3be4dbe45917171de7a59e40cd87,sensometro,sensometr·o,,,sensomezurilo,senso·mezur·il·o,,,malrekomendo,2026-03-21 19:38:55,2026-03-21 19:38:55,1,1
-54b30faa8d8530df0c5c01a3d3ebf92e,sensometrio,sensometri·o,,,sensomezurado,senso·o·mezur·ad·o,,,malrekomendo,2026-03-21 19:38:55,2026-03-21 19:38:55,1,1
-b23414dbe1301db8aedea8403df65c32,spirometrio,spirometri·o,,,spirmezurado,spir·o·mezur·ad·o,,,malrekomendo,2026-03-21 19:38:55,2026-03-21 19:38:55,1,1
 0b647477080df57d8017ef25286b86e7,tensimetro,tensimetr·o,,,tensimezurilo,tensi·mezur·il·o,,,malrekomendo,2026-03-21 19:38:55,2026-03-21 19:38:55,1,1
 bd7dc5a7df2dfa566ee023d34961b512,tensimetrio,tensimetri·o,,,tensimezurado,tensi·mezur·ad·o,,,malrekomendo,2026-03-21 19:38:55,2026-03-21 19:38:55,1,1
 2c5ec989ff1af55e9a59c612a39f5498,kunordiga konjunkcio,kun·ord·ig·a konjunkci·o,,,kunordigilo,kun·ord·ig·il·o,,,alternativo,2026-03-21 19:38:55,2026-10-24 15:58:36,1,1
-a809b51043fc78fa6bd80d3df634d41b,subordiga konjunkcio,sub·ord·ig·a konjunkci·o,,,subordigilo,kun·ord·ig·il·o,,,alternativo,2026-03-21 19:38:55,2026-10-24 15:58:51,1,1
-424754a4de0c8c12e9a61e1222dfb4a6,dependiga konjunkcio,de·pend·ig·a konjunkci·o,,,subordigilo,kun·ord·ig·il·o,,,malrekomendo,2026-03-21 19:38:55,2026-10-24 15:59:05,1,1
+9523884611c0d6dbfcfbd17c30d2952a,subordiga konjunkcio,sub·ord·ig·a konjunkci·o,,,subordigilo,sub·ord·ig·il·o,,,alternativo,2026-03-21 19:38:55,2026-10-28 04:20:45,1,1
+ea1da539351d6aa2bbc4c94223e20791,spirometrio,spirometri·o,,,spirmezurado,spir·mezur·ad·o,,,malrekomendo,2026-03-21 19:38:55,2026-10-28 04:23:42,1,1
+c73ece866a03493c811b01b154674447,sensometrio,sensometri·o,,,sensomezurado,sens·o·mezur·ad·o,,,malrekomendo,2026-03-21 19:38:55,2026-10-28 04:29:44,1,1
+2b677597d0384f3c610f52f0efd76a73,dependiga konjunkcio,de·pend·ig·a konjunkci·o,,,subordigilo,sub·ord·ig·il·o,,,malrekomendo,2026-03-21 19:38:55,2026-10-28 04:34:50,1,1
 ad427b3e481c71281ce0fa580c6c8a99,eŭdiometro,eŭdiometr·o,,,gasvolumenmezurilo,gas·volumen·mezur·il·o,,,malrekomendo,2026-03-21 20:13:36,2026-03-21 20:13:36,1,2
 4a0b293c444394c9b5d98b65b99cf5e4,eŭdiometro,eŭdiometr·o,,,gasmezurtubo,gas·mezur·tub·o,,,malrekomendo,2026-03-21 20:13:36,2026-03-21 20:13:36,1,1
 f82c9be53c9809f0b8903098236c994d,eŭdiometro,eŭdiometr·o,,,gasspacampleksmezurilo,gas·spac·ampleks·mezur·il·o,,,malrekomendo,2026-03-21 20:13:36,2026-03-21 20:13:36,1,3
 db2793dabd872bcdfc28aa307eee38e0,adverbo,adverb·o,,fun,evorteca,e·vort·ec·a,,,alternativo,2026-03-21 20:21:58,2026-03-21 20:21:58,1,2
 464082f06c9de05f7e350e637eb0841f,eŭdiometrio,eŭdiometri·o,,,gasvolumenmezurado,gas·volumen·mezur·ad·o,,,malrekomendo,2026-03-21 20:42:26,2026-03-21 20:42:26,1,1
-e24ec7649210fc9c61a8362ab497677d,eŭdiometrio,eŭdiometri·o,,,gasspacampleksomezurado,gas·spac·ampleks·mezur·ad·o,,,malrekomendo,2026-03-21 20:42:26,2026-03-21 20:42:26,1,2
 3e260d6255bde297fcf77eaf4ac3d6d8,stuci,stuc·i,(pri kreskaĵoj aŭ bildoj),,pritondi,pri·tond·i,,,malrekomendo,2026-03-21 20:42:26,2026-03-21 20:42:26,1,1
 66f7baeed178116bb44de0d8ee7d405f,stuci,stuc·i,(pri kreskaĵoj aŭ bildoj),,pritranĉi,pri·tranĉ·i,,,malrekomendo,2026-03-21 20:42:26,2026-03-21 20:42:26,1,2
 e19a5baa09ebf4606e5945c585e97ea4,rekruti,rekrut·i,,fun,soldatigi,soldat·ig·i,,,alternativo,2026-03-21 20:42:26,2026-03-21 20:42:26,1,1
@@ -10463,6 +10455,7 @@ a29568188541fe7bda132247f519bf40,pozitono,poziton·o,,,kontraŭelektrono,kontra�
 2a091f02538cbe17dac64fe9f7ccd69f,servareo,serv·are·o,,,servregiono,serv·region·o,,,alternativo,2026-03-21 20:42:26,2026-03-21 20:42:26,1,1
 4d05160da0421063a3fe33949a92d0df,trafareo,traf·are·o,,,trafsurfaco,traf·surfac·o,,,alternativo,2026-03-21 20:42:26,2026-03-21 20:42:26,1,1
 e52db307e41b5660b4481547c3724565,rekruto,rekrut·o,,fun,nova soldato,nov·a soldat·o,,,alternativo,2026-03-21 20:42:26,2026-03-22 22:58:51,1,1
+5382db7dd52ac7dd07842513aea72c80,eŭdiometrio,eŭdiometri·o,,,gasspacampleksmezurado,gas·spac·ampleks·mezur·ad·o,,,malrekomendo,2026-03-21 20:42:26,2026-10-28 04:33:31,1,2
 b07dc5704096f78c3ec2f7a6c081713f,loza,loz·a,,,nestreĉita,ne·streĉ·it·a,(pri varoj),,malrekomendo,2026-03-21 20:57:00,2026-03-21 20:57:00,1,8
 2bb1f54c1d6207235ed6723a55f18223,evangelizi,evangeliz·i,,,varbi,varb·i,,,malrekomendo,2026-03-21 21:00:55,2026-03-21 21:00:55,1,2
 df4fba882dca177d75db242b022236f1,evangelizi,evangeliz·i,,,propagandi,propagand·i,,,malrekomendo,2026-03-21 21:00:55,2026-03-21 21:00:55,1,3
@@ -10508,7 +10501,6 @@ cccbdcd41dc4401f9b0f0735cf38f326,suspensiero,suspensi·er·o,,PIV,ŝvebero,ŝveb
 84b721b5965eb106aa57b4566b48fa78,tageto,taget·o,,PIV,taĝeto,taĝet·o,,,malrekomendo,2026-03-29 05:17:57,2026-03-29 05:17:57,1,1
 88c6910c2ccc6ec00dcfba4cd9c0c349,Taĝikistano,Taĝikistan·o,,PIV,Taĝikujo,Taĝik·uj·o,,,malrekomendo,2026-03-29 05:17:57,2026-03-29 05:17:57,1,1
 3cfec902b23d59c943c9073f12fcac46,Taĥo,Taĥ·o,,PIV+arĥ,Taĵo,Taĵ·o,,,malrekomendo,2026-03-29 05:17:57,2026-03-29 05:17:57,1,1
-85c563b6ff8ffe71df0be07a72c6929b,talaro,talar·o,,PIV,talero,taler·o,,,malrekomendo,2026-03-29 05:17:57,2026-03-29 05:17:57,1,1
 cdc38843540a620e7e1cc032cc58f0e3,talento,talent·o,(en la senco de monunuo),PIV,talanto,talant·o,,,malrekomendo,2026-03-29 05:17:57,2026-03-29 05:17:57,1,1
 6dbff9522eb9fe892c499bf4bb0769c4,talentita,talent·it·a,,PIV,talenta,talent·a,,,malrekomendo,2026-03-29 05:17:57,2026-03-29 05:17:57,1,1
 a8269b7bcac726db4a25331d670ea6a7,taliumo,talium·o,,PIV,talio,tali·o,,,malrekomendo,2026-03-29 05:17:57,2026-03-29 05:17:57,1,1
@@ -10522,8 +10514,9 @@ c6ab71c83e686dc101b64a30e8ee8f45,taŭristo,taŭr·ist·o,,,bovbatalisto,bov·bat
 e0c4d242dfc886da5c3ca3a61eaa7bf7,tebaa,teba·a,,PIV+arĥ,opia,opi·a,,,malrekomendo,2026-03-29 05:17:57,2026-03-29 05:17:57,1,1
 917c10b7c2a6b9d3c283a5feb5950d09,bioteĥnologio,bioteĥnologi·o,,PIV,viv(aĵ)scienca teĥniko,viv(·aĵ)·scienc·a teĥnik·o,,,malrekomendo,2026-03-29 05:17:57,2026-03-29 05:17:57,1,1
 936b91a65744641dba0a1aead051d051,bioteĥnologio,bioteĥnologi·o,,PIV,biologia teĥniko,biologi·a teĥnik·o,,,malrekomendo,2026-03-29 05:17:57,2026-03-29 05:17:57,1,2
-c6d8f005ec2b18c4ef35e5cf5f286783,bioteĥnologio,bioteĥnologi·o,,PIV,bioteĥniko,bioteĥnik·o,,,malrekomendo,2026-03-29 05:17:57,2026-03-29 05:17:57,1,3
 1d4625dbc54fdfd7c1969c4a11ff9dab,teino,tein·o,,arĥ,kafeino el teo,kafein·o el te·o,,,malrekomendo,2026-03-29 05:17:57,2026-09-15 15:36:41,1,2
+b2edd57d0e4734fc3cef739325db2bba,talaro,talar·o,(monunuo),PIV,talero,taler·o,,,malrekomendo,2026-03-29 05:17:57,2026-10-27 18:46:19,1,1
+02ead21a989aaa9621c8187980afd84e,bioteĥnologio,bioteĥnologi·o,,PIV,bioteĥniko,bioteĥnik·o,,PIV,malrekomendo,2026-03-29 05:17:57,2026-10-27 18:47:39,1,3
 6b922185b7fd4381453fa936f44913e3,pinakoteko,pinakotek·o,,,muzeo de pentraĵoj,muze·o de pentr·aĵ·o·j,,,malrekomendo,2026-03-30 01:11:06,2026-05-30 04:51:53,1,1
 97c02f9f8f37f868f6a651f13fb319de,regresi,regres·i,,,iri malantaŭen,ir·i mal·antaŭ·e·n,,,malrekomendo,2026-03-31 00:54:11,2026-03-31 00:54:11,1,3
 179c6772bf739f71123df4a7a1b1600e,regresi,regres·i,,,malantaŭeniri,mal·antaŭ·e·n·ir·i,,,malrekomendo,2026-03-31 00:54:11,2026-03-31 00:54:11,1,2
@@ -11059,10 +11052,10 @@ c4f654e4de250c741f073a3c7095fa4b,koneksa,koneks·a,,,interligita,inter·lig·it�
 e8e6de2062ca8d386827d4122bca9367,bakgamono,bakgamon·o,,ReVo,triktrako,triktrak·o,,,malrekomendo,2026-08-18 04:35:37,2026-08-18 04:35:37,1,1
 85d57577711db6fc655ba410348e13e2,senvitaminozo,sen·vitamin·oz·o,,PIV,vitaminmanko,vitamin·mank·o,,,malrekomendo,2026-08-18 04:35:37,2026-08-18 04:35:37,1,1
 8097bc23aba77d9c6ebbca58bd675af9,vitelo,vitel·o,,PIV,ovoflavo,ov·o·flav·o,,,malrekomendo,2026-08-18 04:35:37,2026-08-18 04:35:37,1,1
-5c6e8e5338ac8522d1a4553a652c082c,virologo,virolog·o,,,virusosciencisto,virus·scienc·ist·o,,,malrekomendo,2026-08-18 04:35:37,2026-08-18 04:37:25,1,1
 0eca7fa45a6d9a73d20ba39fac15fbd5,vivisekcio,vivisekci·o,,6oa,vivsekco,viv·sekc·o,,,malrekomendo,2026-08-18 04:35:37,2026-09-25 15:24:44,1,1
 c639fc5de9a1218c57abacb8dc6afe33,bakteriofaĝo,bakteriofaĝ·o,,,bakteriviruso,bakteri·virus·o,,,malrekomendo,2026-08-18 04:35:37,2026-10-06 02:30:59,1,1
 cd1fa0193c40fe41cd57768c9413a555,bakteriofago,bakteriofag·o,,,bakteriviruso,bakteri·virus·o,,,malrekomendo,2026-08-18 04:35:37,2026-10-06 02:31:07,1,1
+7ad335f4034930cdc06a605c844d0ff0,virologo,virolog·o,,,virussciencisto,virus·scienc·ist·o,,,malrekomendo,2026-08-18 04:35:37,2026-10-28 04:17:29,1,1
 6f6e58643f81ec00e326aed0fe1f8e7e,bandoliero,bandolier·o,,PIV,balteo,balte·o,,,malrekomendo,2026-08-23 04:21:14,2026-08-23 04:21:14,1,1
 de1d2c82d088d5addfc18b25f1a7e46f,potencilo,potenc·il·o,,ReVo,elektroprovizilo,elektr·o·proviz·il·o,,,malrekomendo,2026-08-23 04:21:14,2026-08-23 04:21:14,1,1
 68fa0d9953222ac86bc454f2c539bf31,mezalianco,mezalianc·o,,ReVo,misgeedziĝo,mis·ge·edz·iĝ·o,,,malrekomendo,2026-08-23 04:21:14,2026-08-23 04:21:14,1,1
@@ -11135,8 +11128,8 @@ ebbc8fe0d667c686de47fb0e215dd389,mielluno,miel·lun·o,,PIV,mielmonato,miel·mon
 7d73e25f7c57c2aeec1a8887b207e81f,bidualo,bidual·o,,ReVo,duobla dualo,du·obl·a dual·o,,,malrekomendo,2026-08-28 04:36:03,2026-08-28 04:36:03,1,2
 a34a26ce5f6e518a15f8097a2eef7cae,vlogo,vlog·o,,PIV,videblogo,vide·blog·o,,,malrekomendo,2026-08-30 19:46:17,2026-08-30 19:46:17,1,1
 092c1b80fb665c835f5d40eb80579a47,Zairio,Zairi·o,,PIV,Zairo,Zair·o,,,malrekomendo,2026-08-30 19:46:17,2026-08-30 19:46:17,1,1
-4ea554ced47d12c836ac29502d7553e2,Zairio,Zairi·o,,PIV,Demokratia Respubliko Kongo,Demokrati·a Respublik·o Kong·o,,,malrekomendo,2026-08-30 19:46:17,2026-08-30 19:46:17,1,3
 8388fd633934319dc05b08cb4dd8390c,Zairio,Zairi·o,,PIV,Kongo Kinŝasa,Kong·o Kinŝas·a,,,malrekomendo,2026-08-30 19:46:17,2026-10-19 02:02:42,1,2
+856f5339e6ece6cfd2a670de24913cb5,Zairio,Zairi·o,,PIV,Demokratisma Respubliko Kongo,Demokrat·ism·a Respublik·o Kong·o,,,malrekomendo,2026-08-30 19:46:17,2026-10-27 19:02:27,1,3
 cb4df968de5c7682da67358ab579ad82,valga,valg·a,,,eksteren klinita,ekster·e·n klin·it·a,,,alternativo,2026-09-01 04:48:36,2026-09-01 04:48:36,1,1
 ef8b586996dc7500dc00b5c0a457180c,torei,tore·i,,,batali bovon,batal·i bov·o·n,,,malrekomendo,2026-09-01 04:51:00,2026-09-01 04:51:00,1,2
 81142c73c855400f1b992990f0beb435,antikoncipa,antikoncip·a,,,kontraŭgravediĝa,kontraŭ·graved·iĝ·a,,,malrekomendo,2026-09-04 05:57:13,2026-09-04 05:57:13,1,1
@@ -11290,3 +11283,199 @@ db9cf9fbc0c117781a3d8f47ba1a69a9,ĉelologo,ĉelolog·o,,,ĉelbiologiisto,ĉel·b
 5e3d753f96e5fcd734177acff35022cc,ĉelologiisto,ĉelologi·ist·o,,,ĉelbiologiisto,ĉel·biologi·ist·o,,,malrekomendo,2026-10-24 15:52:25,2026-10-24 15:52:25,1,2
 a9e2c730e5f354066d6b94be8e8949ce,polisindeto,polisindet·o,,,ligvortripeta figuro,lig·vort·ripet·a figur·o,,,malrekomendo,2026-10-24 15:57:53,2026-10-24 15:57:53,1,3
 4e8b11c4b7d37fa6b61225261a82d053,polisindeto,polisindet·o,,,ligvortripeto,lig·vort·ripet·o,,,malrekomendo,2026-10-24 15:57:53,2026-10-24 15:57:53,1,1
+24608c993e684d13f7d44840b8705075,solvati,solvat·i,,PIV,solvanti,solv·ant·i,,,malrekomendo,2026-10-25 05:57:34,2026-10-25 05:57:34,1,1
+447c95baab5fc4018b0e3194421489b9,solvati,solvat·i,,PIV,solvantumi,solv·ant·um·i,,,malrekomendo,2026-10-25 05:57:34,2026-10-25 05:57:34,1,2
+3c8f369774cb063ec2d4d59a86c96291,soloo,solo·o,,PIV,solo,sol·o,,,malrekomendo,2026-10-25 05:57:34,2026-10-25 05:57:34,1,1
+1d21f6225b1f2b639b8fb3ee4b7f7f13,pui,pu·i,,PIV,furzi,furz·i,,,malrekomendo,2026-10-25 05:57:34,2026-10-25 05:57:34,1,1
+a840965ff06451f7cd592a28e4214a8c,pteropodo,pteropod·o,,PIV,pteropo,pterop·o,,,malrekomendo,2026-10-25 05:57:34,2026-10-25 05:57:34,1,1
+6eebee99e941d344d7ac878a421afea1,psalterio,psalteri·o,,PIV,psaltero,psalter·o,,,malrekomendo,2026-10-25 05:57:34,2026-10-25 05:57:34,1,1
+67e6d931b49393da3c3790e587fe487e,proverbologo,proverbolog·o,,PIV,studanto pri proverboj,stud·ant·o pri proverb·o·j,,,malrekomendo,2026-10-25 05:57:34,2026-10-25 05:57:34,1,1
+fd8a4045ad815e61603b4741acb7b8ae,proverbologio,proverbologi·o,,PIV,scienco pri proverboj,scienc·o pri proverb·o·j,,,malrekomendo,2026-10-25 05:57:34,2026-10-25 05:57:34,1,1
+38b0690b40fd26b66d68869e19029a98,proteomo,proteom·o,,PIV,proteinaro,protein·ar·o,,,malrekomendo,2026-10-25 05:57:34,2026-10-25 05:57:34,1,1
+d938da767161d07f17abf388fd4581f9,proteido,proteid·o,,arĥ+PIV,proteino,protein·o,,,malrekomendo,2026-10-25 05:57:34,2026-10-25 05:57:34,1,1
+97e014e4916142bfd1a59d35284b226a,protegi,proteg·i,,arĥ+PIV,protekti,protekt·i,,,malrekomendo,2026-10-25 05:57:34,2026-10-25 05:57:34,1,1
+27543d7c0089e88f6728a985025317b2,arkitravo,arkitrav·o,,zam+PIV,arĥitravo,arĥitrav·o,,,malrekomendo,2026-10-26 16:56:25,2026-10-26 16:56:25,1,1
+86aa93069d3ee6e25f37c8f642d4757a,armorio,armori·o,,PIV,blazono,blazon·o,,,malrekomendo,2026-10-26 16:56:25,2026-10-26 16:56:25,1,1
+6af96b7a8ee9d97143cff731596ba80a,adjudanto,adjudant·o,,PIV,adjutanto,adjutant·o,,,malrekomendo,2026-10-26 16:56:25,2026-10-26 16:56:25,1,1
+a6077907d541fd182b5279c08da020b8,oksigenakceptanto,oksigen·akcept·ant·o,,PIV,elektrondonanto,elektron·don·ant·o,,,malrekomendo,2026-10-26 16:56:25,2026-10-26 16:56:25,1,1
+62a29b1f58d4eadc912c20e38d0b992f,akerontio,akeronti·o,,PIV,aĥerontio,aĥeronti·o,,,malrekomendo,2026-10-26 16:56:25,2026-10-26 16:56:25,1,1
+9e7f9613b9dc8d65e3d5a27e7233ed6e,alkovo,alkov·o,(en la senco de niĉo),1oa+PIV,niĉo,niĉ·o,,,malrekomendo,2026-10-26 16:56:25,2026-10-26 16:56:25,1,1
+f4d1657072dfa67b6b9a6b4e029399f2,anizidino,anizidin·o,,PIV,metoksianilino,metoksianilin·o,,,malrekomendo,2026-10-26 16:56:25,2026-10-26 16:56:25,1,1
+af8354df4cef5dc0bcc68cd3c0632f7d,arktio,arkti·o,(pri kreskaĵo),PIV,arkteo,arkte·o,,,malrekomendo,2026-10-26 16:56:25,2026-10-26 16:56:25,1,1
+d2d2d7352805a413a9eccab3a5808fd1,azero,azer·o,,PIV,azerbajĝanano,azerbajĝan·an·o,,,malrekomendo,2026-10-26 16:56:25,2026-10-26 16:56:25,1,1
+329199d560277f5d910731dc98746c72,Azoroj,Azor·o·j,,PIV,Acoroj,Acor·o·j,,,malrekomendo,2026-10-26 17:10:52,2026-10-26 17:10:52,1,1
+b3a44205586282566fc46f12ea9a18d0,Balkano,Balkan·o,(pri regiono en Eŭropo),10oa+PIV,Balkana Duoninsulo,Balkan·a Duon·insul·o,,,malrekomendo,2026-10-26 17:10:52,2026-10-26 17:10:52,1,1
+1ea2732221c0cae4edf7ff18e87c44c8,Balkano,Balkan·o,(pri regiono en Eŭropo),10oa+PIV,Balkanio,Balkani·o,,,malrekomendo,2026-10-26 17:10:52,2026-10-26 17:10:52,1,2
+ca754fe2a99d817c15d5f58413deded9,balzami,balzam·i,,2oa+PIV,enbalzamigi,en·balzam·ig·i,,,malrekomendo,2026-10-26 17:10:52,2026-10-26 17:10:52,1,1
+43fae0e4f2ef5768402a2dced709fdcc,Bangkoko,Bangkok·o,,PIV,Bankoko,Bankok·o,,,malrekomendo,2026-10-26 17:10:52,2026-10-26 17:10:52,1,1
+ce529db517704b4fab26074ee33a2645,Barbadoso,Barbados·o,,PIV,Barbado,Barbad·o,,,malrekomendo,2026-10-26 17:10:52,2026-10-26 17:10:52,1,1
+4e96d591ed474e2215bf3e41c8cc8cf8,Barbaroso,Barbaros·o,,zam+PIV,Ruĝbarbulo,Ruĝ·barb·ul·o,,,malrekomendo,2026-10-26 17:10:52,2026-10-26 17:10:52,1,1
+3838f2db907e1908eadae50ea6528076,bar-micvo,bar-micv·o,,zam+PIV,barmicvo,barmicv·o,,,malrekomendo,2026-10-26 17:10:52,2026-10-26 17:10:52,1,1
+d2655730b49c1f6a2dd5d41b2a21dcc1,bat-micvo,bat-micv·o,,PIV,batmicvo,batmicv·o,,,malrekomendo,2026-10-26 17:10:52,2026-10-26 17:10:52,1,1
+acf1333a7bc96aa16f90efc4bb927506,baŝliko,baŝlik·o,,PIV,kapuĉo,kapuĉ·o,,,malrekomendo,2026-10-26 17:10:52,2026-10-26 17:10:52,1,1
+88fc3232098ef62e9d306d3f5cba2dcf,bazo,baz·o,(en matematiko),,alkalo,alkal·o,(en ĥemio),PIV,alternativo,2026-10-26 17:12:04,2026-10-26 17:12:04,1,2
+6b69147db88cf5ab3598aa30478f58b3,Belzebuto,Belzebut·o,,PIV,Baalo,Baal·o,,,malrekomendo,2026-10-26 17:15:01,2026-10-26 17:15:01,1,1
+e609600d02b7be1812ab895b43753b9d,benzidino,benzidin·o,,PIV,diamina bifenilo,diamin·a bifenil·o,,,malrekomendo,2026-10-26 17:15:01,2026-10-26 17:15:01,1,1
+a8a625cdb6c4cd2116df910b06353ad5,benzoi,benzo·i,,PIV,benzoili,benzoil·i,,,malrekomendo,2026-10-26 17:15:01,2026-10-26 17:15:01,1,1
+9a4187a38f5c841e54e909f781375a84,Betlehemo,Betlehem·o,,PIV,Betleĥemo,Betleĥem·o,,,malrekomendo,2026-10-26 17:15:01,2026-10-26 17:15:01,1,1
+19055628145e652e081536f45dbcecc5,Bhagavadgito,Bhagavadgit·o,,PIV,Bagavadgito,Bagavadgit·o,,,malrekomendo,2026-10-26 17:55:24,2026-10-26 17:55:24,1,1
+f803df1a7be14e68b264c6de4871f289,bifadena,bifaden·a,,PIV,dudrata,du·drat·a,,,malrekomendo,2026-10-26 17:55:24,2026-10-26 17:55:24,1,1
+49d12712efa7bac98d7bf1d8d495173c,bifilara,bifilar·a,,PIV,dratrefalda,drat·re·fald·a,,,malrekomendo,2026-10-26 17:55:24,2026-10-26 17:55:24,1,1
+452f8a24d53aabcaeca61d3ac9c5cf11,bifilara,bifilar·a,,PIV,dudrata,du·drat·a,,,malrekomendo,2026-10-26 17:55:24,2026-10-26 17:55:24,1,2
+c00db3872368f68c7e69611588a85ef7,bikonkava,bikonkav·a,,PIV,dukaveca,du·kav·ec·a,,,malrekomendo,2026-10-26 17:55:24,2026-10-26 17:55:24,1,1
+eb482be4033f44e0ed68dd4a205a9914,bikonkava,bikonkav·a,,PIV,dukonkava,du·konkav·a,,,malrekomendo,2026-10-26 17:55:24,2026-10-26 17:55:24,1,2
+a08ba06d6aaece99a2aabab67b1b0713,bikonveksa,bikonveks·a,,PIV,dumalkaveca,du·mal·kav·ec·a,,,malrekomendo,2026-10-26 17:55:24,2026-10-26 17:55:24,1,1
+3b889c484e28611f8b72c6f9340c7d64,bikonveksa,bikonveks·a,,PIV,dukonveksa,du·konveks·a,,,malrekomendo,2026-10-26 17:55:24,2026-10-26 17:55:24,1,2
+4227ebb5fd9779e8ffec75d4afa102df,bimetala,bimetal·a,,PIV,dumetala,du·metal·a,,,malrekomendo,2026-10-26 17:55:24,2026-10-26 17:55:24,1,1
+d79e33d3a9640c294f2130a67a604b44,binara,binar·a,(en vivscienca nomaro),PIV,dunoma,du·noma·a,,,malrekomendo,2026-10-26 17:55:24,2026-10-26 17:55:24,1,1
+3256e62e97afecc751fc4f212e61ecc1,brakino,brakin·o,,PIV,braĥino,braĥin·o,,,malrekomendo,2026-10-26 17:55:24,2026-10-26 17:55:24,1,1
+074b1bfce307f262271e7bc9eb97cee4,breco,brec·o,,PIV,krakeno,kraken·o,,,malrekomendo,2026-10-26 17:55:24,2026-10-26 17:55:24,1,1
+faf357ce0c37f792c7a2808fbe2dd0b1,cenzoro,cenzor·o,,PIV,cenzuristo,cenzur·ist·o,,,malrekomendo,2026-10-26 17:55:24,2026-10-26 17:55:24,1,1
+8d3ce041062288d5cab40a6194500f2f,cenzoro,cenzor·o,,PIV,popolnombristo,popol·nombr·ist·o,,,malrekomendo,2026-10-26 17:55:24,2026-10-26 17:55:24,1,2
+a27b4df830726791b4cd9729cca64320,ceratino,ceratin·o,,PIV,keratino,keratin·o,,,malrekomendo,2026-10-26 17:55:24,2026-10-26 17:55:24,1,1
+938e7a7e0ba0bb3f7968bee4ac99dd19,Antarktio,Antarkti·o,,PIV,Antarkto,Antarkt·o,,,malrekomendo,2026-10-26 18:15:04,2026-10-26 18:15:04,1,1
+e9aa7b2306c3b12700898ff551bc0284,apeli,apel·i,,PIV,apelacii,apelaci·i,,,malrekomendo,2026-10-26 18:15:04,2026-10-26 18:15:04,1,1
+962ec053b4105c65a505ad629b0e24b0,apologeto,apologet·o,,PIV,apologiisto,apologi·ist·o,,,malrekomendo,2026-10-26 18:15:04,2026-10-26 18:15:04,1,1
+a9e4d98837fcb5b417c8dc6c0f34e233,arbitro,arbitr·o,,PIV,arbitracianto,arbitraci·ant·o,,,malrekomendo,2026-10-26 18:15:04,2026-10-26 18:15:04,1,1
+c93144117d6b32be093fbe407f409ecf,artikuli,artikul·i,,PIV,artikulacii,artikulaci·i,,,malrekomendo,2026-10-26 18:15:04,2026-10-26 18:15:04,1,1
+5b253cfda09aee3a9c042a6771224a08,avitaminozo,avitaminoz·o,,PIV,vitaminmanko,vitamin·mank·o,,,malrekomendo,2026-10-26 18:15:04,2026-10-26 18:15:04,1,1
+4ed04fc01f6d3eb231f0bb3964fa34c5,Badenio,Badeni·o,,PIV,Badeno,Baden·o,,,malrekomendo,2026-10-26 18:15:04,2026-10-26 18:15:04,1,1
+f4772df82adb28f4440a0de45c96a5b4,ĉebalta,ĉe·balt·a,,PIV,(ĉe)baltmara,(ĉe·)balt·mar·a,,,malrekomendo,2026-10-26 18:15:04,2026-10-26 18:15:04,1,1
+0416fbc6923d5e97eeb3fb0e49e8b97d,Ĉebaltio,Ĉebalti·o,,PIV,(ĉe)Baltujo,(ĉe·)Balt·uj·o,,,malrekomendo,2026-10-26 18:15:04,2026-10-26 18:15:04,1,1
+3da4c1de8f68f7c524dc1c0e211d8416,Baluĉistano,Baluĉistan·o,,PIV,Balĉujo,Balĉ·uj·o,,,malrekomendo,2026-10-26 18:15:04,2026-10-26 18:15:04,1,1
+e041f49ddb3cae7c59fc398dde61cd1d,belaruso,belarus·o,,PIV,beloruso,belorus·o,,,malrekomendo,2026-10-26 18:15:04,2026-10-26 18:15:04,1,1
+33f954b750a7efd5d51bc93791ef1ad6,Belarusio,Belarus·i·o,,PIV,Belorusujo,Belorus·uj·o,,,malrekomendo,2026-10-26 18:15:04,2026-10-26 18:15:04,1,1
+0ff49a5ba04b4e3e77257aa9c1d0d1a2,benzinometro,benzin·o·metr·o,,,benzinmezurilo,benzin·mezur·il·o,,,malrekomendo,2026-10-26 18:15:04,2026-10-26 18:15:04,1,1
+9cb627c153c40986dd4d1f6e7eb26a62,brutta,brutt·a,,PIV,malneta,mal·net·a,,,malrekomendo,2026-10-26 18:15:04,2026-10-26 18:15:04,1,1
+6a6e412c932bfc237cd5d74116a0b2c3,dromajo,dromaj·o,,PIV,emuo,emu·o,,,malrekomendo,2026-10-26 18:20:48,2026-10-26 18:20:48,1,2
+7e3383c42b8c25a2795434a650cd08ab,Dekkano,Dekkan·o,,PIV,Dekano,Dekan·o,,,malrekomendo,2026-10-26 18:24:57,2026-10-26 18:24:57,1,1
+b05a446312a99028d242349c942e24a2,Delavario,Delavar·i·o,,PIV,Delavaro,Delavar·o,,,malrekomendo,2026-10-26 18:24:57,2026-10-26 18:24:57,1,1
+3cb67215e4baac1936d24ac378240137,Eddo,Edd·o,,PIV,Edao,Eda·o,,,malrekomendo,2026-10-26 18:24:57,2026-10-26 18:24:57,1,1
+091b6f900a0353436cc77d8ed804724a,ciklano,ciklan·o,,PIV,cikloalkano,cikloalkan·o,,,malrekomendo,2026-10-26 18:24:57,2026-10-26 18:24:57,1,1
+36b8dd4e37ee256e329b04a377f2b7d7,ciklogiro,ciklogir·o,,PIV,helipkoptero,helipkopter·o,,,malrekomendo,2026-10-26 18:24:57,2026-10-26 18:24:57,1,1
+20873aab7ade6644bcc90a06921be7eb,deferenta dukto,deferent·a dukt·o,,PIV,spermokonduktubo,sperm·o·konduk·tub·o,,,malrekomendo,2026-10-27 01:54:28,2026-10-27 01:54:28,1,1
+038fb519b6043d633ce9c35029f48415,deferenta dukto,deferent·a dukt·o,,PIV,spermodukto,sperm·o·dukt·o,,,malrekomendo,2026-10-27 01:54:28,2026-10-27 01:54:28,1,2
+64c9e44a7893388c7ea82fc46f37cba0,aŭtoĉaro,aŭtoĉar·o,,PIV,vojaĝbuso,vojaĝ·bus·o,,,malrekomendo,2026-10-27 01:54:28,2026-10-27 01:54:28,1,1
+2f42fe1df4fce45dc8b559e31c1e2134,enoteraco,enoterac·o,,PIV,onagraco,onagrac·o,,,malrekomendo,2026-10-27 01:54:28,2026-10-27 01:54:28,1,1
+e1d88ea4523421eddea72ec420d34965,ekskrecii,ekskreci·i,,PIV,elsekrecii,el·sekreci·i,,,malrekomendo,2026-10-27 01:54:28,2026-10-27 01:54:28,1,1
+93311b78ac8d94f1744bc0f24f63e3e4,elitrigio,elitrigi·o,,PIV,kviko,kvik·o,,,malrekomendo,2026-10-27 01:54:28,2026-10-27 01:54:28,1,1
+4c1dec6cc721ce34610e4b87bb03a236,antifaŝisto,anti·faŝist·o,,PIV,kontraŭfaŝisto,kontraŭ·faŝist·o,,,malrekomendo,2026-10-27 01:54:28,2026-10-27 01:54:28,1,1
+62781866172135d65c9b726d07e5f06c,fazeoluso,fazeolus·o,,PIV,fazeolo,fazeol·o,,,malrekomendo,2026-10-27 01:54:28,2026-10-27 01:54:28,1,1
+68a5287b481ee1d302fb9bf226f0fab5,Feroio,Feroi·o,,PIV,Ferooj,Fero·o·j,,,malrekomendo,2026-10-27 01:54:28,2026-10-27 01:54:28,1,1
+136fbc2af6aa3ad740332dd399b68ca2,Grakkoj,Grakk·o·j,,PIV,Grakoj,Grak·o·j,,,malrekomendo,2026-10-27 01:54:28,2026-10-27 01:54:28,1,1
+77f51aa60cdb5087f214e7e6e86829de,hidrokarbido,hidrokarbid·o,,PIV,hidrokarbono,hidrokarbon·o,,,malrekomendo,2026-10-27 01:58:16,2026-10-27 01:58:16,1,1
+4da145fcb7e925f1ad603b3d5b9e3c69,hotentoto,hotentot·o,,PIV,kojkojo,kojkoj·o,,,malrekomendo,2026-10-27 01:58:16,2026-10-27 01:58:16,1,1
+a2191658245c945cc12102a4c207032c,ĥinino,ĥinin·o,,PIV,kinino,kinin·o,,,malrekomendo,2026-10-27 02:51:55,2026-10-27 02:51:55,1,1
+078fcfcab2fa28d93d22a000c6e4764d,idealismo,ideal·ism·o,(en filozofio),PIV,ideismo,ide·ism·o,,,malrekomendo,2026-10-27 02:51:55,2026-10-27 02:51:55,1,1
+7dd80d294253468af5de4c27724367fc,idealisto,ideal·ist·o,(en filozofio),PIV,ideisto,ide·ist·o,,,malrekomendo,2026-10-27 02:51:55,2026-10-27 02:51:55,1,1
+796e1095f198bae2e31808c0f8530cf6,iono,ion·o,,PIV,jono,jon·o,,,malrekomendo,2026-10-27 02:51:55,2026-10-27 02:51:55,1,1
+0a7334a23a5f91c2ab84ab2c4187f07c,reniri,re·n·ir·i,,arĥ+PIV,reiri,re·ir·i,,,malrekomendo,2026-10-27 02:51:55,2026-10-27 02:51:55,1,1
+a5d45df745021ef87c7a6255143a88e9,Izraelio,Izraeli·o,,PIV,Israelo,Israel·o,,,malrekomendo,2026-10-27 02:51:55,2026-10-27 02:51:55,1,1
+33c310dcfc63643fa1936595c2de03fc,Kamerunio,Kameruni·o,,PIV,Kameruno,Kamerun·o,,,malrekomendo,2026-10-27 02:51:55,2026-10-27 02:51:55,1,1
+b7f8fa2e08e988cfa1301dc105751c1f,kaŭtero,kaŭter·o,,PIV,kaŭterizilo,kaŭteriz·il·o,,,malrekomendo,2026-10-27 02:51:55,2026-10-27 02:51:55,1,1
+0cfa028c7a17fc5734c4a3be0095fda3,Kazaĥstano,Kazaĥstan·o,,PIV,Kazaĥujo,Kazaĥ·uj·o,,,malrekomendo,2026-10-27 02:51:55,2026-10-27 02:51:55,1,1
+0d4f89a238dbae91a980de7fec7e65cb,kolubredo,kolubred·o,,PIV,kolubro,kolubr·o,,,malrekomendo,2026-10-27 02:51:55,2026-10-27 02:51:55,1,1
+f7e875c4ba96f4ed88ce7d35af357154,Nov-Jorkio,Nov·Jork·i·o,,PIV,Nov-Jorko,Nov·Jork·o,,,malrekomendo,2026-10-27 02:51:55,2026-10-27 04:39:03,1,1
+8b491d99b4e1c80575babd1cd9a77f42,lagero,lager·o,,,punlaborejo,pun·labor·ej·o,,PIV,malrekomendo,2026-10-27 04:44:14,2026-10-27 04:44:14,1,3
+a15506b2c0fffea38138f185505c6a9b,koreano,korean·o,,PIV,koreo,kore·o,,,malrekomendo,2026-10-27 04:55:09,2026-10-27 04:55:09,1,1
+d9375465adf57202d8ed2ea4e6af046e,Ĉadlando,Ĉad·land·o,,PIV,Ĉado,Ĉad·o,,,malrekomendo,2026-10-27 04:55:09,2026-10-27 04:55:09,1,1
+4363ce47c046e2efb1a6e8030872fceb,Majora,Major·a,,PIV,Maĝoro,Maĝor·o,,,malrekomendo,2026-10-27 04:55:09,2026-10-27 04:55:09,1,1
+fc77f364a5871a84c67765619409eff7,mileo,mile·o,,PIV,milio,mili·o,,,malrekomendo,2026-10-27 04:55:09,2026-10-27 04:55:09,1,1
+08366b6a1563f17b031529c20455ea7a,oriso,oris·o,,PIV,Odiŝo,Odiŝ·o,(en geografio),,malrekomendo,2026-10-27 15:24:29,2026-10-27 15:24:29,1,2
+7f74b15f981e4fda6cd973ac381f9bd7,reduto,redut·o,,,maskobalo,mask·o·bal·o,(pri kunveno),PIV,malrekomendo,2026-10-27 15:50:33,2026-10-27 15:50:33,1,2
+40fe5151920826eab33b50b9c13176dc,Mohamedo,Mohamed·o,,,Muhamado,Muhamad·o,,,malrekomendo,2026-10-27 18:49:10,2026-10-27 18:49:10,1,1
+8fca50c6977b7ba6910db4ffde63ff84,pseŭda,pseŭd·a,,,ŝajna,ŝajn·a,,,malrekomendo,2026-10-27 18:49:10,2026-10-27 18:49:10,1,1
+e6ae860e7356311f00919a9c5f85c931,pseŭda,pseŭd·a,,,kvazaŭa,kvazaŭ·a,,,malrekomendo,2026-10-27 18:49:10,2026-10-27 18:49:10,1,2
+d9343a5fed0e6c035998ada53536a715,pseŭda,pseŭd·a,,,mensoga,mensog·a,,,malrekomendo,2026-10-27 18:49:10,2026-10-27 18:49:10,1,3
+3d0d5c8d7f1b80804734141e4fa2f9f9,pseŭda,pseŭd·a,,,malver·a,mal·ver·a,,,malrekomendo,2026-10-27 18:49:10,2026-10-27 18:49:10,1,4
+715a013e076bee4b5e599fdeb9e87f93,separatisto,separ·at·ist·o,,,sendependisto,sen·de·pend·ist·o,,,malrekomendo,2026-10-27 18:49:10,2026-10-27 18:49:10,1,1
+b4bcffe1bcb55a8342d563963bb82960,separatisto,separ·at·ist·o,,,disitmo,dis·ist·o,,,malrekomendo,2026-10-27 18:49:10,2026-10-27 18:49:10,1,2
+50084a06b1c336211a89e77245abf047,separisto,separ·ist·o,,,sendependisto,sen·de·pend·ist·o,,,malrekomendo,2026-10-27 18:49:10,2026-10-27 18:49:10,1,1
+5a19836e4676e0de5ed760a4ac368fd4,separisto,separ·ist·o,,,disitmo,dis·ist·o,,,malrekomendo,2026-10-27 18:49:10,2026-10-27 18:49:10,1,2
+da938b2fa6bd6fd316e76a4f17cc882e,Misisipio,Misisipi·o,,PIV,Misisipo,Misisip·o,,,malrekomendo,2026-10-27 18:49:10,2026-10-27 18:49:10,1,1
+0bdff07c7e90a2adc924c2a52da9aba8,Misurio,Misuri·o,,PIV,Misuro,Misur·o,,,malrekomendo,2026-10-27 18:49:10,2026-10-27 18:49:10,1,1
+7b10ba78646744254c99da357a30b42d,molara,molar·a,(pri kvanto),PIV,unumola,unu·mol·a,,,malrekomendo,2026-10-27 18:49:10,2026-10-27 18:49:10,1,1
+8d7b855e60af25259c2f5b0f245246ee,moravo,morav·o,,PIV,moraviano,moravi·an·o,,,malrekomendo,2026-10-27 18:49:10,2026-10-27 18:49:10,1,1
+ddacff9f1f72cdb5729d3bf1996785b9,muĝahido,muĝahid·o,,PIV,ĝihadisto,ĝihad·ist·o,,,malrekomendo,2026-10-27 18:49:10,2026-10-27 18:49:10,1,1
+4ff79c0e3ebaca64c5da820d22572a73,papuo,papu·o,(pri gento),PIV,papuano,papu·an·o,,,malrekomendo,2026-10-27 18:49:10,2026-10-27 18:49:10,1,1
+faea74a01ea033e0babbcab280df34db,pionefrozo,pionefroz·o,,PIV,pionefrito,pionefrit·o,,,malrekomendo,2026-10-27 18:49:10,2026-10-27 18:49:10,1,1
+c0d04b25190b49eacaf5acbd86969f62,pirulo,pirul·o,,PIV,pirolo,pirol·o,,,malrekomendo,2026-10-27 18:49:10,2026-10-27 18:49:10,1,1
+b32ab91da470f5b0344fbc9592b8ad9d,piruso,pirus·o,,PIV,pirarbo,pir·arb·o,,,malrekomendo,2026-10-27 18:49:10,2026-10-27 18:49:10,1,1
+2770e602c7c92c3c02e970b52dd55ff2,Senegalio,Senegali·o,,PIV,Senegalo,Senegal·o,,,malrekomendo,2026-10-27 18:49:10,2026-10-27 18:49:10,1,1
+69fcd938b42b738d6627bca16f479174,siĥo,siĥ·o,,PIV,siko,sik·o,,,malrekomendo,2026-10-27 18:49:10,2026-10-27 18:49:10,1,1
+01c47143338e4243675afacee3f73853,sileo,sile·o,,PIV,selo,sel·o,,,malrekomendo,2026-10-27 18:49:10,2026-10-27 18:49:10,1,1
+86b80a439cb8f75e85876b5ee0557962,simarubo,simarub·o,,PIV,kvasio,kvasi·o,,,malrekomendo,2026-10-27 18:49:10,2026-10-27 18:49:10,1,1
+f003f2d976d2cdccd6c9b67d2fbef69f,simbionto,simbiont·o,,PIV,simbiozanto,simbioz·ant·o,,,malrekomendo,2026-10-27 18:49:10,2026-10-27 18:49:10,1,1
+cf15951deb8c498d0968142356332624,simbionto,simbiont·o,,PIV,simbiozulo,simbioz·ul·o,,,malrekomendo,2026-10-27 18:49:10,2026-10-27 18:49:10,1,2
+33f0c2cc20d056bfa1f35e7be465839a,storo,stor·o,,PIV,memorilo,memor·il·o,,,malrekomendo,2026-10-27 18:49:10,2026-10-27 18:49:10,1,1
+06a04589b2d3ddc510391be9a443f797,subuteo,subute·o,,PIV,alaŭdfalko,alaŭd·falk·o,,,malrekomendo,2026-10-27 18:49:10,2026-10-27 18:49:10,1,1
+98eb7a162ba178bef1d85ad460dd06a7,sŭahilo,sŭahil·o,,PIV,svahilo,svahil·o,,,malrekomendo,2026-10-27 18:49:10,2026-10-27 18:49:10,1,1
+477d86f3a8e9dea4a33f7ce801430d1b,Zairio,Zairi·o,,PIV,Demokratia Respubliko Kongo,Demokrati·a Respublik·o Kong·o,,,malrekomendo,2026-10-27 19:02:27,2026-10-27 19:02:27,1,4
+bd40ff242866bf4152c735c574506bca,vinologio,vinologi·o,,,vinfako,vin·fak·o,,,malrekomendo,2026-10-27 19:16:23,2026-10-27 19:16:23,1,1
+a33f2168329b53c223171b87c3b62c2b,vinologio,vinologi·o,,,vinscienco,vin·scienc·o,,,malrekomendo,2026-10-27 19:16:23,2026-10-27 19:16:23,1,2
+c05d8554af245e9b4f2b4787e7b44037,tiaĵo,tiaĵ·o,,PIV,tia afero,tia afer·o,,,malrekomendo,2026-10-27 19:16:23,2026-10-27 19:16:23,1,1
+3d8d80e20717dfacf21689f83275f415,tiaĵo,tiaĵ·o,,PIV,tia aĵo,tia aĵ·o,,,malrekomendo,2026-10-27 19:16:23,2026-10-27 19:16:23,1,2
+8624e951ab8a6ac82f3eb8c590ddcf89,tiaĵo,tiaĵ·o,,PIV,tiaspecaĵo,tia·spec·aĵ·o,,,malrekomendo,2026-10-27 19:16:23,2026-10-27 19:16:23,1,3
+a91cb09af82ab404431d759c4991b628,hajduto,hajdut·o,,PIV,hajduko,hajduk·o,,,malrekomendo,2026-10-27 19:16:23,2026-10-27 19:16:23,1,1
+2455d8100f40993b29f362b08434df0c,haliĥero,haliĥer·o,,PIV,grizfoko,griz·fok·o,,,malrekomendo,2026-10-27 19:16:23,2026-10-27 19:16:23,1,1
+4c30740c2bafe82d5bc234c0cd3a81e8,halucinacio,halucinaci·o,,PIV,malreala sento,mal·real·a sent·o,,,malrekomendo,2026-10-27 19:16:23,2026-10-27 19:16:23,1,1
+c4a6b0efefcddf9ed38cbc6dad801010,hemikranio,hemikrani·o,,PIV,migreno,migren·o,,,malrekomendo,2026-10-27 19:18:54,2026-10-27 19:18:54,1,1
+a125c0b989e7d9916b111d011293c62c,hemerokalo,hemerokal·o,,PIV,hemerokalido,hemerokalid·o,,,malrekomendo,2026-10-27 19:18:54,2026-10-27 19:18:54,1,1
+e87c383901f4778c8a1b09d048e0bae2,hematozoo,hematozo·o,,PIV,plasmodio,plasmodi·o,,,malrekomendo,2026-10-27 19:18:54,2026-10-27 19:18:54,1,1
+3de811a1fff4b77a2e70c55b565590e7,hematopodo,hematopod·o,,PIV,hematopo,hematop·o,,,malrekomendo,2026-10-27 19:18:54,2026-10-27 19:18:54,1,1
+6d79511ddf42c7f8111d499ac3bbc964,hidrokorako,hidrokorak·o,,,kormorano,kormoran·o,,PIV,malrekomendo,2026-10-27 19:38:21,2026-10-27 19:38:21,1,2
+b44f885f6a4c9bb0f82ccc54109d8f6e,hendiadino,hendiadin·o,,PIV,hendiado,hendiad·o,,,malrekomendo,2026-10-27 19:52:35,2026-10-27 19:52:35,1,1
+131992466fa272456b4123a2a9b54190,Herkuleso,Herkules·o,,PIV,Herkulo,Herkul·o,,,malrekomendo,2026-10-27 19:52:35,2026-10-27 19:52:35,1,1
+94f7eb5ec0b88e2fc455b7260befd48e,Hermo,Herm·o,,PIV,Hermeso,Hermes·o,,,malrekomendo,2026-10-27 19:52:35,2026-10-27 19:52:35,1,1
+325368eff314d9d063662065bc6d841b,heroldo,herold·o,(en vivscienco),PIV,mesaĝanto,mesaĝ·ant·o,,,malrekomendo,2026-10-27 19:52:35,2026-10-27 19:52:35,1,1
+655f1222293f9126e3c0d7c0d7ef44cf,hidrasto,hidrast·o,,PIV,hidrastido,hidrastid·o,,,malrekomendo,2026-10-27 19:52:35,2026-10-27 19:52:35,1,1
+6b9f2bcca51314107a52ade335de7444,dehidratigi,de·hidrat·ig·i,,PIV,senhidratigi,sen·hidrat·ig·i,,,malrekomendo,2026-10-27 19:52:35,2026-10-27 19:52:35,1,1
+f7c2f34454942f912f1eb1f8b6d2399a,hidrokarido,hidrokarid·o,,PIV,hidrokarito,hidrokarit·o,,,malrekomendo,2026-10-27 19:52:35,2026-10-27 19:52:35,1,1
+5a9cbc161efc1b94d9915a7f5398184f,hidrokero,hidroker·o,,PIV,hidroĥero,hidroĥer·o,,,malrekomendo,2026-10-27 19:52:35,2026-10-27 19:52:35,1,1
+7867b94a37a9476ef26c2322c15bb3b5,hipnozo,hipnoz·o,,PIV,hipnoto,hipnot·o,,,malrekomendo,2026-10-27 19:52:35,2026-10-27 19:52:35,1,1
+2e5564a70bf79a7ed9b643110ed2a680,hiraganao,hiragana·o,,PIV,rondaj kanaoj,rond·a·j kana·o·j,,,malrekomendo,2026-10-27 19:52:35,2026-10-27 19:52:35,1,1
+b803a309da25dfc68cd04531f9ae70f8,hirako,hirak·o,,PIV,prokavio,prokavi·o,,,malrekomendo,2026-10-27 19:52:35,2026-10-27 19:52:35,1,1
+93321f6033d7882e4066bb4a3ac43554,Hongkongo,Hongkong·o,,PIV,Honkongo,Honkong·o,,,malrekomendo,2026-10-27 19:52:35,2026-10-27 19:52:35,1,1
+f0a4c5f98244909a0e6e8d6c3be50ca6,ifrito,ifrit·o,,PIV,efrito,efrit·o,,,malrekomendo,2026-10-27 19:52:35,2026-10-27 19:52:35,1,1
+817cfe86a097d755e0e15f79139417fb,iĥtiosaŭro,iĥtiosaŭr·o,,PIV,fiŝosaŭro,fiŝ·o·saŭr·o,,,malrekomendo,2026-10-27 19:52:35,2026-10-27 19:52:35,1,1
+b6f3d48a4cd5ca5fd6683b7e2445dbb5,iktiopterigo,iktiopterig·o,,PIV,iĥtiopterigo,iĥtiopterig·o,,,malrekomendo,2026-10-27 19:52:35,2026-10-27 19:52:35,1,1
+25db60a716d8977c9156953b5e2532d1,iktiozo,iktioz·o,,PIV,iĥtiozo,iĥtioz·o,,,malrekomendo,2026-10-27 19:52:35,2026-10-27 19:52:35,1,1
+f4c886dab5433ab77a4a0d45f6f96250,impregni,impregn·i,(en la senco de fekundigi),PIV,fekundigi,fekund·ig·i,,,malrekomendo,2026-10-27 20:14:25,2026-10-27 20:14:25,1,1
+33bf0d6b770872a45cd54603b0578592,Verdakaba Insularo,Verd·a·kab·a Insul·ar·o,,PIV,Kaboverdo,Kaboverd·o,,,malrekomendo,2026-10-27 20:14:25,2026-10-27 20:14:25,1,1
+79da186638c32efea20d105ec0aaa62a,inuko,inuk·o,,PIV,inuito,inuit·o,,,malrekomendo,2026-10-27 20:14:25,2026-10-27 20:14:25,1,1
+95d20ced97a0901f69348c08a71f3048,ipekakuano,ipekakuan·o,,PIV,ipeko,ipek·o,,,malrekomendo,2026-10-27 20:14:25,2026-10-27 20:14:25,1,1
+9f475dc9f1ca0088261986e775b7c57b,isato,isat·o,,PIV,izatido,izatid·o,,,malrekomendo,2026-10-27 20:14:25,2026-10-27 20:14:25,1,1
+a0ebbce78d200c8686313f2d5d565488,isolepo,isolep·o,,PIV,izolepido,izolepid·o,,,malrekomendo,2026-10-27 20:14:25,2026-10-27 20:14:25,1,1
+97af4e1f1ec6fe04cef031e3012a6264,Izido,Izid·o,,PIV,Iziso,Izis·o,,,malrekomendo,2026-10-27 20:14:25,2026-10-27 20:14:25,1,1
+4a4efebf43930df91481f66e5c1363eb,Jangono,Jangon·o,,PIV,Ranguno,Rangun·o,,,malrekomendo,2026-10-27 20:14:25,2026-10-27 20:14:25,1,1
+2b56f7416fb225530654d206cf273ef1,kanoto,kanot·o,,PIV,plezurboato,plezur·boat·o,,,malrekomendo,2026-10-27 20:23:15,2026-10-27 20:23:15,1,1
+a1a238fa77b614bad069c855d8aaa320,kanoto,kanot·o,,PIV,kanuo,kanu·o,,,malrekomendo,2026-10-27 20:23:15,2026-10-27 20:23:15,1,2
+b7536f7db1c825b9e2349b3dd5b7e06a,katakanao,katakana·o,,PIV,strekaj kanaoj,strek·a·j kana·o·j,,,malrekomendo,2026-10-27 20:23:15,2026-10-27 20:23:15,1,1
+8dc1dd3b24c91f39f18eb70f82499cbb,kaŭpokso,kaŭpoks·o,,PIV,bova pokso,bov·a poks·o,,,malrekomendo,2026-10-27 20:23:15,2026-10-27 20:23:15,1,1
+2706cdf1c853c72efe0ff076ad04ba33,keĝerio,keĝeri·o,,PIV,bova pokso,bov·a poks·o,,,malrekomendo,2026-10-27 20:45:26,2026-10-27 20:45:26,1,1
+778682a25cb976cdca4ec9ddbe5357e5,kelicero,kelicer·o,,PIV,ĥelicero,ĥelicer·o,,,malrekomendo,2026-10-27 20:45:26,2026-10-27 20:45:26,1,1
+830cc8d1a233f7a2acc4ce9d92a8697a,ketognato,ketognat·o,,PIV,ĥetognato,ĥetognat·o,,,malrekomendo,2026-10-27 20:45:26,2026-10-27 20:45:26,1,1
+d9ade2508b2981dde79a555ce570d6fa,Kielo,Kiel·o,,PIV,Kilo,Kil·o,,,malrekomendo,2026-10-27 20:45:26,2026-10-27 20:45:26,1,1
+d2353c7c032dba949bee03022c2c4b89,Kijlo,Kijl·o,,PIV,Kilo,Kil·o,,,malrekomendo,2026-10-27 20:45:26,2026-10-27 20:45:26,1,1
+26b20f7b6df4711c9ce9bf48aa8020e5,rekurso,re·kurs·o,,PIV,rikuro,rikur·o,,,malrekomendo,2026-10-28 02:33:59,2026-10-28 02:33:59,1,1
+4e93e334041b1138acfe5ae76d690a3b,kikaro,kikar·o,,PIV,talanto,talant·o,,,malrekomendo,2026-10-28 02:33:59,2026-10-28 02:33:59,1,1
+e5caf03aeebc01c4241d1ab5d2c83e67,kokleario,kokleari·o,,PIV,koĥleario,koĥleari·o,,,malrekomendo,2026-10-28 02:33:59,2026-10-28 02:33:59,1,1
+1258cc9d72f73e2571ac0c39f9a28260,sublimina,sub·limin·a,,,subsojla,sub·sojl·a,,,malrekomendo,2026-10-28 02:45:44,2026-10-28 02:45:44,1,1
+5183e40676cac770c84efbbae3b7c2ed,sublimina,sub·limin·a,,,subkonscia,sub·konsci·a,,,malrekomendo,2026-10-28 02:45:44,2026-10-28 02:45:44,1,2
+81cdb1faac1b4ebb28788caed03afe11,Niĝerlando,Niĝer·land·o,,PIV,Niĝero,Niĝer·o,,,malrekomendo,2026-10-28 02:45:44,2026-10-28 02:45:44,1,1
+f4963a4d38a077f54753ffe94d569ddf,general-leŭtenanto,general·leŭtenant·o,,PIV,divizia leŭtenanto,divizi·a leŭtenant·o,,,malrekomendo,2026-10-28 02:45:44,2026-10-28 02:45:44,1,1
+29ff21e069660727b5d2bdc32f100f25,mitralo,mitral·o,,,mitro,mitr·o,(pri mitro),PIV,malrekomendo,2026-10-28 15:36:53,2026-10-28 15:36:53,1,2
+090e41d2106164f6858c65429f5aae75,mikologo,mikolog·o,,,fungosciencisto,fung·o·scienc·ist·o,,,malrekomendo,2026-10-28 15:44:10,2026-10-28 15:44:10,1,1
+48f33273b028d29287131c4a77910adb,mikologo,mikolog·o,,,fungostudanto,fung·o·stud·ant·o,,,malrekomendo,2026-10-28 15:44:10,2026-10-28 15:44:10,1,2
+4823c24862c2709d0ea461f0a57de727,Merkurio,Merkur·o,,PIV,Merkuro,Merkur·o,,,malrekomendo,2026-10-28 15:44:10,2026-10-28 15:44:10,1,1
+777c7fafb79a996cb5c9c374e18bfd6d,mihrabo,mihrab·o,,PIV,ĥorniĉo,ĥorniĉ·o,,,malrekomendo,2026-10-28 15:44:10,2026-10-28 15:44:10,1,1
+12d8849af11dd52dd1aeac6cbe521cdf,Mikeno,Miken·o,,PIV,Miceno,Micen·o,,,malrekomendo,2026-10-28 15:44:10,2026-10-28 15:44:10,1,1
+5c3eb72fa3bf7221c114813d8df7901f,mikrometro,mikro·metr·o,,2oa+PIV,mikromezurilo,mikro·mezur·il·o,,,malrekomendo,2026-10-28 15:44:10,2026-10-28 15:44:10,1,1
+c16d060bab7adca659fc40199095c1a7,miksta,mikst·a,,PIV,mikskonsista,miks·konsist·a,,,malrekomendo,2026-10-28 15:44:10,2026-10-28 15:44:10,1,1
+ea05c4500df6a6691f33d4686d562dbd,milenarismo,milenarism·o,,,jarmilismo,jar·mil·ism·o,,,malrekomendo,2026-10-28 15:44:10,2026-10-28 15:44:10,1,1
+d74a3410ba60fb77ecca9d5d84450040,milicio,milici·o,,PIV,milico,milic·o,,,malrekomendo,2026-10-28 15:44:11,2026-10-28 15:44:11,1,1
+31ec2c81310d528a66963ce81e4634cf,monosoma,monosom·a,,PIV,unusoma,unu·som·a,,,malrekomendo,2026-10-28 15:44:11,2026-10-28 15:44:11,1,1
+6816cafbdb4979f374eecec6d3df8133,monopetala,monopetal·a,,PIV,unupetala,unu·petal·a,,,malrekomendo,2026-10-28 15:44:11,2026-10-28 15:44:11,1,1
+afec014bcf182054dea62acd53e373b3,morĥelo,morĥel·o,,zam+PIV,morkelo,morkel·o,,,malrekomendo,2026-10-28 15:44:11,2026-10-28 15:44:11,1,1
+5a435cdbabfe755e78dcd04c60648113,morvo,morv·o,,PIV,maleo,male·o,,,malrekomendo,2026-10-28 15:44:11,2026-10-28 15:44:11,1,1
+4311e360dae54af0213770115b70d55a,motorizi,motoriz·i,,PIV,motorigi,motor·ig·i,,,malrekomendo,2026-10-28 15:44:11,2026-10-28 15:44:11,1,1
