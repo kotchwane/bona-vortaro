@@ -101,6 +101,8 @@ import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.withContext
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.ui.layout.Layout
+import androidx.compose.ui.unit.Constraints
 
 class SearchActivity : BonaActivity() {
 
@@ -508,26 +510,47 @@ private fun SearchScreen(
 }
 
 /** The name of the app with the star of Esperanto, like the title of a
- * dictionary, and the name of ReVo. */
+ * dictionary, and the name of ReVo: at the end of the line, or under the
+ * title when its words don't fit beside it, with a large font on a narrow
+ * screen. */
 @Composable
 private fun Wordmark() {
-    Row(
-        Modifier.padding(start = 20.dp, end = 20.dp, top = 6.dp, bottom = 2.dp),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        Text(
-            stringResource(R.string.brand_name),
-            style = MaterialTheme.typography.headlineSmall,
-            fontWeight = FontWeight.Bold,
-            color = bonaDesign.headword,
-        )
-        Text(" ★", fontSize = 20.sp, color = bonaDesign.star)
-        Spacer(Modifier.weight(1f))
-        Text(
-            stringResource(R.string.brand_subtitle),
-            style = MaterialTheme.typography.bodySmall.copy(fontStyle = FontStyle.Italic),
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-        )
+    Layout(
+        content = {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(
+                    stringResource(R.string.brand_name),
+                    style = MaterialTheme.typography.headlineSmall,
+                    fontWeight = FontWeight.Bold,
+                    color = bonaDesign.headword,
+                )
+                Text(" ★", fontSize = 20.sp, color = bonaDesign.star)
+            }
+            Text(
+                stringResource(R.string.brand_subtitle),
+                style = MaterialTheme.typography.bodySmall.copy(fontStyle = FontStyle.Italic),
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        },
+        modifier = Modifier.padding(start = 20.dp, end = 20.dp, top = 6.dp, bottom = 2.dp),
+    ) { (title, subtitle), constraints ->
+        val shownTitle = title.measure(constraints.copy(minWidth = 0, minHeight = 0))
+        val left = constraints.maxWidth - shownTitle.width
+        /* Beside it, on two lines if needed, as long as no word is cut */
+        if (subtitle.minIntrinsicWidth(constraints.maxHeight) <= left) {
+            val shown = subtitle.measure(Constraints(maxWidth = left))
+            val height = maxOf(shownTitle.height, shown.height)
+            layout(constraints.maxWidth, height) {
+                shownTitle.place(0, (height - shownTitle.height) / 2)
+                shown.place(constraints.maxWidth - shown.width, (height - shown.height) / 2)
+            }
+        } else {
+            val shown = subtitle.measure(constraints.copy(minWidth = 0, minHeight = 0))
+            layout(constraints.maxWidth, shownTitle.height + shown.height) {
+                shownTitle.place(0, 0)
+                shown.place(0, shownTitle.height)
+            }
+        }
     }
 }
 

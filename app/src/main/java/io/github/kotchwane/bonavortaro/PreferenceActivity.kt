@@ -48,6 +48,9 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.SnackbarHost
@@ -446,8 +449,13 @@ private fun MainSettings(
     }
 
     if (showTextSize) {
-        ModalBottomSheet(onDismissRequest = { showTextSize = false }) {
-            Column(Modifier.padding(bottom = 32.dp)) {
+        /* Open in full, scrolled when taller than the screen, so that
+         * "Defaŭlta grandeco" can be reached with a large font */
+        ModalBottomSheet(
+            onDismissRequest = { showTextSize = false },
+            sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
+        ) {
+            Column(Modifier.verticalScroll(rememberScrollState()).padding(bottom = 32.dp)) {
                 TextSizeSetting(textSize, onTextSizeChange)
             }
         }
