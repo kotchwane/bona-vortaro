@@ -214,13 +214,13 @@ fun layoutArticle(
 /** Joins the translations of the senses of a word, merging the senses that
  * have the same one: [(1, a), (3, a), (4, b)] → "(1, 3) a; (4) b". Those of
  * the whole word first, which would read as the last sense's after it:
- * "house; (3) home", not "(3) home; house". */
+ * "house; (3) home", not "(3) home; house", also when a sense repeats
+ * one ("~o: subscription; ~o 1: subscription"). */
 private fun joinSenses(texts: List<Pair<String, String>>): String =
     texts.groupBy({ it.second }, { it.first }).entries
-        .sortedBy { (_, senses) -> senses.any { it.isNotEmpty() } }
+        .sortedBy { (_, senses) -> "" !in senses }
         .joinToString("; ") { (text, senses) ->
-            val numbers = senses.filter { it.isNotEmpty() }
-            if (numbers.isEmpty()) text else "(${numbers.joinToString(", ")}) $text"
+            if ("" in senses) text else "(${senses.joinToString(", ")}) $text"
         }
 
 /** A part of the translations of an article: the section it points to,
@@ -688,9 +688,9 @@ internal fun fromSense(paragraphs: List<String>, sense: String?): List<String> {
 /** The sense ("2") of the word of a section that a translation is of, as
  * the translations of the article say it ("~o 2: maison (lignée),
  * lignée"), with the section: only if it is found once, and for one
- * sense, not for the whole word; in the word [mark] first, as another
- * word of the article may have the same translation ("boîte à café":
- * kafujo 3, and kafskatolo). Disk access: none. */
+ * sense, not for the whole word; only in the word [mark] if it is given,
+ * as another word of the article may have the same translation ("boîte à
+ * café": kafujo 3, and kafskatolo). Disk access: none. */
 fun translationSense(article: Article, language: String, translation: String, mark: Int? = null): Pair<Int, String>? {
     val parts = article.sections.filter { !it.isWord() && it.language == language }
         .flatMap { splitTranslations(it.content).orEmpty() }
