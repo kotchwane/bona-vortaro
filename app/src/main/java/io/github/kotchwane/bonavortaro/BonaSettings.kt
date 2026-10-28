@@ -209,11 +209,16 @@ object BonaSettings {
     /* The languages the user likely reads: their search languages, even
      * the automatic ones, so that the language chosen on the first screen
      * comes first, then the languages of the phone */
-    private fun likelyLanguages(context: Context): List<String> {
-        val locales = ConfigurationCompat.getLocales(context.resources.configuration)
-        val phone = (0 until locales.size()).mapNotNull { locales[it]?.language }
+    private fun likelyLanguages(context: Context): List<String> =
+        (getSearchLanguages(context) + phoneLanguages(context)).distinct()
 
-        return (getSearchLanguages(context) + phone).distinct()
+    /** The languages of the phone, the main one first. By their tag, which
+     * has the codes of today ("he"), where some versions of Android give
+     * the old ones of the language ("iw") */
+    fun phoneLanguages(context: Context): List<String> {
+        val locales = ConfigurationCompat.getLocales(context.resources.configuration)
+        return (0 until locales.size()).mapNotNull { locales[it]?.toLanguageTag()?.substringBefore('-') }
+            .filter { it.isNotEmpty() && it != "und" }
     }
 
     /* All of the languages, the ones the user likely reads first */
