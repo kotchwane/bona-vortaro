@@ -45,6 +45,8 @@ class PreviewSenseTest {
         val kafo = listOf(Triple(3, "1", "caféier"), Triple(3, "3", "boîte à café"), Triple(5, "", "boîte à café"))
         assertEquals(3 to "3", uniqueSense(kafo, "boîte à café", mark = 3))
         assertNull(uniqueSense(kafo, "boîte à café", mark = 5))
+        /* Not the sense of another word, for a word that doesn't have it */
+        assertNull(uniqueSense(kafo, "boîte à café", mark = 7))
         assertNull(uniqueSense(kafo, "boîte à café"))
     }
 

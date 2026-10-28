@@ -101,6 +101,8 @@ import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.withContext
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.ui.layout.Layout
+import androidx.compose.ui.unit.Constraints
 
 class SearchActivity : BonaActivity() {
 
@@ -131,8 +133,10 @@ class SearchActivity : BonaActivity() {
     private var inFrench by mutableStateOf(false)
     /* Counts the new searches asked for with the magnifier of an article */
     private var newSearch by mutableIntStateOf(0)
-    /* The article being opened: a second tap meanwhile opens nothing */
+    /* The article being opened, and whether it was: a second tap
+     * meanwhile, or before it shows, opens nothing */
     private var opening: Job? = null
+    private var opened = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -282,15 +286,14 @@ class SearchActivity : BonaActivity() {
         VikivortaroActivity.open(this, entry.word)
     }
 
+    override fun onResume() {
+        super.onResume()
+        opened = false
+    }
+
     private fun openArticle(result: SearchResult, language: String) {
-        if (opening?.isActive == true)
+        if (opening?.isActive == true || opened)
             return
-        if (keepHistory)
-            lifecycleScope.launch(Dispatchers.IO) {
-                /* With its place, for a word found in several */
-                val entry = HistoryEntry(language, result.word, file = RevoFiles.fileOf(applicationContext, result.article), section = result.mark)
-                History.add(applicationContext, entry)
-            }
 
         opening = lifecycleScope.launch {
             /* A translation of one sense opens the word at that sense, the
@@ -299,6 +302,12 @@ class SearchActivity : BonaActivity() {
             /* Not once the reader has left the search */
             if (!lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED))
                 return@launch
+            if (keepHistory)
+                lifecycleScope.launch(Dispatchers.IO) {
+                    /* With its place, for a word found in several */
+                    val entry = HistoryEntry(language, result.word, file = RevoFiles.fileOf(applicationContext, result.article), section = result.mark)
+                    History.add(applicationContext, entry)
+                }
             val intent = Intent(this@SearchActivity, ArticleActivity::class.java)
             intent.putExtra(ArticleActivity.EXTRA_ARTICLE_NUMBER, result.article)
             intent.putExtra(ArticleActivity.EXTRA_MARK_NUMBER, place?.first ?: result.mark)
@@ -308,6 +317,7 @@ class SearchActivity : BonaActivity() {
                 intent.putExtra(ArticleActivity.EXTRA_EXAMPLE_WORD, result.word)
                 intent.putExtra(ArticleActivity.EXTRA_EXAMPLE_LANGUAGE, language)
             }
+            opened = true
             startActivity(intent)
         }
     }
@@ -500,26 +510,47 @@ private fun SearchScreen(
 }
 
 /** The name of the app with the star of Esperanto, like the title of a
- * dictionary, and the name of ReVo. */
+ * dictionary, and the name of ReVo: at the end of the line, or under the
+ * title when its words don't fit beside it, with a large font on a narrow
+ * screen. */
 @Composable
 private fun Wordmark() {
-    Row(
-        Modifier.padding(start = 20.dp, end = 20.dp, top = 6.dp, bottom = 2.dp),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        Text(
-            stringResource(R.string.brand_name),
-            style = MaterialTheme.typography.headlineSmall,
-            fontWeight = FontWeight.Bold,
-            color = bonaDesign.headword,
-        )
-        Text(" ★", fontSize = 20.sp, color = bonaDesign.star)
-        Spacer(Modifier.weight(1f))
-        Text(
-            stringResource(R.string.brand_subtitle),
-            style = MaterialTheme.typography.bodySmall.copy(fontStyle = FontStyle.Italic),
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-        )
+    Layout(
+        content = {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(
+                    stringResource(R.string.brand_name),
+                    style = MaterialTheme.typography.headlineSmall,
+                    fontWeight = FontWeight.Bold,
+                    color = bonaDesign.headword,
+                )
+                Text(" ★", fontSize = 20.sp, color = bonaDesign.star)
+            }
+            Text(
+                stringResource(R.string.brand_subtitle),
+                style = MaterialTheme.typography.bodySmall.copy(fontStyle = FontStyle.Italic),
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        },
+        modifier = Modifier.padding(start = 20.dp, end = 20.dp, top = 6.dp, bottom = 2.dp),
+    ) { (title, subtitle), constraints ->
+        val shownTitle = title.measure(constraints.copy(minWidth = 0, minHeight = 0))
+        val left = constraints.maxWidth - shownTitle.width
+        /* Beside it, on two lines if needed, as long as no word is cut */
+        if (subtitle.minIntrinsicWidth(constraints.maxHeight) <= left) {
+            val shown = subtitle.measure(Constraints(maxWidth = left))
+            val height = maxOf(shownTitle.height, shown.height)
+            layout(constraints.maxWidth, height) {
+                shownTitle.place(0, (height - shownTitle.height) / 2)
+                shown.place(constraints.maxWidth - shown.width, (height - shown.height) / 2)
+            }
+        } else {
+            val shown = subtitle.measure(constraints.copy(minWidth = 0, minHeight = 0))
+            layout(constraints.maxWidth, shownTitle.height + shown.height) {
+                shownTitle.place(0, 0)
+                shown.place(0, shownTitle.height)
+            }
+        }
     }
 }
 
