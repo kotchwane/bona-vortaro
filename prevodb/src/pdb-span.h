@@ -68,6 +68,11 @@ typedef enum
    * outside a source: "PMEG: Neoficialaj vortetoj". data1 is the number
    * of its address in assets/sources.txt, from 1, or 0 */
   PDB_SPAN_LINK,
+  /* The sence a reference points to, over the same text as its
+   * PDB_SPAN_REFERENCE: “De⁴”, sence 4 of “de”. data1 is the number of
+   * the sence, from 1. Readers that don't know it open the word, as
+   * before */
+  PDB_SPAN_SENSE,
   PDB_SPAN_NONE
 } PdbSpanType;
 

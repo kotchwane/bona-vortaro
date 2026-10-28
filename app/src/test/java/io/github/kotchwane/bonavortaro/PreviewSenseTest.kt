@@ -54,4 +54,14 @@ class PreviewSenseTest {
         assertEquals(paragraphs, fromSense(paragraphs, "7"))
         assertEquals(paragraphs, fromSense(paragraphs, null))
     }
+
+    @Test
+    fun aLinkFindsItsSenseInTheText() {
+        val text = "1. Ĉe la loko.\n\n2. Disde.\n\n3. Kaŭzon.\n\n4. Aganton."
+        assertEquals(text.indexOf("4."), senseOffset(text, 4))
+        assertEquals(0, senseOffset(text, 1))
+        /* Not "14." nor a number within a line */
+        assertNull(senseOffset("13. a\n\n14. b, en 4. jarcento", 4))
+        assertNull(senseOffset(text, 7))
+    }
 }
