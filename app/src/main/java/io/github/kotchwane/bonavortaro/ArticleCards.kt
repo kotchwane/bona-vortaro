@@ -302,6 +302,9 @@ private fun compactParagraphs(text: CharSequence): CharSequence {
 internal fun senseOffset(text: CharSequence, sense: Int): Int? =
     Regex("""(^|\n)\s*($sense\.)\s""").find(text)?.groups?.get(2)?.range?.first
 
+/* The number of a sense at the start of a paragraph */
+private val NEXT_SENSE = Regex("""\n\s*\d+\.\s""")
+
 /** A text of a word; the sense a link pointed to in it, if any, brought
  * near the top of the screen once the list is at the card, and marked for
  * a moment, as it doesn't always come first on the screen */
@@ -339,14 +342,14 @@ private fun SenseText(text: CharSequence, senseAt: Int?, scrolled: Boolean, onLo
             .fillMaxWidth()
             .padding(top = 8.dp)
             .bringIntoViewRequester(bringIntoView)
-            /* The sense up to the next one, its examples and sub-senses
-             * included */
+            /* The text of the sense up to the next one, its sub-senses
+             * included (its examples are blocks of their own) */
             .drawBehind {
                 val at = senseAt ?: return@drawBehind
                 val layout = view?.layout ?: return@drawBehind
                 if (mark.value == 0f)
                     return@drawBehind
-                val end = Regex("""\n\s*\d+\.\s""").find(text, at + 1)?.range?.first ?: text.length
+                val end = NEXT_SENSE.find(text, at + 1)?.range?.first ?: text.length
                 val top = layout.getLineTop(layout.getLineForOffset(at)).toFloat()
                 val bottom = layout.getLineBottom(layout.getLineForOffset((end - 1).coerceAtLeast(at))).toFloat()
                 val edge = 4.dp.toPx()

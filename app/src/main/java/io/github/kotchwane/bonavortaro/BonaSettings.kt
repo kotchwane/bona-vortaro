@@ -214,11 +214,13 @@ object BonaSettings {
 
     /** The languages of the phone, the main one first. By their tag, which
      * has the codes of today ("he"), where some versions of Android give
-     * the old ones of the language ("iw") */
+     * the old ones of the language ("iw"); Filipino by the code of Reta
+     * Vortaro, Tagalog's */
     fun phoneLanguages(context: Context): List<String> {
         val locales = ConfigurationCompat.getLocales(context.resources.configuration)
         return (0 until locales.size()).mapNotNull { locales[it]?.toLanguageTag()?.substringBefore('-') }
             .filter { it.isNotEmpty() && it != "und" }
+            .map { if (it == "fil") "tl" else it }
     }
 
     /* All of the languages, the ones the user likely reads first */
