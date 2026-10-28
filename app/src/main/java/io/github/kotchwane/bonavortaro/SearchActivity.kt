@@ -772,11 +772,11 @@ internal fun ResultRow(
     language: String? = null,
 ) {
     val context = LocalContext.current
-    val preview by produceState<WordPreview?>(null, result) {
+    val preview by produceState<WordPreview?>(null, result, language) {
         /* Not the preview of the word the row showed before, while its own
          * is read */
         value = null
-        value = withContext(Dispatchers.IO) { SearchPreviews.get(context, result) }
+        value = withContext(Dispatchers.IO) { SearchPreviews.get(context, result, language) }
     }
     /* Found in an example of the word: which, rather than the word's
      * definition, "abunde — ekzemplo ĉe abunda" */

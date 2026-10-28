@@ -32,6 +32,8 @@ object SearchPreviews {
      * same results come back while typing */
     private val articles = LruCache<Int, Article>(64)
     private val previews = LruCache<Long, WordPreview>(512)
+    /* Of the translations found for one sense, by language, article and text */
+    private val senses = LruCache<String, WordPreview>(256)
 
     private val examples = LruCache<String, Found>(512)
     /* The articles with all their languages, laid out, for the examples */
@@ -73,9 +75,14 @@ object SearchPreviews {
         return example
     }
 
-    fun get(context: Context, result: SearchResult): WordPreview? {
+    /** [language]: the language of the search, for a translation, whose
+     * sense is shown when the article gives it ("maison (lignée)": domo
+     * 2, the family, not 1, the building) */
+    fun get(context: Context, result: SearchResult, language: String? = null): WordPreview? {
+        val translated = language != null && language != "eo" && !result.isExample
         val key = (result.article.toLong() shl 32) or result.mark.toLong()
-        previews.get(key)?.let { return it }
+        if (!translated)
+            previews.get(key)?.let { return it }
 
         val article = articles.get(result.article) ?: try {
             ArticleLoader.load(context, result.article, onShowSection = {}, quoteColor = 0, sources = false)
@@ -85,6 +92,13 @@ object SearchPreviews {
             return null
         }
 
+        if (translated) {
+            val text = "$language/${result.article}/${result.word}"
+            senses.get(text)?.let { return it }
+            translationSense(article, language!!, result.word)?.let { (section, sense) ->
+                return previewOf(article, section, sense)?.also { senses.put(text, it) }
+            }
+        }
         return previewOf(article, result.mark)?.also { previews.put(key, it) }
     }
 }
