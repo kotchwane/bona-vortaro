@@ -152,6 +152,17 @@ fun searchFilter(query: String, language: String): String {
     return if (language == "fr") filter.replace('î', 'i').replace('û', 'u') else filter
 }
 
+/** Whether an entry of [form], another form of the word [typed], is its
+ * word: always with only a plural or an accusative added ("min" mi,
+ * "tiujn" tiu); with another ending, if the form is long or its entry of
+ * a root ("ama" ami, but not "pre" pro or "pros" pri, words of their own,
+ * with no root and ending) */
+internal fun isFormOf(typed: String, form: String, hasRoot: () -> Boolean): Boolean =
+    typed.startsWith(form) && typed.substring(form.length) in PLURAL_AND_ACCUSATIVE ||
+        form.length > 3 || hasRoot()
+
+private val PLURAL_AND_ACCUSATIVE = setOf("n", "j", "jn")
+
 object DictionarySearch {
     private const val MAX_RESULTS = 128
     /* A pattern like "*o" can match most of the language */
@@ -332,29 +343,24 @@ object DictionarySearch {
         return sorted
     }
 
+    /* Whether an article is of a root and its endings, "am/i", rather
+     * than of a word of its own, "pro" */
+    private fun hasRoot(context: Context, article: Int): Boolean =
+        SearchPreviews.title(context, article)?.contains('/') == true
+
     /** The entries of the likeliest form of an Esperanto word, other than
      * as typed, in Reta Vortaro or Vikivortaro: "hundoj" as "hundo";
      * "abortigoj" as Vikivortaro's "abortigo" before Reta Vortaro's
      * "abortigi" */
-    /* Whether an article is of a root and its endings, "am/i", rather
-     * than of a word of its own, "pro" */
-    private fun hasRoot(context: Context, article: Int): Boolean = try {
-        '/' in ArticleLoader.load(context, article, onShowSection = {}, quoteColor = 0, sources = false).title
-    } catch (e: java.io.IOException) {
-        false
-    }
-
     private fun inflected(context: Context, trie: Trie, word: String): List<FoundWord> {
         val results = arrayOfNulls<SearchResult>(16)
+        val typed = word.lowercase(Locale.ROOT)
         for (form in WordLookup.candidates(word).drop(1)) {
             val count = trie.search(form, results)
             /* The word itself before its examples in other articles */
             val revo = results.take(count).filterNotNull().filter { it.word.lowercase(Locale.ROOT) == form }
                 .distinctBy { Triple(it.word, it.article, it.mark) }.sortedBy { it.isExample }
-                /* A root of two letters with an ending: "ama" (ami), but
-                 * not "pre" or "pros" (pro, pri, words of their own, with
-                 * no root and ending) */
-                .filter { form.length > 3 || hasRoot(context, it.article) }
+                .filter { isFormOf(typed, form) { hasRoot(context, it.article) } }
             val viki = Vikivortaro.searchEsperanto(context, form).filter { it.esperanto.lowercase(Locale.ROOT) == form }
             if (revo.isNotEmpty() || viki.isNotEmpty())
                 return revo.map { FoundWord.InRevo(it) } + viki.map { FoundWord.InWiktionary(it) }

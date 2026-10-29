@@ -31,6 +31,21 @@ class SearchQueryTest {
     }
 
     @Test
+    fun anotherEndingNeedsARootButAnAccusativeDoesNot() {
+        val root = { true }
+        val noRoot = { false }
+        /* Pronouns and correlatives, words without a root */
+        assertTrue(isFormOf("min", "mi", noRoot))
+        assertTrue(isFormOf("kian", "kia", noRoot))
+        assertTrue(isFormOf("tiujn", "tiu", noRoot))
+        /* Another ending: a root needed for a short word */
+        assertTrue(!isFormOf("pre", "pro", noRoot))
+        assertTrue(!isFormOf("pros", "pri", noRoot))
+        assertTrue(isFormOf("ama", "ami", root))
+        assertTrue(isFormOf("hundoj", "hundo", noRoot))
+    }
+
+    @Test
     fun theCircumflexIsBothSpellingsInFrench() {
         assertEquals("fraicheur", searchFilter("Fraîcheur", "fr"))
         assertEquals("ŝtono", searchFilter("sxtono", "eo"))

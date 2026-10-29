@@ -524,7 +524,7 @@ object Vikivortaro {
     }
 
     /* A form, or the same with its preposition: "faire face", "faire face à" */
-    private val SENSES = Regex("\\(\\d+(, *\\d+)*\\) *")
+    private val SENSES = Regex("\\(\\d+(, *\\d+)*\\)[ \u00A0]*")
 
     private val FORM_ENDINGS = setOf("s", "x", "es", " a", " à", " de", " d'")
     private val LEADING = Regex("^(le |la |les |l'|se |s')")

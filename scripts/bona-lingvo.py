@@ -117,8 +117,8 @@ def clean(text):
 
 
 def clean_word(text):
-    # A cut mark left in a word ("malver·a"): the word, as its cut form is
-    # in a column of its own
+    # A cut mark left in a word ("malver·a") or in its context ("ag·karaktera"):
+    # the word, as its cut form is in a column of its own
     return clean(text).replace("·", "")
 
 
@@ -148,7 +148,7 @@ for word in sorted(by_word, key=lambda w: (w.lower().strip("-"), w)):
     # The group's order; for the same number, the older line first
     for row in sorted(by_word[word], key=lambda r: (int(r["display_order"] or 0), r["created_at"], r["id"])):
         target = clean_word(row["target_word"])
-        target_context = clean(row["target_word_context"])
+        target_context = clean_word(row["target_word_context"])
         if not (checked(row["source_annotation"]) and checked(row["target_annotation"])):
             left_out += 1
             continue
