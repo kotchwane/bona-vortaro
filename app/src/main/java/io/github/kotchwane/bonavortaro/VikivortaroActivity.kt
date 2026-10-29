@@ -203,6 +203,14 @@ class VikivortaroActivity : BonaActivity() {
     private var inFrench by mutableStateOf(false)
     private var guessWords by mutableStateOf(true)
     private var textSize by mutableIntStateOf(BonaSettings.DEFAULT_TEXT_SIZE)
+    /* A root opened from this page: a second tap opens nothing more until
+     * the reader is back */
+    private var opened = false
+
+    override fun onResume() {
+        super.onResume()
+        opened = false
+    }
 
     override fun onStart() {
         super.onStart()
@@ -230,7 +238,10 @@ class VikivortaroActivity : BonaActivity() {
                         )
                     },
                     onOpenRoot = { number ->
-                        startActivity(Intent(this, ArticleActivity::class.java).putExtra(ArticleActivity.EXTRA_ARTICLE_NUMBER, number))
+                        if (!opened) {
+                            opened = true
+                            startActivity(Intent(this, ArticleActivity::class.java).putExtra(ArticleActivity.EXTRA_ARTICLE_NUMBER, number))
+                        }
                     },
                 )
             }

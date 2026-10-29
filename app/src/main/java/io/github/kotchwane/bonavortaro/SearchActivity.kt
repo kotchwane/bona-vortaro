@@ -242,12 +242,17 @@ class SearchActivity : BonaActivity() {
         }
     }
 
-    /** Opens the article of a result, found in the given language, and
-     * keeps the word in the history. */
-    /* Not a search: not kept in the history */
+    /* Not a search: not kept in the history. One root for a double tap, as
+     * for a result */
     private fun openRandomRoot() {
-        lifecycleScope.launch {
+        if (opening?.isActive == true || opened)
+            return
+
+        opening = lifecycleScope.launch {
             val number = withContext(Dispatchers.IO) { RandomRoot.pick(applicationContext) }
+            if (!lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED))
+                return@launch
+            opened = true
             startActivity(
                 Intent(this@SearchActivity, ArticleActivity::class.java)
                     .putExtra(ArticleActivity.EXTRA_ARTICLE_NUMBER, number)
@@ -291,6 +296,8 @@ class SearchActivity : BonaActivity() {
         opened = false
     }
 
+    /** Opens the article of a result, found in the given language, and
+     * keeps the word in the history. */
     private fun openArticle(result: SearchResult, language: String) {
         if (opening?.isActive == true || opened)
             return
