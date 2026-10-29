@@ -151,8 +151,8 @@ object Vikivortaro {
             .trim()
 
     /** The French words starting with the query that Reta Vortaro doesn't
-     * have, each with its Esperanto word. Disk access: not on the main
-     * thread. */
+     * have, or not for that Esperanto word, each with its Esperanto word.
+     * Disk access: not on the main thread. */
     fun search(context: Context, query: String, stopped: () -> Boolean = { false }): List<VikiResult> {
         val data = data(context)
         val prefix = key(query)
@@ -179,7 +179,13 @@ object Vikivortaro {
             if (!matches(typed, word))
                 continue
             looked++
-            if (inRevo(french, word, esperanto, esperantoWord, typed))
+            /* Where Reta Vortaro has the French word, Wiktionary's word too,
+             * after its own: "cafetière → kafujo" after "cafetière (verseuse)
+             * → kafkruĉo". Not when Reta Vortaro gives it for that word
+             * already, nor for a word only Wiktionary has, where most of
+             * its doubtful words are ("fondre → fundi") */
+            if (inRevo(french, word, esperanto, esperantoWord, typed) &&
+                (revoEsperanto(esperanto, esperantoWord) == null || givesFor(french, word, esperanto, esperantoWord)))
                 continue
             result(data, esperanto, word, esperantoWord, french)?.let { results.add(it) }
         }
@@ -258,6 +264,13 @@ object Vikivortaro {
          * doesn't find Reta Vortaro's "pêcheur (rel.)" */
         val articles = esperantoArticles(esperanto, esperantoWord)
         return entries.any { it.article in articles && (typed == null || matches(typed, it.word)) }
+    }
+
+    /* Whether Reta Vortaro gives the French word for that Esperanto word
+     * itself */
+    private fun givesFor(french: Trie, word: String, esperanto: Trie, esperantoWord: String): Boolean {
+        val articles = esperantoArticles(esperanto, esperantoWord)
+        return revoEntries(french, word).any { it.article in articles }
     }
 
     /** Reta Vortaro's entry for a word that Vikivortaro gave, if it has

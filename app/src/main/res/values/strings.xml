@@ -128,7 +128,7 @@
   <string name="guide_links_title">Ligiloj kaj ekzemploj</string>
   <string name="guide_links">La substrekitaj vortoj kondukas al aliaj artikoloj. Se estas multaj ekzemploj, aperas nur la unua, kaj „5 pliaj ekzemploj“ montras la aliajn; la longaj rimarkoj montras nur sian komencon: tuŝu por malfaldi ilin, aŭ petu en la agordoj, ke ili ĉiam aperu tutaj. Post ĉiu ekzemplo staras ĝia fonto, la aŭtoro kaj la verko. La signo ↗ montras, ke tuŝo malfermas paĝon ekster la aplikaĵo: la verkon, Vikipedion aŭ Retan Vortaron.</string>
   <string name="guide_translations_title">Tradukoj</string>
-  <string name="guide_translations">La tradukoj aperas en la lingvoj elektitaj en la agordoj („Tradukoj en la artikoloj“), en ilia ordo. „+ N lingvoj“ montras la aliajn. Post la tradukoj de la vorto venas tiuj de ĝiaj ekzemploj, ĉiu post sia ekzemplo, kaj ankaŭ ili troviĝas per la serĉo: _bonjour_ kondukas al „saluton!“, ĉe „saluto“. Tiam la linio de la ekzemplo estas emfazita; tuŝu ĝin por forigi la emfazon.</string>
+  <string name="guide_translations">La tradukoj aperas en la lingvoj elektitaj en la agordoj („Tradukoj en la artikoloj“), en ilia ordo. „+ N lingvoj“ montras la aliajn. La tradukoj de la tuta vorto venas unue, poste tiuj de ĉiu senco, kun ĝia numero. Serĉita traduko de unu senco malfermas la vorton ĉe tiu senco, kiu estas emfazita dum momento. Post la tradukoj de la vorto venas tiuj de ĝiaj ekzemploj, ĉiu post sia ekzemplo, kaj ankaŭ ili troviĝas per la serĉo: _bonjour_ kondukas al „saluton!“, ĉe „saluto“. Tiam la linio de la ekzemplo estas emfazita; tuŝu ĝin por forigi la emfazon.</string>
   <string name="guide_vikivortaro_title">Vikivortaro</string>
   <string name="guide_bl_title">Malrekomendataj vortoj</string>
   <string name="guide_bl">Iujn vortojn, ofte novajn kaj internaciajn, „Vortoj de la bona lingvo“ malrekomendas, kaj proponas diri alie, per vortoj faritaj el konataj radikoj: „eskalatoro“, prefere „rulŝtuparo“. En la artikoloj rimarko diras, kion diri anstataŭe; tiujn, kiujn Reta Vortaro ne havas, la serĉo montras kun la etikedo „malrekomendata“.</string>
@@ -177,7 +177,7 @@
   <string name="translations_none">Neniu</string>
   <string name="my_search_languages">Miaj serĉlingvoj</string>
   <string name="my_languages_help">La lingvoj, en kiuj vi serĉas vortojn. Tuŝu lingvon por aldoni aŭ forigi ĝin.</string>
-  <string name="welcome_search_languages">Bonvenon! En kiuj lingvoj vi volas serĉi vortojn? Tuŝu unu aŭ plurajn lingvojn, poste „Daŭrigi“.</string>
+  <string name="welcome_search_languages">Bonvenon! En kiuj lingvoj vi volas serĉi vortojn? Aldonu aŭ forigu lingvojn per tuŝo, poste „Daŭrigi“.</string>
   <string name="search_languages_order_help">Movu ilin por ŝanĝi ilian ordon.</string>
   <string name="continue_to_search">Daŭrigi</string>
   <string name="one_language_needed">Necesas almenaŭ unu serĉlingvo.</string>

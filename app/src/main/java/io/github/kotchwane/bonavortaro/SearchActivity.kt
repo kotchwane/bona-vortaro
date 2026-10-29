@@ -242,12 +242,17 @@ class SearchActivity : BonaActivity() {
         }
     }
 
-    /** Opens the article of a result, found in the given language, and
-     * keeps the word in the history. */
-    /* Not a search: not kept in the history */
+    /* Not a search: not kept in the history. One root for a double tap, as
+     * for a result */
     private fun openRandomRoot() {
-        lifecycleScope.launch {
+        if (opening?.isActive == true || opened)
+            return
+
+        opening = lifecycleScope.launch {
             val number = withContext(Dispatchers.IO) { RandomRoot.pick(applicationContext) }
+            if (!lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED))
+                return@launch
+            opened = true
             startActivity(
                 Intent(this@SearchActivity, ArticleActivity::class.java)
                     .putExtra(ArticleActivity.EXTRA_ARTICLE_NUMBER, number)
@@ -291,6 +296,8 @@ class SearchActivity : BonaActivity() {
         opened = false
     }
 
+    /** Opens the article of a result, found in the given language, and
+     * keeps the word in the history. */
     private fun openArticle(result: SearchResult, language: String) {
         if (opening?.isActive == true || opened)
             return
@@ -404,13 +411,21 @@ private fun SearchScreen(
         found.proposedInstead.flatMap { it.first.preferred }
             .firstOrNull { Vikivortaro.key(it.word) == Vikivortaro.key(found.query.trim()) && it.parts != null }?.parts
     }
-    LaunchedEffect(query, nothingToRead, selected, guessWords, listParts) {
+    /* A word the list proposes, without its parts: a guess only if it
+     * explains the whole word; "dis + it + …mo" for "disitmo", a slip of
+     * the list, would make it look explained */
+    val proposed = outcome?.proposedInstead?.isNotEmpty() == true
+    LaunchedEffect(query, nothingToRead, selected, guessWords, listParts, proposed) {
         if (!nothingToRead || selected != "eo" || isPattern(query) || query.isBlank() || !guessWords && listParts == null) {
             analysis = null
             return@LaunchedEffect
         }
         analysis = withContext(Dispatchers.IO) {
-            listParts?.let { WordAnalyses.fromList(context, it) } ?: WordAnalyses.find(context, normaliseQuery(query))
+            listParts?.let { WordAnalyses.fromList(context, it) }
+                ?: WordAnalyses.find(context, normaliseQuery(withoutEndPunctuation(query)))?.let { found ->
+                    if (!proposed) found
+                    else found.readings.filter { it.analysis.complete }.takeIf { it.isNotEmpty() }?.let { ShownAnalysis(it) }
+                }
         }
     }
 
@@ -524,7 +539,8 @@ private fun Wordmark() {
                     fontWeight = FontWeight.Bold,
                     color = bonaDesign.headword,
                 )
-                Text(" ★", fontSize = 20.sp, color = bonaDesign.star)
+                /* Not on a line of its own, with a large font */
+                Text("\u00A0★", fontSize = 20.sp, color = bonaDesign.star)
             }
             Text(
                 stringResource(R.string.brand_subtitle),

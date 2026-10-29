@@ -118,6 +118,7 @@ import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.tween
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.graphics.toArgb
@@ -302,6 +303,14 @@ private fun compactParagraphs(text: CharSequence): CharSequence {
 internal fun senseOffset(text: CharSequence, sense: Int): Int? =
     Regex("""(^|\n)\s*($sense\.)\s""").find(text)?.groups?.get(2)?.range?.first
 
+/** The tint of what the reader came to see: the sense a link pointed to,
+ * the example searched. Deeper on the light paper, where a pale one was
+ * barely seen */
+@Composable
+private fun markColor(): Color =
+    if (MaterialTheme.colorScheme.surface.luminance() > 0.5f) Color(0xFFEFCFB4)
+    else MaterialTheme.colorScheme.tertiaryContainer.copy(alpha = 0.7f)
+
 /* The number of a sense at the start of a paragraph */
 private val NEXT_SENSE = Regex("""\n\s*\d+\.\s""")
 
@@ -314,7 +323,7 @@ private fun SenseText(text: CharSequence, senseAt: Int?, scrolled: Boolean, onLo
     var view by remember { mutableStateOf<TextView?>(null) }
     var brought by rememberSaveable { mutableStateOf(false) }
     val mark = remember { Animatable(0f) }
-    val markColor = MaterialTheme.colorScheme.tertiaryContainer.copy(alpha = 0.7f)
+    val markColor = markColor()
     val density = LocalDensity.current
     val margin = with(density) { 48.dp.toPx() }
     /* Room below it, so that it comes near the top rather than at the
@@ -1072,7 +1081,7 @@ private fun TranslationsBox(
      * search, until a tap on it; brought into view once */
     var markShown by rememberSaveable(example?.example, example?.language) { mutableStateOf(example != null) }
     var broughtIntoView by rememberSaveable(example?.example, example?.language) { mutableStateOf(false) }
-    val markColor = MaterialTheme.colorScheme.tertiaryContainer.copy(alpha = 0.7f)
+    val markColor = markColor()
     /* The French Wiktionary's words go on the line of Reta Vortaro's French,
      * which comes first if Reta Vortaro has none */
     val translations = remember(translations, viki, vikiExamples) {

@@ -225,8 +225,10 @@ class ArticleActivity : BonaActivity() {
                     onFlashcard = ::createFlashcard,
                     onLookUpInPiv = ::lookUpInPiv,
                     onShare = ::share,
-                    onOpenNeighbour = ::openRoot,
-                    onOpenRandom = ::openRoot,
+                    /* Tapped from this root only: a second tap before the
+                     * next root shows opens nothing more */
+                    onOpenNeighbour = { openRoot(it, depth) },
+                    onOpenRandom = { openRoot(it, depth) },
                     onOpenEntry = ::openEntry,
                     onCopyWord = ::copyWord,
                     loadArticle = ::loadCachedArticle,
@@ -394,7 +396,9 @@ class ArticleActivity : BonaActivity() {
      * screen, at once, without the animation of a new screen. Back
      * returns to this one, where it was left; the search, at the top
      * left, to the search at once */
-    private fun openRoot(number: Int) {
+    private fun openRoot(number: Int, from: Int) {
+        if (roots.size != from)
+            return
         roots.add(number)
         showCurrentRoot()
     }
