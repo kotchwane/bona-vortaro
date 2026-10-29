@@ -679,7 +679,7 @@ fun previewOf(article: Article, mark: Int, sense: String? = null): WordPreview? 
     return WordPreview(title.toString(), definition, paragraphs.count { NUMBERED.containsMatchIn(it) } > 1)
 }
 
-private val NUMBERED = Regex("""^\s*\d+\.\s""")
+private val NUMBERED = Regex("""^\s*\d+\.(\s|$)""")
 
 /** The paragraphs of a word from its sense [sense] ("2"), which starts
  * with its number ("2. Nobela…"); all of them if there is none */

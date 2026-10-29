@@ -101,11 +101,13 @@ fun VikiResultRow(
     /* Reta Vortaro's definition; else Vikivortaro's French description,
      * only for those who chose to see the French translations */
     val description = result.description.takeIf { inFrench }
-    var severalSenses by remember(result) { mutableStateOf(false) }
-    val definition by produceState(if (result.revo != null) null else description, result, inFrench) {
+    /* Read already, when the row comes back into view: as it was, at once */
+    val known = remember(result) { result.revo?.let { SearchPreviews.peek(it) } }
+    var severalSenses by remember(result) { mutableStateOf(known?.severalSenses == true) }
+    val definition by produceState(if (result.revo != null) known?.definition else description, result, inFrench) {
         /* The row may have shown another word just before: its own text
          * at once, whatever follows */
-        value = if (result.revo != null) null else description
+        value = if (result.revo != null) known?.definition else description
         result.revo?.let { revo -> withContext(Dispatchers.IO) { SearchPreviews.get(context, revo) } }?.let {
             /* Not the first of several senses: Wiktionary doesn't say which
              * one its French word is ("cafetière", not kafujo's tree) */
