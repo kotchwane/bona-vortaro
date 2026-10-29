@@ -305,6 +305,10 @@ internal fun senseOffset(text: CharSequence, sense: Int): Int? =
 /* The number of a sense at the start of a paragraph */
 private val NEXT_SENSE = Regex("""\n\s*\d+\.\s""")
 
+/* Where the numbered senses of a translation start, "(3)", with the
+ * semicolon before them: "maison\u202f; (3)\u00A0foyer" */
+private val FIRST_SENSE = Regex("""(^|[\s\u202F]*;\s*)\(\d""")
+
 /** A text of a word; the sense a link pointed to in it, if any, brought
  * near the top of the screen once the list is at the card, and marked for
  * a moment, as it doesn't always come first on the screen */
@@ -1151,18 +1155,22 @@ private fun TranslationsBox(
                     val text = if (viki.isNotEmpty() && french) {
                         /* Some of Reta Vortaro's end with a comma: "…, net," */
                         val revo = frenchSpacing(translation.text.trimEnd(' ', ',', ';'))
+                        /* With those of the whole word, before the senses
+                         * with their numbers: after them, they would read
+                         * as the last sense's, "(3) perçant, …, saillant" */
+                        val senses = FIRST_SENSE.find(revo)?.range?.first ?: revo.length
                         buildString {
-                            /* After senses with their numbers, on a line of
-                             * their own: they would read as the last sense,
-                             * "(3) perçant, …, saillant" */
-                            if (revo.isNotEmpty())
-                                append(if (Regex("\\(\\d").containsMatchIn(revo)) "$revo\n" else "$revo, ")
+                            if (senses > 0)
+                                append(revo.substring(0, senses) + ", ")
                             for ((index, word) in viki.withIndex()) {
                                 if (index > 0)
                                     append(", ")
                                 vikiRanges.add(length until length + word.length)
                                 append(word)
                             }
+                            if (senses == 0 && revo.isNotEmpty())
+                                append("\u202f; ")
+                            append(revo.substring(senses))
                         }
                     } else if (french) frenchSpacing(translation.text) else translation.text
                     /* Then the translations of its examples, each on its
