@@ -539,7 +539,8 @@ private fun Wordmark() {
                     fontWeight = FontWeight.Bold,
                     color = bonaDesign.headword,
                 )
-                Text(" ★", fontSize = 20.sp, color = bonaDesign.star)
+                /* Not on a line of its own, with a large font */
+                Text("\u00A0★", fontSize = 20.sp, color = bonaDesign.star)
             }
             Text(
                 stringResource(R.string.brand_subtitle),
