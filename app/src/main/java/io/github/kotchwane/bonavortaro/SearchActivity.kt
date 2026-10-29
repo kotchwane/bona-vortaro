@@ -411,13 +411,21 @@ private fun SearchScreen(
         found.proposedInstead.flatMap { it.first.preferred }
             .firstOrNull { Vikivortaro.key(it.word) == Vikivortaro.key(found.query.trim()) && it.parts != null }?.parts
     }
-    LaunchedEffect(query, nothingToRead, selected, guessWords, listParts) {
+    /* A word the list proposes, without its parts: a guess only if it
+     * explains the whole word; "dis + it + …mo" for "disitmo", a slip of
+     * the list, would make it look explained */
+    val proposed = outcome?.proposedInstead?.isNotEmpty() == true
+    LaunchedEffect(query, nothingToRead, selected, guessWords, listParts, proposed) {
         if (!nothingToRead || selected != "eo" || isPattern(query) || query.isBlank() || !guessWords && listParts == null) {
             analysis = null
             return@LaunchedEffect
         }
         analysis = withContext(Dispatchers.IO) {
-            listParts?.let { WordAnalyses.fromList(context, it) } ?: WordAnalyses.find(context, normaliseQuery(withoutEndPunctuation(query)))
+            listParts?.let { WordAnalyses.fromList(context, it) }
+                ?: WordAnalyses.find(context, normaliseQuery(withoutEndPunctuation(query)))?.let { found ->
+                    if (!proposed) found
+                    else found.readings.filter { it.analysis.complete }.takeIf { it.isNotEmpty() }?.let { ShownAnalysis(it) }
+                }
         }
     }
 
