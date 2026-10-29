@@ -62,6 +62,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.produceState
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -100,11 +101,17 @@ fun VikiResultRow(
     /* Reta Vortaro's definition; else Vikivortaro's French description,
      * only for those who chose to see the French translations */
     val description = result.description.takeIf { inFrench }
+    var severalSenses by remember(result) { mutableStateOf(false) }
     val definition by produceState(if (result.revo != null) null else description, result, inFrench) {
         /* The row may have shown another word just before: its own text
          * at once, whatever follows */
         value = if (result.revo != null) null else description
-        result.revo?.let { revo -> withContext(Dispatchers.IO) { SearchPreviews.get(context, revo)?.definition }?.let { value = it } }
+        result.revo?.let { revo -> withContext(Dispatchers.IO) { SearchPreviews.get(context, revo) } }?.let {
+            /* Not the first of several senses: Wiktionary doesn't say which
+             * one its French word is ("cafetière", not kafujo's tree) */
+            severalSenses = it.severalSenses
+            value = it.definition
+        }
     }
     val small = MaterialTheme.typography.bodyMedium
 
@@ -161,8 +168,8 @@ fun VikiResultRow(
              * French Wiktionary says nothing ("maison de thé → teejo"): no
              * second line, rather than an empty one. One that Reta Vortaro
              * has keeps its line while its definition is read. */
-            val nothingToSay = advice == null && !result.inEsperanto && result.revo == null &&
-                (definition ?: result.description).isNullOrEmpty()
+            val nothingToSay = advice == null && !result.inEsperanto && (severalSenses ||
+                result.revo == null && (definition ?: result.description).isNullOrEmpty())
             /* Found in Esperanto: its Esperanto definition, for everyone;
              * else what it says in French, saying so */
             if (!nothingToSay) Text(

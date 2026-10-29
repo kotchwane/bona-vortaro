@@ -609,7 +609,9 @@ private fun CharSequence.trimEndPunctuation(): CharSequence {
 
 /** A short preview of a word for the list of search results: its title
  * and the start of its definition. */
-class WordPreview(val title: String, val definition: String)
+/** [severalSenses]: whether the word has numbered senses, of which the
+ * definition is the first one's */
+class WordPreview(val title: String, val definition: String, val severalSenses: Boolean = false)
 
 private val SENSE_NUMBER = Regex("""^(\d+\.|[a-z]\))\s*""")
 
@@ -674,8 +676,10 @@ fun previewOf(article: Article, mark: Int, sense: String? = null): WordPreview? 
         ?.withoutFinalPeriod()
         ?: ""
 
-    return WordPreview(title.toString(), definition)
+    return WordPreview(title.toString(), definition, paragraphs.count { NUMBERED.containsMatchIn(it) } > 1)
 }
+
+private val NUMBERED = Regex("""^\s*\d+\.\s""")
 
 /** The paragraphs of a word from its sense [sense] ("2"), which starts
  * with its number ("2. Nobela…"); all of them if there is none */
