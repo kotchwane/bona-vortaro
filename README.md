@@ -21,12 +21,13 @@
   <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/1.png" width="200" alt="La serĉo">
   <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/2.png" width="200" alt="Artikolo">
   <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/3.png" width="200" alt="La oficialeco de vorto">
+  <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/4.png" width="200" alt="La listo de Oficiala Aldono">
 </p>
 <p align="center">
-  <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/4.png" width="200" alt="La listo de Oficiala Aldono">
   <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/5.png" width="200" alt="Teni vorton premita">
   <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/6.png" width="200" alt="Foliumi la vortaron, nokte">
   <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/7.png" width="200" alt="Vorto, kiu mankas en la vortaro">
+  <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/8.png" width="200" alt="Malrekomendata vorto">
 </p>
 
 ---
