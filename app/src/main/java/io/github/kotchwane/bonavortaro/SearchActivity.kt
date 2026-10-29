@@ -417,7 +417,7 @@ private fun SearchScreen(
             return@LaunchedEffect
         }
         analysis = withContext(Dispatchers.IO) {
-            listParts?.let { WordAnalyses.fromList(context, it) } ?: WordAnalyses.find(context, normaliseQuery(query))
+            listParts?.let { WordAnalyses.fromList(context, it) } ?: WordAnalyses.find(context, normaliseQuery(withoutEndPunctuation(query)))
         }
     }
 

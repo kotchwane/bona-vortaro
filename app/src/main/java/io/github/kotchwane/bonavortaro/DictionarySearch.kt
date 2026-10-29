@@ -163,6 +163,14 @@ internal fun isFormOf(typed: String, form: String, hasRoot: () -> Boolean): Bool
 
 private val PLURAL_AND_ACCUSATIVE = setOf("n", "j", "jn")
 
+/** A word copied from a text with the punctuation after it, "hundo." or
+ * "hundo,": the word as a whole, as with a space after it. Not "?", a
+ * pattern; "ekz." still finds "ekz.", which starts with "ekz" */
+fun withoutEndPunctuation(query: String): String {
+    val word = query.trimEnd().trimEnd('.', ',', ';', ':', '!', '…')
+    return if (word.length < query.trimEnd().length && word.lastOrNull()?.isLetter() == true) "$word " else query
+}
+
 object DictionarySearch {
     private const val MAX_RESULTS = 128
     /* A pattern like "*o" can match most of the language */
@@ -175,8 +183,9 @@ object DictionarySearch {
      * With "*" (any letters) or "?" (one letter), the query is a pattern
      * for whole words. A space after the word asks for that word as a
      * whole, not the longer ones it starts: "malva " finds "malvo", not
-     * "malvacoj"; "valet " finds "valet d'écurie", not "valetaille".
-     * This does disk access, so it shouldn't run on the main thread. */
+     * "malvacoj"; "valet " finds "valet d'écurie", not "valetaille";
+     * so does a full stop or a comma after it, "hundo.". This does disk
+     * access, so it shouldn't run on the main thread. */
     fun search(
         context: Context,
         languages: List<String>,
@@ -185,6 +194,7 @@ object DictionarySearch {
          * it stops, its outcome unused */
         stopped: () -> Boolean = { false },
     ): SearchOutcome {
+        val query = withoutEndPunctuation(query)
         val whole = query.isNotBlank() && query.last().isWhitespace()
         for ((index, language) in languages.withIndex()) {
             val filter = searchFilter(query, language)

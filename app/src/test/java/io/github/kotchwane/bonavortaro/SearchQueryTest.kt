@@ -179,4 +179,16 @@ class SearchQueryTest {
         assertEquals("élève", searchFilter("e\u0301le\u0300ve", "fr"))
         assertEquals("brr !", searchFilter("brr\u00a0!", "fr"))
     }
+
+    @Test
+    fun theFullStopAfterACopiedWordAsksForTheWholeWord() {
+        assertEquals("hundo ", withoutEndPunctuation("hundo."))
+        assertEquals("hundo ", withoutEndPunctuation("hundo, "))
+        assertEquals("brr ", withoutEndPunctuation("brr!"))
+        /* A pattern, a bracket, nothing but punctuation: as typed */
+        assertEquals("hundo?", withoutEndPunctuation("hundo?"))
+        assertEquals("de (", withoutEndPunctuation("de ("))
+        assertEquals("...", withoutEndPunctuation("..."))
+        assertEquals("hundo", withoutEndPunctuation("hundo"))
+    }
 }
