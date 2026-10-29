@@ -184,10 +184,17 @@ object Vikivortaro {
              * → kafkruĉo". Not when Reta Vortaro gives it for that word
              * already, nor for a word only Wiktionary has, where most of
              * its doubtful words are ("fondre → fundi") */
-            if (inRevo(french, word, esperanto, esperantoWord, typed) &&
-                (revoEsperanto(esperanto, esperantoWord) == null || givesFor(french, word, esperanto, esperantoWord)))
-                continue
-            result(data, esperanto, word, esperantoWord, french)?.let { results.add(it) }
+            val entries = revoEntries(french, word)
+            var revo: SearchResult? = null
+            if (inRevo(french, word, esperanto, esperantoWord, typed, entries)) {
+                revo = revoEsperanto(esperanto, esperantoWord, french, data.frenchOf[esperantoWord].orEmpty())
+                /* By article: not either when Reta Vortaro gives it to
+                 * another word of the same article */
+                val articles = esperantoArticles(esperanto, esperantoWord)
+                if (revo == null || entries.any { it.article in articles })
+                    continue
+            }
+            result(data, esperanto, word, esperantoWord, french, revo)?.let { results.add(it) }
         }
         /* In the order of the keys, the exact matches first */
         return results
@@ -253,8 +260,9 @@ object Vikivortaro {
         esperanto: Trie? = null,
         esperantoWord: String? = null,
         typed: String? = null,
+        /* Its entries, if already looked up */
+        entries: List<SearchResult> = revoEntries(french, word),
     ): Boolean {
-        val entries = revoEntries(french, word)
         val strict = strict(word)
         if (entries.any { strict(it.word) == strict })
             return true
@@ -264,13 +272,6 @@ object Vikivortaro {
          * doesn't find Reta Vortaro's "pêcheur (rel.)" */
         val articles = esperantoArticles(esperanto, esperantoWord)
         return entries.any { it.article in articles && (typed == null || matches(typed, it.word)) }
-    }
-
-    /* Whether Reta Vortaro gives the French word for that Esperanto word
-     * itself */
-    private fun givesFor(french: Trie, word: String, esperanto: Trie, esperantoWord: String): Boolean {
-        val articles = esperantoArticles(esperanto, esperantoWord)
-        return revoEntries(french, word).any { it.article in articles }
     }
 
     /** Reta Vortaro's entry for a word that Vikivortaro gave, if it has
@@ -373,8 +374,16 @@ object Vikivortaro {
 
     /* Nothing to show for a word that has neither an article in Reta
      * Vortaro nor a description in Wiktionary */
-    private fun result(data: Data, esperanto: Trie, french: String, word: String, frenchIndex: Trie? = null): VikiResult? {
-        val revo = revoEsperanto(esperanto, word, frenchIndex, data.frenchOf[word].orEmpty())
+    private fun result(
+        data: Data,
+        esperanto: Trie,
+        french: String,
+        word: String,
+        frenchIndex: Trie? = null,
+        /* Its entry, if already looked up */
+        known: SearchResult? = null,
+    ): VikiResult? {
+        val revo = known ?: revoEsperanto(esperanto, word, frenchIndex, data.frenchOf[word].orEmpty())
         if (revo == null && isReformOfRevo(esperanto, word))
             return null
         return if (revo != null || word in data.descriptions) VikiResult(french, word, revo, informative(data, word)) else null

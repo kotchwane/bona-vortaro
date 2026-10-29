@@ -75,6 +75,10 @@ object SearchPreviews {
         return example
     }
 
+    /** The preview of a result if it was read already, to show at once */
+    fun peek(result: SearchResult): WordPreview? =
+        previews.get((result.article.toLong() shl 32) or result.mark.toLong())
+
     /** [language]: the language of the search, for a translation, whose
      * sense is shown when the article gives it ("maison (lignée)": domo
      * 2, the family, not 1, the building) */

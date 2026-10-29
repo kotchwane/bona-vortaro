@@ -532,16 +532,19 @@ private fun SearchScreen(
 private fun Wordmark() {
     Layout(
         content = {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(
-                    stringResource(R.string.brand_name),
-                    style = MaterialTheme.typography.headlineSmall,
-                    fontWeight = FontWeight.Bold,
-                    color = bonaDesign.headword,
-                )
-                /* Not on a line of its own, with a large font */
-                Text("\u00A0★", fontSize = 20.sp, color = bonaDesign.star)
-            }
+            /* The star in the same text, after a no-break space: with a
+             * large font, it goes to the next line with "vortaro" rather
+             * than alone, or squeezed beside it */
+            val star = bonaDesign.star
+            Text(
+                buildAnnotatedString {
+                    append(stringResource(R.string.brand_name))
+                    withStyle(SpanStyle(fontSize = 20.sp, fontWeight = FontWeight.Normal, color = star)) { append("\u00A0★") }
+                },
+                style = MaterialTheme.typography.headlineSmall,
+                fontWeight = FontWeight.Bold,
+                color = bonaDesign.headword,
+            )
             Text(
                 stringResource(R.string.brand_subtitle),
                 style = MaterialTheme.typography.bodySmall.copy(fontStyle = FontStyle.Italic),
