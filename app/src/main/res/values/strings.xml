@@ -29,6 +29,7 @@
   <string name="clear">Forviŝi</string>
   <string name="share">Kunhavigi</string>
   <string name="remark">RIMARKO</string>
+  <string name="origin">DEVENO</string>
   <string name="examples_more">%1$d pliaj ekzemploj\u00A0▾</string>
   <string name="examples_one_more">1 plia ekzemplo\u00A0▾</string>
   <string name="examples_less">Faldi la ekzemplojn\u00A0▴</string>
@@ -219,6 +220,10 @@
   <string name="bl_only_discouraged">%1$s, ĝi estas malrekomendata.</string>
   <string name="bl_only_simpler">%1$s, ekzistas pli simplaj vortoj.</string>
   <string name="sources_bl">la rimarkoj pri malrekomendataj vortoj kaj iliaj alternativoj</string>
+  <string name="rajki_name">Rajki</string>
+  <string name="sources_rajki">la deveno de la vortoj markitaj „Rajki“, el lia Etimologia Vortaro de Esperanto (2006)</string>
+  <string name="sources_viki_origins">la deveno de la vortoj markitaj „Vikivortaro“; ĉiu tia ligilo malfermas la paĝon de la vorto, kie vi povas korekti aŭ kompletigi ĝin</string>
+  <string name="sources_viki_editions_one">%1$s (%2$s)</string>
   <string name="from_viki_not_in_revo">el Vikivortaro · ne en Reta Vortaro</string>
   <string name="from_bl_not_in_revo">el Vortoj de la bona lingvo · ne en Reta Vortaro</string>
   <string name="from_viki_bl_not_in_revo">el Vikivortaro kaj Vortoj de la bona lingvo · ne en Reta Vortaro</string>
@@ -254,6 +259,9 @@
   <string name="about_bl_title">Vortoj de la bona lingvo</string>
   <string name="about_bl">La vortoj „malrekomendataj“ kaj tio, kion diri anstataŭe, venas el „Vortoj de la bona lingvo“, publikigita laŭ la permesilo CC\u00A0BY\u00A04.0. Atribuo: Renato Corsetti, Noam Mohr, kaj la laborgrupo de la Bona Lingvo, labonalingvo.org. La listo estas adaptita por Bona vortaro, kiu montras nur tion, kion la laborgrupo jam kontrolis.</string>
   <string name="about_bl_link">labonalingvo.org</string>
+  <string name="about_rajki_title">Deveno de la vortoj</string>
+  <string name="about_rajki">La deveno de la vortoj, kiun vi povas ŝalti en la agordoj, venas el la „Etimologia Vortaro de Esperanto“ de András Rajki (2006), publikigita kiel publika havaĵo (CC\u00A00\u00A01.0), kaj el la sekcioj „Deveno“ de Vikivortaro (eo.wiktionary.org, CC\u00A0BY-SA\u00A04.0). Ĝi estas montrata kiel ĝi estas, nur skribita en Esperanto (ekzemple la nomoj de la lingvoj), kaj neniu kontrolis ĝin por Bona vortaro.</string>
+  <string name="about_rajki_link">Etimologia Vortaro de Esperanto</string>
   <string name="about_data_link">La Reta Vortaro</string>
   <string name="about_copyright_title">Kopirajto</string>
   <string name="about_copyright">*Bona vortaro*: © 2026 kotchwane. PReVo kaj prevodb: © 2012, 2013, 2016, 2017, 2018, 2019, 2020 Neil Roberts. Ĉiuj tri estas libera programaro, laŭ la GPL, versio 2: ĉiu rajtas uzi, kunhavigi kaj ŝanĝi ilin.</string>
@@ -270,6 +278,8 @@
   <string name="unfold_examples">Ĉiam malfaldi ekzemplojn kaj rimarkojn</string>
   <string name="show_sources">Montri la fontojn de la ekzemploj</string>
   <string name="show_sources_summary">Post ĉiu ekzemplo, el kiu verko ĝi venas: „—\u00A0Zamenhof, Fundamento de Esperanto“. Tuŝu la fonton por legi la verkon en la reto, kiam ĝi estas tie.</string>
+  <string name="show_origins">Montri la devenon de la vortoj</string>
+  <string name="show_origins_summary">Sub la vortoj, el kiuj lingvoj ili venas, laŭ la Etimologia Vortaro de Esperanto de András Rajki (2006) kaj laŭ Vikivortaro. Neniu kontrolis ĝin por Bona vortaro, kaj la deveno de multaj vortoj estas diskutebla. Tuŝu „Vikivortaro“ sub vorto por korekti aŭ kompletigi ĝian devenon tie.</string>
   <string name="unfold_examples_summary">Montri ĉiujn ekzemplojn kaj la tutan tekston de la longaj rimarkoj, anstataŭ faldi ilin</string>
   <string name="translations_order_help">La tradukoj aperas en la artikoloj en ĉi tiu ordo. Tenu lingvon premita por movi ĝin.</string>
   <string name="drag_to_reorder">Tenu kaj movu por ŝanĝi la ordon</string>

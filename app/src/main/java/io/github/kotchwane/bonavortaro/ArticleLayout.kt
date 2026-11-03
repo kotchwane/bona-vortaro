@@ -49,7 +49,8 @@ import android.text.style.SuperscriptSpan
 sealed class ContentBlock(val text: CharSequence) {
     class Text(text: CharSequence) : ContentBlock(text)
     class Example(text: CharSequence) : ContentBlock(text)
-    class Note(text: CharSequence) : ContentBlock(text)
+    /** With its [title], "DEVENO", or null for "RIMARKO" */
+    class Note(text: CharSequence, val title: String? = null) : ContentBlock(text)
 }
 
 /** A label of the whole word: its field ("matematiko") or its kind
@@ -88,14 +89,15 @@ class WordEntry(
     val translations: List<Translation>,
 )
 
-/** The words with a remark more after their blocks, by their section */
-fun ArticleLayout.withRemarks(remarks: Map<Int, CharSequence>): ArticleLayout =
+/** The words with a remark more after their blocks, by their section,
+ * under [title] if given ("DEVENO") */
+fun ArticleLayout.withRemarks(remarks: Map<Int, CharSequence>, title: String? = null): ArticleLayout =
     if (remarks.isEmpty()) this
     else ArticleLayout(
         words.map { word ->
             remarks[word.section]?.let { remark ->
                 WordEntry(word.section, word.source, word.official, word.forms, word.title, word.labels,
-                    word.blocks + ContentBlock.Note(remark), word.translations)
+                    word.blocks + ContentBlock.Note(remark, title), word.translations)
             } ?: word
         },
         otherTranslations,

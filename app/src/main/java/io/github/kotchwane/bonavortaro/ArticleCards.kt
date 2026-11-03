@@ -262,7 +262,7 @@ fun WordCard(
                         }
                         is ContentBlock.Example -> ExampleLine(block.text, onLongPressText)
                         is ContentBlock.Note ->
-                            NoteBox(block.text, key = "${entry.section}-note-$index", unfolded = unfoldExamples, onLongPressText)
+                            NoteBox(block.text, key = "${entry.section}-note-$index", unfolded = unfoldExamples, onLongPressText, title = block.title)
                     }
                     is BlockGroup.Examples ->
                         FoldedExamples(group.examples, onLongPressText, key = "${entry.section}-$index", unfolded = unfoldExamples)
@@ -869,7 +869,7 @@ fun officialLabel(official: String, others: List<String> = emptyList(), showOthe
  * "… legi plu ▾" where the reading stops; a short one, folded, would only
  * cost a tap. */
 @Composable
-private fun NoteBox(text: CharSequence, key: String, unfolded: Boolean, onLongPress: (String?) -> Unit) {
+private fun NoteBox(text: CharSequence, key: String, unfolded: Boolean, onLongPress: (String?) -> Unit, title: String? = null) {
     val link = MaterialTheme.colorScheme.primary
     val (expanded, setExpanded) = unfoldedState(key, unfolded)
     val more = stringResource(R.string.note_more)
@@ -896,7 +896,7 @@ private fun NoteBox(text: CharSequence, key: String, unfolded: Boolean, onLongPr
                 .padding(horizontal = 10.dp, vertical = 8.dp),
         ) {
             Text(
-                stringResource(R.string.remark),
+                title ?: stringResource(R.string.remark),
                 style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold),
                 color = MaterialTheme.colorScheme.primary,
             )
@@ -1380,6 +1380,10 @@ fun SourcesLine(
     vikiEsperanto: EsperantoDefinition? = null,
     /** Whether the page shows a remark from "Vortoj de la bona lingvo" */
     bonaLingvo: Boolean = false,
+    /** Whether the page shows origins from Rajki's dictionary */
+    rajki: Boolean = false,
+    /** Whether the page shows origins from the Esperanto Wiktionary */
+    vikiOrigins: Boolean = false,
 ) {
     var open by rememberSaveable { mutableStateOf(false) }
     val context = LocalContext.current
@@ -1389,6 +1393,7 @@ fun SourcesLine(
     val revoName = stringResource(R.string.revo_name)
     val vikiName = stringResource(R.string.viki_name)
     val blName = stringResource(R.string.bl_name)
+    val rajkiName = stringResource(R.string.rajki_name)
     val muted = MaterialTheme.colorScheme.onSurfaceVariant
 
     /* A button, as high as one should be to be tapped */
@@ -1399,7 +1404,7 @@ fun SourcesLine(
         contentAlignment = Alignment.CenterStart,
     ) {
         Text(
-            stringResource(R.string.sources_line, listOfNotNull(revoName.takeIf { revo }, vikiName.takeIf { viki || vikiEsperanto != null }, blName.takeIf { bonaLingvo }).joinToString(" · ")),
+            stringResource(R.string.sources_line, listOfNotNull(revoName.takeIf { revo }, vikiName.takeIf { viki || vikiEsperanto != null || vikiOrigins }, blName.takeIf { bonaLingvo }, rajkiName.takeIf { rajki }).joinToString(" · ")),
             style = MaterialTheme.typography.bodySmall.copy(fontStyle = FontStyle.Italic),
             color = muted,
         )
@@ -1467,6 +1472,12 @@ fun SourcesLine(
                         )
                     if (bonaLingvo)
                         Source(blName, stringResource(R.string.sources_bl), BonaLingvo.SITE)
+                    /* The origins: Vikivortaro's in Esperanto, where each
+                     * word's page lets one correct it */
+                    if (vikiOrigins)
+                        Source(stringResource(R.string.sources_viki_editions_one, vikiName, "eo"), stringResource(R.string.sources_viki_origins), VIKI_EO_SITE)
+                    if (rajki)
+                        Source(rajkiName, stringResource(R.string.sources_rajki), Deveno.RAJKI_SITE)
                 }
             },
         )

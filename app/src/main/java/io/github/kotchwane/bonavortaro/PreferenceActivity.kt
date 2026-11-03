@@ -93,6 +93,7 @@ class PreferenceActivity : BonaActivity() {
     private var keepHistory by mutableStateOf(true)
     private var guessWords by mutableStateOf(true)
     private var showSources by mutableStateOf(true)
+    private var showOrigins by mutableStateOf(false)
 
     /** Every language that can be a translation, i.e. all but Esperanto */
     private lateinit var translationLanguages: List<Language>
@@ -146,6 +147,11 @@ class PreferenceActivity : BonaActivity() {
                             showSources = it
                             BonaSettings.setShowSources(this, it)
                         },
+                        showOrigins = showOrigins,
+                        onShowOriginsChange = {
+                            showOrigins = it
+                            BonaSettings.setShowOrigins(this, it)
+                        },
                         translationsSummary = translationsSummary(),
                         onTranslations = { page = Page.TRANSLATIONS },
                         myLanguagesSummary = languageNames(myLanguages),
@@ -182,6 +188,7 @@ class PreferenceActivity : BonaActivity() {
         keepHistory = BonaSettings.getKeepHistory(this)
         guessWords = BonaSettings.getGuessWords(this)
         showSources = BonaSettings.getShowSources(this)
+        showOrigins = BonaSettings.getShowOrigins(this)
         myLanguages = BonaSettings.getChosenSearchLanguages(this)
         translations = BonaSettings.getTranslationLanguages(this, translationLanguages)
     }
@@ -318,6 +325,8 @@ private fun MainSettings(
     onUnfoldExamplesChange: (Boolean) -> Unit,
     showSources: Boolean,
     onShowSourcesChange: (Boolean) -> Unit,
+    showOrigins: Boolean,
+    onShowOriginsChange: (Boolean) -> Unit,
     translationsSummary: String,
     onTranslations: () -> Unit,
     myLanguagesSummary: String?,
@@ -357,6 +366,14 @@ private fun MainSettings(
                 stringResource(R.string.show_sources_summary),
                 showSources,
                 onShowSourcesChange,
+            )
+        }
+        item {
+            SwitchRow(
+                stringResource(R.string.show_origins),
+                stringResource(R.string.show_origins_summary),
+                showOrigins,
+                onShowOriginsChange,
             )
         }
 
