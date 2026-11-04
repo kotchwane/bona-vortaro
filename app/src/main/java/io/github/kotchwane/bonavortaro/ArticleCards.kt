@@ -67,6 +67,8 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -293,20 +295,51 @@ private fun OriginView(text: CharSequence, onLongPress: (String?) -> Unit) {
     val density = LocalDensity.current.density
     val label = stringResource(R.string.origin_label)
     val color = colors.onSurfaceVariant
-    SpannedText(
-        SpannableStringBuilder("\u2060").apply {
-            setSpan(
-                LinkTypeLabelSpan(label, color.toArgb(), radius = 50 * density, padding = 5 * density, stroke = 1 * density),
-                0, 1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE,
-            )
-            append(text)
-        },
-        style = MaterialTheme.typography.bodyMedium,
-        color = colors.onSurfaceVariant,
-        onLongPress = onLongPress,
-        modifier = Modifier.fillMaxWidth().padding(top = 6.dp),
-    )
+    when (ORIGIN_LAYOUT) {
+        OriginLayout.INLINE, OriginLayout.SMALL -> SpannedText(
+            SpannableStringBuilder("\u2060").apply {
+                setSpan(
+                    LinkTypeLabelSpan(label, color.toArgb(), radius = 50 * density, padding = 5 * density, stroke = 1 * density),
+                    0, 1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE,
+                )
+                append(text)
+            },
+            style = if (ORIGIN_LAYOUT == OriginLayout.SMALL) MaterialTheme.typography.bodySmall else MaterialTheme.typography.bodyMedium,
+            color = color,
+            onLongPress = onLongPress,
+            modifier = Modifier.fillMaxWidth().padding(top = 6.dp, bottom = if (ORIGIN_LAYOUT == OriginLayout.SMALL) 6.dp else 0.dp),
+        )
+        OriginLayout.HANGING, OriginLayout.HANGING_RULE -> Column(Modifier.fillMaxWidth().padding(top = 8.dp, bottom = 6.dp)) {
+            Row(verticalAlignment = Alignment.Top) {
+                /* The label in a column of its own, the lines beside it */
+                Text(
+                    label,
+                    style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold),
+                    color = color,
+                    modifier = Modifier
+                        .padding(top = 1.dp)
+                        .border(1.dp, color, RoundedCornerShape(50))
+                        .padding(horizontal = 6.dp, vertical = 1.dp),
+                )
+                Spacer(Modifier.width(8.dp))
+                SpannedText(
+                    text,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = color,
+                    onLongPress = onLongPress,
+                    modifier = Modifier.weight(1f),
+                )
+            }
+            if (ORIGIN_LAYOUT == OriginLayout.HANGING_RULE)
+                Box(Modifier.padding(top = 10.dp).fillMaxWidth().height(1.dp).background(colors.outlineVariant))
+        }
+    }
 }
+
+/** How the origin is laid out: the mock-up's choices */
+enum class OriginLayout { INLINE, SMALL, HANGING, HANGING_RULE }
+
+val ORIGIN_LAYOUT = OriginLayout.HANGING_RULE
 
 /** A text as shown: a label alone in its paragraph joins the next one,
  * "(malofte) Letero:" rather than on a line of its own, and between two
