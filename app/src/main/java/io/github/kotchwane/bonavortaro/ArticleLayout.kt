@@ -50,6 +50,8 @@ sealed class ContentBlock(val text: CharSequence) {
     class Text(text: CharSequence) : ContentBlock(text)
     class Example(text: CharSequence) : ContentBlock(text)
     class Note(text: CharSequence) : ContentBlock(text)
+    /** Where the word comes from (see [Deveno]) */
+    class Origin(text: CharSequence) : ContentBlock(text)
 }
 
 /** A label of the whole word: its field ("matematiko") or its kind
@@ -96,6 +98,20 @@ fun ArticleLayout.withRemarks(remarks: Map<Int, CharSequence>): ArticleLayout =
             remarks[word.section]?.let { remark ->
                 WordEntry(word.section, word.source, word.official, word.forms, word.title, word.labels,
                     word.blocks + ContentBlock.Note(remark), word.translations)
+            } ?: word
+        },
+        otherTranslations,
+    )
+
+/** The words with their origin, by their section; the card shows it where
+ * it chooses */
+fun ArticleLayout.withOrigins(origins: Map<Int, CharSequence>): ArticleLayout =
+    if (origins.isEmpty()) this
+    else ArticleLayout(
+        words.map { word ->
+            origins[word.section]?.let { origin ->
+                WordEntry(word.section, word.source, word.official, word.forms, word.title, word.labels,
+                    word.blocks + ContentBlock.Origin(origin), word.translations)
             } ?: word
         },
         otherTranslations,

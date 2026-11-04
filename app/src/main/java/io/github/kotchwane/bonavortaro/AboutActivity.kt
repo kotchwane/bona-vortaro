@@ -104,6 +104,13 @@ private val PARTS = listOf(
         ),
     ),
     AboutPart(R.string.about_bl_title, R.string.about_bl, R.string.about_bl_link to BonaLingvo.SITE),
+    AboutPart(
+        R.string.about_rajki_title, R.string.about_rajki, R.string.about_rajki_link to Deveno.RAJKI_SITE,
+        textLinks = listOf(
+            "eo.wiktionary.org" to VIKIVORTARO_EO_URL,
+            "CC BY-SA 4.0" to CC_BY_SA_URL,
+        ),
+    ),
     AboutPart(R.string.about_copyright_title, R.string.about_copyright),
     AboutPart(R.string.about_warranty_title, R.string.about_warranty, R.string.about_license_link to LICENSE_URL),
 )

@@ -164,6 +164,8 @@ class ArticleActivity : BonaActivity() {
     private var preferredLanguages by mutableStateOf(emptyList<String>())
     /* Whether Vikivortaro's French is shown: with the French translations */
     private var vikiShown by mutableStateOf(false)
+    /* Whether the origins of the words are shown (see Deveno) */
+    private var showOrigins by mutableStateOf(false)
     private var showNoFlashcard by mutableStateOf(false)
 
     /* The translations that were shown when the article was loaded, to
@@ -214,6 +216,7 @@ class ArticleActivity : BonaActivity() {
                     foldTranslations = foldTranslations,
                     preferredLanguages = preferredLanguages,
                     vikiShown = vikiShown,
+                    showOrigins = showOrigins,
                     /* The section of the intent, for the root it opened */
                     initialSection = if (savedInstanceState == null && depth == 1) mark else -1,
                     initialSense = if (savedInstanceState == null && depth == 1) sense else -1,
@@ -263,6 +266,7 @@ class ArticleActivity : BonaActivity() {
         unfoldExamples = BonaSettings.getUnfoldExamples(this)
         preferredLanguages = BonaSettings.getTranslationOrder(this)
         vikiShown = Vikivortaro.inArticles(this)
+        showOrigins = BonaSettings.getShowOrigins(this)
         extraLanguage = exampleLanguage?.takeIf { it != "eo" && !BonaSettings.translationFilter(this)(it) }
 
         /* The articles read before show the sources of the examples, or
@@ -442,6 +446,7 @@ private fun ArticleScreen(
     foldTranslations: Boolean,
     preferredLanguages: List<String>,
     vikiShown: Boolean,
+    showOrigins: Boolean,
     initialSection: Int,
     /** The sense of its word to show, from 1, or -1 */
     initialSense: Int,
@@ -552,7 +557,16 @@ private fun ArticleScreen(
             withContext(Dispatchers.IO) { BonaLingvo.remarks(context, it, RevoFiles.fileOf(context, articleNumber)) }
         } ?: emptyMap()
     }
-    val layout = remember(revoLayout, bonaLingvo) { revoLayout?.withRemarks(bonaLingvo) }
+    /* Where its words come from, for those who turned it on: a box after
+     * the remarks */
+    val origins by produceState<Map<Int, Deveno.Note>>(emptyMap(), revoLayout, showOrigins) {
+        value = revoLayout?.takeIf { showOrigins }?.let {
+            withContext(Dispatchers.IO) { Deveno.notes(context, it, RevoFiles.fileOf(context, articleNumber)) }
+        } ?: emptyMap()
+    }
+    val layout = remember(revoLayout, bonaLingvo, origins) {
+        revoLayout?.withRemarks(bonaLingvo)?.withOrigins(origins.mapValues { it.value.text })
+    }
 
     /* Where the card of each section is in the list */
     val positions = remember(layout) {
@@ -739,7 +753,11 @@ private fun ArticleScreen(
                      * narrow cards keep their words whole */
                     if (layout != null)
                         item(key = "sources") {
-                            SourcesLine(revo = true, viki = withViki, revoArticle = articleNumber, bonaLingvo = bonaLingvo.isNotEmpty(), modifier = Modifier.padding(horizontal = 8.dp))
+                            SourcesLine(
+                                revo = true, viki = withViki, revoArticle = articleNumber, bonaLingvo = bonaLingvo.isNotEmpty(),
+                                rajki = origins.values.any { it.rajki },
+                                vikiOrigins = origins.values.any { it.vikivortaro },
+                                modifier = Modifier.padding(horizontal = 8.dp))
                         }
                     if (layout != null && neighbours != null)
                         item(key = "neighbours") {

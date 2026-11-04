@@ -246,6 +246,11 @@ fun WordCard(
                     LabelChip(label, Modifier.align(Alignment.CenterVertically))
             }
 
+            /* Its origin, under the headword, as most dictionaries have it */
+            entry.blocks.firstNotNullOfOrNull { it as? ContentBlock.Origin }?.let {
+                OriginView(it.text, onLongPressText)
+            }
+
             val exampleColor = MaterialTheme.colorScheme.onSurfaceVariant.toArgb()
 
             for ((index, group) in groupExamples(entry.blocks, exampleColor).withIndex()) {
@@ -263,6 +268,8 @@ fun WordCard(
                         is ContentBlock.Example -> ExampleLine(block.text, onLongPressText)
                         is ContentBlock.Note ->
                             NoteBox(block.text, key = "${entry.section}-note-$index", unfolded = unfoldExamples, onLongPressText)
+                        /* Under the headword, above */
+                        is ContentBlock.Origin -> {}
                     }
                     is BlockGroup.Examples ->
                         FoldedExamples(group.examples, onLongPressText, key = "${entry.section}-$index", unfolded = unfoldExamples)
@@ -276,6 +283,31 @@ fun WordCard(
                 TranslationsBox(entry.translations, foldTranslations, onLongPressWord, viki, example, vikiExamples, scrolled)
         }
     }
+}
+
+/** The origin of a word under its headword, after an outlined label
+ * "deveno", grey like "homonimo": less loud than its senses */
+@Composable
+private fun OriginView(text: CharSequence, onLongPress: (String?) -> Unit) {
+    val colors = MaterialTheme.colorScheme
+    val density = LocalDensity.current.density
+    val label = stringResource(R.string.origin_label)
+    val color = colors.onSurfaceVariant
+    /* Smaller than the senses, with room before them: a long origin
+     * ("ambaŭ") isn't read as the start of the definition */
+    SpannedText(
+        SpannableStringBuilder("\u2060").apply {
+            setSpan(
+                LinkTypeLabelSpan(label, color.toArgb(), radius = 50 * density, padding = 5 * density, stroke = 1 * density),
+                0, 1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE,
+            )
+            append(text)
+        },
+        style = MaterialTheme.typography.bodySmall,
+        color = color,
+        onLongPress = onLongPress,
+        modifier = Modifier.fillMaxWidth().padding(top = 6.dp, bottom = 6.dp),
+    )
 }
 
 /** A text as shown: a label alone in its paragraph joins the next one,
@@ -1380,6 +1412,10 @@ fun SourcesLine(
     vikiEsperanto: EsperantoDefinition? = null,
     /** Whether the page shows a remark from "Vortoj de la bona lingvo" */
     bonaLingvo: Boolean = false,
+    /** Whether the page shows origins from Rajki's dictionary */
+    rajki: Boolean = false,
+    /** Whether the page shows origins from the Esperanto Wiktionary */
+    vikiOrigins: Boolean = false,
 ) {
     var open by rememberSaveable { mutableStateOf(false) }
     val context = LocalContext.current
@@ -1389,6 +1425,7 @@ fun SourcesLine(
     val revoName = stringResource(R.string.revo_name)
     val vikiName = stringResource(R.string.viki_name)
     val blName = stringResource(R.string.bl_name)
+    val rajkiName = stringResource(R.string.rajki_name)
     val muted = MaterialTheme.colorScheme.onSurfaceVariant
 
     /* A button, as high as one should be to be tapped */
@@ -1399,7 +1436,7 @@ fun SourcesLine(
         contentAlignment = Alignment.CenterStart,
     ) {
         Text(
-            stringResource(R.string.sources_line, listOfNotNull(revoName.takeIf { revo }, vikiName.takeIf { viki || vikiEsperanto != null }, blName.takeIf { bonaLingvo }).joinToString(" · ")),
+            stringResource(R.string.sources_line, listOfNotNull(revoName.takeIf { revo }, vikiName.takeIf { viki || vikiEsperanto != null || vikiOrigins }, blName.takeIf { bonaLingvo }, rajkiName.takeIf { rajki }).joinToString(" · ")),
             style = MaterialTheme.typography.bodySmall.copy(fontStyle = FontStyle.Italic),
             color = muted,
         )
@@ -1467,6 +1504,12 @@ fun SourcesLine(
                         )
                     if (bonaLingvo)
                         Source(blName, stringResource(R.string.sources_bl), BonaLingvo.SITE)
+                    /* The origins: Vikivortaro's in Esperanto, where each
+                     * word's page lets one correct it */
+                    if (vikiOrigins)
+                        Source(stringResource(R.string.sources_viki_editions_one, vikiName, "eo"), stringResource(R.string.sources_viki_origins), VIKI_EO_SITE)
+                    if (rajki)
+                        Source(rajkiName, stringResource(R.string.sources_rajki), Deveno.RAJKI_SITE)
                 }
             },
         )
