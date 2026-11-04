@@ -107,6 +107,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import java.io.IOException
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.withTimeoutOrNull
+import androidx.compose.runtime.snapshotFlow
 import kotlinx.coroutines.launch
 
 class ArticleActivity : BonaActivity() {
@@ -561,7 +564,19 @@ private fun ArticleScreen(
     var showedSection by rememberSaveable { mutableStateOf(false) }
     LaunchedEffect(layout != null) {
         if (layout != null && !showedSection) {
-            positions[initialSection]?.let { listState.scrollToItem(it) }
+            positions[initialSection]?.let { position ->
+                /* Once the roots before and after are below, else the list,
+                 * shorter, would stop before its end */
+                withTimeoutOrNull(1000) { snapshotFlow { neighbours }.first { it != null } }
+                /* Not if its card is already whole on the screen, the list
+                 * at its top: a short article couldn't bring it to the top,
+                 * and would stop in the middle of the card before ("massacre":
+                 * masakro, after masakri) */
+                val info = snapshotFlow { listState.layoutInfo }.first { it.visibleItemsInfo.isNotEmpty() }
+                val card = info.visibleItemsInfo.firstOrNull { it.index == position }
+                if (card == null || card.offset + card.size > info.viewportEndOffset - info.afterContentPadding)
+                    listState.scrollToItem(position)
+            }
             showedSection = true
         }
     }
