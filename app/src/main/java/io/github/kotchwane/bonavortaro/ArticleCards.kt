@@ -52,6 +52,8 @@ import android.graphics.RectF
 import android.text.method.LinkMovementMethod
 import android.text.SpannableStringBuilder
 import android.text.Spanned
+import android.text.style.StyleSpan
+import android.graphics.Typeface
 import android.text.style.ForegroundColorSpan
 import android.text.style.ReplacementSpan
 import android.util.TypedValue
@@ -246,6 +248,12 @@ fun WordCard(
                     LabelChip(label, Modifier.align(Alignment.CenterVertically))
             }
 
+            /* Its origin, under the headword, as most dictionaries have it */
+            if (ORIGIN_STYLE != OriginStyle.BOTTOM_BOX)
+                entry.blocks.firstNotNullOfOrNull { it as? ContentBlock.Origin }?.let {
+                    OriginView(it.text, ORIGIN_STYLE, onLongPressText)
+                }
+
             val exampleColor = MaterialTheme.colorScheme.onSurfaceVariant.toArgb()
 
             for ((index, group) in groupExamples(entry.blocks, exampleColor).withIndex()) {
@@ -262,7 +270,10 @@ fun WordCard(
                         }
                         is ContentBlock.Example -> ExampleLine(block.text, onLongPressText)
                         is ContentBlock.Note ->
-                            NoteBox(block.text, key = "${entry.section}-note-$index", unfolded = unfoldExamples, onLongPressText, title = block.title)
+                            NoteBox(block.text, key = "${entry.section}-note-$index", unfolded = unfoldExamples, onLongPressText)
+                        is ContentBlock.Origin ->
+                            if (ORIGIN_STYLE == OriginStyle.BOTTOM_BOX)
+                                NoteBox(block.text, key = "${entry.section}-origin", unfolded = unfoldExamples, onLongPressText, title = stringResource(R.string.origin))
                     }
                     is BlockGroup.Examples ->
                         FoldedExamples(group.examples, onLongPressText, key = "${entry.section}-$index", unfolded = unfoldExamples)
@@ -274,6 +285,83 @@ fun WordCard(
 
             if (entry.translations.isNotEmpty() || viki.isNotEmpty() || vikiExamples.isNotEmpty())
                 TranslationsBox(entry.translations, foldTranslations, onLongPressWord, viki, example, vikiExamples, scrolled)
+        }
+    }
+}
+
+/** Where the origin of a word is shown, and how: the mock-up's choices */
+enum class OriginStyle {
+    /** A box like the remarks', after them */
+    BOTTOM_BOX,
+    /** Under the headword, a plain line in the colour of the examples:
+     * "Deveno: franca dent… — Rajki" */
+    TOP_LINE,
+    /** Under the headword, after an outlined label "deveno", like "vidu" */
+    TOP_CHIP,
+    /** Under the headword, in a thin frame, smaller */
+    TOP_FRAME,
+    /** Under the headword, in a box of the third colour, smaller */
+    TOP_TINT,
+}
+
+val ORIGIN_STYLE = OriginStyle.TOP_LINE
+
+/** The origin of a word under its headword, less loud than its senses */
+@Composable
+private fun OriginView(text: CharSequence, style: OriginStyle, onLongPress: (String?) -> Unit) {
+    val colors = MaterialTheme.colorScheme
+    val muted = colors.onSurfaceVariant
+    val density = LocalDensity.current.density
+    val title = stringResource(R.string.origin)
+    val label = stringResource(R.string.origin_label)
+    when (style) {
+        OriginStyle.BOTTOM_BOX -> {}
+        OriginStyle.TOP_LINE -> SpannedText(
+            SpannableStringBuilder("$label: ").apply {
+                setSpan(StyleSpan(Typeface.BOLD), 0, label.length + 1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+                append(text)
+            },
+            style = MaterialTheme.typography.bodyMedium,
+            color = muted,
+            onLongPress = onLongPress,
+            modifier = Modifier.fillMaxWidth().padding(top = 6.dp),
+        )
+        OriginStyle.TOP_CHIP -> SpannedText(
+            SpannableStringBuilder("\u2060").apply {
+                setSpan(
+                    LinkTypeLabelSpan(label, colors.tertiary.toArgb(), radius = 50 * density, padding = 5 * density, stroke = 1 * density),
+                    0, 1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE,
+                )
+                append(text)
+            },
+            style = MaterialTheme.typography.bodyMedium,
+            color = muted,
+            onLongPress = onLongPress,
+            modifier = Modifier.fillMaxWidth().padding(top = 6.dp),
+        )
+        OriginStyle.TOP_FRAME, OriginStyle.TOP_TINT -> {
+            val tint = style == OriginStyle.TOP_TINT
+            Surface(
+                modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
+                shape = RoundedCornerShape(10.dp),
+                color = if (tint) colors.tertiaryContainer.copy(alpha = 0.35f) else Color.Transparent,
+                border = if (tint) null else BorderStroke(1.dp, colors.outlineVariant),
+            ) {
+                Column(Modifier.padding(horizontal = 10.dp, vertical = 6.dp)) {
+                    Text(
+                        title,
+                        style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold),
+                        color = if (tint) colors.tertiary else muted,
+                    )
+                    SpannedText(
+                        text,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = muted,
+                        onLongPress = onLongPress,
+                        modifier = Modifier.fillMaxWidth(),
+                    )
+                }
+            }
         }
     }
 }

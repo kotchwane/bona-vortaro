@@ -30,6 +30,7 @@
   <string name="share">Kunhavigi</string>
   <string name="remark">RIMARKO</string>
   <string name="origin">DEVENO</string>
+  <string name="origin_label">deveno</string>
   <string name="examples_more">%1$d pliaj ekzemploj\u00A0▾</string>
   <string name="examples_one_more">1 plia ekzemplo\u00A0▾</string>
   <string name="examples_less">Faldi la ekzemplojn\u00A0▴</string>
@@ -279,7 +280,7 @@
   <string name="show_sources">Montri la fontojn de la ekzemploj</string>
   <string name="show_sources_summary">Post ĉiu ekzemplo, el kiu verko ĝi venas: „—\u00A0Zamenhof, Fundamento de Esperanto“. Tuŝu la fonton por legi la verkon en la reto, kiam ĝi estas tie.</string>
   <string name="show_origins">Montri la devenon de la vortoj</string>
-  <string name="show_origins_summary">Sub la vortoj, el kiuj lingvoj ili venas, laŭ la Etimologia Vortaro de Esperanto de András Rajki (2006) kaj laŭ Vikivortaro. Neniu kontrolis ĝin por Bona vortaro, kaj la deveno de multaj vortoj estas diskutebla. Tuŝu „Vikivortaro“ sub vorto por korekti aŭ kompletigi ĝian devenon tie.</string>
+  <string name="show_origins_summary">Ĉe la vortoj, el kiuj lingvoj ili venas, laŭ la etimologia vortaro de Rajki kaj laŭ Vikivortaro</string>
   <string name="unfold_examples_summary">Montri ĉiujn ekzemplojn kaj la tutan tekston de la longaj rimarkoj, anstataŭ faldi ilin</string>
   <string name="translations_order_help">La tradukoj aperas en la artikoloj en ĉi tiu ordo. Tenu lingvon premita por movi ĝin.</string>
   <string name="drag_to_reorder">Tenu kaj movu por ŝanĝi la ordon</string>

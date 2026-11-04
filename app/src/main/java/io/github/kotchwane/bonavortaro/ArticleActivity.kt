@@ -561,11 +561,10 @@ private fun ArticleScreen(
             withContext(Dispatchers.IO) { Deveno.notes(context, it) }
         } ?: emptyMap()
     }
-    val originsTitle = stringResource(R.string.origin)
     val rajkiName = stringResource(R.string.rajki_name)
     val vikiName = stringResource(R.string.viki_name)
     val layout = remember(revoLayout, bonaLingvo, origins) {
-        revoLayout?.withRemarks(bonaLingvo)?.withRemarks(origins, originsTitle)
+        revoLayout?.withRemarks(bonaLingvo)?.withOrigins(origins)
     }
 
     /* Where the card of each section is in the list */
