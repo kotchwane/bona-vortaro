@@ -1,4 +1,5 @@
-# Roots that Rajki gives twice ("radio", the radio and the radius): the article of Reta Vortaro each of
+# Roots that Rajki gives twice ("radio", the radio and the radius), or once for a word that heads the
+# root card of several articles of Reta Vortaro ("talio", the waist and thallium): the article each of
 # his lines is about, by its file (extern/revo-fonto/revo/<file>.xml), chosen by hand from the words he
 # gives and the articles' definitions; several rows for a line about several articles, "-" for none.
 # Read by scripts/deveno.py. Columns: the root, the number of the line in Rajki's order, the file.
@@ -17,3 +18,42 @@ raketo	1	raket
 raketo	2	raket
 veto	1	vet
 veto	2	-
+atlaso	1	atlas
+beto	1	bet
+daktilo	1	daktil
+daktilo	1	daktil1
+do	1	do
+faŭno	1	fauxn1
+gamo	1	gam
+grafo	1	graf
+investi	1	invest
+kapo	1	kap
+katarakto	1	katara
+katarakto	1	katarakt
+kataro	1	katar
+kilo	1	kil
+kino	1	kin
+kliko	1	klik
+kodo	1	kod
+kodo	1	kod1
+kolono	1	kolon
+koro	1	kor
+krono	1	kron
+liro	1	lir
+marko	1	mark
+medo	1	med1
+migdalo	1	migdal
+modo	1	mod
+oleo	1	ole
+pato	1	pat
+peono	1	peon
+pikedo	1	piked
+po	1	po
+pulo	1	pul
+roto	1	rot
+sinuso	1	sinus
+sinuso	1	sinus1
+spino	1	spin
+talio	1	tali
+trako	1	trak
+ĵako	1	jxak1

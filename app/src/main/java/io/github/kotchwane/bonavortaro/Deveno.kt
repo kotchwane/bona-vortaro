@@ -53,20 +53,23 @@ object Deveno {
     /** What a card shows of a word's origins, and from which sources */
     class Note(val text: CharSequence, val rajki: Boolean, val vikivortaro: Boolean)
 
-    /** A line of Rajki's; for a root he gives twice, the file of the
-     * article of Reta Vortaro it is about ("-" for none), else null */
-    private class RajkiLine(val text: String, val file: String?)
+    /** A line of either source; for a word that heads several articles of
+     * Reta Vortaro, the file of the one it is about ("-" for none), else
+     * null */
+    private class Line(val text: String, val file: String?)
 
-    private class Data(val rajki: Map<String, List<RajkiLine>>, val vikivortaro: Map<String, String>)
+    private class Data(val rajki: Map<String, List<Line>>, val vikivortaro: Map<String, List<Line>>)
 
     @Volatile private var data: Data? = null
 
     @Synchronized
     private fun data(context: Context): Data = data ?: Data(
-        read(context, "deveno/rajki.tsv")
-            .groupBy({ it[0] }, { RajkiLine(it[1], it.getOrNull(2)?.takeIf { file -> file.isNotEmpty() }) }),
-        read(context, "deveno/vikivortaro.tsv").associate { it[0] to it[1] },
+        lines(read(context, "deveno/rajki.tsv")),
+        lines(read(context, "deveno/vikivortaro.tsv")),
     ).also { data = it }
+
+    private fun lines(rows: List<List<String>>): Map<String, List<Line>> =
+        rows.groupBy({ it[0] }, { Line(it[1], it.getOrNull(2)?.takeIf { file -> file.isNotEmpty() }) })
 
     private fun read(context: Context, file: String): List<List<String>> =
         try {
@@ -81,13 +84,13 @@ object Deveno {
         }
 
     /** The origins of a word as written, in the article of Reta Vortaro
-     * [file], if either source has them: of a root Rajki gives twice
-     * ("radio"), only his line about that article. Disk access: not on the
+     * [file], if either source has them: of a word that heads several
+     * articles ("radio", "talio"), only what is about that article. Disk access: not on the
      * main thread. */
     fun of(context: Context, word: String, file: String?): Origins? {
         val data = data(context)
         val rajki = data.rajki[word].orEmpty().filter { it.file == null || it.file == file }.map { it.text }
-        val viki = data.vikivortaro[word]
+        val viki = data.vikivortaro[word].orEmpty().firstOrNull { it.file == null || it.file == file }?.text
         return if (rajki.isEmpty() && viki == null) null else Origins(rajki, viki, word)
     }
 
@@ -110,11 +113,13 @@ object Deveno {
             it.size == 1 && it[0].length == rootWord.length && it[0].startsWith(stem) && it[0].last() in ENDINGS
         }
         val notes = mutableMapOf<Int, Note>()
-        /* The root's own first */
+        /* For each source, the root's own, else the first of its other forms
+         * that has one: Rajki's "kosti" and "kosto" say nearly the same */
         val group = found.filter { (word, _) -> word === root || isForm(word) }.mapNotNull { it.second }
         if (group.isNotEmpty()) {
+            val rajki = group.firstOrNull { it.rajki.isNotEmpty() }
             val viki = group.firstOrNull { it.vikivortaro != null }
-            shown(Origins(group.flatMap { it.rajki }.distinct(), viki?.vikivortaro, viki?.vikiWord))
+            shown(Origins(rajki?.rajki.orEmpty(), viki?.vikivortaro, viki?.vikiWord))
                 ?.let { notes[root.section] = note(context, it) }
         }
         for ((word, origins) in found)

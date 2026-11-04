@@ -1,0 +1,18 @@
+# Words whose origin the Esperanto Wiktionary gives, that head the root card of several articles of Reta
+# Vortaro ("kino", the cinema and kino the gum): the article the text is about, by its file
+# (extern/revo-fonto/revo/<file>.xml), chosen by hand; several rows for a text about several (it names the
+# senses: "(greka litero) …"), "-" for none. Read by scripts/deveno.py. Columns: the word, the file.
+-j	j
+be	-
+beto	bet
+beto	bet1
+fregato	fregat
+fregato	fregat1
+kino	kin
+kodo	kod
+migdalo	migdal
+po	po
+talio	-
+titano	titan
+titano	titan1
+trako	trak

@@ -27,8 +27,9 @@
 #    its templates written out ("el {{deveno3|eo|fr|rouge}}": "el la franca
 #    rouge"). A section that still has a template or markup afterwards is
 #    left out, as are those that only point to a reference ("[1]").
-#    Written only when a dump is given, to
-#    app/src/main/assets/deveno/vikivortaro.tsv.
+#    A word that heads several articles of Reta Vortaro has the article its
+#    text is about, from data/vikivortaro-deveno-homonyms.tsv. Written only
+#    when a dump is given, to app/src/main/assets/deveno/vikivortaro.tsv.
 #
 # In both files, the words of other languages are between ⟨ and ⟩, which the
 # app shows in italics. The files are committed, so that the app is built
@@ -44,6 +45,7 @@ import xml.etree.ElementTree as ET
 ROOT = os.path.join(os.path.dirname(__file__), "..")
 RAJKI = os.path.join(ROOT, "data", "rajki-etimologia-vortaro.txt")
 RAJKI_HOMONYMS = os.path.join(ROOT, "data", "rajki-homonyms.tsv")
+WIKI_HOMONYMS = os.path.join(ROOT, "data", "vikivortaro-deveno-homonyms.tsv")
 OUT = os.path.join(ROOT, "app", "src", "main", "assets", "deveno")
 
 # Rajki's abbreviations ("Fra" once, for "Fre")
@@ -122,7 +124,7 @@ def rajki():
     rows = []
     seen = {}
     for word, text in entries:
-        if counts[word] == 1:
+        if counts[word] == 1 and (word, 1) not in homonyms:
             rows.append((word, text, ""))
             continue
         # Its number among the lines of that root, in Rajki's order
@@ -249,12 +251,20 @@ def vikivortaro(source):
                 else:
                     skipped += 1
         element.clear()
+    homonyms = {}
+    with open(WIKI_HOMONYMS, encoding="utf-8") as f:
+        for line in f:
+            if not line.startswith("#") and line.strip():
+                word, file = line.rstrip("\n").split("\t")
+                homonyms.setdefault(word, []).append(file)
     with open(os.path.join(OUT, "vikivortaro.tsv"), "w", encoding="utf-8") as f:
         f.write("# From the Esperanto Wiktionary (eo.wiktionary.org), by its contributors, CC BY-SA 4.0: the origins\n"
                 f"# of the words (Deveno, Etimologio). Dump of {latest[:10] or 'date unknown'} (its last edit), with\n"
-                "# scripts/deveno.py. Columns: the word, its origin.\n")
+                "# scripts/deveno.py. Columns: the word, its origin, and for a word that heads several articles of\n"
+                "# Reta Vortaro the file of the one it is about (\"-\" for none), from data/vikivortaro-deveno-homonyms.tsv.\n")
         for word in sorted(found, key=str.lower):
-            f.write(f"{word}\t{found[word]}\n")
+            for file in homonyms.get(word, [""]):
+                f.write(f"{word}\t{found[word]}\t{file}\n")
     print(f"Vikivortaro: {len(found)} origins, {skipped} left out (markup, or empty)")
 
 

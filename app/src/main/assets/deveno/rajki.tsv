@@ -245,7 +245,7 @@ atento	franca ⟨attention⟩, itala ⟨attenzione⟩, angla ⟨attention⟩
 atesti	franca ⟨attester⟩, itala ⟨attestare⟩	
 atesto	germana ⟨Attest⟩	
 atingi	franca ⟨atteindre⟩, latina ⟨attingere⟩	
-atlaso	rusa ⟨атлас⟩, litova ⟨atlasas⟩, pola ⟨atlas⟩, germana ⟨Atlas⟩, franca ⟨atlas⟩, angla ⟨atlas⟩	
+atlaso	rusa ⟨атлас⟩, litova ⟨atlasas⟩, pola ⟨atlas⟩, germana ⟨Atlas⟩, franca ⟨atlas⟩, angla ⟨atlas⟩	atlas
 atleto	rusa ⟨атлет⟩, litova ⟨atletas⟩, germana ⟨Athlet⟩, franca ⟨athlète⟩, itala ⟨atleta⟩, angla ⟨athlete⟩	
 atmosfero	rusa ⟨атмосфера⟩, litova ⟨atmosfera⟩, pola ⟨atmosfera⟩, germana ⟨Atmosphäre⟩, franca ⟨atmosphère⟩, itala ⟨atmosfera⟩, angla ⟨atmosphere⟩	
 atomo	rusa ⟨атом⟩, litova ⟨atomas⟩, pola ⟨atom⟩, germana ⟨Atom⟩, franca ⟨atome⟩, itala ⟨atomo⟩, angla ⟨atom⟩, latina ⟨atomus⟩	
@@ -348,7 +348,7 @@ benko	jida ⟨benk⟩, germana ⟨Bank⟩, franca ⟨banc⟩, itala ⟨banco⟩
 benzino	rusa ⟨бензин⟩, litova ⟨benzinas⟩, pola ⟨benzyna⟩, germana ⟨Benzin⟩, itala ⟨benzina⟩	
 bero	germana ⟨Beere⟩, angla ⟨berry⟩	
 besto	pola ⟨bestia⟩, germana ⟨Bestie⟩, itala ⟨bestia⟩, angla ⟨beast⟩, latina ⟨bestia⟩	
-beto	germana ⟨Beet⟩, franca ⟨bette⟩	
+beto	germana ⟨Beet⟩, franca ⟨bette⟩	bet
 betono	rusa ⟨бетон⟩, litova ⟨betonas⟩, pola ⟨beton⟩, germana ⟨Beton⟩, franca ⟨béton⟩, itala ⟨betone⟩	
 betulo	itala ⟨betulla⟩, latina ⟨betula⟩	
 bezono	franca ⟨bésoin⟩, itala ⟨bisogna⟩	
@@ -558,7 +558,8 @@ colo	jida ⟨tsol⟩, litova ⟨colis⟩, germana ⟨Zoll⟩
 ĉokolado	franca ⟨chocolate⟩, itala ⟨cioccolata⟩, angla ⟨chocolate⟩	
 ĉu	jida ⟨tsi⟩, pola ⟨czy⟩	
 da	franca ⟨de⟩, itala ⟨di⟩	
-daktilo	latina ⟨dactylus⟩	
+daktilo	latina ⟨dactylus⟩	daktil
+daktilo	latina ⟨dactylus⟩	daktil1
 damo	rusa ⟨дама⟩, litova ⟨dama⟩, pola ⟨dama⟩, germana ⟨Dame⟩, franca ⟨dame⟩, itala ⟨dama⟩	
 danci	angla ⟨dance⟩	
 danĝero	franca ⟨danger⟩, angla ⟨danger⟩	
@@ -703,7 +704,7 @@ diversa	germana ⟨divers⟩, franca ⟨divers⟩, itala ⟨diverso⟩, angla �
 dividi	germana ⟨dividieren⟩, franca ⟨divider⟩, itala ⟨dividere⟩, angla ⟨divide⟩, latina ⟨dividere⟩	
 divizio	rusa ⟨дивизия⟩, litova ⟨divizija⟩, pola ⟨dywizja⟩, germana ⟨Division⟩, franca ⟨division⟩, itala ⟨divisione⟩, angla ⟨division⟩, latina ⟨divisio⟩	
 dizerti	rusa ⟨дезертировать⟩, litova ⟨dezertyruoti⟩, germana ⟨desertieren⟩, franca ⟨déserter⟩, itala ⟨disertare⟩, angla ⟨desert⟩	
-do	franca ⟨donc⟩	
+do	franca ⟨donc⟩	do
 docento	rusa ⟨доцент⟩, litova ⟨docentas⟩, itala ⟨docente⟩, latina ⟨docentes⟩ (plurale)	
 dogano	itala ⟨dogana⟩	
 dogmo	rusa ⟨догма⟩, litova ⟨dogma⟩, germana ⟨Dogma⟩, franca ⟨dogme⟩, angla ⟨dogma⟩, itala ⟨dogma⟩, latina ⟨dogma⟩	
@@ -958,7 +959,7 @@ faŝisto	rusa ⟨фашист⟩, litova ⟨fašistas⟩, germana ⟨Faschist⟩
 fatala	rusa ⟨фатальный⟩, litova ⟨fatališkas⟩, pola ⟨fatalny⟩, germana ⟨fatal⟩, franca ⟨fatal⟩, itala ⟨fatale⟩, angla ⟨fatal⟩, latina ⟨fatalis⟩	
 fato	latina ⟨fatum⟩	
 faŭko	itala ⟨fauci⟩, latina ⟨fauces⟩ (plurale)	
-faŭno	rusa ⟨фауна⟩, litova ⟨fauna⟩, pola ⟨fauna⟩, franca ⟨faune⟩, itala ⟨fauna⟩, angla ⟨fauna⟩	
+faŭno	rusa ⟨фауна⟩, litova ⟨fauna⟩, pola ⟨fauna⟩, franca ⟨faune⟩, itala ⟨fauna⟩, angla ⟨fauna⟩	fauxn1
 favo	latina ⟨favus⟩	
 favoro	franca ⟨faveur⟩, itala ⟨favore⟩, angla ⟨favour⟩, latina ⟨favor⟩	
 fazano	rusa ⟨фазан⟩, litova ⟨fazanas⟩, germana ⟨Fasan⟩, franca ⟨faisan⟩	
@@ -1154,7 +1155,7 @@ galerio	rusa ⟨галерея⟩, litova ⟨galerija⟩, pola ⟨galeria⟩, ge
 galo	germana ⟨Galle⟩, angla ⟨gall⟩	
 galopo	germana ⟨Galopp⟩, angla ⟨gallop⟩	
 galoŝo	germana ⟨Galosche⟩, franca ⟨galoche⟩	
-gamo	rusa ⟨гамма⟩, litova ⟨gama⟩, franca ⟨gamme⟩, itala ⟨gamma⟩	
+gamo	rusa ⟨гамма⟩, litova ⟨gama⟩, franca ⟨gamme⟩, itala ⟨gamma⟩	gam
 ganto	franca ⟨gant⟩	
 gapi	angla ⟨gape⟩	
 garaĝo	rusa ⟨гараж⟩, litova ⟨garažas⟩, pola ⟨garaż⟩, germana ⟨Garage⟩, franca ⟨garage⟩, angla ⟨garage⟩	
@@ -1211,7 +1212,7 @@ gracia	franca ⟨gracil⟩, angla ⟨gracile⟩
 graco	franca ⟨grâce⟩, angla ⟨grace⟩	
 grado	franca ⟨grade⟩, itala ⟨grado⟩, angla ⟨grade⟩, latina ⟨gradus⟩	
 grafiko	rusa ⟨графика⟩, litova ⟨grafika⟩, germana ⟨Graphik⟩, franca ⟨graphique⟩, itala ⟨grafica⟩, angla ⟨graphics⟩	
-grafo	rusa ⟨граф⟩, litova ⟨grafas⟩, germana ⟨Graf⟩	
+grafo	rusa ⟨граф⟩, litova ⟨grafas⟩, germana ⟨Graf⟩	graf
 grafologio	rusa ⟨графология⟩, litova ⟨grafologija⟩, pola ⟨grafologia⟩, germana ⟨Graphologie⟩, franca ⟨graphologie⟩, itala ⟨grafologia⟩, angla ⟨graphology⟩	
 grajno	franca ⟨grain⟩, itala ⟨grano⟩, angla ⟨grain⟩, latina ⟨granum⟩	
 gramatiko	rusa ⟨грамматика⟩, litova ⟨gramatika⟩, pola ⟨gramatyka⟩, germana ⟨Grammatik⟩, itala ⟨grammatica⟩	
@@ -1471,7 +1472,7 @@ invadi	itala ⟨invadere⟩, angla ⟨invade⟩, latina ⟨invadere⟩
 invalido	rusa ⟨инвалид⟩, litova ⟨invalidas⟩, pola ⟨inwalida⟩, franca ⟨invalide⟩, itala ⟨invalido⟩, angla ⟨invalid⟩, latina ⟨invalidus⟩	
 inventaro	rusa ⟨инвентарь⟩, litova ⟨inventorius⟩, pola ⟨inwentarz⟩, germana ⟨Inventar⟩, franca ⟨inventaire⟩, itala ⟨inventario⟩, angla ⟨inventory⟩	
 inventi	franca ⟨inventer⟩, itala ⟨inventare⟩, angla ⟨invent⟩	
-investi	rusa ⟨инвестировать⟩, litova ⟨investuoti⟩, franca ⟨investir⟩, itala ⟨investire⟩, angla ⟨invest⟩	
+investi	rusa ⟨инвестировать⟩, litova ⟨investuoti⟩, franca ⟨investir⟩, itala ⟨investire⟩, angla ⟨invest⟩	invest
 inviti	franca ⟨inviter⟩, itala ⟨invitare⟩, angla ⟨invite⟩, latina ⟨invitare⟩	
 iri	latina ⟨ire⟩, hispana ⟨ir⟩	
 irido	itala ⟨iride⟩, latina ⟨irides⟩ (plurale)	
@@ -1512,7 +1513,7 @@ justeco	franca ⟨justesse⟩
 justico	franca ⟨justice⟩, angla ⟨justice⟩	
 juvelo	germana ⟨Juwel⟩, angla ⟨jewel⟩	
 ĵaketo	angla ⟨jacket⟩	
-ĵako	angla ⟨jack⟩	
+ĵako	angla ⟨jack⟩	jxak1
 ĵaluza	franca ⟨jaloux⟩, angla ⟨jealous⟩	
 ĵaŭdo	franca ⟨jeudi⟩	
 ĵeti	franca ⟨jeter⟩	
@@ -1580,7 +1581,7 @@ kaperi	germana ⟨kapern⟩
 kapitalo	rusa ⟨капитал⟩, litova ⟨kapitalas⟩, pola ⟨kapital⟩, germana ⟨Kapital⟩, franca ⟨capital⟩, itala ⟨capitale⟩, angla ⟨capital⟩	
 kapitano	rusa ⟨капитан⟩, litova ⟨kapitonas⟩, pola ⟨kapitan⟩, germana ⟨Kapitän⟩, franca ⟨capitaine⟩, itala ⟨capitano⟩, angla ⟨captain⟩, latina ⟨capitaneus⟩	
 kapitulaco	rusa ⟨капитуляция⟩, litova ⟨kapituliacija⟩, germana ⟨Kapitulation⟩, franca ⟨capitulation⟩, itala ⟨capitolazione⟩, angla ⟨capitulation⟩	
-kapo	jida ⟨kop⟩, latina ⟨caput⟩	
+kapo	jida ⟨kop⟩, latina ⟨caput⟩	kap
 kapreolo	itala ⟨capreolo⟩, latina ⟨capreolus⟩	
 kaprico	rusa ⟨каприз⟩, litova ⟨kaprizas⟩, pola ⟨kaprys⟩, germana ⟨Kaprice⟩, franca ⟨caprice⟩, itala ⟨capriccio⟩, angla ⟨caprice⟩	
 kapro	itala ⟨capra⟩, latina ⟨capra⟩	
@@ -1623,8 +1624,9 @@ kastri	rusa ⟨кастрировать⟩, franca ⟨castrer⟩, angla ⟨castr
 kaŝi	franca ⟨cacher⟩	
 kaŝtano	jida ⟨kest⟩, rusa ⟨каштан⟩, litova ⟨kaštonas⟩, pola ⟨kasztan⟩, germana ⟨Kastanie⟩, itala ⟨castagna⟩, latina ⟨castanea⟩	
 katalogo	rusa ⟨каталог⟩, litova ⟨katalogas⟩, germana ⟨Katalog⟩, franca ⟨catalogue⟩, itala ⟨catalogo⟩, angla ⟨catalog⟩	
-katarakto	franca ⟨cataracte⟩, angla ⟨cataract⟩, latina ⟨cataracta⟩	
-kataro	rusa ⟨катар⟩, litova ⟨kataras⟩, pola ⟨katar⟩, germana ⟨Katarrh⟩, franca ⟨catarrhe⟩, angla ⟨catarrh⟩	
+katarakto	franca ⟨cataracte⟩, angla ⟨cataract⟩, latina ⟨cataracta⟩	katara
+katarakto	franca ⟨cataracte⟩, angla ⟨cataract⟩, latina ⟨cataracta⟩	katarakt
+kataro	rusa ⟨катар⟩, litova ⟨kataras⟩, pola ⟨katar⟩, germana ⟨Katarrh⟩, franca ⟨catarrhe⟩, angla ⟨catarrh⟩	katar
 katastrofo	rusa ⟨катастрофа⟩, litova ⟨katastrofa⟩, germana ⟨Katastrophe⟩, franca ⟨catastrophe⟩, itala ⟨catastrofa⟩, angla ⟨catastrophe⟩	
 katedralo	germana ⟨Kathedral⟩, franca ⟨cathédrale⟩, itala ⟨cattedrale⟩, angla ⟨cathedral⟩	
 katedro	litova ⟨katedra⟩, pola ⟨katedra⟩, germana ⟨Katheder⟩, itala ⟨cattedra⟩	
@@ -1656,10 +1658,10 @@ kesto	jida ⟨kestl⟩, germana ⟨Kasten⟩
 kial	latina ⟨quare⟩	
 kiam	latina ⟨quam⟩	
 kie	rusa ⟨где⟩	
-kilo	rusa ⟨киль⟩, litova ⟨kilis⟩, germana ⟨Kiel⟩, angla ⟨keel⟩	
+kilo	rusa ⟨киль⟩, litova ⟨kilis⟩, germana ⟨Kiel⟩, angla ⟨keel⟩	kil
 kilogramo	rusa ⟨килограмм⟩, litova ⟨kilogramas⟩, germana ⟨Kilogramm⟩, franca ⟨kilogramme⟩, itala ⟨chilogramma⟩, angla ⟨kilogram⟩	
 kilometro	rusa ⟨километр⟩, litova ⟨kilometras⟩, pola ⟨kilometr⟩, germana ⟨Kilometer⟩, franca ⟨kilomètre⟩, itala ⟨chilometro⟩, angla ⟨kilometre⟩	
-kino	rusa ⟨кино⟩, litova ⟨kinas⟩, pola ⟨kino⟩, germana ⟨Kino⟩	
+kino	rusa ⟨кино⟩, litova ⟨kinas⟩, pola ⟨kino⟩, germana ⟨Kino⟩	kin
 kiom	franca ⟨quant⟩, itala ⟨quanto⟩, latina ⟨quantum⟩	
 kiosko	rusa ⟨киоск⟩, litova ⟨kioskas⟩, germana ⟨Kiosk⟩	
 kiraso	franca ⟨cuirasse⟩	
@@ -1679,7 +1681,7 @@ klaŭno	rusa ⟨клоун⟩, litova ⟨klounas⟩, angla ⟨clown⟩
 klaŭzo	franca ⟨clause⟩, angla ⟨clause⟩	
 klera	franca ⟨éclairé⟩	
 kliento	rusa ⟨клиент⟩, litova ⟨klientas⟩, pola ⟨klient⟩, germana ⟨Klient⟩, franca ⟨client⟩, itala ⟨cliente⟩, angla ⟨client⟩, latina ⟨clientes⟩ (plurale)	
-kliko	rusa ⟨клика⟩, litova ⟨klika⟩, franca ⟨clique⟩	
+kliko	rusa ⟨клика⟩, litova ⟨klika⟩, franca ⟨clique⟩	klik
 klimato	rusa ⟨климат⟩, litova ⟨klimatas⟩, franca ⟨climat⟩, angla ⟨climate⟩	
 klingo	germana ⟨Klinge⟩	
 klini	rusa ⟨клонить⟩, franca ⟨incliner⟩, itala ⟨inclinare⟩, angla ⟨incline⟩, latina ⟨clinare⟩	
@@ -1694,7 +1696,8 @@ knabo	germana ⟨Knabe⟩
 knari	germana ⟨knarren⟩	
 knedi	germana ⟨kneten⟩, angla ⟨knead⟩	
 koakso	rusa ⟨кокс⟩, litova ⟨koksas⟩, germana ⟨Koks⟩, angla ⟨cokes⟩	
-kodo	franca ⟨code⟩, angla ⟨code⟩	
+kodo	franca ⟨code⟩, angla ⟨code⟩	kod
+kodo	franca ⟨code⟩, angla ⟨code⟩	kod1
 kofro	germana ⟨Koffer⟩	
 kojno	franca ⟨coin⟩, itala ⟨cuneo⟩, latina ⟨cuneus⟩	
 kokcinelo	franca ⟨coccinelle⟩, itala ⟨coccinella⟩	
@@ -1714,7 +1717,7 @@ kolo	franca ⟨col⟩, itala ⟨collo⟩, latina ⟨collum⟩
 kolombo	franca ⟨colombe⟩, itala ⟨colombo⟩, latina ⟨columba⟩	
 kolonelo	franca ⟨colonel⟩, itala ⟨colonello⟩, angla ⟨colonel⟩	
 kolonio	rusa ⟨колония⟩, litova ⟨kolonija⟩, pola ⟨kolonia⟩, germana ⟨Kolonie⟩, franca ⟨colonie⟩, itala ⟨colonia⟩, angla ⟨colony⟩, latina ⟨colonia⟩	
-kolono	jida ⟨kolone⟩, litova ⟨kolona⟩, franca ⟨colonne⟩, itala ⟨colonna⟩	
+kolono	jida ⟨kolone⟩, litova ⟨kolona⟩, franca ⟨colonne⟩, itala ⟨colonna⟩	kolon
 koloro	jida ⟨kolir⟩, pola ⟨kolor⟩, franca ⟨couleur⟩, itala ⟨colore⟩, angla ⟨color⟩, latina ⟨color⟩	
 koloso	latina ⟨Colossos⟩	
 kolporti	franca ⟨colporter⟩	
@@ -1837,7 +1840,7 @@ korko	germana ⟨Kork⟩, angla ⟨cork⟩
 kornico	rusa ⟨карниз⟩, litova ⟨karnizas⟩, franca ⟨corniche⟩, itala ⟨cornice⟩	
 korno	franca ⟨corne⟩, itala ⟨corno⟩, latina ⟨cornu⟩	
 kornuso	latina ⟨cornus⟩	
-koro	franca ⟨coeur⟩, itala ⟨cuore⟩, latina ⟨cor⟩	
+koro	franca ⟨coeur⟩, itala ⟨cuore⟩, latina ⟨cor⟩	kor
 korpo	jida ⟨kerper⟩, germana ⟨Körper⟩, franca ⟨corps⟩, itala ⟨corpo⟩, latina ⟨corpus⟩	
 korporacio	germana ⟨Korporation⟩, franca ⟨corporation⟩, itala ⟨corporazione⟩, angla ⟨corporation⟩	
 korŝira	franca ⟨déchirant le coeur⟩	
@@ -1894,7 +1897,7 @@ krokuso	latina ⟨crocus⟩
 krom	rusa ⟨кроме⟩	
 kromo	litova ⟨chromas⟩, germana ⟨Chrom⟩, franca ⟨chrome⟩, itala ⟨cromo⟩, angla ⟨chromium⟩	
 kroniko	litova ⟨kronika⟩, pola ⟨kronika⟩, germana ⟨Chronik⟩, franca ⟨chronique⟩, itala ⟨cronaca⟩, angla ⟨chronicle⟩, latina ⟨chronicon⟩	
-krono	jida ⟨krojn⟩, germana ⟨Krone⟩, angla ⟨crown⟩	
+krono	jida ⟨krojn⟩, germana ⟨Krone⟩, angla ⟨crown⟩	kron
 kronologio	litova ⟨chronologija⟩, germana ⟨Chronologie⟩, franca ⟨chronologie⟩, itala ⟨cronologia⟩, angla ⟨chronology⟩	
 kropo	angla ⟨crop⟩	
 kruco	jida ⟨krajts⟩, litova ⟨kryžius⟩, germana ⟨Kreuz⟩, franca ⟨croix⟩, itala ⟨croce⟩, angla ⟨cross⟩, latina ⟨cruces⟩ (plurale)	
@@ -2059,7 +2062,7 @@ linko	franca ⟨lynx⟩, itala ⟨lince⟩, angla ⟨lynx⟩, latina ⟨lynces�
 lino	rusa ⟨лëн⟩, litova ⟨linas⟩, pola ⟨len⟩, franca ⟨lin⟩, itala ⟨lino⟩, latina ⟨linum⟩	
 lipo	jida ⟨lip⟩, germana ⟨Lippe⟩, angla ⟨lip⟩	
 liriko	rusa ⟨лирика⟩, litova ⟨lyrika⟩, germana ⟨Lyrik⟩	
-liro	rusa ⟨лира⟩, litova ⟨lyra⟩, germana ⟨Lyra⟩	
+liro	rusa ⟨лира⟩, litova ⟨lyra⟩, germana ⟨Lyra⟩	lir
 listo	rusa ⟨листа⟩, pola ⟨lista⟩, germana ⟨Liste⟩, franca ⟨liste⟩, itala ⟨lista⟩, angla ⟨list⟩	
 litero	itala ⟨lettera⟩, angla ⟨letter⟩	
 literaturo	rusa ⟨литература⟩, litova ⟨literatura⟩, pola ⟨literatura⟩, germana ⟨Literatur⟩, franca ⟨littérature⟩, itala ⟨letteratura⟩, angla ⟨literature⟩	
@@ -2147,7 +2150,7 @@ marĉandi	franca ⟨marchander⟩
 marĉo	germana ⟨Marsch⟩, angla ⟨marsh⟩	
 mardo	franca ⟨mardi⟩	
 marĝeno	franca ⟨marge⟩, itala ⟨margine⟩, angla ⟨margin⟩	
-marko	rusa ⟨марка⟩, litova ⟨marke⟩, pola ⟨marka⟩, germana ⟨Marke⟩, franca ⟨marque⟩, itala ⟨marca⟩, angla ⟨mark⟩	
+marko	rusa ⟨марка⟩, litova ⟨marke⟩, pola ⟨marka⟩, germana ⟨Marke⟩, franca ⟨marque⟩, itala ⟨marca⟩, angla ⟨mark⟩	mark
 markoto	franca ⟨marcotte⟩	
 marmoro	rusa ⟨мрамор⟩, litova ⟨marmuras⟩, pola ⟨marmur⟩, germana ⟨Marmor⟩, latina ⟨marmor⟩	
 maro	rusa ⟨море⟩, litova ⟨marios⟩, germana ⟨Meer⟩, franca ⟨mer⟩, itala ⟨mare⟩, latina ⟨mare⟩	
@@ -2185,7 +2188,7 @@ medicino	rusa ⟨медицина⟩, litova ⟨medicina⟩, pola ⟨medycyna⟩
 medikamento	germana ⟨Medikament⟩, itala ⟨medicamento⟩, franca ⟨médicament⟩, latina ⟨medicamentum⟩	
 medio	latina ⟨medium⟩	
 mediti	germana ⟨meditieren⟩, franca ⟨méditer⟩, itala ⟨meditare⟩, angla ⟨meditate⟩, latina ⟨meditare⟩	
-medo	germana ⟨Met⟩, angla ⟨mead⟩	
+medo	germana ⟨Met⟩, angla ⟨mead⟩	med1
 medolo	itala ⟨midollo⟩, latina ⟨medulla⟩	
 meĥaniko	rusa ⟨механика⟩, litova ⟨mechanika⟩, pola ⟨mechanika⟩, germana ⟨Mechanik⟩, franca ⟨méchanique⟩, itala ⟨meccanica⟩, angla ⟨mechanics⟩, latina ⟨mechanica⟩	
 mejlo	rusa ⟨миля⟩, litova ⟨mylia⟩, pola ⟨mila⟩, germana ⟨Meile⟩, franca ⟨mille⟩, itala ⟨miglio⟩, angla ⟨mile⟩	
@@ -2228,7 +2231,7 @@ mi	jida ⟨mir⟩, ⟨mich⟩, germana ⟨mir⟩, ⟨mich⟩, franca ⟨me⟩, �
 mia	itala ⟨mio⟩, latina ⟨meus⟩	
 mielo	franca ⟨miel⟩, itala ⟨miele⟩, latina ⟨mel⟩	
 mieno	rusa ⟨мина⟩, litova ⟨minas⟩, pola ⟨mina⟩, germana ⟨Miene⟩	
-migdalo	litova ⟨migdolas⟩, pola ⟨migdal⟩, itala ⟨amigdala⟩, latina ⟨amygdala⟩	
+migdalo	litova ⟨migdolas⟩, pola ⟨migdal⟩, itala ⟨amigdala⟩, latina ⟨amygdala⟩	migdal
 migri	itala ⟨migrare⟩, angla ⟨migrate⟩, latina ⟨migrare⟩	
 mikrobiologio	rusa ⟨микробиология⟩, litova ⟨mikrobiologija⟩, pola ⟨mikrobiologia⟩, germana ⟨Mikrobiologie⟩, franca ⟨microbiologie⟩, itala ⟨microbiologia⟩, angla ⟨microbiology⟩	
 mikrofono	rusa ⟨микрофон⟩, litova ⟨mikrofonas⟩, germana ⟨Mikrofon⟩, franca ⟨microphone⟩, itala ⟨microfono⟩, angla ⟨microphone⟩	
@@ -2270,7 +2273,7 @@ modera	franca ⟨modéré⟩, itala ⟨moderato⟩, angla ⟨moderate⟩, latina
 moderna	jida ⟨modern⟩, litova ⟨modernus⟩, germana ⟨modern⟩, franca ⟨moderne⟩, itala ⟨moderno⟩, angla ⟨modern⟩	
 modesta	franca ⟨modeste⟩, itala ⟨modesto⟩, angla ⟨modest⟩, latina ⟨modestus⟩	
 modifi	franca ⟨modifier⟩, angla ⟨modify⟩	
-modo	jida ⟨mode⟩, rusa ⟨мода⟩, litova ⟨mada⟩, pola ⟨moda⟩, germana ⟨Mode⟩, franca ⟨mode⟩, itala ⟨moda⟩	
+modo	jida ⟨mode⟩, rusa ⟨мода⟩, litova ⟨mada⟩, pola ⟨moda⟩, germana ⟨Mode⟩, franca ⟨mode⟩, itala ⟨moda⟩	mod
 moki	franca ⟨moquer⟩, angla ⟨mock⟩	
 mola	itala ⟨molle⟩, latina ⟨mollis⟩	
 moleco	franca ⟨mollesse⟩, itala ⟨mollezza⟩	
@@ -2447,7 +2450,7 @@ okupacio	rusa ⟨оккупация⟩, litova ⟨okupacija⟩, pola ⟨okupacja
 okupi	franca ⟨occuper⟩, itala ⟨occupare⟩, angla ⟨occupy⟩	
 okzalo	latina ⟨oxalis⟩	
 ol	germana ⟨als⟩	
-oleo	jida ⟨ejl⟩, litova ⟨aliejus⟩, pola ⟨olej⟩, germana ⟨Öl⟩, franca ⟨huile⟩, itala ⟨olio⟩, angla ⟨oil⟩, latina ⟨oleum⟩	
+oleo	jida ⟨ejl⟩, litova ⟨aliejus⟩, pola ⟨olej⟩, germana ⟨Öl⟩, franca ⟨huile⟩, itala ⟨olio⟩, angla ⟨oil⟩, latina ⟨oleum⟩	ole
 oligarko	rusa ⟨олигарх⟩, litova ⟨oligarchas⟩, germana ⟨Oligarch⟩, angla ⟨oligarch⟩	
 olimpiado	rusa ⟨олимпиада⟩, litova ⟨olimpiada⟩, pola ⟨olimpiada⟩, germana ⟨Olympiade⟩, itala ⟨olimpiade⟩, angla ⟨olympiade⟩	
 olivo	rusa ⟨олива⟩, litova ⟨alyva⟩, pola ⟨oliwa⟩, germana ⟨Olive⟩, franca ⟨olive⟩, itala ⟨oliva⟩, angla ⟨olive⟩, latina ⟨oliva⟩	
@@ -2566,7 +2569,7 @@ pastro	rusa ⟨пастор⟩, litova ⟨pastorius⟩, pola ⟨pasterz⟩, fran
 paŝi	franca ⟨passer⟩, itala ⟨passare⟩, angla ⟨pass⟩	
 paŝti	rusa ⟨пасти⟩, pola ⟨paść⟩, angla ⟨pasture⟩	
 patento	rusa ⟨патент⟩, litova ⟨patentas⟩, germana ⟨Patent⟩, angla ⟨patent⟩	
-pato	pola ⟨patelnia⟩, itala ⟨padella⟩, latina ⟨patella⟩	
+pato	pola ⟨patelnia⟩, itala ⟨padella⟩, latina ⟨patella⟩	pat
 patologio	rusa ⟨патологя⟩, litova ⟨patologija⟩, pola ⟨patologia⟩, germana ⟨Pathologie⟩, franca ⟨pathologie⟩, itala ⟨patologia⟩, angla ⟨pathology⟩	
 patoso	litova ⟨patosas⟩, greka ⟨pathos⟩	
 patrioto	rusa ⟨патриот⟩, litova ⟨patriotas⟩, pola ⟨patriota⟩, germana ⟨Patriot⟩, angla ⟨patriot⟩	
@@ -2604,7 +2607,7 @@ pensio	rusa ⟨пенсия⟩, litova ⟨pensija⟩, germana ⟨Pension⟩, fra
 pentekosto	itala ⟨pentecoste⟩	
 penti	itala ⟨pentirsi⟩, latina ⟨paenitet⟩	
 pentri	franca ⟨peintre⟩	
-peono	franca ⟨pion⟩, angla ⟨pawn⟩	
+peono	franca ⟨pion⟩, angla ⟨pawn⟩	peon
 pepi	germana ⟨piepen⟩	
 per	litova ⟨per⟩, franca ⟨par⟩, itala ⟨per⟩, latina ⟨per⟩	
 perĉo	franca ⟨perche⟩, angla ⟨perch⟩	
@@ -2645,7 +2648,7 @@ piceo	latina ⟨picea⟩
 piedo	litova ⟨peda⟩, franca ⟨pied⟩, itala ⟨piede⟩	
 pigo	itala ⟨pica⟩, latina ⟨pica⟩	
 pikanta	germana ⟨pikant⟩, franca ⟨piquant⟩, itala ⟨piccante⟩	
-pikedo	franca ⟨piquet⟩, itala ⟨picchetto⟩, angla ⟨picket⟩	
+pikedo	franca ⟨piquet⟩, itala ⟨picchetto⟩, angla ⟨picket⟩	piked
 piki	franca ⟨piquer⟩	
 piko	germana ⟨Pik⟩, franca ⟨pique⟩, itala ⟨picca⟩	
 pilko	pola ⟨piłka⟩	
@@ -2717,7 +2720,7 @@ pluraj	latina ⟨plures⟩
 pluralo	germana ⟨Plural⟩, itala ⟨plurale⟩, angla ⟨plural⟩, latina ⟨pluralis⟩	
 plus	rusa ⟨плюс⟩, litova ⟨pliusas⟩, franca ⟨plus⟩, angla ⟨plus⟩, latina ⟨plus⟩	
 pluvo	franca ⟨pluie⟩, latina ⟨pluvia⟩	
-po	rusa ⟨по⟩, litova ⟨po⟩, pola ⟨po⟩	
+po	rusa ⟨по⟩, litova ⟨po⟩, pola ⟨po⟩	po
 poemo	rusa ⟨поэма⟩, litova ⟨poema⟩, germana ⟨Poem⟩, franca ⟨poème⟩, itala ⟨poema⟩, angla ⟨poem⟩, latina ⟨poema⟩	
 poeto	rusa ⟨поэт⟩, litova ⟨poetas⟩, pola ⟨poeta⟩, germana ⟨Poet⟩, franca ⟨poète⟩, itala ⟨poeta⟩, angla ⟨poet⟩, latina ⟨poeta⟩	
 poezio	rusa ⟨поэзия⟩, litova ⟨poezija⟩, pola ⟨poezja⟩, germana ⟨Poesie⟩, franca ⟨poèsie⟩, itala ⟨poesia⟩, latina ⟨poesia⟩	
@@ -2863,7 +2866,7 @@ pudingo	angla ⟨pudding⟩
 pudro	rusa ⟨пудра⟩, litova ⟨pudra⟩, pola ⟨puder⟩, germana ⟨Puder⟩, franca ⟨poudre⟩	
 pugno	itala ⟨pugno⟩, latina ⟨pugnus⟩	
 pulmo	itala ⟨polmone⟩, latina ⟨pulmo⟩	
-pulo	itala ⟨pulce⟩, latina ⟨pulex⟩	
+pulo	itala ⟨pulce⟩, latina ⟨pulex⟩	pul
 pulso	rusa ⟨пульс⟩, litova ⟨pulsas⟩, pola ⟨puls⟩, germana ⟨Puls⟩, itala ⟨polso⟩, angla ⟨pulse⟩, latina ⟨pulsus⟩	
 pulvo	germana ⟨Pulver⟩, itala ⟨polvere⟩, latina ⟨pulvis⟩	
 pumpi	litova ⟨pumpuoti⟩, pola ⟨pompować⟩, germana ⟨pumpen⟩, franca ⟨pomper⟩, itala ⟨pompare⟩, angla ⟨pump⟩	
@@ -3069,7 +3072,7 @@ rosmaro	latina ⟨rosmarus⟩
 roso	rusa ⟨poca⟩, litova ⟨rasa⟩, pola ⟨rosa⟩, franca ⟨rosée⟩, latina ⟨ros⟩	
 rosti	germana ⟨rösten⟩, itala ⟨arrostire⟩, angla ⟨roast⟩	
 rostro	latina ⟨rostrum⟩	
-roto	rusa ⟨рота⟩, germana ⟨Rotte⟩	
+roto	rusa ⟨рота⟩, germana ⟨Rotte⟩	rot
 rozo	rusa ⟨роза⟩, litova ⟨rože⟩, pola ⟨róża⟩, germana ⟨Rose⟩, franca ⟨rose⟩, itala ⟨rosa⟩, angla ⟨rose⟩, latina ⟨rosa⟩	
 rubando	franca ⟨ruban⟩, angla ⟨ribbon⟩	
 rubeno	rusa ⟨рубин⟩, litova ⟨rubinas⟩, germana ⟨Rubin⟩, itala ⟨rubino⟩, angla ⟨ruby⟩	
@@ -3309,7 +3312,8 @@ sino	latina ⟨sinus⟩
 sinonimo	rusa ⟨синоним⟩, litova ⟨sinonimas⟩, germana ⟨Synonyme⟩, angla ⟨synonym⟩	
 sintakso	rusa ⟨синтаксис⟩, litova ⟨sintakse⟩, germana ⟨Syntax⟩, angla ⟨syntax⟩	
 sintezo	rusa ⟨синтез⟩, litova ⟨sinteze⟩, germana ⟨Synthese⟩, franca ⟨synthèse⟩, itala ⟨sintese⟩, angla ⟨synthesis⟩	
-sinuso	rusa ⟨синус⟩, litova ⟨sinusas⟩, germana ⟨Sinus⟩, angla ⟨sinus⟩, latina ⟨sinus⟩	
+sinuso	rusa ⟨синус⟩, litova ⟨sinusas⟩, germana ⟨Sinus⟩, angla ⟨sinus⟩, latina ⟨sinus⟩	sinus
+sinuso	rusa ⟨синус⟩, litova ⟨sinusas⟩, germana ⟨Sinus⟩, angla ⟨sinus⟩, latina ⟨sinus⟩	sinus1
 sireno	rusa ⟨сирена⟩, litova ⟨sirena⟩, pola ⟨syrena⟩, franca ⟨sirène⟩, itala ⟨sirena⟩, angla ⟨siren⟩, latina ⟨Siren⟩	
 siringo	latina ⟨syringes⟩ (plurale)	
 siropo	rusa ⟨сироп⟩, litova ⟨sirupas⟩, pola ⟨syrop⟩, germana ⟨Sirup⟩, franca ⟨sirop⟩, itala ⟨sciroppo⟩, angla ⟨syrup⟩	
@@ -3405,7 +3409,7 @@ spiko	itala ⟨spiga⟩, latina ⟨spica⟩
 spili	angla ⟨spill⟩	
 spinaco	itala ⟨spinaccia⟩, angla ⟨spinach⟩	
 spindelo	germana ⟨Spindel⟩, angla ⟨spindle⟩	
-spino	itala ⟨spina⟩, angla ⟨spine⟩, latina ⟨spina⟩	
+spino	itala ⟨spina⟩, angla ⟨spine⟩, latina ⟨spina⟩	spin
 spiono	rusa ⟨шпион⟩, germana ⟨Spion⟩, franca ⟨espion⟩	
 spirala	rusa ⟨спиральный⟩, litova ⟨spirališkas⟩, pola ⟨spiralny⟩, itala ⟨spirale⟩, angla ⟨spiral⟩	
 spiri	itala ⟨spirare⟩, latina ⟨spirare⟩	
@@ -3612,7 +3616,7 @@ taksio	rusa ⟨такси⟩, litova ⟨taksis⟩, germana ⟨Taxi⟩, franca �
 taksuso	latina ⟨taxus⟩	
 takto	rusa ⟨такт⟩, litova ⟨taktas⟩, germana ⟨Takt⟩, franca ⟨tact⟩, angla ⟨tact⟩	
 talento	rusa ⟨талант⟩, litova ⟨talentas⟩, pola ⟨talent⟩, germana ⟨Talent⟩, angla ⟨talent⟩, latina ⟨talentum⟩	
-talio	franca ⟨taille⟩	
+talio	franca ⟨taille⟩	tali
 talpo	itala ⟨talpa⟩, latina ⟨talpa⟩	
 taluso	franca ⟨talus⟩	
 tamburo	itala ⟨tamburo⟩	
@@ -3722,7 +3726,7 @@ tragedio	rusa ⟨трагедия⟩, litova ⟨tragedija⟩, pola ⟨tragedia�
 tragika	rusa ⟨трагический⟩, litova ⟨tragiškas⟩, pola ⟨tragiczny⟩, germana ⟨tragisch⟩, franca ⟨tragique⟩, itala ⟨tragico⟩, angla ⟨tragic⟩	
 trajno	franca ⟨train⟩, itala ⟨treno⟩, angla ⟨train⟩	
 trajto	franca ⟨trait⟩, angla ⟨trait⟩	
-trako	angla ⟨track⟩	
+trako	angla ⟨track⟩	trak
 trakti	rusa ⟨трактовать⟩, pola ⟨traktować⟩	
 traktoro	rusa ⟨трактор⟩, litova ⟨traktorius⟩, angla ⟨tractor⟩	
 tramo	angla ⟨tram⟩	
