@@ -117,6 +117,21 @@ fun ArticleLayout.withOrigins(origins: Map<Int, CharSequence>): ArticleLayout =
         otherTranslations,
     )
 
+/** The start of a sub-article of Reta Vortaro, titled with its number
+ * ("II."): prevodb's section for a <subart>. 84 of the 199 have nothing
+ * else ("ambaŭ", then the prefix "ambaŭ-"); the others start with a text
+ * ("Vortero signifanta…"), 4 with translations too. */
+val WordEntry.isSubArticle: Boolean get() = SUBARTICLE_NUMBER.matches(title.toString().trim())
+
+/** Whether the start of a sub-article has more than its number */
+val WordEntry.hasContent: Boolean
+    get() = translations.isNotEmpty() || labels.isNotEmpty() || blocks.any { it.text.isNotBlank() }
+
+/** The same word without its title: a sub-article's text, under its number */
+fun WordEntry.untitled() = WordEntry(section, source, official, forms, "", labels, blocks, translations)
+
+private val SUBARTICLE_NUMBER = Regex("[IVXLC]+\\.")
+
 /** The same word with other translations */
 fun WordEntry.withTranslations(translations: List<Translation>) =
     WordEntry(section, source, official, forms, title, labels, blocks, translations)

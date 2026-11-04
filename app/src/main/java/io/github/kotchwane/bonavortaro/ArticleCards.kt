@@ -219,6 +219,8 @@ fun WordCard(
                 .drawBehind { drawRect(primary, size = Size(4.dp.toPx(), size.height)) }
                 .padding(start = 16.dp, end = 12.dp, top = 12.dp, bottom = 12.dp),
         ) {
+            /* No title for a sub-article's text, under its number */
+            if (entry.title.isNotEmpty() || entry.official.isNotEmpty() || entry.labels.isNotEmpty())
             FlowRow(
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
                 verticalArrangement = Arrangement.Center,
