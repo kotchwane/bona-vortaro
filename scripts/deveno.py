@@ -201,6 +201,11 @@ def wiki_text(section):
     text = re.sub(r"\s*notoj:\s*(-->)?\s*$", "", text, flags=re.I).strip(" .")
     # "⟨abdomen⟩" twice in a row, from a word in a link in italics
     text = re.sub(r"⟨⟨([^⟩]*)⟩⟩", r"⟨\1⟩", text)
+    # The syllables, given in the section on two pages: not where the word comes from
+    text = re.sub(r"\s*Silaboj:.*$", "", text)
+    # Only the pieces of the word, "du + on + di + o": the app's analysis of the words shows them
+    if "+" in text and "⟨" not in text and not any(name in text for name in set(WIKI_LANGUAGES.values())):
+        return None
     if not text or "{{" in text or "}}" in text or "[" in text or "''" in text or "|" in text or "⟨⟩" in text:
         return None
     # "El la angla …": lower case, after the source's name in the app

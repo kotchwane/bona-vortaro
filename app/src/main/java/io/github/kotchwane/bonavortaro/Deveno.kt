@@ -29,6 +29,8 @@ import android.text.style.StyleSpan
 import android.util.Log
 import android.view.View
 import java.io.IOException
+import java.text.Normalizer
+import java.util.Locale
 
 /**
  * Where the words come from, which the articles show when the user turns
@@ -44,8 +46,9 @@ object Deveno {
     private const val VIKI_PAGE = "https://eo.wiktionary.org/wiki/"
 
     /** The origins of a word: Rajki's lines (two for "mino", the mine
-     * dug and the mine laid), and Vikivortaro's text, if any */
-    class Origins(val rajki: List<String>, val vikivortaro: String?)
+     * dug and the mine laid), and Vikivortaro's text, if any, from the page
+     * of [vikiWord] */
+    class Origins(val rajki: List<String>, val vikivortaro: String?, val vikiWord: String?)
 
     /** What a card shows of a word's origins, and from which sources */
     class Note(val text: CharSequence, val rajki: Boolean, val vikivortaro: Boolean)
@@ -85,22 +88,67 @@ object Deveno {
         val data = data(context)
         val rajki = data.rajki[word].orEmpty().filter { it.file == null || it.file == file }.map { it.text }
         val viki = data.vikivortaro[word]
-        return if (rajki.isEmpty() && viki == null) null else Origins(rajki, viki)
+        return if (rajki.isEmpty() && viki == null) null else Origins(rajki, viki, word)
     }
 
     /** For the words of the article [file] that have origins, by their
      * section: a line for each source, "franca ⟨dent⟩, itala ⟨dente⟩ —
      * Rajki", the name of Vikivortaro a link to the word's page there, to
-     * correct or complete it. The first of its headwords that has some.
-     * Disk access: not on the main thread. */
-    fun notes(context: Context, layout: ArticleLayout, file: String?): Map<Int, Note> =
-        layout.words.mapNotNull { word ->
-            val headwords = word.title.toString().split(",").map { it.trim() }.filter { it.isNotEmpty() }
-            headwords.firstNotNullOfOrNull { headword -> of(context, headword, file)?.let { headword to it } }
-                ?.let { (headword, origins) ->
-                    word.section to Note(note(context, headword, origins), origins.rajki.isNotEmpty(), origins.vikivortaro != null)
-                }
-        }.toMap()
+     * correct or complete it. The root's card has those of the root's other
+     * forms too ("laboro" beside "labori"), which have none of their own; the
+     * other words keep theirs (calques: "senpeka", from Russian). Disk
+     * access: not on the main thread. */
+    fun notes(context: Context, layout: ArticleLayout, file: String?): Map<Int, Note> {
+        val root = layout.words.firstOrNull() ?: return emptyMap()
+        val found = layout.words.map { word ->
+            word to headwords(word).firstNotNullOfOrNull { headword -> of(context, headword, file) }
+        }
+        /* The other forms of the root: one headword, the root with another ending */
+        val rootWord = headwords(root).firstOrNull().orEmpty()
+        val stem = rootWord.takeIf { it.length > 1 && it.last() in ENDINGS }?.dropLast(1)
+        fun isForm(word: WordEntry) = word !== root && stem != null && headwords(word).let {
+            it.size == 1 && it[0].length == rootWord.length && it[0].startsWith(stem) && it[0].last() in ENDINGS
+        }
+        val notes = mutableMapOf<Int, Note>()
+        /* The root's own first */
+        val group = found.filter { (word, _) -> word === root || isForm(word) }.mapNotNull { it.second }
+        if (group.isNotEmpty()) {
+            val viki = group.firstOrNull { it.vikivortaro != null }
+            shown(Origins(group.flatMap { it.rajki }.distinct(), viki?.vikivortaro, viki?.vikiWord))
+                ?.let { notes[root.section] = note(context, it) }
+        }
+        for ((word, origins) in found)
+            if (word !== root && !isForm(word) && origins != null)
+                shown(origins)?.let { notes[word.section] = note(context, it) }
+        return notes
+    }
+
+    private fun headwords(word: WordEntry) =
+        word.title.toString().split(",").map { it.trim() }.filter { it.isNotEmpty() }
+
+    private const val ENDINGS = "oaie"
+
+    /* Vikivortaro's text only if it gives a word of another language that
+     * Rajki doesn't: else it says again what his line says ("el la angla
+     * have", "angla have") */
+    private fun shown(origins: Origins): Origins? {
+        val rajki = origins.rajki.flatMap { foreignWords(it) }.toSet()
+        val viki = origins.vikivortaro?.let { foreignWords(it) }.orEmpty()
+        val keepViki = origins.vikivortaro != null && (origins.rajki.isEmpty() || viki.isEmpty() || !rajki.containsAll(viki))
+        return Origins(origins.rajki, origins.vikivortaro.takeIf { keepViki }, origins.vikiWord)
+            .takeIf { it.rajki.isNotEmpty() || it.vikivortaro != null }
+    }
+
+    /* The words between ⟨⟩, without their accents and case: "dēns" as "dens" */
+    private fun foreignWords(text: String): List<String> =
+        Regex("⟨([^⟩]*)⟩").findAll(text).map { m ->
+            Normalizer.normalize(m.groupValues[1], Normalizer.Form.NFD).replace(MARKS, "").lowercase(Locale.ROOT)
+        }.toList()
+
+    private val MARKS = Regex("\\p{Mn}+")
+
+    private fun note(context: Context, origins: Origins): Note =
+        Note(note(context, origins.vikiWord.orEmpty(), origins), origins.rajki.isNotEmpty(), origins.vikivortaro != null)
 
     private fun note(context: Context, word: String, origins: Origins): CharSequence =
         SpannableStringBuilder().apply {
