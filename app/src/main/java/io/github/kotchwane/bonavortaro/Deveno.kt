@@ -43,25 +43,33 @@ object Deveno {
     const val RAJKI_SITE = "https://archive.org/details/EsperantoEtymologicalDictionary"
     private const val VIKI_PAGE = "https://eo.wiktionary.org/wiki/"
 
-    /** The origins of a word: Rajki's lines (two for "radio", the radio
-     * and the radius), and Vikivortaro's text, if any */
+    /** The origins of a word: Rajki's lines (two for "mino", the mine
+     * dug and the mine laid), and Vikivortaro's text, if any */
     class Origins(val rajki: List<String>, val vikivortaro: String?)
 
-    private class Data(val rajki: Map<String, List<String>>, val vikivortaro: Map<String, String>)
+    /** What a card shows of a word's origins, and from which sources */
+    class Note(val text: CharSequence, val rajki: Boolean, val vikivortaro: Boolean)
+
+    /** A line of Rajki's; for a root he gives twice, the file of the
+     * article of Reta Vortaro it is about ("-" for none), else null */
+    private class RajkiLine(val text: String, val file: String?)
+
+    private class Data(val rajki: Map<String, List<RajkiLine>>, val vikivortaro: Map<String, String>)
 
     @Volatile private var data: Data? = null
 
     @Synchronized
     private fun data(context: Context): Data = data ?: Data(
-        read(context, "deveno/rajki.tsv").groupBy({ it.first }, { it.second }),
-        read(context, "deveno/vikivortaro.tsv").toMap(),
+        read(context, "deveno/rajki.tsv")
+            .groupBy({ it[0] }, { RajkiLine(it[1], it.getOrNull(2)?.takeIf { file -> file.isNotEmpty() }) }),
+        read(context, "deveno/vikivortaro.tsv").associate { it[0] to it[1] },
     ).also { data = it }
 
-    private fun read(context: Context, file: String): List<Pair<String, String>> =
+    private fun read(context: Context, file: String): List<List<String>> =
         try {
             context.assets.open(file).bufferedReader().useLines { lines ->
                 lines.filter { !it.startsWith("#") && it.isNotBlank() }
-                    .mapNotNull { line -> line.split('\t').takeIf { it.size == 2 }?.let { it[0] to it[1] } }
+                    .map { it.split('\t') }.filter { it.size >= 2 }
                     .toList()
             }
         } catch (e: IOException) {
@@ -69,25 +77,29 @@ object Deveno {
             emptyList()
         }
 
-    /** The origins of a word as written, if either source has them. Disk
-     * access: not on the main thread. */
-    fun of(context: Context, word: String): Origins? {
+    /** The origins of a word as written, in the article of Reta Vortaro
+     * [file], if either source has them: of a root Rajki gives twice
+     * ("radio"), only his line about that article. Disk access: not on the
+     * main thread. */
+    fun of(context: Context, word: String, file: String?): Origins? {
         val data = data(context)
-        val rajki = data.rajki[word].orEmpty()
+        val rajki = data.rajki[word].orEmpty().filter { it.file == null || it.file == file }.map { it.text }
         val viki = data.vikivortaro[word]
         return if (rajki.isEmpty() && viki == null) null else Origins(rajki, viki)
     }
 
-    /** For the words of an article that have origins, by their section:
-     * a line for each source, "franca ⟨dent⟩, itala ⟨dente⟩ — Rajki", the
-     * name of Vikivortaro a link to the word's page there, to correct or
-     * complete it. The first of its headwords that has some. Disk access:
-     * not on the main thread. */
-    fun notes(context: Context, layout: ArticleLayout): Map<Int, CharSequence> =
+    /** For the words of the article [file] that have origins, by their
+     * section: a line for each source, "franca ⟨dent⟩, itala ⟨dente⟩ —
+     * Rajki", the name of Vikivortaro a link to the word's page there, to
+     * correct or complete it. The first of its headwords that has some.
+     * Disk access: not on the main thread. */
+    fun notes(context: Context, layout: ArticleLayout, file: String?): Map<Int, Note> =
         layout.words.mapNotNull { word ->
             val headwords = word.title.toString().split(",").map { it.trim() }.filter { it.isNotEmpty() }
-            headwords.firstNotNullOfOrNull { headword -> of(context, headword)?.let { headword to it } }
-                ?.let { (headword, origins) -> word.section to note(context, headword, origins) }
+            headwords.firstNotNullOfOrNull { headword -> of(context, headword, file)?.let { headword to it } }
+                ?.let { (headword, origins) ->
+                    word.section to Note(note(context, headword, origins), origins.rajki.isNotEmpty(), origins.vikivortaro != null)
+                }
         }.toMap()
 
     private fun note(context: Context, word: String, origins: Origins): CharSequence =
@@ -129,7 +141,7 @@ object Deveno {
     private fun SpannableStringBuilder.appendSource(name: String, url: String?) {
         append(" ")
         val start = length
-        append("— ").append(name)
+        append("—\u00A0").append(name)
         if (url != null)
             append(" $OUTSIDE_SIGN")
         setSpan(if (url != null) OriginLinkSpan(url) else SourceSpan(), start, length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)

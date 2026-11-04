@@ -556,15 +556,13 @@ private fun ArticleScreen(
     }
     /* Where its words come from, for those who turned it on: a box after
      * the remarks */
-    val origins by produceState<Map<Int, CharSequence>>(emptyMap(), revoLayout, showOrigins) {
+    val origins by produceState<Map<Int, Deveno.Note>>(emptyMap(), revoLayout, showOrigins) {
         value = revoLayout?.takeIf { showOrigins }?.let {
-            withContext(Dispatchers.IO) { Deveno.notes(context, it) }
+            withContext(Dispatchers.IO) { Deveno.notes(context, it, RevoFiles.fileOf(context, articleNumber)) }
         } ?: emptyMap()
     }
-    val rajkiName = stringResource(R.string.rajki_name)
-    val vikiName = stringResource(R.string.viki_name)
     val layout = remember(revoLayout, bonaLingvo, origins) {
-        revoLayout?.withRemarks(bonaLingvo)?.withOrigins(origins)
+        revoLayout?.withRemarks(bonaLingvo)?.withOrigins(origins.mapValues { it.value.text })
     }
 
     /* Where the card of each section is in the list */
@@ -742,8 +740,8 @@ private fun ArticleScreen(
                         item(key = "sources") {
                             SourcesLine(
                                 revo = true, viki = withViki, revoArticle = articleNumber, bonaLingvo = bonaLingvo.isNotEmpty(),
-                                rajki = origins.values.any { it.contains("— " + rajkiName) },
-                                vikiOrigins = origins.values.any { it.contains("— " + vikiName) },
+                                rajki = origins.values.any { it.rajki },
+                                vikiOrigins = origins.values.any { it.vikivortaro },
                                 modifier = Modifier.padding(horizontal = 8.dp))
                         }
                     if (layout != null && neighbours != null)

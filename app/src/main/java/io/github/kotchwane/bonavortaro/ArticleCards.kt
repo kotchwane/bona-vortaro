@@ -285,22 +285,14 @@ fun WordCard(
     }
 }
 
-/** The colour of the label "deveno": the mock-up's choices */
-enum class OriginColor { PRIMARY, MUTED }
-
-val ORIGIN_COLOR = OriginColor.MUTED
-
 /** The origin of a word under its headword, after an outlined label
- * "deveno", like "vidu": less loud than its senses */
+ * "deveno", grey like "homonimo": less loud than its senses */
 @Composable
 private fun OriginView(text: CharSequence, onLongPress: (String?) -> Unit) {
     val colors = MaterialTheme.colorScheme
     val density = LocalDensity.current.density
     val label = stringResource(R.string.origin_label)
-    val color = when (ORIGIN_COLOR) {
-        OriginColor.PRIMARY -> colors.primary
-        OriginColor.MUTED -> colors.onSurfaceVariant
-    }
+    val color = colors.onSurfaceVariant
     SpannedText(
         SpannableStringBuilder("\u2060").apply {
             setSpan(

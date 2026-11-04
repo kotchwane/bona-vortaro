@@ -18,7 +18,8 @@
 #    words of English ("calque of": "kalko de"). Nothing else is changed but
 #    the Latin letters typed for their Cyrillic look-alikes in Russian words
 #    ("paкeтa", which reads as "ракета"). A root given twice (radio, the
-#    radio and the radius) has a line for each, in Rajki's order.
+#    radio and the radius) has a line for each, in Rajki's order, with the
+#    article of Reta Vortaro it is about, from data/rajki-homonyms.tsv.
 #    Writes app/src/main/assets/deveno/rajki.tsv.
 #
 # 2. The Esperanto Wiktionary (eo.wiktionary.org), by its contributors, CC
@@ -42,6 +43,7 @@ import xml.etree.ElementTree as ET
 
 ROOT = os.path.join(os.path.dirname(__file__), "..")
 RAJKI = os.path.join(ROOT, "data", "rajki-etimologia-vortaro.txt")
+RAJKI_HOMONYMS = os.path.join(ROOT, "data", "rajki-homonyms.tsv")
 OUT = os.path.join(ROOT, "app", "src", "main", "assets", "deveno")
 
 # Rajki's abbreviations ("Fra" once, for "Fre")
@@ -92,6 +94,18 @@ def rajki_text(text):
     return re.sub(r"\s+", " ", shown).strip(" ,")
 
 
+def rajki_homonyms():
+    """{(root, line number): [files]}"""
+    found = {}
+    with open(RAJKI_HOMONYMS, encoding="utf-8") as f:
+        for line in f:
+            if line.startswith("#") or not line.strip():
+                continue
+            word, number, file = line.rstrip("\n").split("\t")
+            found.setdefault((word, int(number)), []).append(file)
+    return found
+
+
 def rajki():
     entries = []
     with open(RAJKI, encoding="utf-8") as f:
@@ -100,12 +114,30 @@ def rajki():
             m = re.match(r"^(\S+) = (.+)$", line) or re.match(r"^(\S+) (\[.+\])$", line)
             if m:
                 entries.append((m.group(1), rajki_text(m.group(2))))
+    # The roots given twice: each line with its article(s)
+    homonyms = rajki_homonyms()
+    counts = {}
+    for word, _ in entries:
+        counts[word] = counts.get(word, 0) + 1
+    rows = []
+    seen = {}
+    for word, text in entries:
+        if counts[word] == 1:
+            rows.append((word, text, ""))
+            continue
+        # Its number among the lines of that root, in Rajki's order
+        seen[word] = number = seen.get(word, 0) + 1
+        files = homonyms.get((word, number))
+        if not files:
+            sys.exit(f"{word}: line {number} of Rajki's has no article in {RAJKI_HOMONYMS}")
+        rows += [(word, text, file) for file in files]
     with open(os.path.join(OUT, "rajki.tsv"), "w", encoding="utf-8") as f:
         f.write("# András Rajki, Etimologia Vortaro de Esperanto (2006), CC0 1.0\n"
                 "# (https://archive.org/details/EsperantoEtymologicalDictionary), written in Esperanto by\n"
-                "# scripts/deveno.py. Columns: the root, the words it corresponds to.\n")
-        for word, text in entries:
-            f.write(f"{word}\t{text}\n")
+                "# scripts/deveno.py. Columns: the root, the words it corresponds to, and for a root given twice\n"
+                "# the file of the article of Reta Vortaro the line is about (\"-\" for none).\n")
+        for word, text, file in rows:
+            f.write(f"{word}\t{text}\t{file}\n")
     print(f"Rajki: {len(entries)} roots")
 
 

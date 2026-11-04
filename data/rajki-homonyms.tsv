@@ -1,0 +1,19 @@
+# Roots that Rajki gives twice ("radio", the radio and the radius): the article of Reta Vortaro each of
+# his lines is about, by its file (extern/revo-fonto/revo/<file>.xml), chosen by hand from the words he
+# gives and the articles' definitions; several rows for a line about several articles, "-" for none.
+# Read by scripts/deveno.py. Columns: the root, the number of the line in Rajki's order, the file.
+devizo	1	deviz1
+devizo	2	deviz
+kanono	1	kanon
+kanono	1	kanon2
+kanono	2	kanon1
+mato	1	mat
+mato	2	mat1
+mino	1	min
+mino	2	min
+radio	1	radio1
+radio	2	radi
+raketo	1	raket
+raketo	2	raket
+veto	1	vet
+veto	2	-
