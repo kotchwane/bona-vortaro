@@ -274,7 +274,9 @@ object DictionarySearch {
                 it.startsWith(key) && (it.length == key.length || !it[key.length].isLetterOrDigit())
             }
         }
-        val found = all.filter { wanted(it.word) }
+        val found = all.filter { wanted(it.word) }.let {
+            if (esperanto || isPattern(filter)) it else lesserLast(context, it, language, stopped)
+        }
         /* What Reta Vortaro lacks, from Vikivortaro: in French; in
          * Esperanto, its words, for everyone: the same dictionary, what
          * it says of them only in the languages each reader chose */
@@ -327,6 +329,44 @@ object DictionarySearch {
      * not "bon" ("bo" with an accusative) */
     private val INFLECTED = Regex("^\\p{L}{2,}([oae]j?n|[oa]j|(a|i|o|u)s|u|[oae])$")
     private val PRONOUNS = setOf("min", "vin", "lin", "ŝin", "ĝin", "sin", "nin", "ilin", "onin")
+
+    /* Of the Esperanto words a word of another language is translated by,
+     * those that are rare, archaic or to avoid, "(malofte) uvo", or that
+     * "Vortoj de la bona lingvo" advises against, after the others:
+     * "raisin" gives vinbero, then uvo. The index gives them in the order
+     * of their files, which says nothing of them. Only for the first
+     * results, which are seen, as it reads their articles */
+    private fun lesserLast(
+        context: Context,
+        results: List<SearchResult>,
+        language: String,
+        stopped: () -> Boolean,
+    ): List<SearchResult> {
+        val sorted = results.toMutableList()
+        var i = 0
+        while (i < minOf(sorted.size, LESSER_CHECKED)) {
+            val same = sorted[i].word.lowercase(Locale.ROOT)
+            var end = i
+            while (end < sorted.size && sorted[end].word.lowercase(Locale.ROOT) == same) end++
+            if (end - i > 1) {
+                if (stopped())
+                    return results
+                val group = sorted.subList(i, end)
+                val reordered = group.sortedBy { if (!it.isExample && isLesser(context, it, language)) 1 else 0 }
+                for (k in reordered.indices) group[k] = reordered[k]
+            }
+            i = end
+        }
+        return sorted
+    }
+
+    private const val LESSER_CHECKED = 24
+
+    private fun isLesser(context: Context, result: SearchResult, language: String): Boolean {
+        val preview = SearchPreviews.get(context, result, language) ?: return false
+        return preview.isLesserStyle ||
+            preview.title.split(',').map { it.trim() }.any { it.isNotEmpty() && BonaLingvo.discouraged(context, it) != null }
+    }
 
     /* Each entry once: by its word, case aside, its article and its mark */
     private fun once(results: List<SearchResult>, typed: String): List<SearchResult> {
