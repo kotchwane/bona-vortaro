@@ -730,8 +730,15 @@ private fun ArticleScreen(
                     verticalArrangement = Arrangement.spacedBy(10.dp),
                 ) {
                     items(words, key = { it.section }) { word ->
+                        /* A sub-article's number as a line across; its
+                         * text, if any, in a card below, without the number */
+                        val subArticle = word.isSubArticle
+                        if (subArticle)
+                            SubArticleNumber(word.title.toString().trim())
+                        if (subArticle && !word.hasContent)
+                            return@items
                         WordCard(
-                            word, unfoldExamples, foldTranslations,
+                            if (subArticle) word.untitled() else word, unfoldExamples, foldTranslations,
                             vikiSearch = vikiSearch,
                             vikiShown = vikiShown,
                             example = example.takeIf { word.section == searched?.section },
@@ -1040,6 +1047,25 @@ internal fun loadNeighbours(loadArticle: (Int) -> Article, numbers: List<Int>): 
             null
         }
     }
+
+/** Where a sub-article of the root starts, with only its number ("II."):
+ * a line across, like the one above the neighbouring roots, rather than a
+ * card with nothing in it */
+@Composable
+private fun SubArticleNumber(number: String) {
+    val muted = MaterialTheme.colorScheme.onSurfaceVariant
+
+    Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp)) {
+        HorizontalDivider(Modifier.weight(1f), color = muted.copy(alpha = 0.4f))
+        Text(
+            number,
+            style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold),
+            color = muted,
+            modifier = Modifier.padding(horizontal = 10.dp),
+        )
+        HorizontalDivider(Modifier.weight(1f), color = muted.copy(alpha = 0.4f))
+    }
+}
 
 /** The roots just before and after this one, as on the page of a printed
  * dictionary, to read on from one to the next, and between them a root
