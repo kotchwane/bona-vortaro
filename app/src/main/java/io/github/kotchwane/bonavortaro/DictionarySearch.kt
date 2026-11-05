@@ -330,12 +330,10 @@ object DictionarySearch {
     private val INFLECTED = Regex("^\\p{L}{2,}([oae]j?n|[oa]j|(a|i|o|u)s|u|[oae])$")
     private val PRONOUNS = setOf("min", "vin", "lin", "ŝin", "ĝin", "sin", "nin", "ilin", "onin")
 
-    /* Of the Esperanto words a word of another language is translated by,
-     * those that are rare, archaic or to avoid, "(malofte) uvo", or that
-     * "Vortoj de la bona lingvo" advises against, after the others:
-     * "raisin" gives vinbero, then uvo. The index gives them in the order
-     * of their files, which says nothing of them. Only for the first
-     * results, which are seen, as it reads their articles */
+    /* The order of the Esperanto words a word of another language is
+     * translated by, which the index gives in the order of their files,
+     * saying nothing of them. Only for the first results, which are seen,
+     * as it reads their articles. See [ordered] */
     private fun lesserLast(
         context: Context,
         results: List<SearchResult>,
@@ -352,7 +350,7 @@ object DictionarySearch {
                 if (stopped())
                     return results
                 val group = sorted.subList(i, end)
-                val reordered = group.sortedBy { if (!it.isExample && isLesser(context, it, language)) 1 else 0 }
+                val reordered = ordered(context, group.toList(), language)
                 for (k in reordered.indices) group[k] = reordered[k]
             }
             i = end
@@ -361,6 +359,53 @@ object DictionarySearch {
     }
 
     private const val LESSER_CHECKED = 24
+
+    /* A word's Esperanto translations, [group]:
+     * 1. those that are rare, archaic or to avoid, "(malofte) uvo", or
+     *    that "Vortoj de la bona lingvo" advises against, after the others:
+     *    "raisin" gives vinbero, then uvo;
+     * 2. in French, those that the French Wiktionary gives too first:
+     *    "bouder" paŭti;
+     * 3. then a much more frequent one first, by [Frequency]: "deviner"
+     *    diveni rather than duonkompreni. Only for a word alone, without
+     *    brackets: "conduire (phys.)" is kondukti, not the frequent
+     *    konduki; and not instead of a word that looks like it, unless the
+     *    frequent one does too: "agréable" stays agrabla, not dolĉa */
+    private fun ordered(context: Context, group: List<SearchResult>, language: String): List<SearchResult> {
+        val (lesser, others) = group.partition { !it.isExample && isLesser(context, it, language) }
+        val foreign = group.first().word
+        val esperanto = others.associateWith { result ->
+            if (result.isExample) null
+            else SearchPreviews.get(context, result, language)?.title?.split(',')?.firstOrNull()
+                ?.filter { it.isLetter() || it == ' ' || it == '-' }?.trim()?.takeIf { it.isNotEmpty() }
+        }
+        val inWiktionary = { result: SearchResult ->
+            language == "fr" && esperanto[result]?.let { word ->
+                Vikivortaro.frenchOf(context, word).any { Vikivortaro.key(it) == Vikivortaro.key(foreign) }
+            } == true
+        }
+        val ordered = others.sortedBy { if (inWiktionary(it)) 0 else 1 }.toMutableList()
+        val top = ordered.firstOrNull()
+        val topWord = top?.let { esperanto[it] }
+        if (topWord != null && ' ' !in foreign.trim() && '(' !in foreign && '\'' !in foreign) {
+            val frequency = { result: SearchResult -> esperanto[result]?.let { Frequency.of(context, it) } ?: 0f }
+            val best = ordered.filter { esperanto[it] != null }.maxByOrNull(frequency)
+            val bestWord = best?.let { esperanto[it] }
+            if (best != null && best !== top && bestWord != null &&
+                frequency(best) >= FREQUENT && frequency(best) >= MORE_FREQUENT * maxOf(frequency(top), 0.001f) &&
+                !(inWiktionary(top) && !inWiktionary(best)) &&
+                (!Frequency.looksLike(foreign, topWord) || Frequency.looksLike(foreign, bestWord))) {
+                ordered.remove(best)
+                ordered.add(0, best)
+            }
+        }
+        return ordered + lesser
+    }
+
+    /* How much more frequent a word must be to come first, and how frequent
+     * at least, per million words */
+    private const val MORE_FREQUENT = 2f
+    private const val FREQUENT = 0.05f
 
     private fun isLesser(context: Context, result: SearchResult, language: String): Boolean {
         val preview = SearchPreviews.get(context, result, language) ?: return false
