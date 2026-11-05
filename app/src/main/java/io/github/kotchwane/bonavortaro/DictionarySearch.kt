@@ -371,7 +371,11 @@ object DictionarySearch {
      *    brackets: "conduire (phys.)" is kondukti, not the frequent
      *    konduki; and not instead of a word that looks like it, unless the
      *    frequent one does too: "agréable" stays agrabla, not dolĉa;
-     * 4. but a word of the hand-made list first, where the frequency is
+     * 4. a word that "Vortoj de la bona lingvo" advises against in some
+     *    sense only, after the word it proposes for that sense, when that
+     *    one translates the word too, which says that it is that sense:
+     *    "pollution" poluado before polucio, "game" ludo before partio;
+     * 5. but a word of the hand-made list first, where the frequency is
      *    wrong, mostly for very common grammatical words: "aus" el, not de */
     private fun ordered(context: Context, group: List<SearchResult>, language: String): List<SearchResult> {
         val (lesser, others) = group.partition { !it.isExample && isLesser(context, it, language) }
@@ -399,6 +403,17 @@ object DictionarySearch {
                 (!Frequency.looksLike(foreign, topWord) || Frequency.looksLike(foreign, bestWord))) {
                 ordered.remove(best)
                 ordered.add(0, best)
+            }
+        }
+        for (result in ordered.toList()) {
+            val entry = esperanto[result]?.let { BonaLingvo.entry(context, it) }?.takeIf { it.discouraged } ?: continue
+            val proposed = entry.preferred
+                .flatMap { listOf(BonaLingvo.withoutBrackets(it.word), it.word.replace("(", "").replace(")", "")) }
+                .map { it.lowercase(Locale.ROOT) }.toSet()
+            val better = ordered.firstOrNull { it !== result && esperanto[it]?.lowercase(Locale.ROOT) in proposed } ?: continue
+            if (ordered.indexOf(better) > ordered.indexOf(result)) {
+                ordered.remove(better)
+                ordered.add(ordered.indexOf(result), better)
             }
         }
         Frequency.preferred(context, language, foreign)?.let { word ->
