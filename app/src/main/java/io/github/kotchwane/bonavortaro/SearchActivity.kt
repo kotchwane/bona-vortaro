@@ -145,6 +145,7 @@ class SearchActivity : BonaActivity() {
          * read meanwhile, rather than at the first word typed */
         lifecycleScope.launch(Dispatchers.IO) { Vikivortaro.preload(applicationContext) }
         lifecycleScope.launch(Dispatchers.IO) { BonaLingvo.preload(applicationContext) }
+        lifecycleScope.launch(Dispatchers.IO) { Frequency.preload(applicationContext) }
 
         searchLanguages = BonaSettings.getSearchLanguages(this)
         selected = (savedInstanceState?.getString(STATE_SELECTED)

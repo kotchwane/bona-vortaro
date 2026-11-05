@@ -57,6 +57,7 @@ private const val PRIVACY_URL = "https://kotchwane.github.io/bona-vortaro/privac
 private const val VIKIVORTARO_URL = "https://fr.wiktionary.org/"
 private const val VIKIVORTARO_EO_URL = "https://eo.wiktionary.org/"
 private const val CC_BY_SA_URL = "https://creativecommons.org/licenses/by-sa/4.0/"
+private const val LEIPZIG_TERMS_URL = "https://wortschatz.uni-leipzig.de/en/usage"
 
 /** About the app: what it is, that it is free software, works without
  * internet, asks for no permission and collects nothing (with a link to
@@ -110,6 +111,10 @@ private val PARTS = listOf(
             "eo.wiktionary.org" to VIKIVORTARO_EO_URL,
             "CC BY-SA 4.0" to CC_BY_SA_URL,
         ),
+    ),
+    AboutPart(
+        R.string.about_frequency_title, R.string.about_frequency, R.string.about_frequency_link to Frequency.SITE,
+        textLinks = listOf("CC\u00A0BY" to LEIPZIG_TERMS_URL),
     ),
     AboutPart(R.string.about_copyright_title, R.string.about_copyright),
     AboutPart(R.string.about_warranty_title, R.string.about_warranty, R.string.about_license_link to LICENSE_URL),
