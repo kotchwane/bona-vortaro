@@ -40,7 +40,30 @@ object Frequency {
      * the main thread. */
     fun preload(context: Context) {
         data(context)
+        preferred(context)
     }
+
+    @Volatile private var preferred: Map<String, String>? = null
+
+    /* The hand-made exceptions, assets/frequency/preferred.tsv, by language
+     * and word as searched, in lower case */
+    @Synchronized
+    private fun preferred(context: Context): Map<String, String> = preferred ?: try {
+        context.assets.open("frequency/preferred.tsv").bufferedReader().useLines { lines ->
+            lines.filter { !it.startsWith("#") }
+                .mapNotNull { line -> line.split('\t').takeIf { it.size == 3 }?.let { "${it[0]}\t${it[1].lowercase(Locale.ROOT)}" to it[2] } }
+                .toMap()
+        }
+    } catch (e: IOException) {
+        Log.w(TAG, "Failed to read the preferred words")
+        emptyMap()
+    }.also { preferred = it }
+
+    /** The Esperanto word that comes first for a word of [language], where
+     * the order by frequency puts a worse one first ("aus": el, not de), or
+     * null. Disk access, the first time. */
+    fun preferred(context: Context, language: String, word: String): String? =
+        preferred(context)["$language\t${word.trim().lowercase(Locale.ROOT)}"]
 
     @Synchronized
     private fun data(context: Context): Map<String, Float> = data ?: try {
