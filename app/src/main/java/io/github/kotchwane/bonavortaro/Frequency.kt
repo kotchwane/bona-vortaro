@@ -25,7 +25,7 @@ import java.util.Locale
 
 /**
  * How often the words of Reta Vortaro are used, per million words, in the
- * Esperanto corpora of the Leipzig Corpora Collection (CC BY 4.0), written by
+ * Esperanto web corpus of the Leipzig Corpora Collection (CC BY 4.0), written by
  * scripts/frequency.py in assets/frequency/. For the order of the search
  * results: of the Esperanto words a word of another language is translated
  * by, the much more frequent one first.

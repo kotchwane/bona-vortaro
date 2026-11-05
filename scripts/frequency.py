@@ -5,16 +5,17 @@
 # duonkompreni).
 #
 # Usage, from the root of the repository:
-#   python3 scripts/frequency.py <words file> [<words file>...]
-# with the word lists of the Esperanto corpora of the Leipzig Corpora
+#   python3 scripts/frequency.py <words file>
+# with the word list of the Esperanto web corpus of the Leipzig Corpora
 # Collection (Universität Leipzig, https://wortschatz.uni-leipzig.de/en/download),
-# under CC BY 4.0: epo_mixed_2012_1M-words.txt and
-# epo_newscrawl_2017_1M-words.txt, from epo_mixed_2012_1M.tar.gz and
-# epo_newscrawl_2017_1M.tar.gz. Their lines: number, word, count.
+# under CC BY 4.0: epo_mixed_2012_1M-words.txt, from epo_mixed_2012_1M.tar.gz.
+# Its lines: number, word, count. Not epo_newscrawl_2017_1M: despite its
+# name, all its sentences are from epo.wikitrans.net, English Wikipedia
+# translated by a program ("plumbo" for "lead" a choir).
 #
 # The forms of a word are counted together, as the Tekstaro list of
-# Wiktionary does: "hundojn" as "hundo", "kuris" as "kuri". Each corpus
-# counts per million words, and the counts of the corpora are added. Only
+# Wiktionary does: "hundojn" as "hundo", "kuris" as "kuri", per million
+# words. Only
 # the words that are headwords of Reta Vortaro (extern/revo-fonto) are
 # written, to app/src/main/assets/frequency/leipzig.tsv; the file is
 # committed, so that the app is built the same every time.
@@ -69,25 +70,22 @@ def headwords():
 
 
 def main():
-    if len(sys.argv) < 2:
-        sys.exit(__doc__ or "Usage: scripts/frequency.py <words file>...")
-    total = collections.Counter()
-    for path in sys.argv[1:]:
-        counts = collections.Counter()
-        with open(path, encoding="utf-8", errors="replace") as f:
-            for line in f:
-                fields = line.rstrip("\n").split("\t")
-                if len(fields) >= 3 and fields[2].isdigit() and re.fullmatch(r"[a-zĉĝĥĵŝŭA-ZĈĜĤĴŜŬ]+", fields[1]):
-                    counts[base(fields[1])] += int(fields[2])
-        size = sum(counts.values())
-        for word, count in counts.items():
-            total[word] += count * 1e6 / size
+    if len(sys.argv) != 2:
+        sys.exit("Usage: scripts/frequency.py <words file>")
+    counts = collections.Counter()
+    with open(sys.argv[1], encoding="utf-8", errors="replace") as f:
+        for line in f:
+            fields = line.rstrip("\n").split("\t")
+            if len(fields) >= 3 and fields[2].isdigit() and re.fullmatch(r"[a-zĉĝĥĵŝŭA-ZĈĜĤĴŜŬ]+", fields[1]):
+                counts[base(fields[1])] += int(fields[2])
+    size = sum(counts.values())
+    total = {word: count * 1e6 / size for word, count in counts.items()}
     words = headwords()
     os.makedirs(os.path.dirname(OUT), exist_ok=True)
     with open(OUT, "w", encoding="utf-8") as out:
         out.write("# How often the headwords of Reta Vortaro are used, per million words, from the Esperanto\n")
-        out.write("# corpora of the Leipzig Corpora Collection (Universität Leipzig, wortschatz.uni-leipzig.de),\n")
-        out.write("# CC BY 4.0: epo_mixed_2012_1M and epo_newscrawl_2017_1M, added. With scripts/frequency.py.\n")
+        out.write("# web corpus of the Leipzig Corpora Collection (Universität Leipzig, wortschatz.uni-leipzig.de),\n")
+        out.write("# CC BY 4.0: epo_mixed_2012_1M. With scripts/frequency.py.\n")
         written = 0
         for word in sorted(words):
             value = total.get(word, 0)
