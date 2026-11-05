@@ -370,7 +370,9 @@ object DictionarySearch {
      *    diveni rather than duonkompreni. Only for a word alone, without
      *    brackets: "conduire (phys.)" is kondukti, not the frequent
      *    konduki; and not instead of a word that looks like it, unless the
-     *    frequent one does too: "agréable" stays agrabla, not dolĉa */
+     *    frequent one does too: "agréable" stays agrabla, not dolĉa;
+     * 4. but a word of the hand-made list first, where the frequency is
+     *    wrong, mostly for very common grammatical words: "aus" el, not de */
     private fun ordered(context: Context, group: List<SearchResult>, language: String): List<SearchResult> {
         val (lesser, others) = group.partition { !it.isExample && isLesser(context, it, language) }
         val foreign = group.first().word
@@ -398,6 +400,9 @@ object DictionarySearch {
                 ordered.remove(best)
                 ordered.add(0, best)
             }
+        }
+        Frequency.preferred(context, language, foreign)?.let { word ->
+            ordered.firstOrNull { esperanto[it] == word }?.let { ordered.remove(it); ordered.add(0, it) }
         }
         return ordered + lesser
     }

@@ -1,0 +1,29 @@
+# The Esperanto word that comes first when searching a word of another language, where the order by
+# frequency (Frequency.kt) puts a worse one first, mostly very common grammatical words ("aus": de
+# before el). Only words that Reta Vortaro already gives for that word: this changes their order,
+# nothing else; a word that is rare, archaic, to avoid or advised against by Vortoj de la bona lingvo
+# stays last all the same. Language, word as searched, Esperanto word.
+de	aus	el
+de	wegen	pro
+de	dessen	ties
+de	deren	ties
+de	durch	tra
+de	mit	kun
+de	seit	ekde
+de	unter	sub
+de	eigen	propra
+de	allein	sole
+en	through	tra
+en	carry	porti
+en	wear	porti
+en	countable	nombrebla
+en	landing	surterigo
+en	arsenal	armilejo
+en	cape	terkapo
+en	promontory	promontoro
+en	splinter	splito
+fr	divergent	diverĝa
+fr	broutille	bagatelo
+fr	façon	maniero
+fr	collection	kolekto
+fr	promontoire	promontoro
