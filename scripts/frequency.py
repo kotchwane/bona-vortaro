@@ -8,16 +8,15 @@
 #   python3 scripts/frequency.py <words file>
 # with the word list of the Esperanto web corpus of the Leipzig Corpora
 # Collection (Universität Leipzig, https://wortschatz.uni-leipzig.de/en/download),
-# under CC BY 4.0: epo_mixed_2012_1M-words.txt, from epo_mixed_2012_1M.tar.gz.
+# under CC BY (https://wortschatz.uni-leipzig.de/en/usage): epo_mixed_2012_1M-words.txt, from epo_mixed_2012_1M.tar.gz.
 # Its lines: number, word, count. Not epo_newscrawl_2017_1M: despite its
 # name, all its sentences are from epo.wikitrans.net, English Wikipedia
 # translated by a program ("plumbo" for "lead" a choir).
 #
 # The forms of a word are counted together, as the Tekstaro list of
 # Wiktionary does: "hundojn" as "hundo", "kuris" as "kuri", per million
-# words. Only
-# the words that are headwords of Reta Vortaro (extern/revo-fonto) are
-# written, to app/src/main/assets/frequency/leipzig.tsv; the file is
+# words. Only the words that are headwords of Reta Vortaro
+# (extern/revo-fonto) are written, to app/src/main/assets/frequency/leipzig.tsv; the file is
 # committed, so that the app is built the same every time.
 import collections
 import html
@@ -85,7 +84,7 @@ def main():
     with open(OUT, "w", encoding="utf-8") as out:
         out.write("# How often the headwords of Reta Vortaro are used, per million words, from the Esperanto\n")
         out.write("# web corpus of the Leipzig Corpora Collection (Universität Leipzig, wortschatz.uni-leipzig.de),\n")
-        out.write("# CC BY 4.0: epo_mixed_2012_1M. With scripts/frequency.py.\n")
+        out.write("# CC BY: epo_mixed_2012_1M. With scripts/frequency.py.\n")
         written = 0
         for word in sorted(words):
             value = total.get(word, 0)

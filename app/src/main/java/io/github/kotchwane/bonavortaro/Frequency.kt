@@ -25,15 +25,22 @@ import java.util.Locale
 
 /**
  * How often the words of Reta Vortaro are used, per million words, in the
- * Esperanto web corpus of the Leipzig Corpora Collection (CC BY 4.0), written by
+ * Esperanto web corpus of the Leipzig Corpora Collection (CC BY), written by
  * scripts/frequency.py in assets/frequency/. For the order of the search
  * results: of the Esperanto words a word of another language is translated
  * by, the much more frequent one first.
  */
 object Frequency {
     private const val TAG = "bonafrequency"
+    const val SITE = "https://wortschatz.uni-leipzig.de/en/download/Esperanto"
 
     @Volatile private var data: Map<String, Float>? = null
+
+    /** Reads the frequencies ahead of the first search. Disk access: not on
+     * the main thread. */
+    fun preload(context: Context) {
+        data(context)
+    }
 
     @Synchronized
     private fun data(context: Context): Map<String, Float> = data ?: try {
@@ -48,7 +55,7 @@ object Frequency {
     }.also { data = it }
 
     /** How often a word is used, per million words; 0 for a word of several
-     * words, or one the corpora don't have. Disk access, the first time. */
+     * words, or one the corpus doesn't have. Disk access, the first time. */
     fun of(context: Context, word: String): Float =
         if (' ' in word.trim()) 0f else data(context)[word.trim().lowercase(Locale.ROOT)] ?: 0f
 

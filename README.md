@@ -94,7 +94,10 @@ redaktoroj de [Reta Vortaro](https://github.com/revuloj/revo-fonto); la aldonaj
 francaj tradukoj, de la kontribuantoj de la franca [Vikivortaro](https://fr.wiktionary.org/),
 per la eltiro de [Kaikki](https://kaikki.org/); la esperantaj difinoj, de la
 kontribuantoj de la esperanta [Vikivortaro](https://eo.wiktionary.org/); la
-malrekomendoj, de [La Bona Lingvo](https://labonalingvo.org/).
+malrekomendoj, de [La Bona Lingvo](https://labonalingvo.org/); la ofteco de la vortoj,
+por la ordo de la serĉrezultoj, el la esperanta korpuso de la
+[Leipzig Corpora Collection](https://wortschatz.uni-leipzig.de/en/download/Esperanto)
+(Universitato de Leipzig, [CC BY](https://wortschatz.uni-leipzig.de/en/usage)).
 
 La ilo, kiu konvertas Retan Vortaron por la apo, [prevodb](https://github.com/bpeel/prevodb),
 ankaŭ de Neil Roberts, troviĝas en `prevodb/`, kun sia historio.

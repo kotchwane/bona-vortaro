@@ -1,6 +1,6 @@
 # How often the headwords of Reta Vortaro are used, per million words, from the Esperanto
 # web corpus of the Leipzig Corpora Collection (Universität Leipzig, wortschatz.uni-leipzig.de),
-# CC BY 4.0: epo_mixed_2012_1M. With scripts/frequency.py.
+# CC BY: epo_mixed_2012_1M. With scripts/frequency.py.
 a	171
 abako	1.61
 abandoni	2.25
