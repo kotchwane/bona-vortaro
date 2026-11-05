@@ -375,7 +375,12 @@ object DictionarySearch {
      *    sense only, after the word it proposes for that sense, when that
      *    one translates the word too, which says that it is that sense:
      *    "pollution" poluado before polucio, "game" ludo before partio;
-     * 5. but a word of the hand-made list first, where the frequency is
+     * 5. the simpler word that the list proposes instead of the first
+     *    ("~"), when it translates the word too: first if it is used at
+     *    least a twentieth as much, "truck" ŝarĝaŭto before kamiono,
+     *    "author" verkinto before aŭtoro; else second, "alphabet"
+     *    alfabeto then aboco;
+     * 6. but a word of the hand-made list first, where the frequency is
      *    wrong, mostly for very common grammatical words: "aus" el, not de */
     private fun ordered(context: Context, group: List<SearchResult>, language: String): List<SearchResult> {
         val (lesser, others) = group.partition { !it.isExample && isLesser(context, it, language) }
@@ -405,16 +410,28 @@ object DictionarySearch {
                 ordered.add(0, best)
             }
         }
-        for (result in ordered.toList()) {
-            val entry = esperanto[result]?.let { BonaLingvo.entry(context, it) }?.takeIf { it.discouraged } ?: continue
+        /* The word of the group that Bona lingvo's entry proposes */
+        val proposedIn = { entry: BonaLingvoEntry, result: SearchResult ->
             val proposed = entry.preferred
                 .flatMap { listOf(BonaLingvo.withoutBrackets(it.word), it.word.replace("(", "").replace(")", "")) }
                 .map { it.lowercase(Locale.ROOT) }.toSet()
-            val better = ordered.firstOrNull { it !== result && esperanto[it]?.lowercase(Locale.ROOT) in proposed } ?: continue
+            ordered.firstOrNull { it !== result && esperanto[it]?.lowercase(Locale.ROOT) in proposed }
+        }
+        for (result in ordered.toList()) {
+            val entry = esperanto[result]?.let { BonaLingvo.entry(context, it) }?.takeIf { it.discouraged } ?: continue
+            val better = proposedIn(entry, result) ?: continue
             if (ordered.indexOf(better) > ordered.indexOf(result)) {
                 ordered.remove(better)
                 ordered.add(ordered.indexOf(result), better)
             }
+        }
+        ordered.firstOrNull { esperanto[it] != null }?.let { first ->
+            val entry = esperanto[first]?.let { BonaLingvo.entry(context, it) }?.takeIf { !it.discouraged } ?: return@let
+            val simpler = proposedIn(entry, first) ?: return@let
+            val frequency = { result: SearchResult -> esperanto[result]?.let { Frequency.of(context, it) } ?: 0f }
+            ordered.remove(simpler)
+            val at = ordered.indexOf(first)
+            ordered.add(if (frequency(simpler) >= SIMPLER_USED * frequency(first)) at else at + 1, simpler)
         }
         Frequency.preferred(context, language, foreign)?.let { word ->
             ordered.firstOrNull { esperanto[it] == word }?.let { ordered.remove(it); ordered.add(0, it) }
@@ -426,6 +443,10 @@ object DictionarySearch {
      * at least, per million words */
     private const val MORE_FREQUENT = 2f
     private const val FREQUENT = 0.05f
+
+    /* How much a simpler word of "Vortoj de la bona lingvo" must be used,
+     * compared with the first word, to come before it */
+    private const val SIMPLER_USED = 0.05f
 
     private fun isLesser(context: Context, result: SearchResult, language: String): Boolean {
         val preview = SearchPreviews.get(context, result, language) ?: return false
