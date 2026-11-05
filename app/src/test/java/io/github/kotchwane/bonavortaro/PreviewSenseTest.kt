@@ -18,6 +18,8 @@
 package io.github.kotchwane.bonavortaro
 
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertTrue
 import org.junit.Assert.assertNull
 import org.junit.Test
 
@@ -74,5 +76,25 @@ class PreviewSenseTest {
         /* Not "14." nor a number within a line */
         assertNull(senseOffset("13. a\n\n14. b, en 4. jarcento", 4))
         assertNull(senseOffset(text, 7))
+    }
+
+    @Test
+    fun theStylesOfTheWholeWordComeBeforeTheDefinition() {
+        /* kozo: "(malofte)" alone before its sense */
+        assertEquals("(malofte) Ĉia afero", withWordStyles(listOf("(malofte)", "Ĉia afero"), "Ĉia afero"))
+        /* mava: two styles */
+        assertEquals("(malofte) (poezie) Malbona", withWordStyles(listOf("(malofte) (poezie)", "Malbona"), "Malbona"))
+        /* Not twice, nor a bracket that isn't a style */
+        assertEquals("(arkaismo) Aviadilo", withWordStyles(listOf("(arkaismo) Aviadilo"), "(arkaismo) Aviadilo"))
+        assertEquals("Hejmo", withWordStyles(listOf("(tr)", "Hejmo"), "Hejmo"))
+    }
+
+    @Test
+    fun aRareArchaicOrAvoidedWordIsALesserChoice() {
+        assertTrue(WordPreview("uvo", "(malofte) Vinberoj").isLesserStyle)
+        assertTrue(WordPreview("mava", "(poezie) (malofte) Malbona").isLesserStyle)
+        assertTrue(WordPreview("aeroplano", "(arkaismo) Aviadilo").isLesserStyle)
+        assertFalse(WordPreview("afero", "(figure) Io estanta en la mondo").isLesserStyle)
+        assertFalse(WordPreview("vinbero", "Frukto, el kiu oni faras la vinon (malofte uvo)").isLesserStyle)
     }
 }

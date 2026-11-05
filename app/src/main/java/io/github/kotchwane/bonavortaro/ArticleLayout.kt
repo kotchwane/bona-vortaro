@@ -707,8 +707,35 @@ fun previewOf(article: Article, mark: Int, sense: String? = null): WordPreview? 
         ?.withoutFinalPeriod()
         ?: ""
 
-    return WordPreview(title.toString(), definition, paragraphs.count { NUMBERED.containsMatchIn(it) } > 1)
+    return WordPreview(title.toString(), withWordStyles(paragraphs, definition), paragraphs.count { NUMBERED.containsMatchIn(it) } > 1)
 }
+
+/** The definition after the styles of the whole word, "(malofte)", which
+ * come before its senses, alone: "(malofte) Ĉia afero" for kozo, as its
+ * article says; not twice */
+internal fun withWordStyles(paragraphs: List<String>, definition: String): String {
+    val styles = paragraphs.map { it.trim() }
+        .takeWhile { it.startsWith("(") && it.endsWith(")") && !NUMBERED.containsMatchIn(it) }
+        .flatMap { paragraph -> STYLE.findAll(paragraph).map { it.value } }
+        .filter { !definition.startsWith(it) }
+        .distinct()
+    return if (styles.isEmpty() || definition.isEmpty()) definition else styles.joinToString(" ") + " " + definition
+}
+
+/* The styles of Reta Vortaro, as prevodb writes them */
+private const val STYLES = "komune|figure|arkaismo|evitinde|frazaĵo|vulgare|malofte|poezie|neologismo"
+private val STYLE = Regex("""\(($STYLES)\)""")
+private val LEADING_STYLES = Regex("""^(\(($STYLES)\)\s*)+""")
+
+/* The styles that make a word a lesser choice */
+private val LESSER_STYLES = setOf("malofte", "arkaismo", "evitinde")
+
+/** Whether a preview says its word is rare, archaic or to avoid, in the
+ * styles before its definition: "(malofte) Vinberoj" */
+val WordPreview.isLesserStyle: Boolean
+    get() = LEADING_STYLES.find(definition)?.let { prefix ->
+        STYLE.findAll(prefix.value).any { it.groupValues[1] in LESSER_STYLES }
+    } ?: false
 
 private val NUMBERED = Regex("""^\s*\d+\.(\s|$)""")
 
