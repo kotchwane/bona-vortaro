@@ -123,7 +123,7 @@
   <string name="guide_wildcards_title">Ĵokeroj: * kaj ?</string>
   <string name="guide_wildcards">La steleto „*“ anstataŭas ajnajn literojn, eĉ neniun, kaj la demandosigno „?“ ĝuste unu literon. Tiel _*ologio_ trovas ĉiujn vortojn, kiuj finiĝas per „ologio“ (biologio, geologio…), kaj _?rbo_ trovas ĉiujn vortojn de kvar literoj, kiuj finiĝas per „rbo“, kiel „arbo“.</string>
   <string name="guide_guess_title">Mankantaj vortoj</string>
-  <string name="guide_guess">Se vorto ne estas en la vortaro, la serĉo en esperanto proponas, el kiuj radikoj kaj afiksoj ĝi eble konsistas: _kafejestro_ estas eble „kafej\u00A0+\u00A0estro“. Tuŝu parton por legi ĝian artikolon. Tio estas diveno, ne difino. Same, kiam vi tenas premita vorton de artikolo, kiu mankas en la vortaro. Vi povas malŝalti ĝin en la agordoj („Diveni mankantajn vortojn“).</string>
+  <string name="guide_guess">Se vorto ne estas en la vortaro, la serĉo en esperanto proponas, el kiuj radikoj kaj afiksoj ĝi eble konsistas: _kafejestro_ estas eble „kafej\u00A0+\u00A0estro“. Tuŝu parton por legi ĝian artikolon. Tio estas diveno, ne difino. Same, kiam vi tenas premita vorton de artikolo, kiu mankas en la vortaro.</string>
   <string name="guide_history_title">La lastaj serĉoj</string>
   <string name="guide_history">Kiam nenio estas tajpita, la serĉo montras la vortojn, kiujn vi laste malfermis. Tenu unu premita por forviŝi ĝin. En la agordoj vi povas malŝalti la historion.</string>
   <string name="guide_links_title">Ligiloj kaj ekzemploj</string>
@@ -173,7 +173,7 @@
   <string name="text_size_help">La teksto de la artikoloj kaj de la listoj de vortoj. Por la tuta apo, uzu la grandecon de la teksto de Android.</string>
   <string name="translations_title">Tradukoj en la artikoloj</string>
   <string name="translations_help">La artikoloj montras tradukojn nur en la lingvoj elektitaj ĉi tie. Tio ne ŝanĝas la lingvojn, en kiuj vi povas serĉi.</string>
-  <string name="languages">Lingvoj</string>
+  <string name="articles_section">Artikoloj</string>
   <string name="translations_all">Ĉiuj (%1$d lingvoj)</string>
   <string name="translations_none">Neniu</string>
   <string name="my_search_languages">Miaj serĉlingvoj</string>
@@ -286,7 +286,7 @@
   <string name="about_rajki">La deveno de la vortoj, kiun vi povas ŝalti en la agordoj, venas el la „Etimologia Vortaro de Esperanto“ de András Rajki (2006), publikigita kiel publika havaĵo (CC\u00A00\u00A01.0), kaj el la sekcioj „Deveno“ de Vikivortaro (eo.wiktionary.org, CC\u00A0BY-SA\u00A04.0). Ĝi estas montrata kiel ĝi estas, nur skribita en Esperanto (ekzemple la nomoj de la lingvoj), kaj neniu kontrolis ĝin por Bona vortaro.</string>
   <string name="about_rajki_link">Etimologia Vortaro de Esperanto</string>
   <string name="about_frequency_title">Ofteco de la vortoj</string>
-  <string name="about_frequency">Kiam pluraj esperantaj vortoj tradukas la saman vorton, la serĉo montras unue la plej oftan, laŭ la esperanta korpuso de la Leipzig Corpora Collection (Universitato de Leipzig, wortschatz.uni-leipzig.de), publikigita laŭ la permesilo CC\u00A0BY. Bona vortaro enhavas nur la oftecon de la kapvortoj de la Reta Vortaro, neniun frazon de la korpuso.</string>
+  <string name="about_frequency">Kiam pluraj esperantaj vortoj tradukas la saman vorton, la serĉo montras unue la plej oftan, laŭ la esperanta korpuso de la Leipzig Corpora Collection (Universitato de Leipzig, wortschatz.uni-leipzig.de), publikigita laŭ la permesilo CC\u00A0BY. Tamen la vortoj, kiujn „Vortoj de la bona lingvo“ malrekomendas, venas post tiuj, kiujn ĝi proponas anstataŭe, kaj la pli simpla vorto, kiun ĝi proponas, venas unue, se ĝi estas sufiĉe uzata, alie tuj poste. Bona vortaro enhavas nur la oftecon de la kapvortoj de la Reta Vortaro, neniun frazon de la korpuso.</string>
   <string name="about_frequency_link">Leipzig Corpora Collection</string>
   <string name="about_data_link">La Reta Vortaro</string>
   <string name="about_copyright_title">Kopirajto</string>
@@ -337,8 +337,6 @@
   <string name="tip_languages">La langetoj EO, FR… elektas la lingvon de la serĉo. Se nenio troviĝas en ĝi, la serĉo daŭras en la aliaj lingvoj, de maldekstre dekstren.</string>
   <string name="tip_typing">Vi povas tajpi „cx“ por „ĉ“ (same gx, hx, jx, sx, ux), kaj ignori la supersignojn: „cevalo“ trovas „ĉevalo“.</string>
   <string name="search_section">Serĉo</string>
-  <string name="guess_words">Diveni mankantajn vortojn</string>
-  <string name="guess_words_summary">Se vorto ne estas en la vortaro, proponi el kiuj radikoj kaj afiksoj ĝi eble konsistas: „kafejestro“ → kafej\u00A0+\u00A0estro.</string>
   <string name="keep_history">Konservi la historion</string>
   <string name="keep_history_summary">La vortoj, kiujn vi malfermas el la serĉo, aperas sub „Lastaj serĉoj“. Malŝalti ĝin ankaŭ forviŝas ĝin.</string>
   <string name="clear_history_question">Ĉu forviŝi la tutan historion?</string>

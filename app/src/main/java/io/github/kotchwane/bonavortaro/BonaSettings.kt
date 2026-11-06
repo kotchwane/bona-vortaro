@@ -38,7 +38,6 @@ object BonaSettings {
     private const val PREF_SEARCH_LANGUAGES = "myLanguages"
     private const val PREF_LAST_LANGUAGE = "lastLanguage"
     private const val PREF_KEEP_HISTORY = "keepHistory"
-    private const val PREF_GUESS_WORDS = "guessWords"
     private const val PREF_SHOW_SOURCES = "showSources"
     private const val PREF_SHOW_ORIGINS = "showOrigins"
     private const val PREF_CONTRIBUTE_INVITED = "contributeInvited"
@@ -186,15 +185,6 @@ object BonaSettings {
 
     fun setSearchLanguages(context: Context, languages: List<String>) {
         prefs(context).edit().putString(PREF_SEARCH_LANGUAGES, languages.joinToString(",")).apply()
-    }
-
-    /** Whether a word missing from the dictionary is cut into the roots
-     * and affixes it may be built from (see [WordAnalyser]). */
-    fun getGuessWords(context: Context): Boolean =
-        prefs(context).getBoolean(PREF_GUESS_WORDS, true)
-
-    fun setGuessWords(context: Context, guess: Boolean) {
-        prefs(context).edit().putBoolean(PREF_GUESS_WORDS, guess).apply()
     }
 
     /** Whether the words opened from the search are kept in the history,

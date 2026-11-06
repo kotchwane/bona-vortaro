@@ -210,7 +210,6 @@ class VikivortaroActivity : BonaActivity() {
     /* The settings, read again when coming back to the page: they may have
      * changed in between, eg. from its own settings button */
     private var inFrench by mutableStateOf(false)
-    private var guessWords by mutableStateOf(true)
     private var textSize by mutableIntStateOf(BonaSettings.DEFAULT_TEXT_SIZE)
     /* A root opened from this page: a second tap opens nothing more until
      * the reader is back */
@@ -224,7 +223,6 @@ class VikivortaroActivity : BonaActivity() {
     override fun onStart() {
         super.onStart()
         inFrench = Vikivortaro.inArticles(this)
-        guessWords = BonaSettings.getGuessWords(this)
         textSize = BonaSettings.getTextSize(this)
     }
 
@@ -237,7 +235,6 @@ class VikivortaroActivity : BonaActivity() {
                 VikiPage(
                     word,
                     inFrench = inFrench,
-                    guessWords = guessWords,
                     textSize = textSize,
                     onOpenEntry = { entry ->
                         startActivity(
@@ -262,7 +259,6 @@ class VikivortaroActivity : BonaActivity() {
 private fun VikiPage(
     word: String,
     inFrench: Boolean,
-    guessWords: Boolean,
     textSize: Int,
     onOpenEntry: (SearchResult) -> Unit,
     onOpenRoot: (Int) -> Unit,
@@ -297,8 +293,8 @@ private fun VikiPage(
     val advice = read?.advice
     /* Without them, how the word may be built, as for a word nobody has:
      * "femurosto", femur + osto */
-    val analysis by produceState<ShownAnalysis?>(null, word, inFrench, guessWords, read) {
-        value = if (definitionRead && definition == null && advice == null && !inFrench && guessWords)
+    val analysis by produceState<ShownAnalysis?>(null, word, inFrench, read) {
+        value = if (definitionRead && definition == null && advice == null && !inFrench)
             withContext(Dispatchers.IO) { WordAnalyses.find(context, word, needsEnding = true) }
         else null
     }

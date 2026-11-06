@@ -91,7 +91,6 @@ class PreferenceActivity : BonaActivity() {
     private var translations by mutableStateOf(emptyList<String>())
     private var unfoldExamples by mutableStateOf(false)
     private var keepHistory by mutableStateOf(true)
-    private var guessWords by mutableStateOf(true)
     private var showSources by mutableStateOf(true)
     private var showOrigins by mutableStateOf(false)
 
@@ -132,11 +131,6 @@ class PreferenceActivity : BonaActivity() {
                             BonaSettings.setKeepHistory(this, it)
                         },
                         onClearHistory = { History.clear(this) },
-                        guessWords = guessWords,
-                        onGuessWordsChange = {
-                            guessWords = it
-                            BonaSettings.setGuessWords(this, it)
-                        },
                         unfoldExamples = unfoldExamples,
                         onUnfoldExamplesChange = {
                             unfoldExamples = it
@@ -186,7 +180,6 @@ class PreferenceActivity : BonaActivity() {
         textSize = BonaSettings.getTextSize(this)
         unfoldExamples = BonaSettings.getUnfoldExamples(this)
         keepHistory = BonaSettings.getKeepHistory(this)
-        guessWords = BonaSettings.getGuessWords(this)
         showSources = BonaSettings.getShowSources(this)
         showOrigins = BonaSettings.getShowOrigins(this)
         myLanguages = BonaSettings.getChosenSearchLanguages(this)
@@ -319,8 +312,6 @@ private fun MainSettings(
     keepHistory: Boolean,
     onKeepHistoryChange: (Boolean) -> Unit,
     onClearHistory: () -> Unit,
-    guessWords: Boolean,
-    onGuessWordsChange: (Boolean) -> Unit,
     unfoldExamples: Boolean,
     onUnfoldExamplesChange: (Boolean) -> Unit,
     showSources: Boolean,
@@ -349,9 +340,30 @@ private fun MainSettings(
         else stringResource(R.string.text_size_value, percent)
 
     SettingsScaffold(stringResource(R.string.preferences), onBack) {
-        bigTitle(R.string.appearance, first = true)
-        item { SettingRow(stringResource(R.string.theme), themeNames[theme]) { showTheme = true } }
-        item { SettingRow(stringResource(R.string.text_size), textSizeValue) { showTextSize = true } }
+        /* In the order of the app: the search, what it keeps, then the
+         * articles, then the look of all */
+        bigTitle(R.string.search_section, first = true)
+        item {
+            SettingRow(
+                stringResource(R.string.my_search_languages),
+                myLanguagesSummary ?: "",
+                onMyLanguages,
+            )
+        }
+        item {
+            SwitchRow(
+                stringResource(R.string.keep_history),
+                stringResource(R.string.keep_history_summary),
+                keepHistory,
+                onKeepHistoryChange,
+            )
+        }
+        item { SettingRow(stringResource(R.string.clear_history), null) { showClearHistory = true } }
+
+        bigTitle(R.string.articles_section)
+        item {
+            SettingRow(stringResource(R.string.translations_title), translationsSummary, onTranslations)
+        }
         item {
             SwitchRow(
                 stringResource(R.string.unfold_examples),
@@ -377,37 +389,10 @@ private fun MainSettings(
             )
         }
 
-        bigTitle(R.string.languages)
-        item {
-            SettingRow(stringResource(R.string.translations_title), translationsSummary, onTranslations)
-        }
-        item {
-            SettingRow(
-                stringResource(R.string.my_search_languages),
-                myLanguagesSummary ?: "",
-                onMyLanguages,
-            )
-        }
 
-        /* The search, and what it keeps */
-        bigTitle(R.string.search_section)
-        item {
-            SwitchRow(
-                stringResource(R.string.guess_words),
-                stringResource(R.string.guess_words_summary),
-                guessWords,
-                onGuessWordsChange,
-            )
-        }
-        item {
-            SwitchRow(
-                stringResource(R.string.keep_history),
-                stringResource(R.string.keep_history_summary),
-                keepHistory,
-                onKeepHistoryChange,
-            )
-        }
-        item { SettingRow(stringResource(R.string.clear_history), null) { showClearHistory = true } }
+        bigTitle(R.string.appearance)
+        item { SettingRow(stringResource(R.string.theme), themeNames[theme]) { showTheme = true } }
+        item { SettingRow(stringResource(R.string.text_size), textSizeValue) { showTextSize = true } }
 
         bigTitle(R.string.about_section)
         item {
