@@ -68,6 +68,8 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.calculateEndPadding
+import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.Row
@@ -101,6 +103,7 @@ import androidx.compose.material.icons.filled.Settings
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -714,6 +717,7 @@ private fun ArticleScreen(
             )
         },
     ) { padding ->
+        val layoutDirection = LocalLayoutDirection.current
         /* What is read at the text size of the settings; the bar above
          * stays as it is */
         ScaledText(textSize) {
@@ -721,9 +725,11 @@ private fun ArticleScreen(
                 LazyColumn(
                     state = listState,
                     modifier = Modifier.fillMaxSize(),
+                    /* Beside the bar of the phone too, when it is on the
+                     * side, in landscape */
                     contentPadding = PaddingValues(
-                        start = 12.dp,
-                        end = 12.dp,
+                        start = padding.calculateStartPadding(layoutDirection) + 12.dp,
+                        end = padding.calculateEndPadding(layoutDirection) + 12.dp,
                         top = padding.calculateTopPadding() + 4.dp,
                         bottom = padding.calculateBottomPadding() + 16.dp,
                     ),
