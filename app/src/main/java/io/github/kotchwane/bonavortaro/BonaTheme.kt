@@ -17,6 +17,7 @@
 
 package io.github.kotchwane.bonavortaro
 
+import android.net.Uri
 import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -29,8 +30,12 @@ import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalUriHandler
+import androidx.compose.ui.platform.UriHandler
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontFamily
@@ -171,7 +176,19 @@ private val SerifTypography = Typography().let { t ->
 fun BonaTheme(content: @Composable () -> Unit) {
     val dark = isSystemInDarkTheme()
 
-    CompositionLocalProvider(LocalBonaDesign provides if (dark) NightDesign else PaperDesign) {
+    val context = LocalContext.current
+    /* The links in the text open as the others: with a word when no app
+     * can, rather than nothing */
+    val uriHandler = remember(context) {
+        object : UriHandler {
+            override fun openUri(uri: String) = openOutside(context, Uri.parse(uri))
+        }
+    }
+
+    CompositionLocalProvider(
+        LocalBonaDesign provides if (dark) NightDesign else PaperDesign,
+        LocalUriHandler provides uriHandler,
+    ) {
         MaterialTheme(
             colorScheme = if (dark) NightColors else PaperColors,
             typography = SerifTypography,
