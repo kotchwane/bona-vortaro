@@ -110,7 +110,7 @@ private fun NamePage(onBack: () -> Unit) {
             }
 
             Spacer(Modifier.height(24.dp))
-            OutlinedButton(onClick = { context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(BOOK_URL))) }) {
+            OutlinedButton(onClick = { openOutside(context, Uri.parse(BOOK_URL)) }) {
                 Text(withItalics(stringResource(R.string.name_read_book)))
             }
             Spacer(Modifier.height(6.dp))

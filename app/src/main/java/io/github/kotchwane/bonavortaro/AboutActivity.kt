@@ -214,7 +214,7 @@ internal fun Link(label: Int, url: String) {
         style = MaterialTheme.typography.bodyLarge,
         color = MaterialTheme.colorScheme.primary,
         modifier = Modifier
-            .clickable { context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url))) }
+            .clickable { openOutside(context, Uri.parse(url)) }
             .padding(vertical = 8.dp),
     )
 }

@@ -182,6 +182,7 @@
   <string name="search_languages_order_help">Movu ilin por ŝanĝi ilian ordon.</string>
   <string name="continue_to_search">Daŭrigi</string>
   <string name="one_language_needed">Necesas almenaŭ unu serĉlingvo.</string>
+  <string name="no_browser">Neniu aplikaĵo en la telefono povas malfermi ĉi tiun paĝon.</string>
   <string name="about_section">Pri</string>
   <!-- The page on how to improve the dictionary at its sources -->
   <string name="contribute_title">Plibonigi la vortaron</string>

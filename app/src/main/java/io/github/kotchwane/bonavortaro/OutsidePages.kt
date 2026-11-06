@@ -24,6 +24,7 @@ import android.net.Uri
 import android.text.Spanned
 import android.text.SpannableStringBuilder
 import android.util.Log
+import android.widget.Toast
 
 /* The pages outside the app (Vikipedio, Reta Vortaro, the works of the
  * examples), opened in the browser, and the sign "↗" that announces them */
@@ -31,12 +32,13 @@ import android.util.Log
 /** The sign after what opens a page outside the app */
 const val OUTSIDE_SIGN = "↗"
 
-/** Opens a page in the browser, if there is one. */
+/** Opens a page in the browser, if there is one; else says there is none. */
 fun openOutside(context: Context, page: Uri) {
     try {
         context.startActivity(Intent(Intent.ACTION_VIEW, page))
     } catch (e: ActivityNotFoundException) {
         Log.w("bonaoutside", "No browser for $page")
+        Toast.makeText(context, R.string.no_browser, Toast.LENGTH_SHORT).show()
     }
 }
 
