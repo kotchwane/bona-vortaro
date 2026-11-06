@@ -267,6 +267,28 @@ class VikivortaroTest {
     }
 
     @Test
+    fun ofAndDescribingWordsDoNotTranslate() {
+        val pairs = Vikivortaro.glossPairs(mapOf(
+            "akva" to "Aqueux, d’eau.",
+            "komence" to "D’abord.",
+            "malgejo" to "Hétéro, abréviation d’hétérosexuel.",
+            "absorbo" to "Action d’absorber.",
+            "ago" to "Action.",
+            "okulsigno" to "Clin d’œil.",
+        ))
+        assertEquals(
+            listOf(
+                "aqueux" to "akva",
+                "d’abord" to "komence",
+                "hétéro" to "malgejo",
+                "action" to "ago",
+                "clin d’œil" to "okulsigno",
+            ),
+            pairs,
+        )
+    }
+
+    @Test
     fun aLongerDescriptionDoesNotTranslate() {
         assertEquals(emptyList<Pair<String, String>>(), Vikivortaro.glossPairs(mapOf(
             "Abuĝo" to "Abuja, capitale du Nigeria.",

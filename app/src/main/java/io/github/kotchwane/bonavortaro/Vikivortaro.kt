@@ -134,7 +134,8 @@ object Vikivortaro {
      * Esperanto), and Reta Vortaro too. Not a description of more words
      * ("Abuja, capitale du Nigeria"): at most two words each, without small
      * words ("de", "pour"…); for a name, only the names ("Cologne", not
-     * "ville d’Allemagne"). */
+     * "ville d’Allemagne"); nor "d’eau" for an adjective, akva, nor what
+     * starts with "action", "fait"… ("fait d’acquérir"). */
     internal fun glossPairs(descriptions: Map<String, String>): List<Pair<String, String>> =
         descriptions.flatMap { (esperanto, description) ->
             val text = description.removeSuffix(".")
@@ -147,15 +148,23 @@ object Vikivortaro {
                 })
                 return@flatMap emptyList()
             val name = esperanto.first().isUpperCase()
-            items.filter { !name || it.first().isUpperCase() }.map { item ->
-                /* Its capital only as the first word of the description,
-                 * unless a name ("États-Unien") */
-                val french = if (!name && item.first().isUpperCase() && item.drop(1).none { it.isUpperCase() })
-                    item.replaceFirstChar { it.lowercase(Locale.ROOT) } else item
-                french to esperanto
-            }
+            items.filter { !name || it.first().isUpperCase() }
+                /* Not "d’eau" for akva, which says "of water": an adverb
+                 * is fine, "d’abord" komence */
+                .filter { !(esperanto.endsWith('a') && it.lowercase(Locale.ROOT).let { item -> item.startsWith("d’") || item.startsWith("d'") }) }
+                /* Not what describes the word, "action d’absorber"; but
+                 * "action" alone, ago */
+                .filter { ' ' !in it || it.substringBefore(' ').lowercase(Locale.ROOT) !in GLOSS_DESCRIBING }
+                .map { item ->
+                    /* Its capital only as the first word of the description,
+                     * unless a name ("États-Unien") */
+                    val french = if (!name && item.first().isUpperCase() && item.drop(1).none { it.isUpperCase() })
+                        item.replaceFirstChar { it.lowercase(Locale.ROOT) } else item
+                    french to esperanto
+                }
         }
 
+    private val GLOSS_DESCRIBING = setOf("abréviation", "action", "fait", "processus")
     private const val GLOSS_UNUSABLE = "()[]:#«»\"/=+…!?"
     private val GLOSS_SMALL_WORDS =
         setOf("de", "du", "des", "à", "au", "aux", "en", "pour", "par", "qui", "que", "un", "une", "le", "la", "les", "ou", "et")
