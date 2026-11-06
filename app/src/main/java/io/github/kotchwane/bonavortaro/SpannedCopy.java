@@ -23,6 +23,8 @@ import android.content.Context;
 import android.content.ClipboardManager;
 import android.text.Html;
 import android.text.Spanned;
+import android.os.Build;
+import android.widget.Toast;
 
 public abstract class SpannedCopy
 {
@@ -47,5 +49,10 @@ public abstract class SpannedCopy
       clipData = ClipData.newPlainText (label, text);
 
     clipboard.setPrimaryClip (clipData);
+
+    /* Android 13 shows what was copied itself; before, nothing would
+     * say it was */
+    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU)
+      Toast.makeText (context, R.string.copied, Toast.LENGTH_SHORT).show ();
   }
 }
