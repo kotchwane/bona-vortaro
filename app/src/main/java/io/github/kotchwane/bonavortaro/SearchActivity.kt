@@ -942,6 +942,11 @@ private const val INVITE_AFTER = 20
 private fun ContributeInvitation(historySize: Int) {
     val context = LocalContext.current
     var shown by remember { mutableStateOf(!BonaSettings.getContributeInvited(context)) }
+    /* Closed meanwhile on another search screen, opened from an article:
+     * not back on this one */
+    LifecycleEventEffect(Lifecycle.Event.ON_START) {
+        if (BonaSettings.getContributeInvited(context)) shown = false
+    }
     if (!shown || historySize < INVITE_AFTER)
         return
     val done = { shown = false; BonaSettings.setContributeInvited(context) }
