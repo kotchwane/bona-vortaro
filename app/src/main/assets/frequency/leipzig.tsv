@@ -4739,6 +4739,7 @@ diluvio	0.129
 diluvo	4.89
 dimanĉ	0.129
 dimanĉo	29.7
+dimensia	1.61
 dimensio	35.4
 diminutivo	1.93
 din	1.16
@@ -12111,6 +12112,7 @@ karvio	0.129
 kas	0.321
 kasacii	0.129
 kasacio	0.321
+kasandro	1.16
 kasedilo	0.321
 kasedo	5.72
 kasejo	0.45
@@ -13161,6 +13163,7 @@ kondamnito	5.47
 kondamniĝi	0.707
 kondamno	14.7
 kondensatoro	1.03
+kondensaĵo	0.129
 kondensi	0.707
 kondicionalo	1.22
 kondimenti	0.0643
@@ -14373,6 +14376,7 @@ kunfroti	0.707
 kungfuo	2.06
 kunglui	0.45
 kunhavi	6.37
+kunhavigi	0.514
 kunhelpi	4.56
 kunhelpo	1.35
 kunhomo	2.51
@@ -16798,6 +16802,7 @@ markezo	1.61
 marki	40.5
 markiz	0.129
 markizo	7.84
+marklingvo	0.514
 marko	75.7
 markolo	12.2
 markoto	0.707
@@ -18150,6 +18155,7 @@ multa	1.46e+03
 multampleksa	0.321
 multangula	0.129
 multano	0.257
+multdimensia	0.129
 multe	806
 multego	6.11
 multehoma	0.193
@@ -21099,6 +21105,7 @@ pluramemo	0.321
 plurangulo	0.643
 pluraspekte	0.129
 plurdiismo	0.0643
+plurdimensia	0.321
 plure	0.386
 plureco	2.57
 pluredro	9.32
@@ -21666,6 +21673,7 @@ prema	6.04
 premado	4.95
 premateco	0.386
 premaĵo	0.579
+prembutono	0.386
 premejo	0.0643
 premgrupo	5.4
 premhoro	0.193
@@ -21787,6 +21795,7 @@ preĝo	56.1
 prf	0.129
 pri	6.17e+03
 pria	1.48
+priamo	0.643
 priatenti	4.76
 pridemandi	9.52
 pridiri	0.386
@@ -23282,6 +23291,8 @@ ridmevo	0.321
 rido	28.5
 rif	0.514
 rifo	6.94
+rift	1.74
+rifto	0.643
 rifuz	0.0643
 rifuzi	127
 rifuziĝi	0.0643
@@ -23659,6 +23670,8 @@ rusia	35.6
 rusiano	2.64
 rusino	2.51
 rusio	141
+rusj	0.0643
+rusjo	0.193
 ruslanda	19.5
 ruslandano	2.83
 ruslando	31.4
@@ -26741,6 +26754,9 @@ tar	0.257
 tarantaso	0.193
 tarantelo	0.514
 tarantulo	0.257
+tard	0.0643
+tarda	0.643
+tarde	0.772
 tarif	0.0643
 tarifo	7.46
 taro	1.54
@@ -27522,6 +27538,7 @@ trajto	79.1
 trake	0.0643
 trakforko	0.129
 trako	8.49
+trakombi	0.257
 trakonstrui	0.9
 trakontroli	0.0643
 traktado	40.2
