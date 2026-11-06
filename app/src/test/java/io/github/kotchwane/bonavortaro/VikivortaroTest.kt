@@ -26,6 +26,15 @@ import java.io.File
 
 class VikivortaroTest {
     @Test
+    fun aKeyWithoutAccentsIsMadeAsOneWithThem() {
+        assertEquals("potager", Vikivortaro.key("Potager (jardin)"))
+        assertEquals("valet d'ecurie", Vikivortaro.key(" Valet d'écurie "))
+        assertEquals("valet d'ecurie", Vikivortaro.key("Valet d'ecurie"))
+        assertEquals("coeur", Vikivortaro.key("Cœur"))
+        assertEquals("go", Vikivortaro.key("GO "))
+    }
+
+    @Test
     fun aLetterTypedWithAnAccentOnlyMatchesThatAccent() {
         /* Searched in every language from the Esperanto tab: "lŭ" isn't
          * "lubie" */
@@ -252,6 +261,28 @@ class VikivortaroTest {
                 "perdre connaissance" to "sveni",
                 "États-Unien" to "usonano",
                 "Cologne" to "Kolonjo",
+            ),
+            pairs,
+        )
+    }
+
+    @Test
+    fun ofAndDescribingWordsDoNotTranslate() {
+        val pairs = Vikivortaro.glossPairs(mapOf(
+            "akva" to "Aqueux, d’eau.",
+            "komence" to "D’abord.",
+            "malgejo" to "Hétéro, abréviation d’hétérosexuel.",
+            "absorbo" to "Action d’absorber.",
+            "ago" to "Action.",
+            "okulsigno" to "Clin d’œil.",
+        ))
+        assertEquals(
+            listOf(
+                "aqueux" to "akva",
+                "d’abord" to "komence",
+                "hétéro" to "malgejo",
+                "action" to "ago",
+                "clin d’œil" to "okulsigno",
             ),
             pairs,
         )

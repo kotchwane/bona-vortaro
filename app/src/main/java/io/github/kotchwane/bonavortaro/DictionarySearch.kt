@@ -346,6 +346,9 @@ object DictionarySearch {
             val same = sorted[i].word.lowercase(Locale.ROOT)
             var end = i
             while (end < sorted.size && sorted[end].word.lowercase(Locale.ROOT) == same) end++
+            /* Only its first words, which are seen: the others, rarely
+             * read, keep their order, and a long group is quick */
+            end = minOf(end, i + LESSER_CHECKED)
             if (end - i > 1) {
                 if (stopped())
                     return results
@@ -396,7 +399,8 @@ object DictionarySearch {
             } == true
         }
         val ordered = others.sortedBy { if (inWiktionary(it)) 0 else 1 }.toMutableList()
-        val top = ordered.firstOrNull()
+        /* The first word, past an example that may come before it */
+        val top = ordered.firstOrNull { esperanto[it] != null }
         val topWord = top?.let { esperanto[it] }
         if (topWord != null && ' ' !in foreign.trim() && '(' !in foreign && '\'' !in foreign) {
             val frequency = { result: SearchResult -> esperanto[result]?.let { Frequency.of(context, it) } ?: 0f }
@@ -407,7 +411,7 @@ object DictionarySearch {
                 !(inWiktionary(top) && !inWiktionary(best)) &&
                 (!Frequency.looksLike(foreign, topWord) || Frequency.looksLike(foreign, bestWord))) {
                 ordered.remove(best)
-                ordered.add(0, best)
+                ordered.add(ordered.indexOf(top), best)
             }
         }
         /* The word of the group that Bona lingvo's entry proposes */

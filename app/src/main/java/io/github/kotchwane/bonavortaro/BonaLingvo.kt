@@ -119,8 +119,9 @@ object BonaLingvo {
 
     @Synchronized
     private fun data(context: Context): Data = data ?: load(context).let { byWord ->
-        val sorted = byWord.values.distinct().sortedBy { Vikivortaro.key(it.word) }
-        Data(byWord, sorted.map { Vikivortaro.key(it.word) }, sorted)
+        /* Each key made once, not at each comparison of the sort */
+        val keyed = byWord.values.distinct().map { Vikivortaro.key(it.word) to it }.sortedBy { it.first }
+        Data(byWord, keyed.map { it.first }, keyed.map { it.second })
     }.also { data = it }
 
     private fun entries(context: Context): Map<String, BonaLingvoEntry> = data(context).byWord

@@ -68,6 +68,8 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.calculateEndPadding
+import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.Row
@@ -101,6 +103,7 @@ import androidx.compose.material.icons.filled.Settings
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -110,6 +113,7 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withTimeoutOrNull
 import androidx.compose.runtime.snapshotFlow
+import androidx.compose.runtime.withFrameNanos
 import kotlinx.coroutines.launch
 
 class ArticleActivity : BonaActivity() {
@@ -552,18 +556,23 @@ private fun ArticleScreen(
 
     /* What "Vortoj de la bona lingvo" says of its words, when Reta
      * Vortaro's remarks don't: a remark after the others, once read */
-    val bonaLingvo by produceState<Map<Int, CharSequence>>(emptyMap(), revoLayout, articleNumber) {
-        value = revoLayout?.let {
+    /* Each with the layout it was read for, so the first scroll can wait
+     * for those of this one: they add lines above the word opened */
+    val bonaLingvoFor by produceState<Pair<ArticleLayout?, Map<Int, CharSequence>>>(null to emptyMap(), revoLayout, articleNumber) {
+        value = revoLayout to (revoLayout?.let {
             withContext(Dispatchers.IO) { BonaLingvo.remarks(context, it, RevoFiles.fileOf(context, articleNumber)) }
-        } ?: emptyMap()
+        } ?: emptyMap())
     }
+    val bonaLingvo = bonaLingvoFor.second
     /* Where its words come from, for those who turned it on: a box after
      * the remarks */
-    val origins by produceState<Map<Int, Deveno.Note>>(emptyMap(), revoLayout, showOrigins) {
-        value = revoLayout?.takeIf { showOrigins }?.let {
+    val originsFor by produceState<Pair<ArticleLayout?, Map<Int, Deveno.Note>>>(null to emptyMap(), revoLayout, showOrigins) {
+        value = revoLayout to (revoLayout?.takeIf { showOrigins }?.let {
             withContext(Dispatchers.IO) { Deveno.notes(context, it, RevoFiles.fileOf(context, articleNumber)) }
-        } ?: emptyMap()
+        } ?: emptyMap())
     }
+    val origins = originsFor.second
+    val extrasRead by rememberUpdatedState(revoLayout != null && bonaLingvoFor.first === revoLayout && originsFor.first === revoLayout)
     val layout = remember(revoLayout, bonaLingvo, origins) {
         revoLayout?.withRemarks(bonaLingvo)?.withOrigins(origins.mapValues { it.value.text })
     }
@@ -580,8 +589,11 @@ private fun ArticleScreen(
         if (layout != null && !showedSection) {
             positions[initialSection]?.let { position ->
                 /* Once the roots before and after are below, else the list,
-                 * shorter, would stop before its end */
-                withTimeoutOrNull(1000) { snapshotFlow { neighbours }.first { it != null } }
+                 * shorter, would stop before its end; and once the remarks
+                 * and origins are in, which can push the card down */
+                withTimeoutOrNull(1000) { snapshotFlow { neighbours != null && extrasRead }.first { it } }
+                /* Their cards laid out */
+                repeat(2) { withFrameNanos { } }
                 /* Not if its card is already whole on the screen, the list
                  * at its top: a short article couldn't bring it to the top,
                  * and would stop in the middle of the card before ("massacre":
@@ -714,6 +726,7 @@ private fun ArticleScreen(
             )
         },
     ) { padding ->
+        val layoutDirection = LocalLayoutDirection.current
         /* What is read at the text size of the settings; the bar above
          * stays as it is */
         ScaledText(textSize) {
@@ -721,9 +734,11 @@ private fun ArticleScreen(
                 LazyColumn(
                     state = listState,
                     modifier = Modifier.fillMaxSize(),
+                    /* Beside the bar of the phone too, when it is on the
+                     * side, in landscape */
                     contentPadding = PaddingValues(
-                        start = 12.dp,
-                        end = 12.dp,
+                        start = padding.calculateStartPadding(layoutDirection) + 12.dp,
+                        end = padding.calculateEndPadding(layoutDirection) + 12.dp,
                         top = padding.calculateTopPadding() + 4.dp,
                         bottom = padding.calculateBottomPadding() + 16.dp,
                     ),

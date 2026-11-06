@@ -298,10 +298,12 @@ private fun OriginView(text: CharSequence, onLongPress: (String?) -> Unit) {
     /* Smaller than the senses, with room before them: a long origin
      * ("ambaŭ") isn't read as the start of the definition */
     SpannedText(
-        SpannableStringBuilder("\u2060").apply {
+        /* Over the word and a space, which TalkBack reads, and the pill
+         * draws */
+        SpannableStringBuilder("$label ").apply {
             setSpan(
                 LinkTypeLabelSpan(label, color.toArgb(), radius = 50 * density, padding = 5 * density, stroke = 1 * density),
-                0, 1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE,
+                0, length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE,
             )
             append(text)
         },

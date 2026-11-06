@@ -67,11 +67,18 @@ object Frequency {
 
     @Synchronized
     private fun data(context: Context): Map<String, Float> = data ?: try {
+        /* Line by line, without lists: 30,000 lines, read before the
+         * first search's order */
+        val found = HashMap<String, Float>(40_000)
         context.assets.open("frequency/leipzig.tsv").bufferedReader().useLines { lines ->
-            lines.filter { !it.startsWith("#") }
-                .mapNotNull { line -> line.split('\t').takeIf { it.size == 2 }?.let { it[0] to (it[1].toFloatOrNull() ?: 0f) } }
-                .toMap()
+            for (line in lines) {
+                if (line.startsWith("#")) continue
+                val tab = line.indexOf('\t')
+                if (tab < 0 || line.indexOf('\t', tab + 1) >= 0) continue
+                found[line.substring(0, tab)] = line.substring(tab + 1).toFloatOrNull() ?: 0f
+            }
         }
+        found
     } catch (e: IOException) {
         Log.w(TAG, "Failed to read the frequencies")
         emptyMap()

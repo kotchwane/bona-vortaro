@@ -200,7 +200,7 @@ private fun Paragraph(title: Int, text: Int, link: String) {
         style = MaterialTheme.typography.bodyLarge.copy(textDecoration = TextDecoration.Underline),
         color = MaterialTheme.colorScheme.primary,
         modifier = Modifier
-            .clickable { context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(link))) }
+            .clickable { openOutside(context, Uri.parse(link)) }
             .padding(vertical = 8.dp),
     )
 }
