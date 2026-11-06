@@ -41,6 +41,7 @@ object BonaSettings {
     private const val PREF_GUESS_WORDS = "guessWords"
     private const val PREF_SHOW_SOURCES = "showSources"
     private const val PREF_SHOW_ORIGINS = "showOrigins"
+    private const val PREF_CONTRIBUTE_INVITED = "contributeInvited"
 
     /* The text sizes are numbered as in the original zoom of the articles,
      * from 0 to 9, each one 1.2 times bigger than the previous one, the
@@ -206,6 +207,15 @@ object BonaSettings {
         prefs(context).edit().putBoolean(PREF_KEEP_HISTORY, keep).apply()
         if (!keep)
             History.clear(context)
+    }
+
+    /** Whether the invitation to improve the dictionary, on the search
+     * screen, was tapped or closed: it is shown once only. */
+    fun getContributeInvited(context: Context): Boolean =
+        prefs(context).getBoolean(PREF_CONTRIBUTE_INVITED, false)
+
+    fun setContributeInvited(context: Context) {
+        prefs(context).edit().putBoolean(PREF_CONTRIBUTE_INVITED, true).apply()
     }
 
     /** The search language used last, reopened at the next start. */

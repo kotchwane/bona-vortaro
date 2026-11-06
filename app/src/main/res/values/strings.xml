@@ -183,6 +183,29 @@
   <string name="continue_to_search">Daŭrigi</string>
   <string name="one_language_needed">Necesas almenaŭ unu serĉlingvo.</string>
   <string name="about_section">Pri</string>
+  <!-- The page on how to improve the dictionary at its sources -->
+  <string name="contribute_title">Plibonigi la vortaron</string>
+  <string name="contribute_summary">Korekti eraron, aldoni tradukon: kiel helpi la fontojn</string>
+  <string name="contribute_intro">*Bona vortaro* montras la laboron de volontuloj: la redaktantoj de la Reta Vortaro, la kontribuantoj de Vikivortaro kaj la laborgrupo de la Bona Lingvo. Se vi trovas eraron aŭ mankon, korektu ĝin ĉe ĝia fonto: tiel profitos ĉiuj ĝiaj uzantoj, kaj la korekto aperos en *Bona vortaro* per ĝia sekva versio.</string>
+  <string name="contribute_why">La apo mem ne ŝanĝas la vortaron: ĝi funkcias sen interreto, kaj ĉiu fonto havas sian propran redaktilon, siajn kontojn kaj sian kontrolon de la ŝanĝoj.</string>
+  <string name="contribute_revo_title">Difinoj, ekzemploj kaj tradukoj</string>
+  <string name="contribute_revo">Preskaŭ ĉio venas el la Reta Vortaro (ReVo). Fine de ĉiu artikolo, „Fontoj“ havas la ligilon „legi kaj korekti“, kiu malfermas la artikolon en la retejo de ReVo. Por redakti, oni senpage registriĝas kiel redaktanto; poste simplaj korektoj, ekzemple aldoni tradukon en via lingvo, eblas per la formularo „redakti“ sub ĉiu artikolo, kaj la aliaj redaktantoj relegas la ŝanĝojn. Por aldoni novan vorton, ReVo petas almenaŭ du fontojn, el kiuj almenaŭ unu ne estu vortaro.</string>
+  <string name="contribute_revo_link">Informoj por novaj redaktantoj de ReVo</string>
+  <string name="contribute_viki_title">Vortoj kun punktita substreko</string>
+  <string name="contribute_viki">La vortoj kaj tradukoj kun punktita substreko, kelkaj difinoj kaj la devenoj markitaj „Vikivortaro“ venas el Vikivortaro, la libera vortaro, kiun ĉiu povas redakti, kun aŭ sen konto. Ĉiu tia vorto ligas al sia paĝo, kie vi povas korekti aŭ kompletigi ĝin; la komunumo de Vikivortaro kontrolas la ŝanĝojn.</string>
+  <string name="contribute_viki_link">Kiel redakti la esperantan Vikivortaron</string>
+  <string name="contribute_viki_fr_link">Helpo de la franca Vikivortaro</string>
+  <string name="contribute_bl_title">Malrekomendataj vortoj</string>
+  <string name="contribute_bl">La malrekomendoj kaj la pli simplaj vortoj venas el „Vortoj de la bona lingvo“. En ĝia retejo, ĉiu vorto havas formularon por sendi proponon aŭ korekton al la laborgrupo.</string>
+  <string name="contribute_bl_link">labonalingvo.org</string>
+  <string name="contribute_app_title">Eraro en la apo mem</string>
+  <string name="contribute_app">Se la eraro venas de *Bona vortaro* mem (vorto mise montrita, serĉo, kiu ne trovas, ideo por la apo), skribu al ĝi ĉe GitHub (necesas konto). Ĝia fontkodo estas libera: ankaŭ al ĝi vi povas kontribui.</string>
+  <string name="contribute_app_link">Raporti eraron aŭ proponi ideon</string>
+  <!-- On the search screen, under "Hazarda radiko": once, when the history has 20 words, until tapped or closed -->
+  <string name="contribute_from_home">Helpu plibonigi la vortaron ›</string>
+  <string name="contribute_dismiss">Ne plu montri</string>
+  <!-- At the bottom of "Fontoj" in an article -->
+  <string name="contribute_from_sources">Ĉu eraro aŭ manko? Plibonigi la vortaron ›</string>
   <string name="about_app">Pri Bona vortaro</string>
   <string name="about_version">Versio %1$s</string>
   <string name="about_intro">*Bona vortaro* estas vortaro de Esperanto por Android. Ĝi enhavas la tutan Retan Vortaron, kun ĝiaj tradukoj en pli ol 170 lingvojn.</string>
