@@ -173,7 +173,7 @@
   <string name="text_size_help">La teksto de la artikoloj kaj de la listoj de vortoj. Por la tuta apo, uzu la grandecon de la teksto de Android.</string>
   <string name="translations_title">Tradukoj en la artikoloj</string>
   <string name="translations_help">La artikoloj montras tradukojn nur en la lingvoj elektitaj ĉi tie. Tio ne ŝanĝas la lingvojn, en kiuj vi povas serĉi.</string>
-  <string name="languages">Lingvoj</string>
+  <string name="articles_section">Artikoloj</string>
   <string name="translations_all">Ĉiuj (%1$d lingvoj)</string>
   <string name="translations_none">Neniu</string>
   <string name="my_search_languages">Miaj serĉlingvoj</string>
@@ -286,7 +286,7 @@
   <string name="about_rajki">La deveno de la vortoj, kiun vi povas ŝalti en la agordoj, venas el la „Etimologia Vortaro de Esperanto“ de András Rajki (2006), publikigita kiel publika havaĵo (CC\u00A00\u00A01.0), kaj el la sekcioj „Deveno“ de Vikivortaro (eo.wiktionary.org, CC\u00A0BY-SA\u00A04.0). Ĝi estas montrata kiel ĝi estas, nur skribita en Esperanto (ekzemple la nomoj de la lingvoj), kaj neniu kontrolis ĝin por Bona vortaro.</string>
   <string name="about_rajki_link">Etimologia Vortaro de Esperanto</string>
   <string name="about_frequency_title">Ofteco de la vortoj</string>
-  <string name="about_frequency">Kiam pluraj esperantaj vortoj tradukas la saman vorton, la serĉo montras unue la plej oftan, laŭ la esperanta korpuso de la Leipzig Corpora Collection (Universitato de Leipzig, wortschatz.uni-leipzig.de), publikigita laŭ la permesilo CC\u00A0BY. Bona vortaro enhavas nur la oftecon de la kapvortoj de la Reta Vortaro, neniun frazon de la korpuso.</string>
+  <string name="about_frequency">Kiam pluraj esperantaj vortoj tradukas la saman vorton, la serĉo montras unue la plej oftan, laŭ la esperanta korpuso de la Leipzig Corpora Collection (Universitato de Leipzig, wortschatz.uni-leipzig.de), publikigita laŭ la permesilo CC\u00A0BY. Tamen la vortoj, kiujn „Vortoj de la bona lingvo“ malrekomendas, venas post tiuj, kiujn ĝi proponas anstataŭe, kaj la pli simpla vorto, kiun ĝi proponas, venas unue, se ĝi estas sufiĉe uzata, alie tuj poste. Bona vortaro enhavas nur la oftecon de la kapvortoj de la Reta Vortaro, neniun frazon de la korpuso.</string>
   <string name="about_frequency_link">Leipzig Corpora Collection</string>
   <string name="about_data_link">La Reta Vortaro</string>
   <string name="about_copyright_title">Kopirajto</string>
