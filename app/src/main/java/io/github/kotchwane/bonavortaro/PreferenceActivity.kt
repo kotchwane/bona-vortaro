@@ -412,6 +412,12 @@ private fun MainSettings(
         bigTitle(R.string.about_section)
         item {
             SettingRow(
+                stringResource(R.string.contribute_title),
+                stringResource(R.string.contribute_summary),
+            ) { ContributeActivity.open(context) }
+        }
+        item {
+            SettingRow(
                 stringResource(R.string.guide_title),
                 stringResource(R.string.guide_summary),
             ) { GuideActivity.open(context) }

@@ -176,7 +176,7 @@ private fun AboutPage(onBack: () -> Unit) {
 /** The text with its italics, and some of its words as links to websites,
  * each followed by "↗": a page outside the app */
 @Composable
-private fun withLinks(text: String, links: List<Pair<String, String>>): AnnotatedString {
+internal fun withLinks(text: String, links: List<Pair<String, String>>): AnnotatedString {
     val style = TextLinkStyles(
         SpanStyle(color = MaterialTheme.colorScheme.primary, textDecoration = TextDecoration.Underline)
     )
@@ -202,7 +202,7 @@ private fun withLinks(text: String, links: List<Pair<String, String>>): Annotate
 
 /** A link to a website, opened in the browser */
 @Composable
-private fun Link(label: Int, url: String) {
+internal fun Link(label: Int, url: String) {
     val context = LocalContext.current
 
     Text(

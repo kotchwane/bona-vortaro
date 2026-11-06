@@ -50,6 +50,8 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
@@ -477,7 +479,24 @@ private fun SearchScreen(
                 modifier = Modifier.weight(1f),
                 /* The random root scrolls away with the history, which
                  * gets the room once scrolled */
-                header = { RandomRootButton(onClick = { editing = false; onRandomRoot() }) },
+                header = {
+                    Column {
+                        RandomRootButton(onClick = { editing = false; onRandomRoot() })
+                        /* Mock-up: the page on improving the dictionary, from the start */
+                        val context = LocalContext.current
+                        Text(
+                            stringResource(R.string.contribute_from_home),
+                            style = MaterialTheme.typography.bodySmall.copy(fontStyle = FontStyle.Italic),
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .heightIn(min = 48.dp)
+                                .clickable(role = Role.Button) { ContributeActivity.open(context) }
+                                .wrapContentHeight(Alignment.CenterVertically)
+                                .padding(horizontal = 24.dp),
+                        )
+                    }
+                },
             )
           }
         } else if (current != null && current.isEmpty && analysis != null) {

@@ -59,6 +59,9 @@
     <activity android:name="GuideActivity"
               android:configChanges="uiMode|orientation|screenSize|screenLayout|smallestScreenSize"
               android:exported="false" />
+    <activity android:name="ContributeActivity"
+              android:configChanges="uiMode|orientation|screenSize|screenLayout|smallestScreenSize"
+              android:exported="false" />
     <activity android:name="AboutActivity"
               android:configChanges="uiMode|orientation|screenSize|screenLayout|smallestScreenSize"
               android:exported="false" />

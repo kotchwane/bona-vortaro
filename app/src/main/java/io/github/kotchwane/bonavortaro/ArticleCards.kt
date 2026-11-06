@@ -1512,6 +1512,16 @@ fun SourcesLine(
                         Source(stringResource(R.string.sources_viki_editions_one, vikiName, "eo"), stringResource(R.string.sources_viki_origins), VIKI_EO_SITE)
                     if (rajki)
                         Source(rajkiName, stringResource(R.string.sources_rajki), Deveno.RAJKI_SITE)
+                    /* Where to correct what, at the sources */
+                    Text(
+                        stringResource(R.string.contribute_from_sources),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier
+                            .heightIn(min = 48.dp)
+                            .clickable(role = Role.Button) { open = false; ContributeActivity.open(context) }
+                            .wrapContentHeight(Alignment.CenterVertically),
+                    )
                 }
             },
         )
