@@ -235,4 +235,35 @@ class VikivortaroTest {
         assertTrue(Vikivortaro.matches("coeur", "cœur"))
         assertTrue(Vikivortaro.matches("cœ", "coeur"))
     }
+
+    @Test
+    fun aDescriptionOfOnlyFrenchWordsTranslates() {
+        val pairs = Vikivortaro.glossPairs(mapOf(
+            "ĝirejo" to "Virage.",
+            "reakiri" to "Recouvrer, regagner, récupérer, reprendre.",
+            "sveni" to "Perdre connaissance.",
+            "usonano" to "États-Unien.",
+            "Kolonjo" to "Cologne, ville d’Allemagne.",
+        ))
+        assertEquals(
+            listOf(
+                "virage" to "ĝirejo",
+                "recouvrer" to "reakiri", "regagner" to "reakiri", "récupérer" to "reakiri", "reprendre" to "reakiri",
+                "perdre connaissance" to "sveni",
+                "États-Unien" to "usonano",
+                "Cologne" to "Kolonjo",
+            ),
+            pairs,
+        )
+    }
+
+    @Test
+    fun aLongerDescriptionDoesNotTranslate() {
+        assertEquals(emptyList<Pair<String, String>>(), Vikivortaro.glossPairs(mapOf(
+            "Abuĝo" to "Abuja, capitale du Nigeria.",
+            "abelo" to "Insecte qui produit le miel.",
+            "ruĝa" to "Rouge. #F00020",
+            "aŭtobushaltejo" to "Arrêt de bus.",
+        )))
+    }
 }

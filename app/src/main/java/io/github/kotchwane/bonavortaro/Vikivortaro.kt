@@ -112,13 +112,49 @@ object Vikivortaro {
     }
 
     private fun load(context: Context): Data {
-        val pairs = lines(context, "fr-eo.tsv").sortedBy { key(it.first) }
+        val descriptions = lines(context, "eo-fr.tsv").toMap()
+        val translations = lines(context, "fr-eo.tsv")
+        val known = translations.toHashSet()
+        val pairs = (translations + glossPairs(descriptions).filter { it !in known }).sortedBy { key(it.first) }
         val frenchOf = HashMap<String, MutableList<String>>()
         for ((french, esperanto) in pairs)
             /* By the word as written: "bruno" the colour isn't "Bruno" */
             frenchOf.getOrPut(esperanto) { mutableListOf() }.add(french)
-        return Data(pairs.map { key(it.first) }, pairs, frenchOf, lines(context, "eo-fr.tsv").toMap(), definitions(context))
+        return Data(pairs.map { key(it.first) }, pairs, frenchOf, descriptions, definitions(context))
     }
+
+    /** The French words that a description of the French Wiktionary gives
+     * as the meaning of an Esperanto word, when it is only such words:
+     * "ĝirejo", "Virage."; "reakiri", "Recouvrer, regagner, récupérer,
+     * reprendre." Its tables of translations lack them ("virage" has no
+     * Esperanto), and Reta Vortaro too. Not a description of more words
+     * ("Abuja, capitale du Nigeria"): at most two words each, without small
+     * words ("de", "pour"…); for a name, only the names ("Cologne", not
+     * "ville d’Allemagne"). */
+    internal fun glossPairs(descriptions: Map<String, String>): List<Pair<String, String>> =
+        descriptions.flatMap { (esperanto, description) ->
+            val text = description.removeSuffix(".")
+            if (text.isEmpty() || esperanto.isEmpty() || '.' in text || text.any { it in GLOSS_UNUSABLE || it.isDigit() })
+                return@flatMap emptyList()
+            val items = text.split(',', ';').map { it.trim() }
+            if (items.any { item ->
+                    val words = item.split(' ')
+                    words.size !in 1..2 || words.any { it.isEmpty() || it.lowercase(Locale.ROOT) in GLOSS_SMALL_WORDS }
+                })
+                return@flatMap emptyList()
+            val name = esperanto.first().isUpperCase()
+            items.filter { !name || it.first().isUpperCase() }.map { item ->
+                /* Its capital only as the first word of the description,
+                 * unless a name ("États-Unien") */
+                val french = if (!name && item.first().isUpperCase() && item.drop(1).none { it.isUpperCase() })
+                    item.replaceFirstChar { it.lowercase(Locale.ROOT) } else item
+                french to esperanto
+            }
+        }
+
+    private const val GLOSS_UNUSABLE = "()[]:#«»\"/=+…!?"
+    private val GLOSS_SMALL_WORDS =
+        setOf("de", "du", "des", "à", "au", "aux", "en", "pour", "par", "qui", "que", "un", "une", "le", "la", "les", "ou", "et")
 
     /* eo-eo.tsv: the word, its senses separated by " ¶ ", its origin */
     private fun definitions(context: Context): Map<String, EsperantoDefinition> = try {
