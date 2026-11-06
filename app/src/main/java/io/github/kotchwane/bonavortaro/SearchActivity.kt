@@ -131,7 +131,6 @@ class SearchActivity : BonaActivity() {
      * they are read. Re-read when coming back from an article. */
     private var recent by mutableStateOf<List<RecentSearch>?>(null)
     private var keepHistory by mutableStateOf(true)
-    private var guessWords by mutableStateOf(true)
     /* Whether Vikivortaro's French shows: the French translations do */
     private var inFrench by mutableStateOf(false)
     /* Counts the new searches asked for with the magnifier of an article */
@@ -175,7 +174,6 @@ class SearchActivity : BonaActivity() {
                     onPreferences = { Screens.goPreferences(this) },
                     recent = recent,
                     keepHistory = keepHistory,
-                    guessWords = guessWords,
                     inFrench = inFrench,
                     onRemoveRecent = ::removeFromHistory,
                     onRestoreHistory = ::restoreHistory,
@@ -196,7 +194,6 @@ class SearchActivity : BonaActivity() {
         super.onStart()
         textSize = BonaSettings.getTextSize(this)
         keepHistory = BonaSettings.getKeepHistory(this)
-        guessWords = BonaSettings.getGuessWords(this)
         inFrench = Vikivortaro.inArticles(this)
         loadHistory()
     }
@@ -351,7 +348,6 @@ private fun SearchScreen(
     onPreferences: () -> Unit,
     recent: List<RecentSearch>?,
     keepHistory: Boolean,
-    guessWords: Boolean,
     inFrench: Boolean,
     onRemoveRecent: (RecentSearch) -> List<HistoryEntry>,
     onRestoreHistory: (List<HistoryEntry>) -> Unit,
@@ -410,7 +406,7 @@ private fun SearchScreen(
             found.wiktionary.all { it.inEsperanto && it.definition == null } && found.bonaLingvo.isEmpty() && !inFrench)
     } == true
     /* A word the list proposes: its parts as the group cut it, rather
-     * than a guess, even when the words aren't guessed */
+     * than a guess */
     val listParts = outcome?.let { found ->
         found.proposedInstead.flatMap { it.first.preferred }
             .firstOrNull { Vikivortaro.key(it.word) == Vikivortaro.key(found.query.trim()) && it.parts != null }?.parts
@@ -419,8 +415,8 @@ private fun SearchScreen(
      * explains the whole word; "dis + it + …mo" for "disitmo", a slip of
      * the list, would make it look explained */
     val proposed = outcome?.proposedInstead?.isNotEmpty() == true
-    LaunchedEffect(query, nothingToRead, selected, guessWords, listParts, proposed) {
-        if (!nothingToRead || selected != "eo" || isPattern(query) || query.isBlank() || !guessWords && listParts == null) {
+    LaunchedEffect(query, nothingToRead, selected, listParts, proposed) {
+        if (!nothingToRead || selected != "eo" || isPattern(query) || query.isBlank()) {
             analysis = null
             return@LaunchedEffect
         }

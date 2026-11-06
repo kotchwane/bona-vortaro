@@ -885,8 +885,7 @@ private fun WordActions(
      * Not with a capital, most often a name ("Paris", "Seneca"), even if
      * the first word of a sentence is left out with them */
     val analysis by produceState<ShownAnalysis?>(null, entries) {
-        if (entries?.isEmpty() == true && language == "eo" && !word.first().isUpperCase() &&
-            BonaSettings.getGuessWords(context))
+        if (entries?.isEmpty() == true && language == "eo" && !word.first().isUpperCase())
             value = withContext(Dispatchers.IO) { WordAnalyses.find(context, word, needsEnding = true) }
     }
 
