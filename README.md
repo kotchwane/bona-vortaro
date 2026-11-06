@@ -21,13 +21,16 @@
   <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/1.png" width="200" alt="La serĉo">
   <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/2.png" width="200" alt="Artikolo">
   <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/3.png" width="200" alt="La oficialeco de vorto">
-  <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/4.png" width="200" alt="La listo de Oficiala Aldono">
 </p>
 <p align="center">
+  <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/4.png" width="200" alt="La listo de Oficiala Aldono">
   <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/5.png" width="200" alt="Teni vorton premita">
   <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/6.png" width="200" alt="Foliumi la vortaron, nokte">
+</p>
+<p align="center">
   <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/7.png" width="200" alt="Vorto, kiu mankas en la vortaro">
   <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/8.png" width="200" alt="Malrekomendata vorto">
+  <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/9.png" width="200" alt="La deveno de vorto">
 </p>
 
 ---
@@ -51,6 +54,9 @@ kion diri anstataŭe.
 - **Serĉi** en Esperanto kaj en viaj aliaj lingvoj, kun aŭ sen supersignoj
   (*cevalo* aŭ *cxevalo* trovas *ĉevalo*), kaj per ĵokeroj: *\*ologio* trovas
   ĉiujn vortojn, kiuj finiĝas per „ologio“, kaj *?rbo* trovas *arbo* kaj *urbo*.
+- **La plej uzata traduko unue**: kiam pluraj esperantaj vortoj tradukas la saman
+  vorton, la serĉo montras unue la plej oftan (*deviner*: *diveni* antaŭ
+  *duonkompreni*), kaj la maloftajn aŭ malrekomendatajn post la aliaj.
 - **Legi** klarajn artikolojn: difinoj, ekzemploj, rimarkoj, ligiloj inter la
   vortoj, kaj la tradukoj en la lingvoj, kiujn vi elektas, en via ordo, ankaŭ
   tiuj de la ekzemploj: *bonjour* trovas *saluton!* ĉe *saluto*.
@@ -73,10 +79,14 @@ kion diri anstataŭe.
   kion la laborgrupo jam kontrolis.
 - **Difinoj el la esperanta Vikivortaro** por 683 vortoj, kiujn Reta Vortaro ne
   havas (*GLAT*, *pi*), elektitaj unu post la alia.
+- **La deveno de la vortoj**, se vi ŝaltas ĝin en la agordoj: el kiuj lingvoj ili
+  venas, laŭ la *Etimologia Vortaro de Esperanto* de András Rajki kaj laŭ la
+  esperanta Vikivortaro (*akvo*: itala *acqua*, latina *aqua*).
 - **La fontoj de la ekzemploj** (Zamenhof, Monato…), kun ligilo al la verko,
   piktogramoj de la fakoj, ligiloj al Vikipedio kaj al Reta Vortaro.
 - La **lastaj serĉoj**, tagaj kaj noktaj koloroj („papero“ kaj „stelnokto“), la
-  grandeco de la teksto, kaj gvidilo en la agordoj.
+  grandeco de la teksto, gvidilo en la agordoj, kaj paĝo pri tio, kiel korekti
+  eraron ĉe la fontoj.
 
 ### Kial „Bona vortaro“?
 
@@ -94,7 +104,9 @@ redaktoroj de [Reta Vortaro](https://github.com/revuloj/revo-fonto); la aldonaj
 francaj tradukoj, de la kontribuantoj de la franca [Vikivortaro](https://fr.wiktionary.org/),
 per la eltiro de [Kaikki](https://kaikki.org/); la esperantaj difinoj, de la
 kontribuantoj de la esperanta [Vikivortaro](https://eo.wiktionary.org/); la
-malrekomendoj, de [La Bona Lingvo](https://labonalingvo.org/); la ofteco de la vortoj,
+malrekomendoj, de [La Bona Lingvo](https://labonalingvo.org/); la deveno de la vortoj,
+el la [*Etimologia Vortaro de Esperanto*](https://archive.org/details/EsperantoEtymologicalDictionary)
+de András Rajki kaj el la esperanta Vikivortaro; la ofteco de la vortoj,
 por la ordo de la serĉrezultoj, el la esperanta korpuso de la
 [Leipzig Corpora Collection](https://wortschatz.uni-leipzig.de/en/download/Esperanto)
 (Universitato de Leipzig, [CC BY](https://wortschatz.uni-leipzig.de/en/usage)).
@@ -133,12 +145,16 @@ python3 scripts/vikivortaro.py https://kaikki.org/dictionary/downloads/fr/fr-ext
 
 Same la esperantaj difinoj, el la eltiro de la esperanta Vikivortaro (la vortoj
 elektitaj estas en `data/vikivortaro-eo-words.txt`, la korektoj en
-`data/vikivortaro-eo-fixes.tsv`), kaj la listo de La Bona Lingvo, el ĝia CSV
-(kopiita en `data/bona-lingvo.csv`):
+`data/vikivortaro-eo-fixes.tsv`), la listo de La Bona Lingvo, el ĝia CSV
+(kopiita en `data/bona-lingvo.csv`), la deveno, el la sama eltiro kaj el la teksto
+de Rajki (`data/rajki-etimologia-vortaro.txt`), kaj la ofteco, el la vortlisto de
+la Leipzig Corpora Collection (`epo_mixed_2012_1M-words.txt`):
 
 ```bash
 python3 scripts/vikivortaro-eo.py https://dumps.wikimedia.org/eowiktionary/latest/eowiktionary-latest-pages-articles.xml.bz2
 python3 scripts/bona-lingvo.py [nova-eksporto.csv]
+python3 scripts/deveno.py https://dumps.wikimedia.org/eowiktionary/latest/eowiktionary-latest-pages-articles.xml.bz2
+python3 scripts/frequency.py epo_mixed_2012_1M-words.txt
 ```
 
 | Dosierujo | Enhavo |
@@ -148,7 +164,9 @@ python3 scripts/bona-lingvo.py [nova-eksporto.csv]
 | `extern/revo-fonto`, `extern/voko-grundo` | la fontoj de Reta Vortaro (submoduloj) |
 | `app/src/main/assets/vikivortaro/` | la francaj tradukoj kaj la esperantaj difinoj el Vikivortaro (CC BY-SA 4.0) |
 | `app/src/main/assets/bonalingvo/` | la listo de La Bona Lingvo (CC BY 4.0) |
-| `data/` | la elektoj kaj korektoj de Vikivortaro, la CSV de La Bona Lingvo, la artikoloj de Vikipedio |
+| `app/src/main/assets/deveno/` | la deveno de la vortoj: de Rajki (CC0 1.0) kaj el Vikivortaro (CC BY-SA 4.0) |
+| `app/src/main/assets/frequency/` | la ofteco de la kapvortoj, el la Leipzig Corpora Collection (CC BY) |
+| `data/` | la elektoj kaj korektoj de Vikivortaro, la CSV de La Bona Lingvo, la teksto de Rajki, la artikoloj de Vikipedio |
 | `scripts/` | la konstruado de la vortaro, la eltiroj el Vikivortaro kaj La Bona Lingvo, la piktogramoj |
 | `fastlane/` | la tekstoj kaj ekrankopioj por la vendejoj |
 
@@ -167,6 +185,13 @@ La listo *Vortoj de la bona lingvo* estas laŭ la permesilo
 Corsetti, Noam Mohr, kaj la laborgrupo de la Bona Lingvo, [labonalingvo.org](https://labonalingvo.org/).
 Ĝi restas en apartaj dosieroj (`data/bona-lingvo.csv`, `app/src/main/assets/bonalingvo/`);
 la apo ĝin adaptas: ĝi montras nur tion, kion la laborgrupo jam kontrolis.
+
+La *Etimologia Vortaro de Esperanto* de András Rajki (2006) estas publika havaĵo
+([CC0 1.0](https://creativecommons.org/publicdomain/zero/1.0/deed.eo)); la deveno
+el Vikivortaro estas laŭ CC BY-SA 4.0. Ambaŭ restas en apartaj dosieroj, en
+`app/src/main/assets/deveno/`. La ofteco venas el la Leipzig Corpora Collection,
+laŭ la permesilo [CC BY](https://wortschatz.uni-leipzig.de/en/usage); la apo enhavas
+nur la oftecon de la kapvortoj de Reta Vortaro, neniun frazon de la korpuso.
 
 ---
 
@@ -191,6 +216,9 @@ say instead.
 - **Search** in Esperanto and in your other languages, with or without accents
   (*cevalo* or *cxevalo* finds *ĉevalo*), and with wildcards: *\*ologio* finds
   every word ending in "ologio", and *?rbo* finds *arbo* and *urbo*.
+- **The most used translation first**: when several Esperanto words translate the
+  same word, the search shows the most frequent one first (*deviner*: *diveni*
+  before *duonkompreni*), and the rare or advised-against ones after the others.
 - **Read** clear articles: definitions, examples, remarks, links between words,
   and the translations in the languages you choose, in your order, the
   examples' too: *bonjour* finds *saluton!* under *saluto*.
@@ -213,10 +241,14 @@ say instead.
   Only what the working group has checked.
 - **Definitions from the Esperanto Wiktionary** for 683 words Reta Vortaro lacks
   (*GLAT*, *pi*), chosen one by one.
+- **The origins of the words**, if you turn them on in the settings: which
+  languages they come from, according to András Rajki's *Etimologia Vortaro de
+  Esperanto* and the Esperanto Wiktionary (*akvo*: Italian *acqua*, Latin *aqua*).
 - **The sources of the examples** (Zamenhof, Monato…), with a link to the work,
   icons for the fields, links to Wikipedia and to Reta Vortaro.
 - **Recent searches**, day and night colours ("papero" and "stelnokto"), text
-  size, and a guide in the settings.
+  size, a guide in the settings, and a page on how to correct a mistake at the
+  sources.
 
 The interface is in Esperanto.
 
@@ -236,7 +268,12 @@ Compose), a new look and new features. The data comes from the editors of
 translations, from the contributors of the French [Wiktionary](https://fr.wiktionary.org/),
 through [Kaikki](https://kaikki.org/)'s extract; the Esperanto definitions, from the
 contributors of the Esperanto [Wiktionary](https://eo.wiktionary.org/); the advice,
-from [La Bona Lingvo](https://labonalingvo.org/).
+from [La Bona Lingvo](https://labonalingvo.org/); the origins of the words, from
+András Rajki's [*Etimologia Vortaro de Esperanto*](https://archive.org/details/EsperantoEtymologicalDictionary)
+and the Esperanto Wiktionary; how often the words are used, for the order of the
+search results, from the Esperanto corpus of the
+[Leipzig Corpora Collection](https://wortschatz.uni-leipzig.de/en/download/Esperanto)
+(Leipzig University, [CC BY](https://wortschatz.uni-leipzig.de/en/usage)).
 
 The tool that converts Reta Vortaro for the app, [prevodb](https://github.com/bpeel/prevodb),
 also by Neil Roberts, lives in `prevodb/`, with its history.
@@ -272,12 +309,16 @@ python3 scripts/vikivortaro.py https://kaikki.org/dictionary/downloads/fr/fr-ext
 
 The same for the Esperanto definitions, from the Esperanto Wiktionary's dump (the
 chosen words are in `data/vikivortaro-eo-words.txt`, the corrections in
-`data/vikivortaro-eo-fixes.tsv`), and for La Bona Lingvo's list, from its CSV
-(copied into `data/bona-lingvo.csv`):
+`data/vikivortaro-eo-fixes.tsv`), for La Bona Lingvo's list, from its CSV
+(copied into `data/bona-lingvo.csv`), for the origins, from the same dump and
+Rajki's text (`data/rajki-etimologia-vortaro.txt`), and for the frequencies, from
+the Leipzig Corpora Collection's word list (`epo_mixed_2012_1M-words.txt`):
 
 ```bash
 python3 scripts/vikivortaro-eo.py https://dumps.wikimedia.org/eowiktionary/latest/eowiktionary-latest-pages-articles.xml.bz2
 python3 scripts/bona-lingvo.py [new-export.csv]
+python3 scripts/deveno.py https://dumps.wikimedia.org/eowiktionary/latest/eowiktionary-latest-pages-articles.xml.bz2
+python3 scripts/frequency.py epo_mixed_2012_1M-words.txt
 ```
 
 | Folder | What it holds |
@@ -287,7 +328,9 @@ python3 scripts/bona-lingvo.py [new-export.csv]
 | `extern/revo-fonto`, `extern/voko-grundo` | the sources of Reta Vortaro (submodules) |
 | `app/src/main/assets/vikivortaro/` | the French translations and the Esperanto definitions from Wiktionary (CC BY-SA 4.0) |
 | `app/src/main/assets/bonalingvo/` | La Bona Lingvo's list (CC BY 4.0) |
-| `data/` | the Wiktionary choices and corrections, La Bona Lingvo's CSV, the Wikipedia articles |
+| `app/src/main/assets/deveno/` | the origins of the words: Rajki's (CC0 1.0) and from Wiktionary (CC BY-SA 4.0) |
+| `app/src/main/assets/frequency/` | how often the headwords are used, from the Leipzig Corpora Collection (CC BY) |
+| `data/` | the Wiktionary choices and corrections, La Bona Lingvo's CSV, Rajki's text, the Wikipedia articles |
 | `scripts/` | the dictionary build, the Wiktionary and La Bona Lingvo extractions, the icons |
 | `fastlane/` | the store texts and screenshots |
 
@@ -307,3 +350,11 @@ authors wrote it): "Renato Corsetti, Noam Mohr, kaj la laborgrupo de la Bona Lin
 [labonalingvo.org](https://labonalingvo.org/)". It stays in separate files
 (`data/bona-lingvo.csv`, `app/src/main/assets/bonalingvo/`); the app adapts it: it
 shows only what the working group has checked.
+
+András Rajki's *Etimologia Vortaro de Esperanto* (2006) is in the public domain
+([CC0 1.0](https://creativecommons.org/publicdomain/zero/1.0/)); the origins from
+Wiktionary are under CC BY-SA 4.0. Both stay in separate files, in
+`app/src/main/assets/deveno/`. The frequencies come from the Leipzig Corpora
+Collection, under the [CC BY](https://wortschatz.uni-leipzig.de/en/usage) license;
+the app holds only how often Reta Vortaro's headwords are used, no sentence of the
+corpus.
