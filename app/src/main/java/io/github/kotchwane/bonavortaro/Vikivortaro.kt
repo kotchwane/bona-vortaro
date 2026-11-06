@@ -194,7 +194,7 @@ object Vikivortaro {
                 if (revo == null || entries.any { it.article in articles })
                     continue
             }
-            result(data, esperanto, word, esperantoWord, french, revo)?.let { results.add(it) }
+            result(context, data, esperanto, word, esperantoWord, french, revo)?.let { results.add(it) }
         }
         /* In the order of the keys, the exact matches first */
         return results
@@ -369,12 +369,15 @@ object Vikivortaro {
         } catch (e: IOException) {
             return null
         }
-        return result(data, esperanto, french, word, frenchIndex)
+        return result(context, data, esperanto, french, word, frenchIndex)
     }
 
     /* Nothing to show for a word that has neither an article in Reta
-     * Vortaro nor a description in Wiktionary */
+     * Vortaro nor a description in Wiktionary, unless "Vortoj de la bona
+     * lingvo" says what to say instead: "cassoulet → kasuleto", prefere
+     * "franca fazeolaĵo" */
     private fun result(
+        context: Context,
         data: Data,
         esperanto: Trie,
         french: String,
@@ -386,7 +389,9 @@ object Vikivortaro {
         val revo = known ?: revoEsperanto(esperanto, word, frenchIndex, data.frenchOf[word].orEmpty())
         if (revo == null && isReformOfRevo(esperanto, word))
             return null
-        return if (revo != null || word in data.descriptions) VikiResult(french, word, revo, informative(data, word)) else null
+        return if (revo != null || word in data.descriptions || BonaLingvo.entry(context, word) != null)
+            VikiResult(french, word, revo, informative(data, word))
+        else null
     }
 
     /** Reta Vortaro's entry for an Esperanto word: as written, with its
