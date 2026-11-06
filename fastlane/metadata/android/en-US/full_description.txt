@@ -1,6 +1,7 @@
 Bona vortaro is an Esperanto dictionary for Android. It contains the whole <a href="https://reta-vortaro.de/">Reta Vortaro</a> (ReVo), the free Esperanto dictionary, with its translations into more than 170 languages, and works without Internet access.
 
 • Search in Esperanto and in your other languages, with or without accents (cx → ĉ), and with wildcards (*ologio).
+• The most used translation first: "deviner" gives "diveni" before "duonkompreni"; rare or advised-against words after the others.
 • Read clear articles: definitions, examples, remarks, links between words, and the translations in your languages, the examples' too.
 • See which words are official (Fundamento, Official Additions), and browse the list of each Addition.
 • Long-press a word to look it up, whatever its form: "arbojn" finds "arbo".
@@ -8,6 +9,7 @@ Bona vortaro is an Esperanto dictionary for Android. It contains the whole <a hr
 • More French translations: thousands of French words that Reta Vortaro lacks, from the French Wiktionary, with a dotted underline in the articles.
 • Definitions from the Esperanto Wiktionary for hundreds of words that Reta Vortaro lacks.
 • Words advised against by "Vortoj de la bona lingvo" (labonalingvo.org), with what to say instead: "eskalatoro", preferably "rulŝtuparo".
+• The origins of the words, if you turn them on: "akvo", from Italian "acqua", Latin "aqua" (Rajki's etymological dictionary, Wiktionary).
 • After each example, the work it comes from; icons for the fields.
 • Leaf through the dictionary from root to root, or discover a random root.
 • Your recent searches, day and night colours, text size.

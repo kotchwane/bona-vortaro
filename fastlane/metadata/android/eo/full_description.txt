@@ -1,6 +1,7 @@
 Bona vortaro estas vortaro de Esperanto por Android. Ĝi enhavas la tutan <a href="https://reta-vortaro.de/">Retan Vortaron</a> (ReVo), la liberan vortaron de Esperanto, kun ĝiaj tradukoj en pli ol 170 lingvojn, kaj funkcias sen interreto.
 
 • Serĉu en Esperanto kaj en viaj aliaj lingvoj, kun aŭ sen supersignoj (cx → ĉ), kaj per ĵokeroj (*ologio).
+• La plej uzata traduko unue: „deviner“ donas „diveni“ antaŭ „duonkompreni“; la maloftaj aŭ malrekomendataj vortoj post la aliaj.
 • Legu klarajn artikolojn: difinoj, ekzemploj, rimarkoj, ligiloj inter la vortoj, kaj la tradukoj en viaj lingvoj, ankaŭ tiuj de la ekzemploj.
 • Vidu, kiuj vortoj estas oficialaj (Fundamento, Oficialaj Aldonoj), kaj foliumu la liston de ĉiu Aldono.
 • Tenu vorton premita por trovi ĝin, kiel ajn ĝi estas skribita: „arbojn“ trovas „arbo“.
@@ -8,6 +9,7 @@ Bona vortaro estas vortaro de Esperanto por Android. Ĝi enhavas la tutan <a hre
 • Pli da francaj tradukoj: miloj da francaj vortoj, kiujn Reta Vortaro ne havas, el Vikivortaro, kun punktita substreko en la artikoloj.
 • Difinoj el la esperanta Vikivortaro por centoj da vortoj, kiujn Reta Vortaro ne havas.
 • Malrekomendataj vortoj laŭ „Vortoj de la bona lingvo“ (labonalingvo.org), kun tio, kion diri anstataŭe: „eskalatoro“, prefere „rulŝtuparo“.
+• La deveno de la vortoj, se vi ŝaltas ĝin: „akvo“, el itala „acqua“, latina „aqua“ (etimologia vortaro de Rajki, Vikivortaro).
 • Post ĉiu ekzemplo, el kiu verko ĝi venas; piktogramoj de la fakoj.
 • Foliumu la vortaron de radiko al radiko, aŭ malkovru hazardan radikon.
 • Viaj lastaj serĉoj, tagaj kaj noktaj koloroj, la grandeco de la teksto.
