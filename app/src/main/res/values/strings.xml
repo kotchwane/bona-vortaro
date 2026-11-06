@@ -201,8 +201,9 @@
   <string name="contribute_app_title">Eraro en la apo mem</string>
   <string name="contribute_app">Se la eraro venas de *Bona vortaro* mem (vorto mise montrita, serĉo, kiu ne trovas, ideo por la apo), skribu al ĝi ĉe GitHub (necesas konto). Ĝia fontkodo estas libera: ankaŭ al ĝi vi povas kontribui.</string>
   <string name="contribute_app_link">Raporti eraron aŭ proponi ideon</string>
-  <!-- On the search screen, under "Hazarda radiko" -->
-  <string name="contribute_from_home">Helpu plibonigi la vortaron ›</string>
+  <!-- On the search screen, under "Hazarda radiko": once, when the history has 20 words, until tapped or closed -->
+  <string name="contribute_from_home">Ĉu Bona vortaro utilas al vi? Helpu plibonigi ĝin ›</string>
+  <string name="contribute_dismiss">Ne plu montri</string>
   <!-- At the bottom of "Fontoj" in an article -->
   <string name="contribute_from_sources">Ĉu eraro aŭ manko? Plibonigi la vortaron ›</string>
   <string name="about_app">Pri Bona vortaro</string>

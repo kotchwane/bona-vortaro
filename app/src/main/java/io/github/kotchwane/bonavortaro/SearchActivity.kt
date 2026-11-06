@@ -61,6 +61,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Icon
@@ -482,19 +483,7 @@ private fun SearchScreen(
                 header = {
                     Column {
                         RandomRootButton(onClick = { editing = false; onRandomRoot() })
-                        /* Mock-up: the page on improving the dictionary, from the start */
-                        val context = LocalContext.current
-                        Text(
-                            stringResource(R.string.contribute_from_home),
-                            style = MaterialTheme.typography.bodySmall.copy(fontStyle = FontStyle.Italic),
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .heightIn(min = 48.dp)
-                                .clickable(role = Role.Button) { ContributeActivity.open(context) }
-                                .wrapContentHeight(Alignment.CenterVertically)
-                                .padding(horizontal = 24.dp),
-                        )
+                        ContributeInvitation(recent?.size ?: 0)
                     }
                 },
             )
@@ -939,5 +928,43 @@ internal fun ResultRow(
             )
         }
         action?.invoke()
+    }
+}
+
+/* How many words the history must have for the invitation to show: the
+ * app is used, not discovered */
+private const val INVITE_AFTER = 20
+
+/** Once, to those who use the app: an invitation to the page on improving
+ * the dictionary, until it is tapped or closed. From the history the app
+ * keeps anyway, nothing counted for it. */
+@Composable
+private fun ContributeInvitation(historySize: Int) {
+    val context = LocalContext.current
+    var shown by remember { mutableStateOf(!BonaSettings.getContributeInvited(context)) }
+    if (!shown || historySize < INVITE_AFTER)
+        return
+    val done = { shown = false; BonaSettings.setContributeInvited(context) }
+    Row(
+        Modifier.fillMaxWidth().padding(start = 24.dp, end = 8.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Text(
+            stringResource(R.string.contribute_from_home),
+            style = MaterialTheme.typography.bodySmall.copy(fontStyle = FontStyle.Italic),
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier
+                .weight(1f)
+                .heightIn(min = 48.dp)
+                .clickable(role = Role.Button) { done(); ContributeActivity.open(context) }
+                .wrapContentHeight(Alignment.CenterVertically),
+        )
+        IconButton(onClick = done) {
+            Icon(
+                Icons.Default.Clear,
+                contentDescription = stringResource(R.string.contribute_dismiss),
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        }
     }
 }
