@@ -80,8 +80,9 @@ object Vikivortaro {
     ) {
         /* The Esperanto words that Vikivortaro describes or defines, sorted
          * by key */
-        val esperantoWords: List<String> = (descriptions.keys + definitions.keys).distinct().sortedBy { key(it) }
-        val esperantoKeys: List<String> = esperantoWords.map { key(it) }
+        private val keyed = (descriptions.keys + definitions.keys).distinct().map { key(it) to it }.sortedBy { it.first }
+        val esperantoWords: List<String> = keyed.map { it.second }
+        val esperantoKeys: List<String> = keyed.map { it.first }
     }
 
     @Volatile private var data: Data? = null
@@ -115,12 +116,15 @@ object Vikivortaro {
         val descriptions = lines(context, "eo-fr.tsv").toMap()
         val translations = lines(context, "fr-eo.tsv")
         val known = translations.toHashSet()
-        val pairs = (translations + glossPairs(descriptions).filter { it !in known }).sortedBy { key(it.first) }
+        /* Each key made once, not at each comparison of the sort */
+        val keyed = (translations + glossPairs(descriptions).filter { it !in known })
+            .map { key(it.first) to it }.sortedBy { it.first }
+        val pairs = keyed.map { it.second }
         val frenchOf = HashMap<String, MutableList<String>>()
         for ((french, esperanto) in pairs)
             /* By the word as written: "bruno" the colour isn't "Bruno" */
             frenchOf.getOrPut(esperanto) { mutableListOf() }.add(french)
-        return Data(pairs.map { key(it.first) }, pairs, frenchOf, descriptions, definitions(context))
+        return Data(keyed.map { it.first }, pairs, frenchOf, descriptions, definitions(context))
     }
 
     /** The French words that a description of the French Wiktionary gives
@@ -180,7 +184,10 @@ object Vikivortaro {
      * what Reta Vortaro adds in brackets ("potager (jardin)"); "œ" as "oe",
      * as the search reads it */
     fun key(word: String): String =
-        Normalizer.normalize(word.substringBefore(" (").lowercase(Locale.ROOT), Normalizer.Form.NFD)
+        /* Most words, without accents or other signs: the same, quicker,
+         * for the data read before the first search */
+        if (word.all { it < '\u0080' }) word.substringBefore(" (").lowercase(Locale.ROOT).trim()
+        else Normalizer.normalize(word.substringBefore(" (").lowercase(Locale.ROOT), Normalizer.Form.NFD)
             .filter { Character.getType(it) != Character.NON_SPACING_MARK.toInt() }
             .replace('’', '\'').replace('\u00a0', ' ').replace('\u202f', ' ')
             .replace("œ", "oe").replace("æ", "ae")

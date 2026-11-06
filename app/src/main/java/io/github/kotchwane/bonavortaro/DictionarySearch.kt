@@ -346,6 +346,9 @@ object DictionarySearch {
             val same = sorted[i].word.lowercase(Locale.ROOT)
             var end = i
             while (end < sorted.size && sorted[end].word.lowercase(Locale.ROOT) == same) end++
+            /* Only its first words, which are seen: the others, rarely
+             * read, keep their order, and a long group is quick */
+            end = minOf(end, i + LESSER_CHECKED)
             if (end - i > 1) {
                 if (stopped())
                     return results

@@ -26,6 +26,15 @@ import java.io.File
 
 class VikivortaroTest {
     @Test
+    fun aKeyWithoutAccentsIsMadeAsOneWithThem() {
+        assertEquals("potager", Vikivortaro.key("Potager (jardin)"))
+        assertEquals("valet d'ecurie", Vikivortaro.key(" Valet d'écurie "))
+        assertEquals("valet d'ecurie", Vikivortaro.key("Valet d'ecurie"))
+        assertEquals("coeur", Vikivortaro.key("Cœur"))
+        assertEquals("go", Vikivortaro.key("GO "))
+    }
+
+    @Test
     fun aLetterTypedWithAnAccentOnlyMatchesThatAccent() {
         /* Searched in every language from the Esperanto tab: "lŭ" isn't
          * "lubie" */
