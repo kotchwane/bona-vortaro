@@ -1600,12 +1600,34 @@ fun SpannedText(
             view.setTextSize(TypedValue.COMPLEX_UNIT_PX, size)
             if (onLayout != null)
                 view.post { if (view.layout != null) onLayout(view) }
-            /* Only away from the links, which open their article */
+            /* Where the finger went down: the word under a long press, the
+             * link under a tap */
+            val down = FloatArray(2)
+            var longPressed = false
+            view.setOnTouchListener { _, event ->
+                when (event.actionMasked) {
+                    MotionEvent.ACTION_DOWN -> {
+                        down[0] = event.x
+                        down[1] = event.y
+                        longPressed = false
+                    }
+                    /* Not the lifting of the finger after a long press,
+                     * which would follow the link pressed as well */
+                    MotionEvent.ACTION_UP -> if (longPressed) event.action = MotionEvent.ACTION_CANCEL
+                }
+                false
+            }
+            /* Only away from the links, which open their page: found as
+             * LinkMovementMethod finds them, by the line and the place on it */
             if (onClick != null)
                 view.setOnClickListener {
-                    val tapped = view.text as? android.text.Spanned
-                    val onLink = tapped != null && view.selectionStart >= 0 &&
-                        tapped.getSpans(view.selectionStart, view.selectionEnd, android.text.style.ClickableSpan::class.java).isNotEmpty()
+                    val tapped = view.text as? Spanned
+                    val layout = view.layout
+                    val onLink = tapped != null && layout != null && run {
+                        val line = layout.getLineForVertical((down[1] - view.totalPaddingTop + view.scrollY).toInt())
+                        val offset = layout.getOffsetForHorizontal(line, down[0] - view.totalPaddingLeft + view.scrollX)
+                        tapped.getSpans(offset, offset, android.text.style.ClickableSpan::class.java).isNotEmpty()
+                    }
                     if (!onLink) onClick()
                 }
             else
@@ -1617,23 +1639,6 @@ fun SpannedText(
                 else android.graphics.Typeface.NORMAL,
             )
             if (onLongPress != null) {
-                /* Where the finger went down, to find the word under it;
-                 * the touch goes on to the links, but not the lifting of
-                 * the finger after a long press, which would follow the
-                 * link pressed as well */
-                val down = FloatArray(2)
-                var longPressed = false
-                view.setOnTouchListener { _, event ->
-                    when (event.actionMasked) {
-                        MotionEvent.ACTION_DOWN -> {
-                            down[0] = event.x
-                            down[1] = event.y
-                            longPressed = false
-                        }
-                        MotionEvent.ACTION_UP -> if (longPressed) event.action = MotionEvent.ACTION_CANCEL
-                    }
-                    false
-                }
                 view.setOnLongClickListener {
                     longPressed = true
                     val offset = view.getOffsetForPosition(down[0], down[1])
