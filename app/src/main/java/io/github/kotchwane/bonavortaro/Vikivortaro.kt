@@ -548,6 +548,33 @@ object Vikivortaro {
         return results.take(count).filter { it!!.word == word && !it.isExample }.map { it!!.article to it.mark }.distinct().size > 1
     }
 
+    /** Whether an Esperanto word that Reta Vortaro doesn't have is made on
+     * a root it lacks too: "anakondo", "aŭdicio"; not a word built from
+     * its roots and affixes ("kaŝpasaĝero"), a name, nor an abbreviation.
+     * Said as a fact, not as advice: only "Vortoj de la bona lingvo"
+     * advises. Disk access. */
+    fun newRoot(context: Context, word: String): Boolean {
+        val index = try {
+            TrieCache.getTrie(context, "eo")
+        } catch (e: IOException) {
+            return false
+        }
+        return newRoot(index, word)
+    }
+
+    internal fun newRoot(index: Trie, word: String): Boolean {
+        if (word.isEmpty() || word[0].isUpperCase())
+            return false
+        val entryOf = IndexEntries(index)
+        /* Each word of "konsilia ĉambro", each part of "kvindek-naŭa" */
+        return word.split('-', ' ').filter { it.isNotEmpty() }.any { part ->
+            part.length > 3 && '.' !in part && part[0].isLowerCase() &&
+                WordLookup.candidates(part).none { entryOf(it) != null } &&
+                WordAnalyser.analyse(part, entryOf, needsEnding = true).none { it.complete } &&
+                WordAnalyser.analyse(part, entryOf).none { it.complete }
+        }
+    }
+
     /** A word with the suffix -iĉ- of the reform, "katiĉo", for a root Reta
      * Vortaro has, "kato": not a word of the dictionary */
     internal fun isReformOfRevo(index: Trie, word: String): Boolean {

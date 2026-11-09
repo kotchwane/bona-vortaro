@@ -131,6 +131,11 @@ fun VikiResultRow(
             val advice by produceState<BonaLingvoEntry?>(null, result.esperanto) {
                 value = withContext(Dispatchers.IO) { BonaLingvo.discouraged(context, result.esperanto) }
             }
+            /* A word made on a root that Reta Vortaro lacks: "aŭdicio",
+             * "anakondo" (user, 2026-11-09) */
+            val newRoot by produceState(false, result.esperanto, result.revo) {
+                value = result.revo == null && withContext(Dispatchers.IO) { Vikivortaro.newRoot(context, result.esperanto) }
+            }
             Row(verticalAlignment = Alignment.CenterVertically) {
                 /* The label after the word, on the next line when it doesn't
                  * fit: never the word broken to make room for it */
@@ -157,6 +162,8 @@ fun VikiResultRow(
                         )
                     if (advice != null)
                         DiscouragedChip()
+                    else if (newRoot)
+                        NewRootChip()
                 }
                 if (label != null)
                     Text(
@@ -296,6 +303,10 @@ private fun VikiPage(
     val definitionRead = read != null
     val definition = read?.definition
     val advice = read?.advice
+    /* Made on a root that Reta Vortaro lacks, as in the search */
+    val newRoot by produceState(false, word) {
+        value = withContext(Dispatchers.IO) { Vikivortaro.newRoot(context, word) }
+    }
     /* Without them, how the word may be built, as for a word nobody has:
      * "femurosto", femur + osto */
     val analysis by produceState<ShownAnalysis?>(null, word, vikiLanguages, read) {
@@ -372,6 +383,8 @@ private fun VikiPage(
                         )
                         if (advice?.discouragedEverywhere == true)
                             DiscouragedChip()
+                        else if (newRoot)
+                            NewRootChip()
                     }
                     /* Where it comes from, as the search's "laŭ Reta Vortaro" */
                     val origin = stringResource(

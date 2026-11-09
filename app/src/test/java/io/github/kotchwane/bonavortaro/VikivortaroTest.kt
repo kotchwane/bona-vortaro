@@ -240,6 +240,20 @@ class VikivortaroTest {
     }
 
     @Test
+    fun aNewRootIsOnlyOneRetaVortaroLacks() {
+        val esperanto = trie("eo")
+        assertTrue(Vikivortaro.newRoot(esperanto, "aŭdicio"))
+        assertTrue(Vikivortaro.newRoot(esperanto, "anakondo"))
+        /* Built from its roots and affixes, or in it */
+        assertFalse(Vikivortaro.newRoot(esperanto, "kaŝpasaĝero"))
+        assertFalse(Vikivortaro.newRoot(esperanto, "kvindek-naŭa"))
+        assertFalse(Vikivortaro.newRoot(esperanto, "hundoj"))
+        /* A name, an abbreviation */
+        assertFalse(Vikivortaro.newRoot(esperanto, "Kazaĥstano"))
+        assertFalse(Vikivortaro.newRoot(esperanto, "k.t.p."))
+    }
+
+    @Test
     fun oeTypedMatchesTheLigature() {
         assertTrue(Vikivortaro.matches("coeur", "cœur"))
         assertTrue(Vikivortaro.matches("cœ", "coeur"))
