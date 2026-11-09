@@ -163,7 +163,7 @@ python3 scripts/frequency.py epo_mixed_2012_1M-words.txt
 | `prevodb/` | la konvertilo de la XML de ReVo al la dosieroj de la apo (C) |
 | `extern/revo-fonto`, `extern/voko-grundo` | la fontoj de Reta Vortaro (submoduloj) |
 | `app/src/main/assets/vikivortaro/` | la francaj tradukoj kaj la esperantaj difinoj el Vikivortaro (CC BY-SA 4.0) |
-| `app/src/main/assets/bonalingvo/` | la listo de La Bona Lingvo (CC BY 4.0) |
+| `app/src/main/assets/bonalingvo/` | la listo de La Bona Lingvo (CC BY-SA 4.0) |
 | `app/src/main/assets/deveno/` | la deveno de la vortoj: de Rajki (CC0 1.0) kaj el Vikivortaro (CC BY-SA 4.0) |
 | `app/src/main/assets/frequency/` | la ofteco de la kapvortoj, el la Leipzig Corpora Collection (CC BY) |
 | `data/` | la elektoj kaj korektoj de Vikivortaro, la CSV de La Bona Lingvo, la teksto de Rajki, la artikoloj de Vikipedio |
@@ -181,7 +181,7 @@ apartaj dosieroj, en `app/src/main/assets/vikivortaro/`, kies kapoj diras ilian
 fonton kaj daton; la apo montras ilian fonton ĉe ĉiu paĝo, kie ili aperas.
 
 La listo *Vortoj de la bona lingvo* estas laŭ la permesilo
-[CC BY 4.0](https://creativecommons.org/licenses/by/4.0/deed.eo). Atribuo: Renato
+[CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/deed.eo). Atribuo: Renato
 Corsetti, Noam Mohr, kaj la laborgrupo de la Bona Lingvo, [labonalingvo.org](https://labonalingvo.org/).
 Ĝi restas en apartaj dosieroj (`data/bona-lingvo.csv`, `app/src/main/assets/bonalingvo/`);
 la apo ĝin adaptas: ĝi montras nur tion, kion la laborgrupo jam kontrolis.
@@ -327,7 +327,7 @@ python3 scripts/frequency.py epo_mixed_2012_1M-words.txt
 | `prevodb/` | the converter from ReVo's XML to the app's files (C) |
 | `extern/revo-fonto`, `extern/voko-grundo` | the sources of Reta Vortaro (submodules) |
 | `app/src/main/assets/vikivortaro/` | the French translations and the Esperanto definitions from Wiktionary (CC BY-SA 4.0) |
-| `app/src/main/assets/bonalingvo/` | La Bona Lingvo's list (CC BY 4.0) |
+| `app/src/main/assets/bonalingvo/` | La Bona Lingvo's list (CC BY-SA 4.0) |
 | `app/src/main/assets/deveno/` | the origins of the words: Rajki's (CC0 1.0) and from Wiktionary (CC BY-SA 4.0) |
 | `app/src/main/assets/frequency/` | how often the headwords are used, from the Leipzig Corpora Collection (CC BY) |
 | `data/` | the Wiktionary choices and corrections, La Bona Lingvo's CSV, Rajki's text, the Wikipedia articles |
@@ -345,7 +345,7 @@ in separate files, in `app/src/main/assets/vikivortaro/`, whose headers give its
 source and date; the app credits it on every page where it appears.
 
 The list *Vortoj de la bona lingvo* is under the
-[CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) license. Attribution (as its
+[CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/) license. Attribution (as its
 authors wrote it): "Renato Corsetti, Noam Mohr, kaj la laborgrupo de la Bona Lingvo,
 [labonalingvo.org](https://labonalingvo.org/)". It stays in separate files
 (`data/bona-lingvo.csv`, `app/src/main/assets/bonalingvo/`); the app adapts it: it
