@@ -126,15 +126,28 @@ def entries():
 def eo_translations(entry):
     """The Esperanto translations of an entry: in the French Wiktionary, of
     the entry; in the English one, of the entry and of each sense"""
-    found = list(entry.get("translations") or [])
+    found = [(t, likeliest_sense(t)) for t in entry.get("translations") or []]
     if LANGUAGE == "en":
-        for sense in entry.get("senses") or []:
-            found += sense.get("translations") or []
-    return [t for t in found if t.get("lang_code") == "eo" and t.get("word")]
+        for index, sense in enumerate(entry.get("senses") or []):
+            found += [(t, index) for t in sense.get("translations") or []]
+    return [(t, sense) for t, sense in found if t.get("lang_code") == "eo" and t.get("word")]
+
+
+def likeliest_sense(translation):
+    """The sense of a table that Kaikki didn't tie to one: the one its
+    scores (_dis1) make likeliest, "slut"'s first for ĉiesulino, "hand"'s
+    fourth for plenmano; else after the others, in the order of the page"""
+    try:
+        scores = [int(score) for score in translation.get("_dis1", "").split()]
+    except ValueError:
+        scores = []
+    return scores.index(max(scores)) if scores and max(scores) > 0 else 10_000
 
 
 dates, source_lines = entries()
-translations = set()
+# Each pair with its group: the entry and the sense its table translates
+translations = {}
+entry_number = 0
 descriptions = {}
 for line in source_lines:
     try:
@@ -146,9 +159,10 @@ for line in source_lines:
         french = clean(entry.get("word", ""))
         # French only: its words have a gender, English ones don't
         masculine = LANGUAGE == "fr" and "masculine" in (entry.get("tags") or []) and "feminine" not in (entry.get("tags") or [])
+        entry_number += 1
         found = eo_translations(entry)
-        words = {clean(t.get("word", "")) for t in found}
-        for t in found:
+        words = {clean(t.get("word", "")) for t, _ in found}
+        for t, group in found:
             esperanto = clean(t.get("word", ""))
             if not (WORD.match(french) and WORD.match(esperanto)) or DATE_PATTERN.match(french):
                 continue
@@ -170,7 +184,7 @@ for line in source_lines:
                     not ESPERANTO.match(esperanto)
                     or (esperanto[:1].isupper() and not re.search(r"(oj?|a)$", esperanto))):
                 continue
-            translations.add((french, esperanto))
+            translations.setdefault((french, esperanto), (entry_number, group))
     elif code == "eo":
         esperanto = clean(entry.get("word", ""))
         for sense in entry.get("senses") or []:
@@ -201,7 +215,44 @@ if os.path.exists(REJECTED):
 # to it was wrong ("minuskla: Lowercase." gives lowercase → minuskla)
 wanted = {esperanto for _, esperanto in translations}
 descriptions = {k: v for k, v in descriptions.items() if k in wanted}
-translations -= rejected
+translations = {pair: group for pair, group in translations.items() if pair not in rejected}
+
+# How often Reta Vortaro's words are used (assets/frequency/leipzig.tsv)
+FREQUENCIES = os.path.join(os.path.dirname(__file__), "..", "app", "src", "main", "assets", "frequency", "leipzig.tsv")
+frequency = {}
+with open(FREQUENCIES, encoding="utf-8") as f:
+    for row in f:
+        fields = row.rstrip("\n").split("\t")
+        if not row.startswith("#") and len(fields) >= 2:
+            try:
+                frequency[fields[0]] = float(fields[1])
+            except ValueError:
+                pass
+
+
+RARE = 1.0
+
+
+def ordered(pairs):
+    """The pairs by word; each word's translations by entry, as the page
+    gives them (the noun "hand", mano, before the verb, enmanigi, doni);
+    in an entry, by sense as Wiktionary orders its senses, except a sense
+    whose words are all rare (less than once per million words), after the
+    others: Kaikki ties "dog"'s "animal" (hundo, hundino) to a later sense
+    than "male canine" (virhundo). Not by how used the words are, though:
+    "have" would start with esti, the auxiliary, "dream" with revo, the
+    hope, "slut" with hundino, the old "female dog". The app keeps this
+    order."""
+    by_word = {}
+    for (foreign, esperanto), group in pairs.items():
+        by_word.setdefault(foreign, {}).setdefault(group, []).append(esperanto)
+    for foreign in sorted(by_word):
+        groups = sorted(by_word[foreign].items(),
+                        key=lambda item: (item[0][0], max(frequency.get(w, 0.0) for w in item[1]) < RARE, item[0][1]))
+        for _, words in groups:
+            for esperanto in words:
+                yield foreign, esperanto
+
 
 os.makedirs(OUT, exist_ok=True)
 date = dates[0] if dates else ""
@@ -209,7 +260,7 @@ header = (f"# From the {NAME} Wiktionary ({LANGUAGE}.wiktionary.org), by its con
           f"# Extracted by Kaikki (kaikki.org), {date or 'date unknown'}, with scripts/vikivortaro.py.\n")
 with open(os.path.join(OUT, f"{LANGUAGE}-eo.tsv"), "w", encoding="utf-8") as f:
     f.write(header)
-    for french, esperanto in sorted(translations):
+    for french, esperanto in ordered(translations):
         f.write(f"{french}\t{esperanto}\n")
 with open(os.path.join(OUT, f"eo-{LANGUAGE}.tsv"), "w", encoding="utf-8") as f:
     f.write(header)
