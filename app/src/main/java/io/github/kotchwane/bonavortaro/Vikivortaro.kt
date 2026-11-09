@@ -382,14 +382,28 @@ object Vikivortaro {
         /* An expression is filed under one of its words: "Amérique du Nord"
          * under "Amérique", "La Havane" under "Havane"; "Grande Bretagne"
          * is "Grande-Bretagne" */
-        if (loose.none { it == ' ' || it == '\'' })
-            return emptyList()
-        val more = arrayOfNulls<SearchResult>(128)
-        for (part in loose.split(' ', '\'').filter { it.length >= 3 }.distinct()) {
-            val count = index.searchIgnoringAccents(part, more)
-            more.take(count).firstOrNull { loose(it!!.word, language) == loose }?.let { return listOf(it) }
+        if (loose.any { it == ' ' || it == '\'' }) {
+            val more = arrayOfNulls<SearchResult>(128)
+            for (part in loose.split(' ', '\'').filter { it.length >= 3 }.distinct()) {
+                val count = index.searchIgnoringAccents(part, more)
+                more.take(count).firstOrNull { loose(it!!.word, language) == loose }?.let { return listOf(it) }
+            }
         }
-        return emptyList()
+        /* Written in one word or in two: Wiktionary's "hummingbird" is Reta
+         * Vortaro's "humming bird", which was shown twice (user,
+         * 2026-11-09). Each place of the space tried, last: "fortune
+         * teller" is found as written, not as "fortuneteller", another
+         * article */
+        val joined = loose.replace(" ", "")
+        if (joined.length < 5)
+            return emptyList()
+        val forms = if (' ' in loose) listOf(joined)
+            else (2..joined.length - 2).map { joined.substring(0, it) + " " + joined.substring(it) }
+        for (form in forms) {
+            val count = index.searchIgnoringAccents(form, results)
+            found += results.take(count).filterNotNull().filter { loose(it.word, language).replace(" ", "") == joined }
+        }
+        return found.distinct()
     }
 
     /* The articles of Reta Vortaro's entries for an Esperanto word, its

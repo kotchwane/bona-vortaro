@@ -240,6 +240,15 @@ class VikivortaroTest {
     }
 
     @Test
+    fun aWordInOneWordIsRetaVortarosInTwo() {
+        val (english, esperanto) = trie("en") to trie("eo")
+        /* Reta Vortaro's "humming bird" */
+        assertTrue(Vikivortaro.inRevo(english, "hummingbird", esperanto, "kolibro", "humm", language = VikiLanguage.ENGLISH))
+        /* Not another Esperanto word */
+        assertFalse(Vikivortaro.inRevo(english, "hummingbird", esperanto, "hundo", "humm", language = VikiLanguage.ENGLISH))
+    }
+
+    @Test
     fun aNewRootIsOnlyOneRetaVortaroLacks() {
         val esperanto = trie("eo")
         assertTrue(Vikivortaro.newRoot(esperanto, "aŭdicio"))
