@@ -132,6 +132,8 @@ class SearchActivity : BonaActivity() {
     /* The words looked up last, shown while nothing is typed; null while
      * they are read. Re-read when coming back from an article. */
     private var recent by mutableStateOf<List<RecentSearch>?>(null)
+    /* How many words the history has, known before they are looked up */
+    private var historySize by mutableStateOf<Int?>(null)
     private var keepHistory by mutableStateOf(true)
     /* Whether Vikivortaro's French shows: the French translations do */
     private var inFrench by mutableStateOf(false)
@@ -175,6 +177,7 @@ class SearchActivity : BonaActivity() {
                     onRandomRoot = ::openRandomRoot,
                     onPreferences = { Screens.goPreferences(this) },
                     recent = recent,
+                    historySize = historySize,
                     keepHistory = keepHistory,
                     inFrench = inFrench,
                     onRemoveRecent = ::removeFromHistory,
@@ -202,9 +205,12 @@ class SearchActivity : BonaActivity() {
 
     private fun loadHistory() {
         lifecycleScope.launch {
-            recent = withContext(Dispatchers.IO) {
-                findRecentSearches(applicationContext, History.get(applicationContext))
-            }
+            /* Read first, quick, so that the invitation, which depends on
+             * it, is in place before the history is shown, rather than
+             * pushing it down once it is (a cold start) */
+            val entries = withContext(Dispatchers.IO) { History.get(applicationContext) }
+            historySize = entries.size
+            recent = withContext(Dispatchers.IO) { findRecentSearches(applicationContext, entries) }
         }
     }
 
@@ -349,6 +355,7 @@ private fun SearchScreen(
     onRandomRoot: () -> Unit,
     onPreferences: () -> Unit,
     recent: List<RecentSearch>?,
+    historySize: Int?,
     keepHistory: Boolean,
     inFrench: Boolean,
     onRemoveRecent: (RecentSearch) -> List<HistoryEntry>,
@@ -483,7 +490,7 @@ private fun SearchScreen(
                 header = {
                     Column {
                         RandomRootButton(onClick = { editing = false; onRandomRoot() })
-                        ContributeInvitation(recent?.size ?: 0)
+                        ContributeInvitation(recent?.size ?: historySize ?: 0)
                     }
                 },
             )
