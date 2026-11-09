@@ -201,9 +201,9 @@ object BonaLingvo {
                      * headwords, what it says of each on its own line */
                     if (headwords.size > 1) {
                         append(":")
-                        for ((headword, entry) in found) {
-                            append("\n„$headword“")
-                            append(remark(context, entry, index))
+                        for ((words, entry, extras) in merged(found)) {
+                            append("\n" + words.joinToString(", ") { "„$it“" })
+                            append(remark(context, entry, index, extras))
                         }
                     } else
                         append(remark(context, found[0].second, index))
@@ -233,8 +233,46 @@ object BonaLingvo {
         override fun onClick(view: View) = Screens.searchFor(view.context, word)
     }
 
-    /* " (en la senco de …): prefere diru akvokondukilo." */
-    private fun remark(context: Context, entry: BonaLingvoEntry, index: Trie?): CharSequence =
+    /* The headwords of a card whose advice is nearly the same, as for the
+     * spellings of a word, on one line: their shared words to say once, then
+     * those of each one alone. "dizajno", "dezajno": "fasono, aspekto…; por
+     * „dezajno“ ankaŭ modelo". Only advice without contexts, which then says
+     * nothing more than the separate lines did; any other on its own line */
+    private fun merged(found: List<Pair<String, BonaLingvoEntry>>): List<Triple<List<String>, BonaLingvoEntry, List<Pair<String, List<String>>>>> {
+        val lines = mutableListOf<MutableList<Pair<String, BonaLingvoEntry>>>()
+        val plain = { entry: BonaLingvoEntry -> entry.context.isEmpty() && entry.preferred.all { it.context.isEmpty() } }
+        val words = { entry: BonaLingvoEntry -> entry.preferred.map { it.word } }
+        for (headword in found) {
+            val (_, entry) = headword
+            val line = if (!plain(entry)) null else lines.firstOrNull { line ->
+                val first = line[0].second
+                plain(first) && first.discouraged == entry.discouraged &&
+                    (words(first).toSet() intersect words(entry).toSet()).size * 2 >= (words(first) + words(entry)).toSet().size
+            }
+            if (line != null) line.add(headword) else lines.add(mutableListOf(headword))
+        }
+        return lines.map { line ->
+            if (line.size == 1)
+                return@map Triple(listOf(line[0].first), line[0].second, emptyList())
+            val shared = line.map { words(it.second).toSet() }.reduce { a, b -> a intersect b }
+            val first = line[0].second
+            val entry = BonaLingvoEntry(first.word, first.context, first.simplifications.filter {
+                it.discouraged != first.discouraged || it.word in shared
+            })
+            val extras = line.map { (headword, entry) -> headword to words(entry).filter { it !in shared } }
+                .filter { it.second.isNotEmpty() }
+            Triple(line.map { it.first }, entry, extras)
+        }
+    }
+
+    /* " (en la senco de …): prefere diru akvokondukilo." With [extras], the
+     * words to say for one headword only: "; por „dezajno“ ankaŭ modelo" */
+    private fun remark(
+        context: Context,
+        entry: BonaLingvoEntry,
+        index: Trie?,
+        extras: List<Pair<String, List<String>>> = emptyList(),
+    ): CharSequence =
         SpannableStringBuilder().apply {
             if (entry.context.isNotEmpty())
                 append(" ${entry.context}")
@@ -247,26 +285,42 @@ object BonaLingvo {
                 words.forEachIndexed { number, word ->
                     if (number > 0)
                         append(", ")
-                    val start = length
-                    append(word)
-                    /* A link, to the word itself when Reta Vortaro has it,
-                     * else to its search: what the list says of it, and how
-                     * it is built; what is in brackets is said of it, not
-                     * part of it: "(kristana) monaĥestro" */
-                    val bare = withoutBrackets(word)
-                    val at = word.indexOf(bare).takeIf { bare.isNotEmpty() && it >= 0 }
-                    val found = index?.let { index -> Vikivortaro.revoEsperanto(index, bare) }
-                    val link = if (found != null) ReferenceSpan(found.article, found.mark) else SearchSpan(bare.ifEmpty { word })
-                    if (at != null)
-                        setSpan(link, start + at, start + at + bare.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-                    else
-                        setSpan(link, start, length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+                    appendWord(word, index)
                 }
                 if (wordsContext.isNotEmpty())
                     append(" $wordsContext")
             }
+            for ((headword, words) in extras) {
+                append("; ")
+                append(context.getString(R.string.bl_also_for, headword))
+                append(" ")
+                words.forEachIndexed { number, word ->
+                    if (number > 0)
+                        append(", ")
+                    appendWord(word, index)
+                }
+            }
             append(".")
         }
+
+    /* A word to say, as a link: to the word itself when Reta Vortaro has
+     * it, else to its search */
+    private fun SpannableStringBuilder.appendWord(word: String, index: Trie?) {
+        val start = length
+        append(word)
+        /* A link, to the word itself when Reta Vortaro has it,
+         * else to its search: what the list says of it, and how
+         * it is built; what is in brackets is said of it, not
+         * part of it: "(kristana) monaĥestro" */
+        val bare = withoutBrackets(word)
+        val at = word.indexOf(bare).takeIf { bare.isNotEmpty() && it >= 0 }
+        val found = index?.let { index -> Vikivortaro.revoEsperanto(index, bare) }
+        val link = if (found != null) ReferenceSpan(found.article, found.mark) else SearchSpan(bare.ifEmpty { word })
+        if (at != null)
+            setSpan(link, start + at, start + at + bare.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+        else
+            setSpan(link, start, length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+    }
 
     /** The words of the list starting with the query that neither Reta
      * Vortaro nor Vikivortaro has (their rows say what the list says of
