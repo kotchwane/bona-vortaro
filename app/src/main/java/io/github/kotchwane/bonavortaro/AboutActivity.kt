@@ -55,6 +55,7 @@ private const val RETA_VORTARO_URL = "https://reta-vortaro.de/"
 private const val LICENSE_URL = "https://www.gnu.org/licenses/old-licenses/gpl-2.0-standalone.html"
 private const val PRIVACY_URL = "https://kotchwane.github.io/bona-vortaro/privacy"
 private const val VIKIVORTARO_URL = "https://fr.wiktionary.org/"
+private const val VIKIVORTARO_EN_URL = "https://en.wiktionary.org/"
 private const val VIKIVORTARO_EO_URL = "https://eo.wiktionary.org/"
 private const val CC_BY_SA_URL = "https://creativecommons.org/licenses/by-sa/4.0/"
 private const val LEIPZIG_TERMS_URL = "https://wortschatz.uni-leipzig.de/en/usage"
@@ -100,6 +101,7 @@ private val PARTS = listOf(
         R.string.about_viki_title, R.string.about_viki, R.string.about_viki_link to VIKIVORTARO_URL,
         textLinks = listOf(
             "fr.wiktionary.org" to VIKIVORTARO_URL,
+            "en.wiktionary.org" to VIKIVORTARO_EN_URL,
             "eo.wiktionary.org" to VIKIVORTARO_EO_URL,
             "CC\u00A0BY-SA\u00A04.0" to CC_BY_SA_URL,
         ),

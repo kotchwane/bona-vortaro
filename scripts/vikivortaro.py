@@ -1,19 +1,24 @@
 #!/usr/bin/env python3
-# Extracts from the French Wiktionary what Bona vortaro shows next to Reta
-# Vortaro: French words with their Esperanto translations, and the short
-# French descriptions of Esperanto words.
+# Extracts from the French or English Wiktionary what Bona vortaro shows next
+# to Reta Vortaro: the words of that language with their Esperanto
+# translations, and the short descriptions of Esperanto words in it.
 #
 # Usage, from the root of the repository:
 #   python3 scripts/vikivortaro.py https://kaikki.org/dictionary/downloads/fr/fr-extract.jsonl.gz
-#   (or the path of that file, downloaded)
+#   python3 scripts/vikivortaro.py en \
+#       https://kaikki.org/dictionary/English/kaikki.org-dictionary-English.jsonl.gz \
+#       https://kaikki.org/dictionary/Esperanto/kaikki.org-dictionary-Esperanto.jsonl
+#   (or the paths of those files, downloaded)
 #
-# The source is Kaikki's extraction (wiktextract) of the French Wiktionary.
-# Its content is by the contributors of the French Wiktionary, under the
+# The source is Kaikki's extraction (wiktextract) of the French Wiktionary,
+# which has both the French words and the Esperanto ones; of the English
+# Wiktionary, Kaikki's files of its English words and of its Esperanto ones.
+# Its content is by the contributors of that Wiktionary, under the
 # licence CC BY-SA 4.0, and stays so in the files written here, which are
 # kept apart from Reta Vortaro's data (GPL-2.0). The files are committed:
 # Kaikki changes its extract every week, and the app is built the same
 # every time, as F-Droid requires.
-"""Writes, into app/src/main/assets/vikivortaro/:
+"""Writes, into app/src/main/assets/vikivortaro/ (here for French, "en" for English):
   fr-eo.tsv   a French word, a tab, an Esperanto translation (one per line)
   eo-fr.tsv   an Esperanto word, a tab, its French description
 Lines starting with "#" are comments: the source, its date, the licence."""
@@ -25,7 +30,9 @@ import re
 import sys
 import urllib.request
 
-SOURCE = sys.argv[1]
+LANGUAGE = sys.argv[1] if sys.argv[1] in ("fr", "en") else "fr"
+SOURCES = sys.argv[2:] if sys.argv[1] in ("fr", "en") else sys.argv[1:]
+NAME = {"fr": "French", "en": "English"}[LANGUAGE]
 OUT = os.path.join(os.path.dirname(__file__), "..", "app", "src", "main", "assets", "vikivortaro")
 
 # The descriptions that only send to another word: "Pluriel de …", not
@@ -34,6 +41,10 @@ OUT = os.path.join(os.path.dirname(__file__), "..", "app", "src", "main", "asset
 FORM = re.compile(r"^(pluriel|accusatif|forme|participe|présent|passé|futur|conditionnel|impératif|infinitif|"
                   r"orthographe|variante|singulier|nominatif|graphie)\b(?=\s*\S)(?!\s*\.?$)", re.I)
 SENDS = re.compile(r"\b(volitif|pseudo-accusatif|synonyme de)\b", re.I)
+# In English, the forms are tagged ("form-of"); what only sends to another
+# word: "Synonym of …", "Alternative form of …"
+SENDS_EN = re.compile(r"\b(synonym of|alternative (form|spelling) of|obsolete (form|spelling) of|misspelling of|"
+                      r"abbreviation of|initialism of|clipping of|short for)\b", re.I)
 
 # What the extract sometimes gives instead of a description: the source of the
 # page, its pronunciation, its placeholders ("Exemple d'utilisation manquant")
@@ -93,10 +104,36 @@ def clean_gloss(gloss):
 
 
 def usable(gloss):
+    if LANGUAGE == "en":
+        return gloss and not SENDS_EN.search(gloss) and not MARKUP.search(gloss)
     return gloss and not FORM.match(gloss) and not SENDS.search(gloss) and not MARKUP.search(gloss)
 
 
-date, source_lines = lines(SOURCE)
+def entries():
+    """The entries of all the sources, and the date of the first one"""
+    dates = []
+    def read(source):
+        date, source_lines = lines(source)
+        dates.append(date)
+        for line in source_lines:
+            yield line
+    def all_lines():
+        for source in SOURCES:
+            yield from read(source)
+    return dates, all_lines()
+
+
+def eo_translations(entry):
+    """The Esperanto translations of an entry: in the French Wiktionary, of
+    the entry; in the English one, of the entry and of each sense"""
+    found = list(entry.get("translations") or [])
+    if LANGUAGE == "en":
+        for sense in entry.get("senses") or []:
+            found += sense.get("translations") or []
+    return [t for t in found if t.get("lang_code") == "eo" and t.get("word")]
+
+
+dates, source_lines = entries()
 translations = set()
 descriptions = {}
 for line in source_lines:
@@ -105,10 +142,11 @@ for line in source_lines:
     except ValueError:
         continue
     code = entry.get("lang_code")
-    if code == "fr":
+    if code == LANGUAGE:
         french = clean(entry.get("word", ""))
-        masculine = "masculine" in (entry.get("tags") or []) and "feminine" not in (entry.get("tags") or [])
-        found = [t for t in entry.get("translations") or [] if t.get("lang_code") == "eo"]
+        # French only: its words have a gender, English ones don't
+        masculine = LANGUAGE == "fr" and "masculine" in (entry.get("tags") or []) and "feminine" not in (entry.get("tags") or [])
+        found = eo_translations(entry)
         words = {clean(t.get("word", "")) for t in found}
         for t in found:
             esperanto = clean(t.get("word", ""))
@@ -136,6 +174,9 @@ for line in source_lines:
     elif code == "eo":
         esperanto = clean(entry.get("word", ""))
         for sense in entry.get("senses") or []:
+            # In English, a form of a word, "plural of", "past of", is tagged
+            if LANGUAGE == "en" and {"form-of", "alt-of"} & set(sense.get("tags") or []):
+                continue
             for gloss in sense.get("glosses") or []:
                 if MARKUP.search(gloss):
                     continue
@@ -148,13 +189,14 @@ wanted = {esperanto for _, esperanto in translations}
 descriptions = {k: v for k, v in descriptions.items() if k in wanted}
 
 os.makedirs(OUT, exist_ok=True)
-header = (f"# From the French Wiktionary (fr.wiktionary.org), by its contributors, CC BY-SA 4.0.\n"
+date = dates[0] if dates else ""
+header = (f"# From the {NAME} Wiktionary ({LANGUAGE}.wiktionary.org), by its contributors, CC BY-SA 4.0.\n"
           f"# Extracted by Kaikki (kaikki.org), {date or 'date unknown'}, with scripts/vikivortaro.py.\n")
-with open(os.path.join(OUT, "fr-eo.tsv"), "w", encoding="utf-8") as f:
+with open(os.path.join(OUT, f"{LANGUAGE}-eo.tsv"), "w", encoding="utf-8") as f:
     f.write(header)
     for french, esperanto in sorted(translations):
         f.write(f"{french}\t{esperanto}\n")
-with open(os.path.join(OUT, "eo-fr.tsv"), "w", encoding="utf-8") as f:
+with open(os.path.join(OUT, f"eo-{LANGUAGE}.tsv"), "w", encoding="utf-8") as f:
     f.write(header)
     for esperanto, gloss in sorted(descriptions.items()):
         f.write(f"{esperanto}\t{gloss}\n")
