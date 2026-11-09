@@ -1,0 +1,42 @@
+# English → Esperanto pairs of the English Wiktionary that Bona vortaro leaves out: not translations
+# (wrong meaning, a description taken for a word, a misleading word class). Never for being offensive.
+# Reviewed 2026-11-09. Read by scripts/vikivortaro.py. Columns: the English word, the Esperanto word, why.
+accidence	hazardo	accidence = grammatical inflection, not chance
+attested	atesta	atesta = testimonial; attested = atestita
+clam	muslo	muslo = mussel, not clam
+concerning wolves	lupa	gloss phrase, not an English word
+corner	angula	English noun corner given adjective angula
+coronation	enposteniĝo	enposteniĝo = taking office; coronation = kronado
+denotes opposites	mal-	description, not a word
+description	diskuto	diskuto = discussion, not description
+dissolute	fi-	adjective given the prefix fi-
+emphatic particle	ja	description, not a word
+exemplary	ekzemplero	ekzemplero = a copy/specimen, not exemplary
+firstborn	lastenaskito	lastenaskito = last-born, opposite of firstborn
+heartbreakingly	oj	oj is an interjection (ouch), not an adverb
+hypoglossal nerve	hipogloso	hipogloso = halibut, not the hypoglossal nerve
+ice group	glaciaro	ice group is not English; glaciaro = glacier
+imprudent	perversa	perversa = perverse, not imprudent
+indicates repetition	re-	description, not a word
+inequity	misproporcio	misproporcio = disproportion, not unfairness
+infant	infana	English noun infant given adjective infana (childish)
+loudly	maltrankvile	maltrankvile = restlessly/anxiously, not loudly
+niche nook	niĉo	'niche nook' is not an English term (garbled list)
+noisily	maltrankvile	maltrankvile = restlessly/anxiously, not noisily
+painfully	oj	oj is an interjection (ouch), not an adverb
+pasta-like dumplings	nokoj	description, not an English term (gnocchi)
+pleased	plaĉita	plaĉita is ungrammatical (plaĉi intransitive); pleased = kontenta
+prehistoric	pra-	prefix pra-, not an adjective (prahistoria)
+primordial	pra-	prefix pra-, not an adjective (praa, primordia)
+pristine	antaŭa	antaŭa = front/former, not pristine (unspoiled)
+puppy	hundida	hundida is an adjective; puppy = hundido
+romanticist	romanikulo	romanikulo relates to Romanesque; romanticist = romantikulo
+sadly	oj	oj is an interjection (ouch), not an adverb
+sailing	lofi	lofi is a verb (to luff), not the adjective sailing
+scum	ŝaŭmo	ŝaŭmo = foam; does not mean reprehensible people
+slutty	fi-	fi- is a general pejorative prefix, not an adjective for slutty
+successionist	sendependisto	successionist is a misspelling of secessionist
+surrounding	ĉirkaŭe	ĉirkaŭe is an adverb; surrounding (adj) = ĉirkaŭa
+unacceptable	perversa	perversa = perverse, not unacceptable
+Vatican City State	Vatikanurbo aŭ Vatikano	two alternatives joined with aŭ in one entry
+well-rounded	valida	valida = valid, not well-rounded

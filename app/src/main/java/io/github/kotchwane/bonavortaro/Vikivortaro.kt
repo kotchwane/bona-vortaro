@@ -113,23 +113,27 @@ object Vikivortaro {
     private fun data(context: Context, language: VikiLanguage): Data =
         data[language.code] ?: load(context, language).also { data[language.code] = it }
 
-    private fun lines(context: Context, file: String): List<Pair<String, String>> = try {
+    private fun lines(context: Context, file: String, optional: Boolean = false): List<Pair<String, String>> = try {
         context.assets.open("vikivortaro/$file").bufferedReader().useLines { lines ->
             lines.filter { !it.startsWith("#") }
                 .mapNotNull { line -> line.split('\t').takeIf { it.size == 2 }?.let { it[0] to it[1] } }
                 .toList()
         }
     } catch (e: IOException) {
-        Log.w(TAG, "Failed to read $file")
+        if (!optional)
+            Log.w(TAG, "Failed to read $file")
         emptyList()
     }
 
     private fun load(context: Context, language: VikiLanguage): Data {
         val descriptions = lines(context, "eo-${language.code}.tsv").toMap()
-        val translations = lines(context, "${language.code}-eo.tsv")
+        /* The pairs left out after a review, which the descriptions would
+         * give again: "painfully", oj ("Ouch, painfully") */
+        val rejected = lines(context, "${language.code}-eo-not.tsv", optional = true).toHashSet()
+        val translations = lines(context, "${language.code}-eo.tsv").filter { it !in rejected }
         val known = translations.toHashSet()
         /* Each key made once, not at each comparison of the sort */
-        val keyed = (translations + glossPairs(descriptions, language).filter { it !in known })
+        val keyed = (translations + glossPairs(descriptions, language).filter { it !in known && it !in rejected })
             .map { key(it.first) to it }.sortedBy { it.first }
         val pairs = keyed.map { it.second }
         val foreignOf = HashMap<String, MutableList<String>>()

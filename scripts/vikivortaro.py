@@ -184,6 +184,19 @@ for line in source_lines:
                 if esperanto and usable(gloss) and esperanto not in descriptions:
                     descriptions[esperanto] = gloss
 
+# The pairs left out after a review (data/vikivortaro-<language>-rejected.tsv):
+# out of the translations, and listed for the app, which leaves them out of
+# the pairs it makes from the descriptions too ("painfully" → oj)
+REJECTED = os.path.join(os.path.dirname(__file__), "..", "data", f"vikivortaro-{LANGUAGE}-rejected.tsv")
+rejected = set()
+if os.path.exists(REJECTED):
+    with open(REJECTED, encoding="utf-8") as f:
+        for row in f:
+            fields = row.rstrip("\n").split("\t")
+            if not row.startswith("#") and len(fields) >= 2:
+                rejected.add((fields[0], fields[1]))
+translations -= rejected
+
 # Only the descriptions of the words that the French words lead to
 wanted = {esperanto for _, esperanto in translations}
 descriptions = {k: v for k, v in descriptions.items() if k in wanted}
@@ -200,4 +213,9 @@ with open(os.path.join(OUT, f"eo-{LANGUAGE}.tsv"), "w", encoding="utf-8") as f:
     f.write(header)
     for esperanto, gloss in sorted(descriptions.items()):
         f.write(f"{esperanto}\t{gloss}\n")
-print(f"{len(translations)} translations, {len(descriptions)} descriptions")
+if rejected:
+    with open(os.path.join(OUT, f"{LANGUAGE}-eo-not.tsv"), "w", encoding="utf-8") as f:
+        f.write(f"# Pairs left out after a review, from data/vikivortaro-{LANGUAGE}-rejected.tsv.\n")
+        for foreign, esperanto in sorted(rejected):
+            f.write(f"{foreign}\t{esperanto}\n")
+print(f"{len(translations)} translations, {len(descriptions)} descriptions, {len(rejected)} left out")
