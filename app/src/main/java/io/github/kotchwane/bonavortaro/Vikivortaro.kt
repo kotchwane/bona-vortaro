@@ -23,28 +23,29 @@ import java.io.IOException
 import java.text.Normalizer
 import java.util.Locale
 
-/** The French word searched, which only the French Wiktionary translates
+/** The word of [language] searched, which only its Wiktionary translates
  * by [esperanto]: the article opened from it says so. */
-class VikiSearch(val french: String, val esperanto: String)
+class VikiSearch(val language: String, val foreign: String, val esperanto: String)
 
-/** A French word that the French Wiktionary translates into Esperanto,
+/** A word that the Wiktionary of [language] translates into Esperanto,
  * with the article of Reta Vortaro for that Esperanto word, if it has one,
- * and Wiktionary's French description of it, if it says more than the
- * French word. Or, found [inEsperanto], an Esperanto word that only
- * Vikivortaro has, with the French words it gives for it. */
+ * and Wiktionary's description of it, if it says more than the word. Or,
+ * found [inEsperanto], an Esperanto word that only Vikivortaro has, with
+ * the words of [language] it gives for it. */
 class VikiResult(
-    val french: String,
+    val language: String,
+    val foreign: String,
     val esperanto: String,
     val revo: SearchResult?,
     val description: String?,
     val inEsperanto: Boolean = false,
-    val frenchWords: List<String> = emptyList(),
+    val foreignWords: List<String> = emptyList(),
     /** For an Esperanto word, the first sense of its definition in the
      * Esperanto Wiktionary, if it has one */
     val definition: String? = null,
 ) {
     /** The word as the search found it */
-    val word: String get() = if (inEsperanto) esperanto else french
+    val word: String get() = if (inEsperanto) esperanto else foreign
 }
 
 /** The definition of an Esperanto word in the Esperanto Wiktionary: its
@@ -55,14 +56,15 @@ class EsperantoDefinition(val senses: List<String>, val origin: String) {
 }
 
 /**
- * What the French Wiktionary adds to Reta Vortaro: French words that Reta
- * Vortaro can't find, with their Esperanto translations, and French
- * descriptions of Esperanto words that it lacks; and what the Esperanto
- * Wiktionary adds: definitions of Esperanto words that it lacks, chosen
- * one by one (data/vikivortaro-eo-words.txt).
+ * What the Wiktionary of a language ([VikiLanguage], French so far) adds to
+ * Reta Vortaro: words of that language that Reta Vortaro can't find, with
+ * their Esperanto translations, and descriptions in that language of
+ * Esperanto words that it lacks; and what the Esperanto Wiktionary adds:
+ * definitions of Esperanto words that it lacks, chosen one by one
+ * (data/vikivortaro-eo-words.txt).
  *
- * Its data, by the contributors of the French Wiktionary under CC BY-SA 4.0,
- * is kept apart from Reta Vortaro's, in assets/vikivortaro/, written by
+ * Its data, by the contributors of the Wiktionaries under CC BY-SA 4.0, is
+ * kept apart from Reta Vortaro's, in assets/vikivortaro/, written by
  * scripts/vikivortaro.py; it is always shown as coming from Wiktionary.
  */
 object Vikivortaro {
@@ -71,11 +73,13 @@ object Vikivortaro {
     private const val MAX_LOOKED_AT = 400
 
     private class Data(
-        /* Sorted by key: the French word without its case and accents */
+        /* Sorted by key: the word without its case and accents */
         val keys: List<String>,
         val pairs: List<Pair<String, String>>,
-        val frenchOf: Map<String, List<String>>,
+        /* The words of the language for an Esperanto word */
+        val foreignOf: Map<String, List<String>>,
         val descriptions: Map<String, String>,
+        /* Shared by the languages: the Esperanto Wiktionary's */
         val definitions: Map<String, EsperantoDefinition>,
     ) {
         /* The Esperanto words that Vikivortaro describes or defines, sorted
@@ -85,21 +89,29 @@ object Vikivortaro {
         val esperantoKeys: List<String> = keyed.map { it.first }
     }
 
-    @Volatile private var data: Data? = null
+    private val data = HashMap<String, Data>()
+    @Volatile private var definitions: Map<String, EsperantoDefinition>? = null
 
-    /** Whether the French that Vikivortaro adds is shown: to those who chose
-     * to see the French translations in the articles */
-    fun inArticles(context: Context): Boolean = BonaSettings.translationFilter(context)("fr")
+    /** Whether the words of a language that Vikivortaro adds are shown: to
+     * those who chose to see that language's translations in the articles */
+    fun inArticles(context: Context, language: VikiLanguage): Boolean =
+        BonaSettings.translationFilter(context)(language.code)
 
+    /** The languages whose words Vikivortaro adds that are shown, see
+     * [inArticles] */
+    fun shownLanguages(context: Context): List<VikiLanguage> =
+        BonaSettings.translationFilter(context).let { shown -> VikiLanguage.ALL.filter { shown(it.code) } }
 
     /** Reads the data ahead of the first search, which would otherwise
      * wait for it. Disk access: not on the main thread. */
     fun preload(context: Context) {
-        data(context)
+        for (language in VikiLanguage.ALL)
+            data(context, language)
     }
 
     @Synchronized
-    private fun data(context: Context): Data = data ?: load(context).also { data = it }
+    private fun data(context: Context, language: VikiLanguage): Data =
+        data[language.code] ?: load(context, language).also { data[language.code] = it }
 
     private fun lines(context: Context, file: String): List<Pair<String, String>> = try {
         context.assets.open("vikivortaro/$file").bufferedReader().useLines { lines ->
@@ -112,23 +124,23 @@ object Vikivortaro {
         emptyList()
     }
 
-    private fun load(context: Context): Data {
-        val descriptions = lines(context, "eo-fr.tsv").toMap()
-        val translations = lines(context, "fr-eo.tsv")
+    private fun load(context: Context, language: VikiLanguage): Data {
+        val descriptions = lines(context, "eo-${language.code}.tsv").toMap()
+        val translations = lines(context, "${language.code}-eo.tsv")
         val known = translations.toHashSet()
         /* Each key made once, not at each comparison of the sort */
-        val keyed = (translations + glossPairs(descriptions).filter { it !in known })
+        val keyed = (translations + glossPairs(descriptions, language).filter { it !in known })
             .map { key(it.first) to it }.sortedBy { it.first }
         val pairs = keyed.map { it.second }
-        val frenchOf = HashMap<String, MutableList<String>>()
-        for ((french, esperanto) in pairs)
+        val foreignOf = HashMap<String, MutableList<String>>()
+        for ((foreign, esperanto) in pairs)
             /* By the word as written: "bruno" the colour isn't "Bruno" */
-            frenchOf.getOrPut(esperanto) { mutableListOf() }.add(french)
-        return Data(keyed.map { it.first }, pairs, frenchOf, descriptions, definitions(context))
+            foreignOf.getOrPut(esperanto) { mutableListOf() }.add(foreign)
+        return Data(keyed.map { it.first }, pairs, foreignOf, descriptions, definitions(context))
     }
 
-    /** The French words that a description of the French Wiktionary gives
-     * as the meaning of an Esperanto word, when it is only such words:
+    /** The words that a description of a Wiktionary gives as the meaning
+     * of an Esperanto word, when it is only such words; in French:
      * "ĝirejo", "Virage."; "reakiri", "Recouvrer, regagner, récupérer,
      * reprendre." Its tables of translations lack them ("virage" has no
      * Esperanto), and Reta Vortaro too. Not a description of more words
@@ -136,7 +148,7 @@ object Vikivortaro {
      * words ("de", "pour"…); for a name, only the names ("Cologne", not
      * "ville d’Allemagne"); nor "d’eau" for an adjective, akva, nor what
      * starts with "action", "fait"… ("fait d’acquérir"). */
-    internal fun glossPairs(descriptions: Map<String, String>): List<Pair<String, String>> =
+    internal fun glossPairs(descriptions: Map<String, String>, language: VikiLanguage = VikiLanguage.FRENCH): List<Pair<String, String>> =
         descriptions.flatMap { (esperanto, description) ->
             val text = description.removeSuffix(".")
             if (text.isEmpty() || esperanto.isEmpty() || '.' in text || text.any { it in GLOSS_UNUSABLE || it.isDigit() })
@@ -144,33 +156,33 @@ object Vikivortaro {
             val items = text.split(',', ';').map { it.trim() }
             if (items.any { item ->
                     val words = item.split(' ')
-                    words.size !in 1..2 || words.any { it.isEmpty() || it.lowercase(Locale.ROOT) in GLOSS_SMALL_WORDS }
+                    words.size !in 1..2 || words.any { it.isEmpty() || it.lowercase(Locale.ROOT) in language.glossSmallWords }
                 })
                 return@flatMap emptyList()
             val name = esperanto.first().isUpperCase()
             items.filter { !name || it.first().isUpperCase() }
-                /* Not "d’eau" for akva, which says "of water": an adverb
-                 * is fine, "d’abord" komence */
-                .filter { !(esperanto.endsWith('a') && it.lowercase(Locale.ROOT).let { item -> item.startsWith("d’") || item.startsWith("d'") }) }
+                .filter { !language.glossNotFor(esperanto, it) }
                 /* Not what describes the word, "action d’absorber"; but
                  * "action" alone, ago */
-                .filter { ' ' !in it || it.substringBefore(' ').lowercase(Locale.ROOT) !in GLOSS_DESCRIBING }
+                .filter { ' ' !in it || it.substringBefore(' ').lowercase(Locale.ROOT) !in language.glossDescribing }
                 .map { item ->
                     /* Its capital only as the first word of the description,
                      * unless a name ("États-Unien") */
-                    val french = if (!name && item.first().isUpperCase() && item.drop(1).none { it.isUpperCase() })
+                    val foreign = if (!name && item.first().isUpperCase() && item.drop(1).none { it.isUpperCase() })
                         item.replaceFirstChar { it.lowercase(Locale.ROOT) } else item
-                    french to esperanto
+                    foreign to esperanto
                 }
         }
 
-    private val GLOSS_DESCRIBING = setOf("abréviation", "action", "fait", "processus")
     private const val GLOSS_UNUSABLE = "()[]:#«»\"/=+…!?"
-    private val GLOSS_SMALL_WORDS =
-        setOf("de", "du", "des", "à", "au", "aux", "en", "pour", "par", "qui", "que", "un", "une", "le", "la", "les", "ou", "et")
 
-    /* eo-eo.tsv: the word, its senses separated by " ¶ ", its origin */
-    private fun definitions(context: Context): Map<String, EsperantoDefinition> = try {
+    /* eo-eo.tsv: the word, its senses separated by " ¶ ", its origin. Read
+     * once for all the languages */
+    @Synchronized
+    private fun definitions(context: Context): Map<String, EsperantoDefinition> =
+        definitions ?: readDefinitions(context).also { definitions = it }
+
+    private fun readDefinitions(context: Context): Map<String, EsperantoDefinition> = try {
         context.assets.open("vikivortaro/eo-eo.tsv").bufferedReader().useLines { lines ->
             lines.filter { !it.startsWith("#") }
                 .mapNotNull { line ->
@@ -187,9 +199,9 @@ object Vikivortaro {
 
     /** An Esperanto word's definition in the Esperanto Wiktionary, if it is
      * one of those chosen. Disk access, the first time. */
-    fun definition(context: Context, word: String): EsperantoDefinition? = data(context).definitions[word]
+    fun definition(context: Context, word: String): EsperantoDefinition? = definitions(context)[word]
 
-    /** A French word as the search compares it: without case, accents, and
+    /** A word as the search compares it: without case, accents, and
      * what Reta Vortaro adds in brackets ("potager (jardin)"); "œ" as "oe",
      * as the search reads it */
     fun key(word: String): String =
@@ -202,11 +214,11 @@ object Vikivortaro {
             .replace("œ", "oe").replace("æ", "ae")
             .trim()
 
-    /** The French words starting with the query that Reta Vortaro doesn't
-     * have, or not for that Esperanto word, each with its Esperanto word.
-     * Disk access: not on the main thread. */
-    fun search(context: Context, query: String, stopped: () -> Boolean = { false }): List<VikiResult> {
-        val data = data(context)
+    /** The words of a language starting with the query that Reta Vortaro
+     * doesn't have, or not for that Esperanto word, each with its Esperanto
+     * word. Disk access: not on the main thread. */
+    fun search(context: Context, language: VikiLanguage, query: String, stopped: () -> Boolean = { false }): List<VikiResult> {
+        val data = data(context, language)
         val prefix = key(query)
         if (prefix.isEmpty())
             return emptyList()
@@ -214,8 +226,8 @@ object Vikivortaro {
         var start = data.keys.binarySearch(prefix).let { if (it < 0) -it - 1 else it }
         while (start > 0 && data.keys[start - 1].startsWith(prefix)) start--
 
-        val (esperanto, french) = try {
-            TrieCache.getTrie(context, "eo") to TrieCache.getTrie(context, "fr")
+        val (esperanto, foreign) = try {
+            TrieCache.getTrie(context, "eo") to TrieCache.getTrie(context, language.code)
         } catch (e: IOException) {
             return emptyList()
         }
@@ -231,37 +243,42 @@ object Vikivortaro {
             if (!matches(typed, word))
                 continue
             looked++
-            /* Where Reta Vortaro has the French word, Wiktionary's word too,
+            /* Where Reta Vortaro has the word, Wiktionary's Esperanto too,
              * after its own: "cafetière → kafujo" after "cafetière (verseuse)
              * → kafkruĉo". Not when Reta Vortaro gives it for that word
              * already, nor for a word only Wiktionary has, where most of
              * its doubtful words are ("fondre → fundi") */
-            val entries = revoEntries(french, word)
+            val entries = revoEntries(foreign, word, language)
             var revo: SearchResult? = null
-            if (inRevo(french, word, esperanto, esperantoWord, typed, entries)) {
-                revo = revoEsperanto(esperanto, esperantoWord, french, data.frenchOf[esperantoWord].orEmpty())
+            if (inRevo(foreign, word, esperanto, esperantoWord, typed, entries, language)) {
+                revo = revoEsperanto(esperanto, esperantoWord, foreign, data.foreignOf[esperantoWord].orEmpty(), language)
                 /* By article: not either when Reta Vortaro gives it to
                  * another word of the same article */
                 val articles = esperantoArticles(esperanto, esperantoWord)
                 if (revo == null || entries.any { it.article in articles })
                     continue
             }
-            result(context, data, esperanto, word, esperantoWord, french, revo)?.let { results.add(it) }
+            result(context, language, data, esperanto, word, esperantoWord, foreign, revo)?.let { results.add(it) }
         }
         /* In the order of the keys, the exact matches first */
         return results
     }
 
     /** The Esperanto words starting with the query that only Vikivortaro
-     * has, with a page of their own. Disk access: not on the main thread. */
-    fun searchEsperanto(context: Context, query: String, stopped: () -> Boolean = { false }): List<VikiResult> {
-        val data = data(context)
+     * has, with a page of their own: with the words of the first language
+     * that has them. Disk access: not on the main thread. */
+    fun searchEsperanto(context: Context, query: String, stopped: () -> Boolean = { false }): List<VikiResult> =
+        VikiLanguage.ALL.flatMap { searchEsperanto(context, it, query, stopped) }.distinctBy { it.esperanto }
+            .sortedBy { sortKey(it.word, esperanto = true) }.take(MAX_RESULTS)
+
+    private fun searchEsperanto(context: Context, language: VikiLanguage, query: String, stopped: () -> Boolean): List<VikiResult> {
+        val data = data(context, language)
         val typed = query.lowercase(Locale.ROOT).trim()
         val prefix = key(typed)
         if (prefix.isEmpty())
             return emptyList()
-        val (esperanto, french) = try {
-            TrieCache.getTrie(context, "eo") to TrieCache.getTrie(context, "fr")
+        val (esperanto, foreign) = try {
+            TrieCache.getTrie(context, "eo") to TrieCache.getTrie(context, language.code)
         } catch (e: IOException) {
             return emptyList()
         }
@@ -275,9 +292,9 @@ object Vikivortaro {
             if (!matches(typed, word))
                 continue
             looked++
-            if (revoEsperanto(esperanto, word, french, data.frenchOf[word].orEmpty()) == null
+            if (revoEsperanto(esperanto, word, foreign, data.foreignOf[word].orEmpty(), language) == null
                 && !isReformOfRevo(esperanto, word))
-                results.add(esperantoResult(data, word))
+                results.add(esperantoResult(language, data, word))
         }
         /* In the order of the search in Esperanto, ĉ after c, to be put
          * among Reta Vortaro's words; the first ones in it */
@@ -285,21 +302,25 @@ object Vikivortaro {
     }
 
     /** An Esperanto word that only Vikivortaro has, found again for the
-     * history; null if an update of the data dropped it. */
+     * history, with the first language that has it; null if an update of
+     * the data dropped it. */
     fun esperantoResult(context: Context, word: String): VikiResult? =
-        data(context).let { if (word in it.descriptions || word in it.definitions) esperantoResult(it, word) else null }
+        VikiLanguage.ALL.firstNotNullOfOrNull { language ->
+            data(context, language).let { if (word in it.descriptions || word in it.definitions) esperantoResult(language, it, word) else null }
+        }
 
-    private fun esperantoResult(data: Data, word: String) = VikiResult(
-        french = "",
+    private fun esperantoResult(language: VikiLanguage, data: Data, word: String) = VikiResult(
+        language = language.code,
+        foreign = "",
         esperanto = word,
         revo = null,
         description = informative(data, word),
         inEsperanto = true,
-        frenchWords = data.frenchOf[word].orEmpty().distinctBy { key(it) },
+        foreignWords = data.foreignOf[word].orEmpty().distinctBy { key(it) },
         definition = data.definitions[word]?.senses?.firstOrNull(),
     )
 
-    /** Whether Reta Vortaro has a French word that Wiktionary translates by
+    /** Whether Reta Vortaro has a word that Wiktionary translates by
      * [esperantoWord]: written the same ([strict]: "comédie (théâtre)" is
      * "comédie"), or written otherwise ([loose], or as a plural) for the
      * same Esperanto word, eg. "Terre" as "terre", for "Tero" and "tero".
@@ -307,16 +328,18 @@ object Vikivortaro {
      * recueillir", nor "Réunion" "réunion". In the whole index: its search
      * for what was typed stops at a limit, and may not reach the word. */
     internal fun inRevo(
-        french: Trie,
+        foreign: Trie,
         word: String,
         esperanto: Trie? = null,
         esperantoWord: String? = null,
         typed: String? = null,
         /* Its entries, if already looked up */
-        entries: List<SearchResult> = revoEntries(french, word),
+        entries: List<SearchResult>? = null,
+        language: VikiLanguage = VikiLanguage.FRENCH,
     ): Boolean {
-        val strict = strict(word)
-        if (entries.any { strict(it.word) == strict })
+        val entries = entries ?: revoEntries(foreign, word, language)
+        val strict = strict(word, language)
+        if (entries.any { strict(it.word, language) == strict })
             return true
         if (esperanto == null || esperantoWord == null || entries.isEmpty())
             return false
@@ -327,28 +350,28 @@ object Vikivortaro {
     }
 
     /** Reta Vortaro's entry for a word that Vikivortaro gave, if it has
-     * one since, eg. after an update of the dictionary: in French, written
-     * the same ([strict]); in Esperanto, as written */
-    internal fun revoEntry(index: Trie, word: String, esperanto: Boolean = false): SearchResult? {
+     * one since, eg. after an update of the dictionary: in its language,
+     * written the same ([strict]); in Esperanto, as written */
+    internal fun revoEntry(index: Trie, word: String, esperanto: Boolean = false, language: VikiLanguage = VikiLanguage.FRENCH): SearchResult? {
         if (esperanto)
             return revoEsperanto(index, word)
-        val strict = strict(word)
-        return revoEntries(index, word).firstOrNull { strict(it.word) == strict }
+        val strict = strict(word, language)
+        return revoEntries(index, word, language).firstOrNull { strict(it.word, language) == strict }
     }
 
-    /* Reta Vortaro's French entries for a word compared loosely, or as its
-     * plural or singular: "alevin", "alevins" */
-    private fun revoEntries(index: Trie, word: String): List<SearchResult> {
-        val loose = loose(word)
+    /* Reta Vortaro's entries in a language for a word compared loosely, or
+     * as its plural or singular: "alevin", "alevins" */
+    private fun revoEntries(index: Trie, word: String, language: VikiLanguage): List<SearchResult> {
+        val loose = loose(word, language)
         val found = mutableListOf<SearchResult>()
         val results = arrayOfNulls<SearchResult>(64)
         fun look(prefix: String) {
             val count = index.searchIgnoringAccents(prefix, results)
-            found += results.take(count).filterNotNull().filter { loose(it.word) == loose || isForm(it.word, word) }
+            found += results.take(count).filterNotNull().filter { loose(it.word, language) == loose || isForm(it.word, word, language) }
         }
         look(key(word))
         /* The singular, before the plural typed */
-        if (FORM_ENDINGS.any { it.length <= 2 && !it.startsWith(" ") && key(word).endsWith(it) })
+        if (language.formEndings.any { it.length <= 2 && !it.startsWith(" ") && key(word).endsWith(it) })
             look(key(word).dropLast(1))
         if (found.isNotEmpty())
             return found.distinct()
@@ -360,7 +383,7 @@ object Vikivortaro {
         val more = arrayOfNulls<SearchResult>(128)
         for (part in loose.split(' ', '\'').filter { it.length >= 3 }.distinct()) {
             val count = index.searchIgnoringAccents(part, more)
-            more.take(count).firstOrNull { loose(it!!.word) == loose }?.let { return listOf(it) }
+            more.take(count).firstOrNull { loose(it!!.word, language) == loose }?.let { return listOf(it) }
         }
         return emptyList()
     }
@@ -379,49 +402,48 @@ object Vikivortaro {
         return articles
     }
 
-    /** A French word as written, to tell it from another: as [loose], but
-     * with its accents, the case of its first letter, and "se" ("pécheur",
-     * "pêcheur"; "Réunion", "réunion"; "recueillir", "se recueillir"); "î"
-     * and "û" as "i" and "u", which the spelling of 1990 drops */
-    internal fun strict(word: String): String {
-        val plain = Normalizer.normalize(word.trim().replace(QUALIFIER, "").substringBefore(" ("), Normalizer.Form.NFC)
+    /** A word as written, to tell it from another: as [loose], but with
+     * its accents, the case of its first letter, and "se" ("pécheur",
+     * "pêcheur"; "Réunion", "réunion"; "recueillir", "se recueillir"); in
+     * French "î" and "û" as "i" and "u", which the spelling of 1990 drops */
+    internal fun strict(word: String, language: VikiLanguage = VikiLanguage.FRENCH): String {
+        val plain = language.respelled(Normalizer.normalize(word.trim().replace(QUALIFIER, "").substringBefore(" ("), Normalizer.Form.NFC)
             .replace('’', '\'').replace('\u00a0', ' ').replace('\u202f', ' ')
-            .replace("œ", "oe").replace("Œ", "Oe").replace("æ", "ae").replace("Æ", "Ae")
-            .replace('î', 'i').replace('û', 'u').replace('Î', 'I').replace('Û', 'U')
-        val text = plain.lowercase(Locale.ROOT).replace(ARTICLE, "").replace('-', ' ').replace(NOT_A_LETTER, "")
+            .replace("œ", "oe").replace("Œ", "Oe").replace("æ", "ae").replace("Æ", "Ae"))
+        val text = plain.lowercase(Locale.ROOT).replace(language.articles, "").replace('-', ' ').replace(NOT_A_LETTER, "")
             .split(' ').filter { it.isNotEmpty() }.joinToString(" ")
-        return if (capital(plain)) "^$text" else text
+        return if (capital(plain, language)) "^$text" else text
     }
 
-    /** A French word compared loosely, to tell whether Reta Vortaro already
-     * has it: accents, case, "œ", an article or "se" before, a qualifier in
+    /** A word compared loosely, to tell whether Reta Vortaro already has
+     * it: accents, case, "œ", an article or "se" before, a qualifier in
      * brackets before or after, punctuation and hyphens aside: "Les Alpes"
      * is "Alpes", "(viande de) bœuf" "boeuf", "petit-déjeuner (subst.)"
      * "petit déjeuner", "bravo !" "bravo" */
-    internal fun loose(word: String): String =
+    internal fun loose(word: String, language: VikiLanguage = VikiLanguage.FRENCH): String =
         key(word.trim().replace(QUALIFIER, ""))
-            .replace(LEADING, "")
+            .replace(language.leading, "")
             .replace('-', ' ')
             .replace(NOT_A_LETTER, "")
             .split(' ').filter { it.isNotEmpty() }.joinToString(" ")
 
-    /** A French word of Wiktionary and its Esperanto word, found again for
-     * the history; null if an update of the data dropped them. Disk access:
-     * not on the main thread. */
-    fun result(context: Context, french: String, word: String): VikiResult? {
-        val data = data(context)
-        val key = key(french)
+    /** A word of a language's Wiktionary and its Esperanto word, found
+     * again for the history; null if an update of the data dropped them.
+     * Disk access: not on the main thread. */
+    fun result(context: Context, language: VikiLanguage, foreign: String, word: String): VikiResult? {
+        val data = data(context, language)
+        val key = key(foreign)
         var i = data.keys.binarySearch(key).let { if (it < 0) return null else it }
         while (i > 0 && data.keys[i - 1] == key) i--
-        while (i < data.keys.size && data.keys[i] == key && data.pairs[i] != (french to word)) i++
+        while (i < data.keys.size && data.keys[i] == key && data.pairs[i] != (foreign to word)) i++
         if (i == data.keys.size || data.keys[i] != key)
             return null
-        val (esperanto, frenchIndex) = try {
-            TrieCache.getTrie(context, "eo") to TrieCache.getTrie(context, "fr")
+        val (esperanto, foreignIndex) = try {
+            TrieCache.getTrie(context, "eo") to TrieCache.getTrie(context, language.code)
         } catch (e: IOException) {
             return null
         }
-        return result(context, data, esperanto, french, word, frenchIndex)
+        return result(context, language, data, esperanto, foreign, word, foreignIndex)
     }
 
     /* Nothing to show for a word that has neither an article in Reta
@@ -430,19 +452,20 @@ object Vikivortaro {
      * "franca fazeolaĵo" */
     private fun result(
         context: Context,
+        language: VikiLanguage,
         data: Data,
         esperanto: Trie,
-        french: String,
+        foreign: String,
         word: String,
-        frenchIndex: Trie? = null,
+        foreignIndex: Trie? = null,
         /* Its entry, if already looked up */
         known: SearchResult? = null,
     ): VikiResult? {
-        val revo = known ?: revoEsperanto(esperanto, word, frenchIndex, data.frenchOf[word].orEmpty())
+        val revo = known ?: revoEsperanto(esperanto, word, foreignIndex, data.foreignOf[word].orEmpty(), language)
         if (revo == null && isReformOfRevo(esperanto, word))
             return null
         return if (revo != null || word in data.descriptions || BonaLingvo.entry(context, word) != null)
-            VikiResult(french, word, revo, informative(data, word))
+            VikiResult(language.code, foreign, word, revo, informative(data, word))
         else null
     }
 
@@ -453,25 +476,28 @@ object Vikivortaro {
     internal fun revoEsperanto(
         index: Trie,
         word: String,
-        french: Trie? = null,
-        frenchWords: List<String> = emptyList(),
+        foreign: Trie? = null,
+        foreignWords: List<String> = emptyList(),
+        language: VikiLanguage = VikiLanguage.FRENCH,
     ): SearchResult? {
         /* As written, with the case of its first letter: "Bruno" the name
          * isn't "bruno" the colour, "Butano" the country isn't "butano" */
         asWritten(index, word)?.let { return it }
         /* Written with the other case, the same word when Reta Vortaro
-         * has one of its French words in that article: "Tero", "Terre", is
+         * has one of its foreign words in that article: "Tero", "Terre", is
          * "tero"; but "Etno", "Etna", isn't "etno", nor "Graco", "Graz",
          * "graco" */
-        if (french == null || word.isEmpty())
+        if (foreign == null || word.isEmpty())
             return null
         val first = word.substring(0, 1)
         val other = (if (first == first.lowercase(Locale.ROOT)) first.uppercase(Locale.ROOT) else first.lowercase(Locale.ROOT)) +
             word.substring(1)
         val entry = asWritten(index, other) ?: return null
-        /* Its French words written the same, case too: "Centre" the
+        /* Its foreign words written the same, case too: "Centre" the
          * region isn't "centre" */
-        val found = frenchWords.flatMap { word -> revoEntries(french, word).filter { strict(it.word) == strict(word) } }
+        val found = foreignWords.flatMap { word ->
+            revoEntries(foreign, word, language).filter { strict(it.word, language) == strict(word, language) }
+        }
         return entry.takeIf { found.any { it.article == entry.article } }
     }
 
@@ -499,7 +525,7 @@ object Vikivortaro {
 
     /** Whether Reta Vortaro has a word under several entries, which
      * Wiktionary doesn't tell apart: "korveto" the ship and the bird. Its
-     * French words then go on none of them. Disk access. */
+     * Wiktionary words then go on none of them. Disk access. */
     fun ambiguous(context: Context, word: String): Boolean {
         val index = try {
             TrieCache.getTrie(context, "eo")
@@ -525,89 +551,84 @@ object Vikivortaro {
         return stem.length > 2 && revoEsperanto(index, stem) != null
     }
 
-    /** Whether a French word starts with what was typed, as Reta Vortaro's
+    /** Whether a word starts with what was typed, as Reta Vortaro's
      * search does: a letter typed without accent matches any accent ("eleve"
      * finds "élève"), one typed with an accent only that one, so "lŭ" finds
      * nothing and not "lubie". */
     internal fun matches(typed: String, word: String): Boolean {
         val typed = typed.replace("œ", "oe").replace("æ", "ae")
-        val french = Normalizer.normalize(word.lowercase(Locale.ROOT).replace('’', '\''), Normalizer.Form.NFC)
+        val written = Normalizer.normalize(word.lowercase(Locale.ROOT).replace('’', '\''), Normalizer.Form.NFC)
             .replace("œ", "oe").replace("æ", "ae")
-        if (french.length < typed.length)
+        if (written.length < typed.length)
             return false
-        return typed.indices.all { i -> typed[i] == french[i] || typed[i] == base(french[i]) }
+        return typed.indices.all { i -> typed[i] == written[i] || typed[i] == base(written[i]) }
     }
 
     private fun base(letter: Char): Char = Normalizer.normalize(letter.toString(), Normalizer.Form.NFD)[0]
 
-    /** The French words that Wiktionary gives for an Esperanto word and
-     * that [revo], its translation in Reta Vortaro, doesn't already say,
-     * accents aside. Disk access: not on the main thread. */
-    fun frenchFor(context: Context, word: String, revo: String?): List<String> {
-        val data = data(context)
-        return frenchFor(data.frenchOf[word].orEmpty() + otherCase(context, data, word), revo)
+    /** The words of a language that its Wiktionary gives for an Esperanto
+     * word and that [revo], its translation in Reta Vortaro, doesn't
+     * already say, accents aside. Disk access: not on the main thread. */
+    fun foreignFor(context: Context, language: VikiLanguage, word: String, revo: String?): List<String> {
+        val data = data(context, language)
+        return foreignFor(data.foreignOf[word].orEmpty() + otherCase(context, language, data, word), revo, language)
     }
 
-    /* Wiktionary's French words for an Esperanto word of Reta Vortaro
-     * that Wiktionary writes with the other case, the same word: "Latino"
-     * for "latino" */
-    private fun otherCase(context: Context, data: Data, word: String): List<String> {
+    /* Wiktionary's words for an Esperanto word of Reta Vortaro that
+     * Wiktionary writes with the other case, the same word: "Latino" for
+     * "latino" */
+    private fun otherCase(context: Context, language: VikiLanguage, data: Data, word: String): List<String> {
         if (word.isEmpty())
             return emptyList()
         val first = word.substring(0, 1)
         val other = (if (first == first.lowercase(Locale.ROOT)) first.uppercase(Locale.ROOT) else first.lowercase(Locale.ROOT)) +
             word.substring(1)
-        val french = data.frenchOf[other] ?: return emptyList()
-        val (esperanto, frenchIndex) = try {
-            TrieCache.getTrie(context, "eo") to TrieCache.getTrie(context, "fr")
+        val foreign = data.foreignOf[other] ?: return emptyList()
+        val (esperanto, foreignIndex) = try {
+            TrieCache.getTrie(context, "eo") to TrieCache.getTrie(context, language.code)
         } catch (e: IOException) {
             return emptyList()
         }
-        val entry = revoEsperanto(esperanto, other, frenchIndex, french) ?: return emptyList()
-        return if (compact(entry.word) == compact(word)) french else emptyList()
+        val entry = revoEsperanto(esperanto, other, foreignIndex, foreign, language) ?: return emptyList()
+        return if (compact(entry.word) == compact(word)) foreign else emptyList()
     }
 
-    /** The rest of [frenchFor], on Wiktionary's French words for the word */
-    internal fun frenchFor(french: List<String>, revo: String?): List<String> {
+    /** The rest of [foreignFor], on Wiktionary's words for the word */
+    internal fun foreignFor(foreign: List<String>, revo: String?, language: VikiLanguage = VikiLanguage.FRENCH): List<String> {
         /* Without the numbers of the senses, which the translations have
          * when they differ by sense: "(1) Seeland, Sélande; (2) Zélande" */
         val said = revo?.replace(SENSES, "")?.split(',', ';')?.map { it.trim() }?.filter { key(it).isNotEmpty() }.orEmpty()
-        return french
-            .filter { word -> said.none { sameWord(it, word) } }
+        return foreign
+            .filter { word -> said.none { sameWord(it, word, language) } }
             .distinctBy { key(it) }
     }
 
-    /** Whether two French words are the same, compared loosely ([loose]),
-     * or one is the plural of the other, or the same with a preposition
-     * after ("faire face", "faire face à"); but not a name and a word
-     * ("clair", "Claire"), nor a word in another ("vers" in "envers"), nor
-     * a feminine, which is often another word ("golf", "golfe") */
-    internal fun sameWord(a: String, b: String): Boolean {
-        val (ka, kb) = loose(a) to loose(b)
+    /** Whether two words are the same, compared loosely ([loose]), or one
+     * is the plural of the other, or the same with a preposition after
+     * ("faire face", "faire face à"); but not a name and a word ("clair",
+     * "Claire"), nor a word in another ("vers" in "envers"), nor a feminine,
+     * which is often another word ("golf", "golfe") */
+    internal fun sameWord(a: String, b: String, language: VikiLanguage = VikiLanguage.FRENCH): Boolean {
+        val (ka, kb) = loose(a, language) to loose(b, language)
         if (ka == kb)
             return true
-        if (capital(a) != capital(b))
+        if (capital(a, language) != capital(b, language))
             return false
-        return isForm(a, b)
+        return isForm(a, b, language)
     }
 
     /* One the plural of the other, or with a preposition after, accents
      * counting: "congre" isn't "congrès" */
-    private fun isForm(a: String, b: String): Boolean {
-        val (ka, kb) = strict(a).removePrefix("^") to strict(b).removePrefix("^")
+    private fun isForm(a: String, b: String, language: VikiLanguage): Boolean {
+        val (ka, kb) = strict(a, language).removePrefix("^") to strict(b, language).removePrefix("^")
         val (short, long) = if (ka.length <= kb.length) ka to kb else kb to ka
         val ending = long.substring(short.length.coerceAtMost(long.length))
-        /* "x" the plural of "-au", "-eu", "-ou" only: "amix" isn't "ami" */
-        return short.isNotEmpty() && long.startsWith(short) && ending in FORM_ENDINGS &&
-            (ending != "x" || short.endsWith("au") || short.endsWith("eu") || short.endsWith("ou"))
+        return short.isNotEmpty() && long.startsWith(short) && ending in language.formEndings && language.isFormEnding(short, ending)
     }
 
-    /* A form, or the same with its preposition: "faire face", "faire face à" */
+    /* The numbers of the senses before a translation: "(1) Seeland" */
     private val SENSES = Regex("\\(\\d+(, *\\d+)*\\)[ \u00A0]*")
 
-    private val FORM_ENDINGS = setOf("s", "x", "es", " a", " à", " de", " d'")
-    private val LEADING = Regex("^(le |la |les |l'|se |s')")
-    private val ARTICLE = Regex("^(le |la |les |l')")
     private val QUALIFIER = Regex("^\\([^)]*\\) *")
     private val NOT_A_LETTER = Regex("[^\\p{L}\\p{N} ']")
 
@@ -615,34 +636,39 @@ object Vikivortaro {
     private val REFORM = Regex("iĉ(?=[oae]j?n?$)")
 
     /* Whether the word, after its article, is a name */
-    private fun capital(word: String) =
-        word.trim().replace(Regex("^(?i)(le |la |les |l'|l’)"), "").firstOrNull()?.isUpperCase() == true
+    private fun capital(word: String, language: VikiLanguage) =
+        word.trim().replace(language.nameArticles, "").firstOrNull()?.isUpperCase() == true
 
-    /** The French words that Wiktionary gives for an example of Reta
-     * Vortaro that has no French there, "bonvolu" ("s'il vous plaît"),
-     * and that [revo], the French of its word, doesn't already say. Disk
-     * access: not on the main thread. */
-    fun frenchForExample(context: Context, example: String, revo: String?): List<String> {
-        val data = data(context)
+    /** The words of a language that its Wiktionary gives for an example of
+     * Reta Vortaro that has no translation in it there, "bonvolu" ("s'il
+     * vous plaît"), and that [revo], the translation of its word, doesn't
+     * already say. Disk access: not on the main thread. */
+    fun foreignForExample(context: Context, language: VikiLanguage, example: String, revo: String?): List<String> {
+        val data = data(context, language)
         val plain = example.trim().trimEnd('!', '?', '.', ' ')
-        return frenchFor(data.frenchOf[example].orEmpty() + data.frenchOf[plain].orEmpty(), revo)
+        return foreignFor(data.foreignOf[example].orEmpty() + data.foreignOf[plain].orEmpty(), revo, language)
     }
 
-    /** The French words that Wiktionary translates by an Esperanto word */
-    fun frenchOf(context: Context, word: String): List<String> =
-        data(context).frenchOf[word].orEmpty().distinctBy { key(it) }
+    /** The words of a language that its Wiktionary translates by an
+     * Esperanto word */
+    fun foreignOf(context: Context, language: VikiLanguage, word: String): List<String> =
+        data(context, language).foreignOf[word].orEmpty().distinctBy { key(it) }
 
-    /** Wiktionary's French description of an Esperanto word, if it says
-     * more than the French words translated by it. Disk access: not on the
+    /** Whether a Wiktionary translates a word of its language by an
+     * Esperanto word */
+    fun anyForeignOf(context: Context, word: String): Boolean =
+        VikiLanguage.ALL.any { foreignOf(context, it, word).isNotEmpty() }
+
+    /** A Wiktionary's description of an Esperanto word, in its language, if
+     * it says more than the words translated by it. Disk access: not on the
      * main thread. */
-    fun description(context: Context, word: String): String? = informative(data(context), word)
+    fun description(context: Context, language: VikiLanguage, word: String): String? = informative(data(context, language), word)
 
-    /* Two descriptions in three only repeat a French word: "spicisto",
-     * "Épicier." */
+    /* Two descriptions in three only repeat a word: "spicisto", "Épicier." */
     private fun informative(data: Data, word: String): String? {
         val description = data.descriptions[word] ?: return null
-        val french = data.frenchOf[word].orEmpty().map { key(it) }
-        /* Nor the French words again, in any order: "Acidité, aigreur." */
-        return description.takeUnless { key(it.trimEnd('.')).let { plain -> plain in french || plain.split(", ").toSet() == french.toSet() } }
+        val foreign = data.foreignOf[word].orEmpty().map { key(it) }
+        /* Nor the words again, in any order: "Acidité, aigreur." */
+        return description.takeUnless { key(it.trimEnd('.')).let { plain -> plain in foreign || plain.split(", ").toSet() == foreign.toSet() } }
     }
 }

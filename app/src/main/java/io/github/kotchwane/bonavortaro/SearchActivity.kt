@@ -136,7 +136,8 @@ class SearchActivity : BonaActivity() {
     private var historySize by mutableStateOf<Int?>(null)
     private var keepHistory by mutableStateOf(true)
     /* Whether Vikivortaro's French shows: the French translations do */
-    private var inFrench by mutableStateOf(false)
+    /* The languages whose Wiktionary words are shown */
+    private var vikiShown by mutableStateOf(emptyList<String>())
     /* Counts the new searches asked for with the magnifier of an article */
     private var newSearch by mutableIntStateOf(0)
     /* The article being opened, and whether it was: a second tap
@@ -179,7 +180,7 @@ class SearchActivity : BonaActivity() {
                     recent = recent,
                     historySize = historySize,
                     keepHistory = keepHistory,
-                    inFrench = inFrench,
+                    vikiShown = vikiShown,
                     onRemoveRecent = ::removeFromHistory,
                     onRestoreHistory = ::restoreHistory,
                 )
@@ -199,7 +200,7 @@ class SearchActivity : BonaActivity() {
         super.onStart()
         textSize = BonaSettings.getTextSize(this)
         keepHistory = BonaSettings.getKeepHistory(this)
-        inFrench = Vikivortaro.inArticles(this)
+        vikiShown = Vikivortaro.shownLanguages(this).map { it.code }
         loadHistory()
     }
 
@@ -269,13 +270,13 @@ class SearchActivity : BonaActivity() {
         }
     }
 
-    /* A French word of Wiktionary: Reta Vortaro's article for its Esperanto
+    /* A word of a Wiktionary: Reta Vortaro's article for its Esperanto
      * word, told which word was searched; else Wiktionary's own page. Kept
      * in the history with its Esperanto word */
     private fun openViki(result: VikiResult) {
         if (keepHistory) {
             val entry = if (result.inEsperanto) HistoryEntry("eo", result.esperanto, result.esperanto)
-                else HistoryEntry("fr", result.french, result.esperanto)
+                else HistoryEntry(result.language, result.foreign, result.esperanto)
             lifecycleScope.launch(Dispatchers.IO) { History.add(applicationContext, entry) }
         }
         val revo = result.revo
@@ -287,7 +288,8 @@ class SearchActivity : BonaActivity() {
             Intent(this, ArticleActivity::class.java)
                 .putExtra(ArticleActivity.EXTRA_ARTICLE_NUMBER, revo.article)
                 .putExtra(ArticleActivity.EXTRA_MARK_NUMBER, revo.mark)
-                .putExtra(ArticleActivity.EXTRA_VIKI_FRENCH, result.french)
+                .putExtra(ArticleActivity.EXTRA_VIKI_FOREIGN, result.foreign)
+                .putExtra(ArticleActivity.EXTRA_VIKI_LANGUAGE, result.language)
                 .putExtra(ArticleActivity.EXTRA_VIKI_WORD, result.esperanto)
         )
     }
@@ -357,7 +359,7 @@ private fun SearchScreen(
     recent: List<RecentSearch>?,
     historySize: Int?,
     keepHistory: Boolean,
-    inFrench: Boolean,
+    vikiShown: List<String>,
     onRemoveRecent: (RecentSearch) -> List<HistoryEntry>,
     onRestoreHistory: (List<HistoryEntry>) -> Unit,
 ) {
@@ -412,7 +414,7 @@ private fun SearchScreen(
     val nothingToRead = outcome?.let { found ->
         /* A word that only the list proposes, "glandinflamo", too */
         found.isEmpty || found.words.isEmpty() || (found.results.isEmpty() && found.lemmas.none { it is FoundWord.InRevo } &&
-            found.wiktionary.all { it.inEsperanto && it.definition == null } && found.bonaLingvo.isEmpty() && !inFrench)
+            found.wiktionary.all { it.inEsperanto && it.definition == null && it.language !in vikiShown } && found.bonaLingvo.isEmpty())
     } == true
     /* A word the list proposes: its parts as the group cut it, rather
      * than a guess */
@@ -530,7 +532,7 @@ private fun SearchScreen(
                 analysis = analysis,
                 searchOrder = searchOrder,
                 textSize = textSize,
-                inFrench = inFrench,
+                vikiShown = vikiShown,
                 onResultClick = onResultClick,
                 onVikiClick = onVikiClick,
                 onBonaLingvoClick = onBonaLingvoClick,
@@ -696,7 +698,7 @@ private fun ResultList(
     analysis: ShownAnalysis?,
     searchOrder: List<String>,
     textSize: Int,
-    inFrench: Boolean,
+    vikiShown: List<String>,
     onResultClick: (SearchResult, String) -> Unit,
     onVikiClick: (VikiResult) -> Unit,
     onBonaLingvoClick: (BonaLingvoEntry) -> Unit,
@@ -746,7 +748,7 @@ private fun ResultList(
                     is FoundWord.InRevo ->
                         ResultRow(found.result, wordStyle, inEsperanto, onClick = { onResultClick(found.result, language) }, language = language)
                     is FoundWord.InWiktionary ->
-                        VikiResultRow(found.result, onClick = { onVikiClick(found.result) }, inFrench = inFrench)
+                        VikiResultRow(found.result, onClick = { onVikiClick(found.result) }, inLanguage = found.result.language in vikiShown)
                     is FoundWord.InBonaLingvo ->
                         BonaLingvoRow(found.entry, onClick = { onBonaLingvoClick(found.entry) })
                 }
@@ -757,7 +759,7 @@ private fun ResultList(
             if (outcome.proposedInstead.isNotEmpty())
                 item {
                     ProposedInstead(
-                        outcome.query.trim(),
+                        BonaLingvo.proposedWord(outcome.proposedInstead.map { it.first }, outcome.query.trim()),
                         outcome.proposedInstead,
                         onOpenEntry = { onResultClick(it, "eo") },
                         onOpenListWord = onBonaLingvoClick,
@@ -922,7 +924,7 @@ internal fun ResultRow(
             val text = if (example != null) {
                 val shown = example!!
                 if (inEsperanto)
-                    exampleOf!! + AnnotatedString(shown.translation?.let { " — $languageName: " + (if (shown.language == "fr") frenchSpacing(it) else it) } ?: "")
+                    exampleOf!! + AnnotatedString(shown.translation?.let { " — $languageName: " + typography(shown.language.orEmpty(), it) } ?: "")
                 else exampleOf!!
             } else AnnotatedString(preview?.definition ?: "")
             /* Keep the height of the row while the preview is loading */

@@ -147,8 +147,8 @@ class VikivortaroTest {
     @Test
     fun aTranslationOfOneSenseIsAlreadySaid() {
         /* Zelando: Seeland is Reta Vortaro's, for its first sense */
-        assertEquals(emptyList<String>(), Vikivortaro.frenchFor(listOf("Seeland"), "(1) Seeland, Sélande; (2) Zélande"))
-        assertEquals(listOf("Zeeland"), Vikivortaro.frenchFor(listOf("Seeland", "Zeeland"), "(1, 3) Seeland; (2) Zélande"))
+        assertEquals(emptyList<String>(), Vikivortaro.foreignFor(listOf("Seeland"), "(1) Seeland, Sélande; (2) Zélande"))
+        assertEquals(listOf("Zeeland"), Vikivortaro.foreignFor(listOf("Seeland", "Zeeland"), "(1, 3) Seeland; (2) Zélande"))
     }
 
     private fun trie(language: String): Trie {

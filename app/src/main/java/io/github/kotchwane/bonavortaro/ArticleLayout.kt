@@ -839,6 +839,10 @@ private fun markLinkTypes(content: Spanned, markLinkType: (LinkType, String) -> 
 
 private const val NARROW_NO_BREAK_SPACE = ' '
 
+/** A translation with the typography of its language: in French, its
+ * spaces before "!", "?", ";", ":" ([frenchSpacing]) */
+fun typography(language: String, text: String): String = if (language == "fr") frenchSpacing(text) else text
+
 /** French text as French typography writes it: a narrow no-break space
  * before "!", "?", ";" and ":". The space that may be there is replaced by
  * it, one already there kept: "bonjour!" and "bonjour !" are "bonjour !".

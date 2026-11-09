@@ -229,7 +229,8 @@
   <string name="viki_not_bold">La vortoj ne grasaj venas el Vikivortaro (CC\u00A0BY-SA\u00A04.0).</string>
   <string name="viki_not_bold_others">La aliaj vortoj ne grasaj venas el Vikivortaro (CC\u00A0BY-SA\u00A04.0).</string>
   <string name="viki_word_source">„%1$s“ venas el Vikivortaro (CC\u00A0BY-SA\u00A04.0).</string>
-  <string name="viki_in_french">franca: %1$s</string>
+  <!-- "franca: épicier": the name of the language, then its words -->
+  <string name="viki_in_language">%1$s: %2$s</string>
   <string name="not_in_revo">ne en Reta Vortaro</string>
   <!-- Vortoj de la bona lingvo (labonalingvo.org) -->
   <string name="bl_name">Vortoj de la bona lingvo</string>
@@ -270,15 +271,16 @@
   <!-- The Esperanto Wiktionary's definition of a word Reta Vortaro doesn't have -->
   <string name="sources_viki_eo">„%1$s“ kaj ĝia difino</string>
   <string name="sources_viki_eo_adapted">„%1$s“ kaj ĝia difino, adaptitaj por Bona vortaro</string>
-  <!-- With the French Wiktionary's too: "Vikivortaro (eo · fr)", each edition a link -->
+  <!-- With another Wiktionary's too: "Vikivortaro (eo · fr)", each edition a link. %1$s of the
+       next ones: the name of its language, "franca" -->
   <string name="sources_viki_editions">%1$s (%2$s · %3$s)</string>
   <string name="sources_viki_eo_fr">la difino kaj %1$s, adaptitaj por Bona vortaro</string>
-  <string name="sources_viki_fr_description">la franca priskribo</string>
-  <string name="sources_viki_fr_translations">la francaj tradukoj</string>
-  <!-- The definition as Wiktionary has it, the French adapted -->
+  <string name="sources_viki_foreign_description">la %1$s priskribo</string>
+  <string name="sources_viki_foreign_translations">la %1$sj tradukoj</string>
+  <!-- The definition as Wiktionary has it, the other language's words adapted -->
   <string name="sources_viki_eo_fr_as_is">la difino, kaj %1$s</string>
-  <string name="sources_viki_fr_description_adapted">la franca priskribo adaptita por Bona vortaro</string>
-  <string name="sources_viki_fr_translations_adapted">la francaj tradukoj adaptitaj por Bona vortaro</string>
+  <string name="sources_viki_foreign_description_adapted">la %1$s priskribo adaptita por Bona vortaro</string>
+  <string name="sources_viki_foreign_translations_adapted">la %1$sj tradukoj adaptitaj por Bona vortaro</string>
   <string name="sources_viki_word">„%1$s“ kaj ĝia priskribo, adaptitaj por Bona vortaro</string>
   <string name="about_viki_title">Vikivortaro</string>
   <string name="about_viki">Kelkaj vortoj kaj tradukoj, kiujn la Reta Vortaro ne havas, venas el Vikivortaro: francaj tradukoj kaj priskriboj el fr.wiktionary.org, kaj la difinoj de kelkcent esperantaj vortoj el eo.wiktionary.org, elektitaj unu post la alia. En la artikoloj ili havas punktitan substrekon, en la serĉo ili ne estas grasaj. Vikivortaro estas verkita de ĝiaj kontribuantoj kaj publikigita laŭ la permesilo CC\u00A0BY-SA\u00A04.0. Tiuj tradukoj kaj difinoj estas elektitaj kaj adaptitaj por Bona vortaro, kaj restas apartaj de la Reta Vortaro.</string>

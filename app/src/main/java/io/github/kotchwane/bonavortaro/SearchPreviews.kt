@@ -50,10 +50,10 @@ object SearchPreviews {
     fun example(context: Context, result: SearchResult, language: String, readerLanguages: List<String>): ExamplePreview? {
         if (!result.isExample)
             return null
-        /* Vikivortaro's French for an example Reta Vortaro doesn't
-         * translate into French, for those who read it */
-        val inFrench = Vikivortaro.inArticles(context)
-        val key = "${result.article}/${result.mark}/$language/${result.word}/$readerLanguages/$inFrench"
+        /* A Wiktionary's words for an example Reta Vortaro doesn't
+         * translate into its language, for those who read it */
+        val viki = Vikivortaro.shownLanguages(context)
+        val key = "${result.article}/${result.mark}/$language/${result.word}/$readerLanguages/${viki.map { it.code }}"
         examples.get(key)?.let { return it.example }
         val (layout, title) = layouts.get(result.article) ?: try {
             val article = ArticleLoader.load(context, result.article, onShowSection = {}, quoteColor = 0, languages = { true }, sources = false)
@@ -67,8 +67,8 @@ object SearchPreviews {
         }
         val entry = layout.words.firstOrNull { it.section == result.mark }
         val example = entry?.let {
-            exampleOf(it, result.word, language, readerLanguages, title) { example ->
-                if (inFrench) Vikivortaro.frenchForExample(context, example, null) else emptyList()
+            exampleOf(it, result.word, language, readerLanguages, title) { code, example ->
+                viki.firstOrNull { it.code == code }?.let { Vikivortaro.foreignForExample(context, it, example, null) }.orEmpty()
             }
         }
         examples.put(key, Found(example))
@@ -147,7 +147,8 @@ internal fun exampleOf(
     readerLanguages: List<String>,
     /** The title of the article, for a part without a word: "II." */
     articleTitle: String? = null,
-    vikiFrench: (String) -> List<String> = { emptyList() },
+    /** The words that the Wiktionary of a language gives for an example */
+    vikiWords: (language: String, example: String) -> List<String> = { _, _ -> emptyList() },
 ): ExamplePreview? {
     val own = entry.title.toString().split(',').first().trim()
     val title = if (Regex("^[IVXL]+\\.?$").matches(own) && articleTitle != null) articleTitle else own
@@ -159,15 +160,17 @@ internal fun exampleOf(
         val examples = entry.translations.flatMap { t -> t.examples.map { t.language to it } }
         val found = examples.firstOrNull { phraseKey(it.second.example) == searched }
             /* An example Reta Vortaro translates into no language, whose
-             * French only Vikivortaro has: "drinki kiel funelo" */
+             * translation only a Wiktionary has: "drinki kiel funelo" */
             ?: run {
-                val french = vikiFrench(word).takeIf { it.isNotEmpty() } ?: return null
-                return ExamplePreview(word, title, "fr", french.joinToString(", "))
+                val (code, words) = VikiLanguage.ALL.firstNotNullOfOrNull { viki ->
+                    vikiWords(viki.code, word).takeIf { it.isNotEmpty() }?.let { viki.code to it }
+                } ?: return null
+                return ExamplePreview(word, title, code, words.joinToString(", "))
             }
         val translated = readerLanguages.firstNotNullOfOrNull { reader ->
             examples.firstOrNull { it.first == reader && phraseKey(it.second.example) == searched }
                 ?.let { reader to it.second.text }
-                ?: if (reader == "fr") vikiFrench(found.second.example).takeIf { it.isNotEmpty() }?.let { reader to it.joinToString(", ") }
+                ?: if (VikiLanguage.of(reader) != null) vikiWords(reader, found.second.example).takeIf { it.isNotEmpty() }?.let { reader to it.joinToString(", ") }
                 else null
         }
         return ExamplePreview(found.second.example, title, translated?.first, translated?.second)

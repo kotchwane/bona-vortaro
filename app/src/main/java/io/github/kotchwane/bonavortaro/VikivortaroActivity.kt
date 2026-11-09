@@ -81,10 +81,10 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 /** A word found only in Vikivortaro, among the search results or in the
- * history, like Reta Vortaro's words but not bold: a French word, with its
- * Esperanto word and the start of its definition (Reta Vortaro's, else
- * Vikivortaro's description); or an Esperanto word, with its French words
- * if the reader chose French. Like [ResultRow], with its label, long press
+ * history, like Reta Vortaro's words but not bold: a word of another
+ * language, with its Esperanto word and the start of its definition (Reta
+ * Vortaro's, else Wiktionary's description); or an Esperanto word, with
+ * the words of the language of its Wiktionary if the reader chose it. Like [ResultRow], with its label, long press
  * and button. */
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -94,23 +94,24 @@ fun VikiResultRow(
     label: String? = null,
     onLongClick: (() -> Unit)? = null,
     action: (@Composable () -> Unit)? = null,
-    /** Whether Vikivortaro's French shows: the French translations do */
-    inFrench: Boolean = Vikivortaro.inArticles(LocalContext.current),
+    /** Whether the words of the result's Wiktionary show: the translations
+     * in its language do */
+    inLanguage: Boolean = VikiLanguage.of(result.language)?.let { Vikivortaro.inArticles(LocalContext.current, it) } == true,
 ) {
     val context = LocalContext.current
-    /* Reta Vortaro's definition; else Vikivortaro's French description,
-     * only for those who chose to see the French translations */
-    val description = result.description.takeIf { inFrench }
+    /* Reta Vortaro's definition; else Wiktionary's description, only for
+     * those who chose to see the translations in its language */
+    val description = result.description.takeIf { inLanguage }
     /* Read already, when the row comes back into view: as it was, at once */
     val known = remember(result) { result.revo?.let { SearchPreviews.peek(it) } }
     var severalSenses by remember(result) { mutableStateOf(known?.severalSenses == true) }
-    val definition by produceState(if (result.revo != null) known?.definition else description, result, inFrench) {
+    val definition by produceState(if (result.revo != null) known?.definition else description, result, inLanguage) {
         /* The row may have shown another word just before: its own text
          * at once, whatever follows */
         value = if (result.revo != null) known?.definition else description
         result.revo?.let { revo -> withContext(Dispatchers.IO) { SearchPreviews.get(context, revo) } }?.let {
             /* Not the first of several senses: Wiktionary doesn't say which
-             * one its French word is ("cafetière", not kafujo's tree) */
+             * one its word is ("cafetière", not kafujo's tree) */
             severalSenses = it.severalSenses
             value = it.definition
         }
@@ -147,7 +148,7 @@ fun VikiResultRow(
                             style = MaterialTheme.typography.titleMedium,
                             color = bonaDesign.headword,
                         )
-                    /* A French word: "potiron → kukurbo", as Reta Vortaro's,
+                    /* A word of another language: "potiron → kukurbo", as Reta Vortaro's,
                      * not bold */
                     else
                         Text(
@@ -166,20 +167,24 @@ fun VikiResultRow(
                         modifier = Modifier.padding(start = 12.dp),
                     )
             }
-            /* A French word that Reta Vortaro doesn't have, of which the
-             * French Wiktionary says nothing ("maison de thé → teejo"): no
+            /* A word that Reta Vortaro doesn't have, of which its
+             * Wiktionary says nothing ("maison de thé → teejo"): no
              * second line, rather than an empty one. One that Reta Vortaro
              * has keeps its line while its definition is read. */
             val nothingToSay = advice == null && !result.inEsperanto && (severalSenses ||
                 result.revo == null && (definition ?: result.description).isNullOrEmpty())
             /* Found in Esperanto: its Esperanto definition, for everyone;
-             * else what it says in French, saying so */
+             * else what it says in the other language, saying so */
             if (!nothingToSay) Text(
                 advice?.let { preferredLine(it) } ?: AnnotatedString(if (result.inEsperanto)
                     if (result.definition != null)
                         result.definition
-                    else if (inFrench)
-                        stringResource(R.string.viki_in_french, result.frenchWords.joinToString(", ")) +
+                    else if (inLanguage)
+                        stringResource(
+                            R.string.viki_in_language,
+                            LanguageList.getDefault(context).getLanguageName(result.language),
+                            result.foreignWords.joinToString(", "),
+                        ) +
                             (result.description?.let { " — $it" } ?: "")
                     /* Nothing in the reader's languages */
                     else stringResource(R.string.not_in_revo)
@@ -195,8 +200,8 @@ fun VikiResultRow(
     }
 }
 
-/** An Esperanto word that Reta Vortaro doesn't have, with the French words
- * that the French Wiktionary translates by it, and its description. */
+/** An Esperanto word that Reta Vortaro doesn't have, with the words that
+ * each Wiktionary translates by it, and its description. */
 class VikivortaroActivity : BonaActivity() {
 
     companion object {
@@ -209,7 +214,7 @@ class VikivortaroActivity : BonaActivity() {
 
     /* The settings, read again when coming back to the page: they may have
      * changed in between, eg. from its own settings button */
-    private var inFrench by mutableStateOf(false)
+    private var vikiLanguages by mutableStateOf(emptyList<VikiLanguage>())
     private var textSize by mutableIntStateOf(BonaSettings.DEFAULT_TEXT_SIZE)
     /* A root opened from this page: a second tap opens nothing more until
      * the reader is back */
@@ -222,7 +227,7 @@ class VikivortaroActivity : BonaActivity() {
 
     override fun onStart() {
         super.onStart()
-        inFrench = Vikivortaro.inArticles(this)
+        vikiLanguages = Vikivortaro.shownLanguages(this)
         textSize = BonaSettings.getTextSize(this)
     }
 
@@ -234,7 +239,7 @@ class VikivortaroActivity : BonaActivity() {
             BonaTheme {
                 VikiPage(
                     word,
-                    inFrench = inFrench,
+                    vikiLanguages = vikiLanguages,
                     textSize = textSize,
                     onOpenEntry = { entry ->
                         startActivity(
@@ -258,7 +263,7 @@ class VikivortaroActivity : BonaActivity() {
 @Composable
 private fun VikiPage(
     word: String,
-    inFrench: Boolean,
+    vikiLanguages: List<VikiLanguage>,
     textSize: Int,
     onOpenEntry: (SearchResult) -> Unit,
     onOpenRoot: (Int) -> Unit,
@@ -273,14 +278,14 @@ private fun VikiPage(
             loadNeighbours({ ArticleLoader.load(context, it, onShowSection = {}, quoteColor = QUOTE_COLOR) }, listOf(place - 1, place))
         }
     }
-    /* What Vikivortaro says of it is French: only for those who chose to
-     * see the French translations, as in the articles; for the others,
-     * the page has nothing in their languages, yet */
-    val french by produceState(emptyList<String>(), word, inFrench) {
-        value = if (inFrench) withContext(Dispatchers.IO) { Vikivortaro.frenchOf(context, word) } else emptyList()
-    }
-    val description by produceState<String?>(null, word, inFrench) {
-        value = if (inFrench) withContext(Dispatchers.IO) { Vikivortaro.description(context, word) } else null
+    /* What each Wiktionary says of it, in its language: only for those
+     * who chose to see the translations in that language, as in the
+     * articles; for the others, the page has nothing in their languages */
+    val foreign by produceState(emptyList<ForeignWords>(), word, vikiLanguages) {
+        value = withContext(Dispatchers.IO) {
+            vikiLanguages.map { ForeignWords(it.code, Vikivortaro.foreignOf(context, it, word), Vikivortaro.description(context, it, word)) }
+                .filter { it.words.isNotEmpty() || it.description != null }
+        }
     }
     /* Its definition in the Esperanto Wiktionary, for every reader; what
      * "Vortoj de la bona lingvo" says of it; and whether they were read:
@@ -293,8 +298,8 @@ private fun VikiPage(
     val advice = read?.advice
     /* Without them, how the word may be built, as for a word nobody has:
      * "femurosto", femur + osto */
-    val analysis by produceState<ShownAnalysis?>(null, word, inFrench, read) {
-        value = if (definitionRead && definition == null && advice == null && !inFrench)
+    val analysis by produceState<ShownAnalysis?>(null, word, vikiLanguages, read) {
+        value = if (definitionRead && definition == null && advice == null && vikiLanguages.isEmpty())
             withContext(Dispatchers.IO) { WordAnalyses.find(context, word, needsEnding = true) }
         else null
     }
@@ -333,13 +338,13 @@ private fun VikiPage(
                 .navigationBarsPadding(),
         ) {
             /* A card like Reta Vortaro's, saying that the word isn't there.
-             * The word analysis only when there is no French to read: the
-             * French says what the word means, a guess from its pieces can
+             * The word analysis only when there is no Wiktionary language to
+             * read: its words say what the word means, a guess from its pieces can
              * be wrong ("potirono" isn't po + tir + ono). */
             /* A word only "Vortoj de la bona lingvo" has: not an entry, a
              * note that it isn't in the dictionary, and what to say instead
              * (user, 2026-10-27) */
-            val onlyInList = read?.inViki == false && definition == null && french.isEmpty() && description == null
+            val onlyInList = read?.inViki == false && definition == null && foreign.isEmpty()
             if (onlyInList && advice != null)
                 ListOnlyNote(word, advice, read!!, onOpenEntry)
             else
@@ -372,7 +377,7 @@ private fun VikiPage(
                     val origin = stringResource(
                         when {
                             read == null -> R.string.not_in_revo
-                            !(read!!.inViki || french.isNotEmpty() || description != null) ->
+                            !(read!!.inViki || foreign.isNotEmpty()) ->
                                 if (advice != null) R.string.from_bl_not_in_revo else R.string.not_in_revo
                             advice != null -> R.string.from_viki_bl_not_in_revo
                             else -> R.string.from_viki_not_in_revo
@@ -409,12 +414,12 @@ private fun VikiPage(
                             }
                         }
                     }
-                    if (french.isNotEmpty() || description != null) {
-                        /* The French words, then the description when it
-                         * says more than them */
+                    for ((code, words, description) in foreign) {
+                        /* Its words, then the description when it says
+                         * more than them */
                         Row(Modifier.padding(top = 10.dp)) {
                             Text(
-                                LanguageList.getDefault(context).getLanguageName("fr"),
+                                LanguageList.getDefault(context).getLanguageName(code),
                                 style = MaterialTheme.typography.bodySmall.copy(fontStyle = FontStyle.Italic),
                                 color = muted,
                                 maxLines = 1,
@@ -423,8 +428,8 @@ private fun VikiPage(
                                 modifier = Modifier.widthIn(min = 52.dp).padding(top = 2.dp, end = 12.dp),
                             )
                             Column {
-                                if (french.isNotEmpty())
-                                    Text(french.joinToString(", "), style = MaterialTheme.typography.bodyLarge)
+                                if (words.isNotEmpty())
+                                    Text(words.joinToString(", "), style = MaterialTheme.typography.bodyLarge)
                                 description?.let {
                                     Text(
                                         it,
@@ -445,14 +450,16 @@ private fun VikiPage(
             /* Under the card, as in an article */
             /* Not without a source to name: a page reached from a word to say
              * that only has its analysis */
-            val hasSource = read?.let { french.isNotEmpty() || description != null || definition != null || it.inViki || advice != null } == true
+            val hasSource = read?.let { foreign.isNotEmpty() || definition != null || it.inViki || advice != null } == true
             if (hasSource) SourcesLine(
                 revo = false,
-                /* The French Wiktionary when its French is shown, or
-                 * when the word comes from it only */
-                viki = french.isNotEmpty() || description != null || (definition == null && read!!.inViki),
+                /* A Wiktionary when its words are shown, or when the word
+                 * comes from it only */
+                vikiLanguages = foreign.map { it.language }.ifEmpty {
+                    if (definition == null && read!!.inViki) listOfNotNull(read!!.vikiLanguage) else emptyList()
+                },
                 vikiWord = word,
-                vikiDescription = french.isNotEmpty() || description != null,
+                vikiDescription = foreign.isNotEmpty(),
                 vikiEsperanto = definition,
                 bonaLingvo = advice != null,
                 modifier = Modifier.padding(horizontal = 8.dp, vertical = 10.dp),
@@ -484,6 +491,8 @@ private class PageSources(
     val withPage: Set<String>,
     val firstDefinition: String?,
     val inViki: Boolean,
+    /** The first language whose Wiktionary has the word */
+    val vikiLanguage: String?,
 ) {
     companion object {
         fun read(context: Context, word: String): PageSources {
@@ -499,7 +508,7 @@ private class PageSources(
             val first = advice?.preferred?.firstOrNull()?.let { targets[it.word] }
             val withPage = advice?.preferred.orEmpty().map { it.word }.filter { it !in targets }.filter {
                 val target = BonaLingvo.withoutBrackets(it)
-                Vikivortaro.esperantoResult(context, target) != null || Vikivortaro.frenchOf(context, target).isNotEmpty() ||
+                Vikivortaro.esperantoResult(context, target) != null || Vikivortaro.anyForeignOf(context, target) ||
                     BonaLingvo.entry(context, target) != null
             }.toSet()
             return PageSources(
@@ -508,7 +517,9 @@ private class PageSources(
                 targets = targets,
                 withPage = withPage,
                 firstDefinition = first?.let { SearchPreviews.get(context, it)?.definition },
-                inViki = Vikivortaro.esperantoResult(context, word) != null || Vikivortaro.frenchOf(context, word).isNotEmpty(),
+                inViki = Vikivortaro.esperantoResult(context, word) != null || Vikivortaro.anyForeignOf(context, word),
+                vikiLanguage = Vikivortaro.esperantoResult(context, word)?.language
+                    ?: VikiLanguage.ALL.firstOrNull { Vikivortaro.foreignOf(context, it, word).isNotEmpty() }?.code,
             )
         }
     }
@@ -612,3 +623,7 @@ private fun AdviceText(
             color = muted,
         )
 }
+
+/** What the Wiktionary of [language] says of a word: its words for it, and
+ * its description when it says more */
+private data class ForeignWords(val language: String, val words: List<String>, val description: String?)
