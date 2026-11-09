@@ -195,11 +195,13 @@ if os.path.exists(REJECTED):
             fields = row.rstrip("\n").split("\t")
             if not row.startswith("#") and len(fields) >= 2:
                 rejected.add((fields[0], fields[1]))
-translations -= rejected
 
-# Only the descriptions of the words that the French words lead to
+# Only the descriptions of the words that the foreign words lead to, counted
+# before the rejections: a description stays useful when only one pair leading
+# to it was wrong ("minuskla: Lowercase." gives lowercase → minuskla)
 wanted = {esperanto for _, esperanto in translations}
 descriptions = {k: v for k, v in descriptions.items() if k in wanted}
+translations -= rejected
 
 os.makedirs(OUT, exist_ok=True)
 date = dates[0] if dates else ""

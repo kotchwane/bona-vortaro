@@ -1,42 +1,326 @@
 # English → Esperanto pairs of the English Wiktionary that Bona vortaro leaves out: not translations
 # (wrong meaning, a description taken for a word, a misleading word class). Never for being offensive.
-# Reviewed 2026-11-09. Read by scripts/vikivortaro.py. Columns: the English word, the Esperanto word, why.
+# Reviewed 2026-11-09: every pair taken from descriptions and every pair of the translation tables that Reta Vortaro lacks.
+# Read by scripts/vikivortaro.py. Columns: the English word, the Esperanto word, why.
+a bird in the hand is worth two in the bush	pli bona ol dek branĉoj sur centono	garbled proverb ('ten branches on a centono'); not a real Esperanto saying
+aback	malantaŭa	adjective for an adverb; aback = malantaŭen
+abandonment	dezerteco	'dezerteco' = desertedness, not the act of abandoning (forlaso)
+abandonment	natureco	'natureco' = naturalness, not the act of abandoning (forlaso)
 accidence	hazardo	accidence = grammatical inflection, not chance
+aircraft carrier	aviadilporta	adjective fragment ('aircraft-carrying') for a noun; aviadilŝipo
+alexandrine	aleksandro	'aleksandro' = Alexander; the verse is aleksandrino
+Ali	Eljo	Eljo is not a rendering of Ali (Alio)
+all work and no play makes Jack a dull boy	ĉiom da laboro kaj neniom da ludoj igas Jakobon al obtuza knabo	ungrammatical 'igas Jakobon al obtuza knabo' (igi needs no 'al')
+alternatively	alterne	alterne = alternately, not alternatively (alternative)
+ambassadress	ambasadorinedzino	'wife of a female ambassador', garbled
+Americanism	amerikanisme	adverb form; should be amerikanismo
+androgyny	ambaŭseksa	adjective 'ambaŭseksa' for the noun androgyny (androginismo/ambaŭsekseco)
+animator	animisto	'animisto' = an animist; animator is animaciisto
+antibody	antipartiklo	'antipartiklo' = antiparticle, not antibody
+at a time	samtempe	samtempe = simultaneously, not at a stretch
+at length	laŭlonge	laŭlonge = lengthwise, along
 attested	atesta	atesta = testimonial; attested = atestita
+Austin	Aŭguĉjo	Aŭguĉjo is a pet form of Aŭgusto, not the surname Austin
+avarice	avaro	avaro = miser; avarice = avareco
+avuncular	onklina	onklina = aunt-like
+away with the fairies	for kun la feinoj	literal calque of an idiom; senatenta, revema
+b	bit	fragment; Esperanto word is bito
+backstage	kuliso	noun kuliso (stage wing) for an adjective
+bankrupt	bankroti	bankroti intransitive; bankrotigi
+Baptist	baptisma	baptisma means of baptism; the denomination is baptista
+bass guitar	malalta	malalta = low (adjective)
+beside oneself	krom si mem	calque meaning besides oneself; ekster si
+between Scylla and Charybdis	fali de sitelo en barelon	means from bad to worse; inter Scila kaj Karibdo
+biological warfare	giggity goo	garbage
+biological warfare	kfds	garbage
+black-and-white	negroblanka	negro- root, should be nigrablanka
+black-box testing	nigraskatolo testado	ungrammatical; nigraskatola testado
+bloodbath	samgoveršado	misspelt; sangoverŝado
+boarding pass	ŝipa bileto ŝipobileto	two forms joined, and ship ticket is not a boarding pass
+brazen	bronza	bronza = bronze; brass is latuna
+brute force	burtforta metodo	misspelt; brutforta metodo
+cavort	ĉirkausalti	misspelt; should be ĉirkaŭsalti
+cephalic	testa	testo is a shell/test; head-related is kapa
+choke down	sufokiĝi	sufokiĝi = to choke/suffocate, not to swallow with difficulty
+Christmas Day	kristnaskotago. Kristnaska Tago	two alternatives joined in one entry
+cistus	kisto	kisto is a cyst; Cistus is cisto
 clam	muslo	muslo = mussel, not clam
+clock cycle	traktoperiodo	misspelt taktoperiodo (trakto = tract)
+coaster	marborda navigado	coastal navigation, not a vessel
+coaster	marborda ŝiptrafiko	coastal shipping traffic, not a vessel
+coaster	marborduloj	coast dwellers, not a vessel
+cockfight	batalkoko	batalkoko is a fighting cock, not the fight
+cockfighting	batalkoko	batalkoko is a fighting cock, not the sport
+color depth	kolorozo	unknown coinage (-ozo); kolorprofundo
+come-on	venu	imperative 'come!' for a noun meaning inducement
+coming-out	elŝrankiĝi	verb for a noun; elŝrankiĝo
+commuter rail	aglomeraĵo fervojo	ungrammatical noun+noun; aglomeracia fervojo
 concerning wolves	lupa	gloss phrase, not an English word
+confirmed bachelor	neniam edziĝis	a clause 'never married', not a noun
+conscript	konskripto	konskripto is conscription; konskriptito
+consist of	konsistanta el	participle form; konsisti el
+consuming	konsumema	konsumema = prone to consume, not absorbing
+control variable	iteracinombrilo	loop counter, not a controlled experimental factor
+cope	daŭri	daŭri = to last
 corner	angula	English noun corner given adjective angula
+cornett	klariono	klariono is a clarion (trumpet), not a cornett
 coronation	enposteniĝo	enposteniĝo = taking office; coronation = kronado
+cringe	ŝrumpaĵo	noun 'shrunk thing' for a verb meaning to wince
+cut out	altranĉi	altranĉi = cut to shape/size, not sever (fortranĉi, eltranĉi)
+cut the mustard	tranĉi la mustardon	literal calque of the idiom; meaningless in Esperanto
+Cypriot	kipro	Kipro is the island; the person is kiprano
+days of yore	praantaŭ	fragment, not a word for days of yore
+delete	eksigi	eksigi = dismiss someone from a post, not delete
 denotes opposites	mal-	description, not a word
+departure	disiĝo foriro	two alternatives joined in one entry
 description	diskuto	diskuto = discussion, not description
+dipteral	diptero	diptero is the noun (insect order), not an adjective
+discolored	diskolora	diskolora is not a word for discolored (senkolorigita, malkolorigita)
 dissolute	fi-	adjective given the prefix fi-
+dolphinarium	delfenario	misspelling; delfeno is not a word (delfinario)
+don't ask	ne petu	ne petu = don't request; 'don't ask' = ne demandu
+dour	aǔstera	malformed spelling with ǔ (caron) instead of ŭ
+drench	irigacii	irigacii = irrigate, not drench
+driven	devigita	devigita = forced/compelled, not driven/motivated
+dudette	ulo	ulo is masculine/neutral, not dudette
+Eastern European	Okcident-Eŭropa	Okcident-Eŭropa means Western European; Orient-Eŭropa
+electrocardiograph	elektrokardiografio	elektrokardiografio is the technique; the device is elektrokardiografo
 emphatic particle	ja	description, not a word
+engaged	fianĉiĝita	fianĉiĝi is intransitive; fianĉiĝinta
+entresol	etaĝo	etaĝo = any floor; entresol = interetaĝo
+eschew	negi	negi means deny, not avoid
+exceeding	tre ega	'tre ega' is a garbled fragment
 exemplary	ekzemplero	ekzemplero = a copy/specimen, not exemplary
+exhibitionism	ekshibicio	ekshibicio = exhibition/display, not exhibitionism (ekshibiciismo)
+expectant	atendema	atendema = expectant (waiting), not pregnant (graveda)
+extant	daŭras ĝis nuntage	verb clause for an adjective (ankoraŭ ekzistanta)
+extant	nemalaperi	verb infinitive for an adjective, odd 'nemalaperi'
+extortion	malhonestaĵo	malhonestaĵo = any dishonest act, not extortion
+fall victim	iĝis viktimo	inflected past tense; should be (iĝi viktimo / viktimiĝi)
+fashy	faŝo	noun for an adjective (faŝisma)
+fatalistically	fatalisma	adjective for an adverb (fatalisme)
+fire basket	fajrokorboj	plural form as headword
 firstborn	lastenaskito	lastenaskito = last-born, opposite of firstborn
+fishing	fiŝkapti	verb for a noun (fiŝkaptado)
+flintlock	blunderbuzo	blunderbuzo = blunderbuss, a different firearm
+folk etymology	paretologio	misspelt; paretimologio
+foobar	ajn	ajn (any) is not a placeholder name
+forbidden	malpermesa	malpermesa = prohibiting; forbidden = malpermesita
+fossa	foso	foso = ditch; the animal is fosao / kriptoprokto
+freestyle skiing	libertstila skiado	misspelt; liberstila skiado
+fussy	finika	not an Esperanto word
+Gaelic football	pejlo	pejlo is a sounding/bearing; Gaela piedpilko
+gasthaus	gastejoj	plural form as headword
+gemütlich	ujutna	Russian word, not Esperanto; komforta, hejmeca
+gendarmerie	ĝendarmo	ĝendarmo is the person; the body is ĝendarmaro
+German Empire	Germano Regno	Germano is a person; Germana Imperio / Germana Regno
+give a shit	fajfi pri	fajfi pri = not care (opposite of the given sense 'to care')
+give a shit	prifajfi	prifajfi = not care (opposite of the given sense 'to care')
+glare	kolerrigard	verb missing -i ending (kolere rigardi)
+gossipy	ĉikanema	ĉikanema = prone to chicanery/harassment, not gossip
+GPS receiver	birilo	birilo means skittle/ninepin; GPS-ricevilo
+great egret	lertxuntxo handia	Basque, not Esperanto (granda egreto/blanka ardeo)
+great-grandfather-in-law	prapatro	prapatro = ancestor; should be bopraavo
+Grim Reaper	Mortulo	mortulo means a dead person, not the personification of Death
+grisly	malbelega	malbelega = very ugly, not gruesome/terrifying
+grit	knari	knari = to creak; gritting teeth is grinci (dentojn)
+grok	povoscii	'povoscii' is not an Esperanto word; fragment/garbage
+groomer	pederasto	pederasto = pederast, not a groomer
+guerrilla	gerilano gerilisto	two alternatives joined in one entry
+gyration	ĝirado	ĝiri = transfer money (giro); gyration is turniĝado/rotacio
+haily	hajlaj	inflected plural adjective form as headword
+hand off	delokigi	delokigi = displace/move away, not pass to someone
+haunting	sorĉado	sorĉado = bewitching/sorcery, not haunting by a ghost
 heartbreakingly	oj	oj is an interjection (ouch), not an adverb
+hello there	saluton ĉiuj	saluton ĉiuj = hello everyone, not 'hello there'
+high five	doni alt-frapo	ungrammatical: missing accusative (doni alt-frapon)
+high five	doni alt-kvino	ungrammatical: missing accusative, and alt-kvino is an odd calque
+him	al	fragment: preposition 'al' alone
 hypoglossal nerve	hipogloso	hipogloso = halibut, not the hypoglossal nerve
+I don't care	mi ne fajfas	the idiom is mi fajfas pri tio; mi ne fajfas means I am not whistling
+I don't speak English	mi ne parolas Esperanton	says I don't speak Esperanto; placeholder entry
+ice cream parlor	glaciaĵisto	glaciaĵisto = ice-cream maker/seller (person); the shop is glaciaĵejo
 ice group	glaciaro	ice group is not English; glaciaro = glacier
+ignorance is bliss	senscio estas beato	beato = a beatified/blessed person, not bliss (beateco/feliĉo)
+impermissible	malpermesebla	malpermesebla = 'can be forbidden'; impermissible is nepermesebla
 imprudent	perversa	perversa = perverse, not imprudent
+in accordance with	graŭ	graŭ means 'thanks to' (dank' al); 'in accordance with' is laŭ
+in-flight	fluganta	fluganta = flying; in-flight (during the flight) is dumfluga
+including	inkluzivida	not a word; 'including' is inkluzive (de)
+indecipherable	malĉifri	malĉifri is a verb meaning 'to decipher', the opposite
+independence	sendependenco	malformed hybrid (-enco); the word is sendependeco
 indicates repetition	re-	description, not a word
 inequity	misproporcio	misproporcio = disproportion, not unfairness
 infant	infana	English noun infant given adjective infana (childish)
+inoperable	nefunkciantaj	inflected plural adjective form as headword
+interspersed	intermetitaj	inflected plural adjective form as headword
+ironclad	kirasa	adjective 'armoured' for noun ship; kirasŝipo
+irresistible grace	nekontraŭstarebla gracio	gracio = gracefulness; divine grace is graco
+it's	estas. ĝi estas	garbage fragment 'estas. ĝi estas'
+it's about time	jam temp' está	garbage, 'está' is Spanish/Portuguese
+itsy-bitsy	minuskla	minuskla = lowercase (letter), not tiny
+jeer	ŝerci	ŝerci = to joke, not to jeer
+jetsam	fuko	fuko = Fucus seaweed, not jetsam (forĵetaĵo)
+jigsaw	ĵigo	ĵigo = jig (dance); jigsaw is fretsegilo
+jilt	forlasito	forlasito = the one jilted, sense is the jilter
+just in case	divenprove	divenprove = by guessing; por la okazo
+juxtaposition	nominacio	nominacio = nomination; confused with grammar term
+kismet	sorco	sorco not a word (sorĉo = witchcraft); sorto
+lean-to	sxirmejo	x-system spelling; ŝirmejo
+lean-to	sxirmkonstruajxo	x-system spelling; ŝirmkonstruaĵo
+living wage	dumviva salajro	dumviva = lifelong; living wage is vivtena salajro
 loudly	maltrankvile	maltrankvile = restlessly/anxiously, not loudly
+luster	jarkvino	garbage, not a word
+luster	pendlumigilo	pendlumigilo = chandelier (lustre confusion)
+luxuriance	lukseco	lukseco = luxury, not lush growth; abundeco
+magma chamber	magma kameno	kameno = fireplace; magma ĉambro
+mainframe	ĉeforgano	ĉeforgano = main organ, not computer
+Manchurian	manĉura	adjective given for a noun (inhabitant): manĉuriano
+measured	laŭmezura	laŭmezura = made to measure; modera/sinregata
+MEP	eŭropoparlamenrano	misspelling (eŭropoparlamenrano for eŭropparlamentano)
+metaphysician	metafisikisko	malformed suffix; metafizikisto
+milksop	invertito	invertito = homosexual (derogatory), not weakling
+millennialist	miljarismo	miljarismo is the doctrine (millenarianism); person is miljaristo
+ministration	ministerio	ministerio is a government ministry, not act of ministering
+Mirandese	mirandese	Italian/English form, not Esperanto; -e makes it an adverb (miranda lingvo)
+mongrel	senrasa	adjective "mixed-breed" for a noun; senrasulo
+mopping	ŝvabradi	verb for a noun; ŝvabrado
+mutator	mutaciulo	mutaciulo = a mutant; the causer is mutaciigilo/mutacianto
+nail file	ungofajliloj	plural form for a singular noun
+namespace	nomspacoj	plural form for a singular noun
+natural child	eksteredzeco	eksteredzeco = illegitimacy (quality); child is eksteredzecido
+need not	devi ne	"devi ne" = must not; need not is "ne devi"
 niche nook	niĉo	'niche nook' is not an English term (garbled list)
+no smoking	malpermesi fumi	"to forbid smoking" verb phrase; notice is "ne fumu / fumado malpermesita"
 noisily	maltrankvile	maltrankvile = restlessly/anxiously, not noisily
+noxious	venefna	misspelling/garbage; venena
+off-roader	ajnagrundaj aŭtomobiloj	plural form for a singular noun
+once again	reen	reen = back(wards), not "again"
+one's bark is worse than one's bite	ŝelo estas pli malbona ol via mordo	ŝelo = tree bark, not a dog's bark (bojo); also wrong pronoun
+Orthodox Church	Ortodoxa Eklesio	non-Esperanto spelling "Ortodoxa" (x); Ortodoksa Eklezio
+out of order	nefunkciantaj	plural form for a singular phrase
+overground	aglomeraĵo fervojo	ungrammatical (aglomeraĵa fervojo)
 painfully	oj	oj is an interjection (ouch), not an adverb
+paronymous	paronimo	noun "paronym" for an adjective; paronima
 pasta-like dumplings	nokoj	description, not an English term (gnocchi)
+pat	tapeti	tapeti = to wallpaper; pat is frapeti
+penduline tit	remizedoj	plural family name (Remizidae); remizo
+persona non grata	persono non plaĉa	half-Latin hybrid; should be persona non grata or nedezirata persono
+pesky	incitema	incitema means irritable (easily irritated), not irritating (ĝena, incitiga)
+petulant	petola	false friend: petola means mischievous/playful, not peevish
+piss off	fotri	fotri means to fuck, not to annoy
 pleased	plaĉita	plaĉita is ungrammatical (plaĉi intransitive); pleased = kontenta
+political party	politiko partio	ungrammatical; politika partio
+posh	dando	dando is a noun (dandy), not an adjective
+posh	snobo	snobo is a noun (snob); snoba
+postmark	poŝtmarko	poŝtmarko is a postage stamp; postmark is poŝtstampo
 prehistoric	pra-	prefix pra-, not an adjective (prahistoria)
+premarital	aŭtaŭedziĝa	typo; antaŭedziĝa
+prime factor	prima faktorigo	prima faktorigo is prime factorization, not a prime factor
 primordial	pra-	prefix pra-, not an adjective (praa, primordia)
 pristine	antaŭa	antaŭa = front/former, not pristine (unspoiled)
+pristine	primitiva	primitiva means primitive, not unspoiled (netuŝita, pura)
+prod	palpi	palpi means to feel/touch, not to poke (piki, puŝeti)
 puppy	hundida	hundida is an adjective; puppy = hundido
+Quenya	quenya	non-Esperanto spelling with q; kvenja
+readworthy	leĝinda	typo: leĝinda = worthy of law; leginda
+redirect	nomumi	nomumi means to appoint; alidirekti/plusendi
+reproduction	reprodukto generado	two alternatives run together; reproduktado/generado
+romanticist	romanikisto	romaniko is Romanesque art; romantikisto needed
 romanticist	romanikulo	romanikulo relates to Romanesque; romanticist = romantikulo
+roughness	maltrankvileco	maltrankvileco = restlessness; roughness = malglateco/krudeco
 sadly	oj	oj is an interjection (ouch), not an adverb
+sailing	lofado	lofi = luff (turn into wind), not sailing in general
 sailing	lofi	lofi is a verb (to luff), not the adjective sailing
+sailing	navigi	verb for adjective sense
+sailing	veladi	verb for adjective sense
+sailing	ŝipiri	verb for adjective sense
+saint	sanktulino sankta	garbage: two words joined
+screw the pooch	fleksiĝi	fleksiĝi = to bend; no sense of failing
 scum	ŝaŭmo	ŝaŭmo = foam; does not mean reprehensible people
+secret ballot	sekreta voĉdonrajto	voĉdonrajto = right to vote, not a ballot
+see you later	ĝis baldaŭ ĝis la revido	two alternatives joined in one entry
+serrated	denta	denta = of teeth; serrated = dentita/segildenta
+shirk	eskapeviti	garbage: eskapi and eviti merged
+sieving	kribro	kribro = the sieve itself; kribrado
+singsong	kvazaŭ kanti	verb phrase for a noun (monotonous tone); kantado
+skill	lerteco lerto	two alternatives joined in one entry
+skyward	ĉiela	ĉiela = celestial; ĉielen(a)
+Sleeping Beauty	La dormanta belulo	masculine "belulo" for the female title character (Dormanta Belulino)
+slice of life	sekco de vivo	sekco is not a word (sekcio/tranĉaĵo)
 slutty	fi-	fi- is a general pejorative prefix, not an adjective for slutty
+smoking jacket	smokingo	smokingo = tuxedo/dinner jacket, not smoking jacket
+so much	tiamaniere	tiamaniere = in that manner; tiom
+sod	turfo	turfo = racecourse/turf racing; sod = gazono/herbotavolo
+spankingly	malvarme	malvarme = coldly; spankingly = vigorously/freshly
+specially	spefice	typo/garbage (specife or speciale)
+spinning jenny	špinolo Jenny	garbage: Czech š, malformed
+squamous	skavmplena	misspelling of skvamplena
+squirm	svingiĝi	svingiĝi = swing; squirm = tordiĝi
+stateless	senŝtateco	noun (statelessness) for adjective; = senŝtata
+streamlet	kanaleto	kanaleto = small canal/channel; streamlet = rojeto
+stumped	trompus	trompus = 'would deceive'; stumped = konfuzita/perpleksa
+subliminal message	sublima mesaĝo	sublima = sublime; confusion with subliminal (subsojla)
 successionist	sendependisto	successionist is a misspelling of secessionist
+surcharge	taksi	taksi = assess/estimate; surcharge = alpagigi
 surrounding	ĉirkaŭe	ĉirkaŭe is an adverb; surrounding (adj) = ĉirkaŭa
+Svalbard and Jan Mayen Islands	Jan-majen-insulo	only Jan Mayen, omits Svalbard
+sweet nothings	paroli dolĉe en la orelon	verb phrase 'speak sweetly in the ear' for a noun
+swelter	sufoki	sufoki is transitive (suffocate); swelter = sufokiĝi (pro varmego)
+synclinal	synklinale	not Esperanto (garbled 'synklinale'); = sinklinalo
+tankie	tankisto	tankisto = tank crewman; not a Marxist-Leninist supporter
+tea cosy	tekruomufo	garbled compound; tea cosy = teujkovrilo/tekruĉmufo
+telematics	telematika	adjective form for noun; = telematiko
+thinness	subtilaĵo	subtilaĵo = a subtle thing; thinness = maldikeco
+three-legged	penisego	noun 'big penis' for an adjective meaning 'having a large penis'
+thwarted	senigita	senigita = deprived of; thwarted = malhelpita/frustrita
+tinkerer	ladisto	ladisto = tinsmith; sense is a hobbyist who tinkers (bricolisto)
+total eclipse	plen eklipso	ungrammatical 'plen'; = plena eklipso
+trilingual	trilingvuloj	plural form as entry; = trilingvulo
+trilliard	triiliardo	misspelling of triliardo
+turf	torfo	torfo = peat; turf (sod) = gazontero
+turf	turfo	turfo = racecourse; turf (sod) = gazontero
+two wrongs don't make a right	du eraroj ne faras rajton	calque: rajto is a (legal) right, not 'right' as correct
+Tyrolean	tirolino	Tirolo is a land name; inhabitant is tirolanino
+Tyrolean	tirolo	Tirolo is a land name; inhabitant is tirolano, 'tirolo' is the region
+ugly duckling	malbelaj anasidoj	plural form of the phrase
+uh-oh	aĉ	aĉ expresses disgust, not uh-oh (ho ve, oj)
+unacceptable	malakceptebla	malakceptebla means rejectable; unacceptable is neakceptebla
 unacceptable	perversa	perversa = perverse, not unacceptable
+uncounted	nombrita	nombrita means counted, the opposite
+unctuous	ĝentilaĉa	ĝentilaĉa (obsequious) does not fit the ointment-like sense given
+unemployment	maldungo	maldungo is dismissal; unemployment is senlaboreco
+uneven	monotona	monotona means monotonous
+uneven	varia kvalito	noun phrase 'varied quality' for an adjective
+unimitable	senimita	senimita means 'without imitation'; neimitebla
+uninterested	neinteresanta	neinteresanta means uninteresting; uninterested is neinteresita/indiferenta
+up above	supren de	supren de is motion upward from; up above is supre
 Vatican City State	Vatikanurbo aŭ Vatikano	two alternatives joined with aŭ in one entry
+verisimilitude	verosimila	verosimila is an adjective; noun is verŝajneco/verosimileco
+Virginian	virginino	'virginino' is garbled; Virginia resident is virginianino
+Virginian	virgino	'virgino' means virgin; Virginia resident is virginiano
+Volsci	Volsques	French form, not Esperanto; should be volskoj
+wavering	ŝancelanta	ŝanceli is transitive; wavering is ŝanceliĝanta
+weaponize	armiliĝi	armiliĝi is intransitive (become a weapon); weaponize is armiligi
+weaponize	armiĝi	armiĝi means to arm oneself
+weightfulness	gravito	gravito is gravitation; weightfulness is pezeco
 well-rounded	valida	valida = valid, not well-rounded
+wellness	komforto	komforto is comfort; wellness is bonfarto/sano
+Weltschmerz	mondopereo	'mondopereo' = the world perishing; Weltschmerz is mondodoloro
+what's up	kiel vi	fragment 'kiel vi'
+wheelwright	veturilfarado	veturilfarado is vehicle-making (activity), not the craftsman
+wheelwright	ĉarfarado	ĉarfarado is cart-making (activity), not the craftsman; ĉarfaristo
+whine	plor'grinco	garbage with apostrophe (plor'grinco)
+whipping boy	vipanta knabon	ungrammatical fragment 'vipanta knabon'; vipknabo
+wicked	malafabla	malafabla means unkind/unfriendly, not evil (malbona, malica)
+woof	teksaĵo	teksaĵo is fabric; woof (weft) is vefto
+woolgathering	novali	novali is not an Esperanto word
+world-weariness	mondopereo	mondopereo means end of the world; world-weariness is mondoteduro
+worldbuilding	mirostrojeno	transliterated Russian (mirostroenie), not Esperanto
+would	In the winters	garbage: English example fragment
+would	We sat on the bench	garbage: English example fragment
+would	ke li tuj revenos.	garbage: sentence fragment
+would	ĉu la buso malfruos ĉi tiun fojon.	garbage: sentence fragment
+Zairean	zairino	Zairo is the country name; inhabitant is zairanino
+Zairean	zairo	'zairo' = Zaire itself; inhabitant is zairano
+zeroth	nulaj	plural inflection of nula
