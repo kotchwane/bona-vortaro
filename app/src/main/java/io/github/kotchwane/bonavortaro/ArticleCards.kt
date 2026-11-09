@@ -163,10 +163,11 @@ fun WordCard(
     onLongPressWord: (word: String, language: String) -> Unit,
     modifier: Modifier = Modifier,
     vikiSearch: VikiSearch? = null,
-    /** Whether Vikivortaro's French is shown: the French translations are */
-    vikiShown: Boolean = false,
-    /** Whether the Wiktionary adds words to this card */
-    onViki: (Boolean) -> Unit = {},
+    /** The languages whose Wiktionary words are shown: those whose
+     * translations are */
+    vikiLanguages: List<VikiLanguage> = emptyList(),
+    /** The languages whose Wiktionary adds words to this card */
+    onViki: (Set<String>) -> Unit = {},
     /** The example whose line of translations is shown: what was searched */
     example: SearchedExample? = null,
     /** Whether the list was scrolled to the card it was opened at: the
@@ -176,29 +177,29 @@ fun WordCard(
      * after, like the example */
     sense: Int? = null,
 ) {
-    /* What the French Wiktionary adds to the French translation of this
-     * word, for each of its forms ("kukurbeto, itala kukurbo"); the French
-     * word searched first, if the article was opened from it */
+    /* What the Wiktionaries add to the translations of this word, for
+     * each of its forms ("kukurbeto, itala kukurbo"); the word searched
+     * first, if the article was opened from it */
     val context = LocalContext.current
-    val viki by produceState(emptyList<String>(), entry, vikiSearch, vikiShown) {
-        /* Only for those who chose to see the French translations; again
-         * when that changes in the settings */
-        if (!vikiShown) {
+    val viki by produceState(emptyMap<String, List<String>>(), entry, vikiSearch, vikiLanguages) {
+        /* Only in the languages whose translations were chosen; again when
+         * that changes in the settings */
+        if (vikiLanguages.isEmpty()) {
+            value = emptyMap()
+            return@produceState
+        }
+        value = withContext(Dispatchers.IO) { vikiWordsOf(context, entry, vikiSearch, vikiLanguages) }
+    }
+    /* And to its examples that Reta Vortaro translates, but not into the
+     * language: "bonvolu", "s'il vous plaît" */
+    val vikiExamples by produceState(emptyList<VikiExample>(), entry, vikiLanguages, example) {
+        if (vikiLanguages.isEmpty()) {
             value = emptyList()
             return@produceState
         }
-        value = withContext(Dispatchers.IO) { vikiWordsOf(context, entry, vikiSearch) }
+        value = withContext(Dispatchers.IO) { vikiExamplesOf(context, entry, example, vikiLanguages) }
     }
-    /* And to its examples that Reta Vortaro translates, but not into
-     * French: "bonvolu", "s'il vous plaît" */
-    val vikiExamples by produceState(emptyList<VikiExample>(), entry, vikiShown, example) {
-        if (!vikiShown) {
-            value = emptyList()
-            return@produceState
-        }
-        value = withContext(Dispatchers.IO) { vikiExamplesOf(context, entry, example) }
-    }
-    LaunchedEffect(viki, vikiExamples) { onViki(viki.isNotEmpty() || vikiExamples.isNotEmpty()) }
+    LaunchedEffect(viki, vikiExamples) { onViki(viki.keys + vikiExamples.map { it.language }) }
     val onLongPressText: (String?) -> Unit = { word ->
         if (word != null) onLongPressWord(word, "eo") else onLongPress()
     }
@@ -1085,42 +1086,55 @@ private fun topWithRoom(): Rect {
 private const val FOLD_EXAMPLE_ABOVE = 3
 private const val FOLDED_EXAMPLE_LINES = 2
 
-/** What the French Wiktionary adds to the French translation of a word,
- * for each of its forms ("kukurbeto, itala kukurbo"); the French word
- * searched first, if the article was opened from it. Disk access: not on
- * the main thread. */
-fun vikiWordsOf(context: Context, entry: WordEntry, vikiSearch: VikiSearch?): List<String> {
+/** What the Wiktionaries of [languages] add to the translations of a word
+ * in their languages, for each of its forms ("kukurbeto, itala kukurbo");
+ * the word searched first, if the article was opened from it; by language,
+ * those that add something. Disk access: not on the main thread. */
+fun vikiWordsOf(
+    context: Context,
+    entry: WordEntry,
+    vikiSearch: VikiSearch?,
+    languages: List<VikiLanguage>,
+): Map<String, List<String>> {
     /* Not a form Reta Vortaro has under several entries, whose sense
      * Wiktionary doesn't tell: "korveto", the ship and the bird */
     val forms = entry.title.toString().split(',').map { it.trim() }.filter { it.isNotEmpty() }
         .filterNot { Vikivortaro.ambiguous(context, it) }
-    /* Its examples' too: "bonjour!" for "saluton!" */
-    val revoFrench = entry.translations.filter { it.language == "fr" }
-        .joinToString(", ") { (listOf(it.text) + it.examples.map { e -> e.text }).joinToString(", ") }
-    val words = forms.flatMap { Vikivortaro.frenchFor(context, it, revoFrench) }
-    val searched = vikiSearch?.takeIf { s -> forms.any { it == s.esperanto } }
-    return (listOfNotNull(searched?.french) + words).distinctBy { Vikivortaro.key(it) }
+    return languages.associate { language ->
+        /* Its examples' too: "bonjour!" for "saluton!" */
+        val revo = entry.translations.filter { it.language == language.code }
+            .joinToString(", ") { (listOf(it.text) + it.examples.map { e -> e.text }).joinToString(", ") }
+        val words = forms.flatMap { Vikivortaro.foreignFor(context, language, it, revo) }
+        val searched = vikiSearch?.takeIf { s -> s.language == language.code && forms.any { it == s.esperanto } }
+        language.code to (listOfNotNull(searched?.foreign) + words).distinctBy { Vikivortaro.key(it) }
+    }.filterValues { it.isNotEmpty() }
 }
 
-/** And to its examples that Reta Vortaro translates, but not into French:
- * "bonvolu", "s'il vous plaît"; with the example searched, which Reta
- * Vortaro may translate into no language: "drinki kiel funelo". Disk
+/** And to its examples that Reta Vortaro translates, but not into their
+ * language: "bonvolu", "s'il vous plaît"; with the example searched, which
+ * Reta Vortaro may translate into no language: "drinki kiel funelo". Disk
  * access: not on the main thread. */
-fun vikiExamplesOf(context: Context, entry: WordEntry, example: SearchedExample?): List<VikiExample> {
-    val french = entry.translations.firstOrNull { it.language == "fr" }
-    val said = french?.examples.orEmpty().map { it.example }.toSet()
-    val revoFrench = french?.let { (listOf(it.text) + it.examples.map { e -> e.text }).joinToString(", ") }
-    return (entry.translations.flatMap { it.examples }.map { it.example } +
+fun vikiExamplesOf(
+    context: Context,
+    entry: WordEntry,
+    example: SearchedExample?,
+    languages: List<VikiLanguage>,
+): List<VikiExample> = languages.flatMap { language ->
+    val translation = entry.translations.firstOrNull { it.language == language.code }
+    val said = translation?.examples.orEmpty().map { it.example }.toSet()
+    val revo = translation?.let { (listOf(it.text) + it.examples.map { e -> e.text }).joinToString(", ") }
+    (entry.translations.flatMap { it.examples }.map { it.example } +
         listOfNotNull(example?.takeIf { it.language == "eo" }?.example)).distinct()
         .filter { it !in said }
         .mapNotNull { phrase ->
-            Vikivortaro.frenchForExample(context, phrase, revoFrench).takeIf { it.isNotEmpty() }
-                ?.let { VikiExample(phrase, it) }
+            Vikivortaro.foreignForExample(context, language, phrase, revo).takeIf { it.isNotEmpty() }
+                ?.let { VikiExample(language.code, phrase, it) }
         }
 }
 
-/** The French that Vikivortaro gives for an example of the word */
-class VikiExample(val example: String, val words: List<String>)
+/** The words that the Wiktionary of [language] gives for an example of the
+ * word */
+class VikiExample(val language: String, val example: String, val words: List<String>)
 
 /** An example whose translation was searched, in [language] */
 class SearchedExample(val example: String, val language: String)
@@ -1132,11 +1146,13 @@ private fun TranslationsBox(
     translations: List<Translation>,
     foldable: Boolean,
     onLongPressWord: (word: String, language: String) -> Unit,
-    viki: List<String> = emptyList(),
+    /** Each Wiktionary's words, by language */
+    viki: Map<String, List<String>> = emptyMap(),
     /** The example whose translations were searched: brought into view and
      * marked for a moment */
     example: SearchedExample? = null,
-    /** Vikivortaro's French for examples Reta Vortaro doesn't translate into it */
+    /** The Wiktionaries' words for examples Reta Vortaro doesn't translate
+     * into their language */
     vikiExamples: List<VikiExample> = emptyList(),
     scrolled: Boolean = true,
 ) {
@@ -1146,11 +1162,12 @@ private fun TranslationsBox(
     var markShown by rememberSaveable(example?.example, example?.language) { mutableStateOf(example != null) }
     var broughtIntoView by rememberSaveable(example?.example, example?.language) { mutableStateOf(false) }
     val markColor = markColor()
-    /* The French Wiktionary's words go on the line of Reta Vortaro's French,
-     * which comes first if Reta Vortaro has none */
+    /* A Wiktionary's words go on the line of Reta Vortaro's translation in
+     * its language, which comes first if Reta Vortaro has none */
     val translations = remember(translations, viki, vikiExamples) {
-        if ((viki.isEmpty() && vikiExamples.isEmpty()) || translations.any { it.language == "fr" }) translations
-        else listOf(Translation("fr", "")) + translations
+        val missing = VikiLanguage.ALL.map { it.code }
+            .filter { code -> (code in viki || vikiExamples.any { it.language == code }) && translations.none { it.language == code } }
+        missing.map { Translation(it, "") } + translations
     }
     val folded = foldable && !expanded
     val shown = if (folded) translations.take(SHOWN_TRANSLATIONS) else translations
@@ -1220,24 +1237,24 @@ private fun TranslationsBox(
                     /* Vikivortaro's words follow Reta Vortaro's, where they
                      * are in the text */
                     val vikiRanges = mutableListOf<IntRange>()
-                    val french = translation.language == "fr"
-                    val text = if (viki.isNotEmpty() && french) {
+                    val words = viki[translation.language].orEmpty()
+                    val text = if (words.isNotEmpty()) {
                         /* Some of Reta Vortaro's end with a comma: "…, net," */
-                        val revo = frenchSpacing(translation.text.trimEnd(' ', ',', ';'))
+                        val revo = typography(translation.language, translation.text.trimEnd(' ', ',', ';'))
                         buildString {
                             /* After senses with their numbers, on a line of
                              * their own: they would read as the last sense,
                              * "(3) perçant, …, saillant" */
                             if (revo.isNotEmpty())
                                 append(if (Regex("\\(\\d").containsMatchIn(revo)) "$revo\n" else "$revo, ")
-                            for ((index, word) in viki.withIndex()) {
+                            for ((index, word) in words.withIndex()) {
                                 if (index > 0)
                                     append(", ")
                                 vikiRanges.add(length until length + word.length)
                                 append(word)
                             }
                         }
-                    } else if (french) frenchSpacing(translation.text) else translation.text
+                    } else typography(translation.language, translation.text)
                     /* Then the translations of its examples, each on its
                      * line after its example, quiet like the examples of
                      * the article: "saluton! bonjour !, salut !"; the one
@@ -1251,7 +1268,7 @@ private fun TranslationsBox(
                             val start = length
                             withStyle(SpanStyle(fontStyle = FontStyle.Italic, color = dots)) { append(line.example) }
                             append(" ")
-                            append(if (french) frenchSpacing(line.text) else line.text)
+                            append(typography(translation.language, line.text))
                             if (line.example == example?.example &&
                                 (example.language == "eo" || example.language == translation.language)) {
                                 marked = start until length
@@ -1259,27 +1276,26 @@ private fun TranslationsBox(
                                     addStyle(SpanStyle(background = markColor), start, length)
                             }
                         }
-                        /* Vikivortaro's French for the examples Reta Vortaro
-                         * doesn't translate into French, dotted */
-                        if (french)
-                            for (line in vikiExamples) {
-                                if (length > 0)
-                                    append("\n")
-                                val start = length
-                                withStyle(SpanStyle(fontStyle = FontStyle.Italic, color = dots)) { append(line.example) }
-                                append(" ")
-                                for ((index, word) in line.words.withIndex()) {
-                                    if (index > 0)
-                                        append(", ")
-                                    vikiRanges.add(length until length + word.length)
-                                    append(word)
-                                }
-                                if (line.example == example?.example) {
-                                    marked = start until length
-                                    if (markShown)
-                                        addStyle(SpanStyle(background = markColor), start, length)
-                                }
+                        /* A Wiktionary's words for the examples Reta Vortaro
+                         * doesn't translate into its language, dotted */
+                        for (line in vikiExamples.filter { it.language == translation.language }) {
+                            if (length > 0)
+                                append("\n")
+                            val start = length
+                            withStyle(SpanStyle(fontStyle = FontStyle.Italic, color = dots)) { append(line.example) }
+                            append(" ")
+                            for ((index, word) in line.words.withIndex()) {
+                                if (index > 0)
+                                    append(", ")
+                                vikiRanges.add(length until length + word.length)
+                                append(word)
                             }
+                            if (line.example == example?.example) {
+                                marked = start until length
+                                if (markShown)
+                                    addStyle(SpanStyle(background = markColor), start, length)
+                            }
+                        }
                     }
                     val bringIntoView = remember { BringIntoViewRequester() }
                     val margin = with(LocalDensity.current) { 48.dp.toPx() }
@@ -1433,7 +1449,8 @@ private fun SourceBubble(text: String, position: Offset, onDismiss: () -> Unit) 
 @Composable
 fun SourcesLine(
     revo: Boolean,
-    viki: Boolean,
+    /** The languages whose Wiktionary's words the page shows */
+    vikiLanguages: List<String>,
     modifier: Modifier = Modifier,
     revoArticle: Int? = null,
     vikiWord: String? = null,
@@ -1459,6 +1476,8 @@ fun SourcesLine(
     val blName = stringResource(R.string.bl_name)
     val rajkiName = stringResource(R.string.rajki_name)
     val muted = MaterialTheme.colorScheme.onSurfaceVariant
+    val viki = vikiLanguages.isNotEmpty()
+    val languageNames = LanguageList.getDefault(context)
 
     /* A button, as high as one should be to be tapped */
     Box(
@@ -1499,40 +1518,46 @@ fun SourcesLine(
                             style = MaterialTheme.typography.bodyMedium,
                         )
                     }
-                    /* Vikivortaro once: with the French too, "Vikivortaro
-                     * (eo · fr)", each edition a link to the word's page */
+                    /* Vikivortaro once: with the other language too,
+                     * "Vikivortaro (eo · fr)", each edition a link to the
+                     * word's page */
                     if (vikiEsperanto != null && vikiWord != null) {
                         val page = "wiki/" + Uri.encode(vikiWord.replace(' ', '_'))
-                        if (viki)
+                        val code = vikiLanguages.firstOrNull()
+                        if (code != null) {
+                            val name = languageNames.getLanguageName(code)
                             Source(
-                                stringResource(R.string.sources_viki_editions, vikiName, "eo", "fr"),
+                                stringResource(R.string.sources_viki_editions, vikiName, "eo", code),
                                 /* "adaptitaj" for both if the definition was
-                                 * adapted too, else for the French only */
+                                 * adapted too, else for the other language's
+                                 * words only */
                                 if (vikiEsperanto.adapted)
                                     stringResource(
                                         R.string.sources_viki_eo_fr,
-                                        stringResource(if (vikiDescription) R.string.sources_viki_fr_description else R.string.sources_viki_fr_translations),
+                                        stringResource(if (vikiDescription) R.string.sources_viki_foreign_description else R.string.sources_viki_foreign_translations, name),
                                     )
                                 else
                                     stringResource(
                                         R.string.sources_viki_eo_fr_as_is,
-                                        stringResource(if (vikiDescription) R.string.sources_viki_fr_description_adapted else R.string.sources_viki_fr_translations_adapted),
+                                        stringResource(if (vikiDescription) R.string.sources_viki_foreign_description_adapted else R.string.sources_viki_foreign_translations_adapted, name),
                                     ),
-                                links = listOf("eo" to VIKI_EO_SITE + page, "fr" to VIKI_SITE + page),
+                                links = listOf("eo" to VIKI_EO_SITE + page, code to vikiSite(code) + page),
                             )
+                        }
                         else
                             Source(
                                 vikiName,
                                 stringResource(if (vikiEsperanto.adapted) R.string.sources_viki_eo_adapted else R.string.sources_viki_eo, vikiWord),
                                 VIKI_EO_SITE + page,
                             )
-                    } else if (viki)
+                    } else for (code in vikiLanguages)
                         Source(
-                            vikiName,
+                            /* The edition named when there are several */
+                            if (vikiLanguages.size > 1) stringResource(R.string.sources_viki_editions_one, vikiName, code) else vikiName,
                             if (vikiWord != null)
                                 stringResource(if (vikiDescription) R.string.sources_viki_word else R.string.sources_viki_word_only, vikiWord)
                             else stringResource(R.string.sources_viki),
-                            if (vikiWord != null) VIKI_SITE + "wiki/" + Uri.encode(vikiWord.replace(' ', '_')) else VIKI_SITE,
+                            if (vikiWord != null) vikiSite(code) + "wiki/" + Uri.encode(vikiWord.replace(' ', '_')) else vikiSite(code),
                         )
                     if (bonaLingvo)
                         Source(blName, stringResource(R.string.sources_bl), BonaLingvo.SITE)
@@ -1558,7 +1583,8 @@ fun SourcesLine(
 }
 
 private const val REVO_SITE = "https://reta-vortaro.de/"
-private const val VIKI_SITE = "https://fr.wiktionary.org/"
+/* The Wiktionary of a language */
+private fun vikiSite(code: String) = "https://$code.wiktionary.org/"
 private const val VIKI_EO_SITE = "https://eo.wiktionary.org/"
 
 /** A source, its name a link to read it there ([url]); or, with several

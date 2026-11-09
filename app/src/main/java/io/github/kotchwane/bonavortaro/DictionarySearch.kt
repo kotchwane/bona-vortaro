@@ -277,12 +277,14 @@ object DictionarySearch {
         val found = all.filter { wanted(it.word) }.let {
             if (esperanto || isPattern(filter)) it else lesserLast(context, it, language, stopped)
         }
-        /* What Reta Vortaro lacks, from Vikivortaro: in French; in
-         * Esperanto, its words, for everyone: the same dictionary, what
-         * it says of them only in the languages each reader chose */
+        /* What Reta Vortaro lacks, from Vikivortaro: in a language whose
+         * Wiktionary it has; in Esperanto, its words, for everyone: the same
+         * dictionary, what it says of them only in the languages each
+         * reader chose */
+        val viki = VikiLanguage.of(language)
         val wiktionary = when {
             isPattern(filter) -> emptyList()
-            language == "fr" -> Vikivortaro.search(context, filter, stopped)
+            viki != null -> Vikivortaro.search(context, viki, filter, stopped)
             esperanto -> Vikivortaro.searchEsperanto(context, filter, stopped)
             else -> emptyList()
         }
@@ -374,8 +376,8 @@ object DictionarySearch {
      * 1. those that are rare, archaic or to avoid, "(malofte) uvo", or
      *    that "Vortoj de la bona lingvo" advises against, after the others:
      *    "raisin" gives vinbero, then uvo;
-     * 2. in French, those that the French Wiktionary gives too first:
-     *    "bouder" paŭti;
+     * 2. in a language whose Wiktionary Vikivortaro has, those that it
+     *    gives too first: "bouder" paŭti;
      * 3. then a much more frequent one first, by [Frequency]: "deviner"
      *    diveni rather than duonkompreni. Only for a word alone, without
      *    brackets: "conduire (phys.)" is kondukti, not the frequent
@@ -395,14 +397,15 @@ object DictionarySearch {
     private fun ordered(context: Context, group: List<SearchResult>, language: String): List<SearchResult> {
         val (lesser, others) = group.partition { !it.isExample && isLesser(context, it, language) }
         val foreign = group.first().word
+        val viki = VikiLanguage.of(language)
         val esperanto = others.associateWith { result ->
             if (result.isExample) null
             else SearchPreviews.get(context, result, language)?.title?.split(',')?.firstOrNull()
                 ?.filter { it.isLetter() || it == ' ' || it == '-' }?.trim()?.takeIf { it.isNotEmpty() }
         }
         val inWiktionary = { result: SearchResult ->
-            language == "fr" && esperanto[result]?.let { word ->
-                Vikivortaro.frenchOf(context, word).any { Vikivortaro.key(it) == Vikivortaro.key(foreign) }
+            viki != null && esperanto[result]?.let { word ->
+                Vikivortaro.foreignOf(context, viki, word).any { Vikivortaro.key(it) == Vikivortaro.key(foreign) }
             } == true
         }
         val ordered = others.sortedBy { if (inWiktionary(it)) 0 else 1 }.toMutableList()

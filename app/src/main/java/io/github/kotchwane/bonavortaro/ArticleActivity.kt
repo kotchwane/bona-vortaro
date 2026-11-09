@@ -123,9 +123,11 @@ class ArticleActivity : BonaActivity() {
         const val EXTRA_MARK_NUMBER = "io.github.kotchwane.bonavortaro.MarkNumber"
         /** The sense of the word of [EXTRA_MARK_NUMBER] to show, from 1 */
         const val EXTRA_SENSE_NUMBER = "io.github.kotchwane.bonavortaro.SenseNumber"
-        /** The French word searched, which only the French Wiktionary
-         * translates by the Esperanto word of [EXTRA_VIKI_WORD] */
-        const val EXTRA_VIKI_FRENCH = "io.github.kotchwane.bonavortaro.VikiFrench"
+        /** The word searched, in the language of [EXTRA_VIKI_LANGUAGE], which
+         * only its Wiktionary translates by the Esperanto word of
+         * [EXTRA_VIKI_WORD]. Its value kept from when it was French only */
+        const val EXTRA_VIKI_FOREIGN = "io.github.kotchwane.bonavortaro.VikiFrench"
+        const val EXTRA_VIKI_LANGUAGE = "io.github.kotchwane.bonavortaro.VikiLanguage"
         const val EXTRA_VIKI_WORD = "io.github.kotchwane.bonavortaro.VikiWord"
         /** The translation of an example searched, or the example in
          * Esperanto ("bonjour", "saluton!"): its line is shown */
@@ -167,7 +169,7 @@ class ArticleActivity : BonaActivity() {
     /* The user's languages, whose translations are shown first */
     private var preferredLanguages by mutableStateOf(emptyList<String>())
     /* Whether Vikivortaro's French is shown: with the French translations */
-    private var vikiShown by mutableStateOf(false)
+    private var vikiLanguages by mutableStateOf(emptyList<VikiLanguage>())
     /* Whether the origins of the words are shown (see Deveno) */
     private var showOrigins by mutableStateOf(false)
     private var showNoFlashcard by mutableStateOf(false)
@@ -189,8 +191,10 @@ class ArticleActivity : BonaActivity() {
         )
         val mark = intent.getIntExtra(EXTRA_MARK_NUMBER, -1)
         val sense = intent.getIntExtra(EXTRA_SENSE_NUMBER, -1)
-        val vikiSearch = intent.getStringExtra(EXTRA_VIKI_FRENCH)?.let { french ->
-            intent.getStringExtra(EXTRA_VIKI_WORD)?.let { VikiSearch(french, it) }
+        val vikiSearch = intent.getStringExtra(EXTRA_VIKI_FOREIGN)?.let { foreign ->
+            intent.getStringExtra(EXTRA_VIKI_WORD)?.let {
+                VikiSearch(intent.getStringExtra(EXTRA_VIKI_LANGUAGE) ?: VikiLanguage.FRENCH.code, foreign, it)
+            }
         }
         /* Also when the activity comes back: whether it is still marked is
          * kept with the card */
@@ -219,7 +223,7 @@ class ArticleActivity : BonaActivity() {
                     unfoldExamples = unfoldExamples,
                     foldTranslations = foldTranslations,
                     preferredLanguages = preferredLanguages,
-                    vikiShown = vikiShown,
+                    vikiLanguages = vikiLanguages,
                     showOrigins = showOrigins,
                     /* The section of the intent, for the root it opened */
                     initialSection = if (savedInstanceState == null && depth == 1) mark else -1,
@@ -269,7 +273,7 @@ class ArticleActivity : BonaActivity() {
         textSize = BonaSettings.getTextSize(this)
         unfoldExamples = BonaSettings.getUnfoldExamples(this)
         preferredLanguages = BonaSettings.getTranslationOrder(this)
-        vikiShown = Vikivortaro.inArticles(this)
+        vikiLanguages = Vikivortaro.shownLanguages(this)
         showOrigins = BonaSettings.getShowOrigins(this)
         extraLanguage = exampleLanguage?.takeIf { it != "eo" && !BonaSettings.translationFilter(this)(it) }
 
@@ -449,7 +453,7 @@ private fun ArticleScreen(
     unfoldExamples: Boolean,
     foldTranslations: Boolean,
     preferredLanguages: List<String>,
-    vikiShown: Boolean,
+    vikiLanguages: List<VikiLanguage>,
     showOrigins: Boolean,
     initialSection: Int,
     /** The sense of its word to show, from 1, or -1 */
@@ -476,7 +480,7 @@ private fun ArticleScreen(
 ) {
     val listState = rememberLazyListState()
     /* The words whose card has words of Vikivortaro, for the sources */
-    val vikiSections = remember(articleNumber) { mutableStateMapOf<Int, Boolean>() }
+    val vikiSections = remember(articleNumber) { mutableStateMapOf<Int, Set<String>>() }
     val scope = rememberCoroutineScope()
     /* The examples and remarks folded or unfolded by a tap, for this root */
     val toggledParts = rememberSaveable(
@@ -636,19 +640,20 @@ private fun ArticleScreen(
      * one, and the credit is due all the same */
     /* Reta Vortaro's layout: the list's remarks, coming after, change no
      * translation */
-    val articleViki by produceState(false, revoLayout, vikiShown, vikiSearch, searched) {
-        value = false
+    val articleViki by produceState(emptySet<String>(), revoLayout, vikiLanguages, vikiSearch, searched) {
+        value = emptySet()
         val all = revoLayout?.words ?: return@produceState
-        if (vikiShown)
+        if (vikiLanguages.isNotEmpty())
             value = withContext(Dispatchers.IO) {
-                all.any { word ->
-                    vikiWordsOf(context, word, vikiSearch).isNotEmpty() ||
+                all.flatMap { word ->
+                    vikiWordsOf(context, word, vikiSearch, vikiLanguages).keys +
                         vikiExamplesOf(context, word, searched?.takeIf { it.section == word.section && it.language == "eo" }
-                            ?.let { SearchedExample(it.word, "eo") }).isNotEmpty()
-                }
+                            ?.let { SearchedExample(it.word, "eo") }, vikiLanguages).map { it.language }
+                }.toSet()
             }
     }
-    val withViki = articleViki || vikiSections.values.any { it }
+    /* The languages whose Wiktionary adds words to the page, in their order */
+    val withViki = (articleViki + vikiSections.values.flatten()).let { codes -> VikiLanguage.ALL.map { it.code }.filter { it in codes } }
 
     /* Links to another section of the same article. This keeps running,
      * so it needs to see the current article, not the one it started
@@ -755,7 +760,7 @@ private fun ArticleScreen(
                         WordCard(
                             if (subArticle) word.untitled() else word, unfoldExamples, foldTranslations,
                             vikiSearch = vikiSearch,
-                            vikiShown = vikiShown,
+                            vikiLanguages = vikiLanguages,
                             example = example.takeIf { word.section == searched?.section },
                             scrolled = showedSection,
                             sense = initialSense.takeIf { it > 0 && word.section == initialSection },
@@ -776,7 +781,7 @@ private fun ArticleScreen(
                     if (layout != null)
                         item(key = "sources") {
                             SourcesLine(
-                                revo = true, viki = withViki, revoArticle = articleNumber, bonaLingvo = bonaLingvo.isNotEmpty(),
+                                revo = true, vikiLanguages = withViki, revoArticle = articleNumber, bonaLingvo = bonaLingvo.isNotEmpty(),
                                 rajki = origins.values.any { it.rajki },
                                 vikiOrigins = origins.values.any { it.vikivortaro },
                                 modifier = Modifier.padding(horizontal = 8.dp))

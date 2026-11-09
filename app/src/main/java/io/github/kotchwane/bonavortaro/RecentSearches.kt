@@ -74,11 +74,13 @@ fun findRecentSearches(context: Context, entries: List<HistoryEntry>): List<Rece
         }
         /* A word of Vikivortaro: Reta Vortaro's entry, if it has one since */
         if (entry.wiktionary != null)
-            return@mapNotNull Vikivortaro.revoEntry(trie, entry.word, esperanto = entry.language == "eo")
+            return@mapNotNull Vikivortaro.revoEntry(
+                trie, entry.word, esperanto = entry.language == "eo", language = VikiLanguage.of(entry.language) ?: VikiLanguage.FRENCH,
+            )
                 ?.let { RecentSearch(entry, FoundWord.InRevo(it)) }
                 ?: (
                     if (entry.language == "eo") Vikivortaro.esperantoResult(context, entry.word)
-                    else Vikivortaro.result(context, entry.word, entry.wiktionary)
+                    else VikiLanguage.of(entry.language)?.let { Vikivortaro.result(context, it, entry.word, entry.wiktionary) }
                 )?.let { RecentSearch(entry, FoundWord.InWiktionary(it)) }
         fun find(key: String): List<SearchResult> {
             val count = trie.search(key, results)

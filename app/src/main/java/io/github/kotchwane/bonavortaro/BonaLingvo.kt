@@ -358,7 +358,7 @@ object BonaLingvo {
             return emptyList()
         val by = data(context).byPreferred[Vikivortaro.key(word)] ?: return emptyList()
         if (entry(context, word) != null || Vikivortaro.revoEsperanto(index, word) != null ||
-            Vikivortaro.esperantoResult(context, word) != null || Vikivortaro.frenchOf(context, word).isNotEmpty())
+            Vikivortaro.esperantoResult(context, word) != null || Vikivortaro.anyForeignOf(context, word))
             return emptyList()
         return by.map { it to Vikivortaro.revoEsperanto(index, it.word) }
     }
