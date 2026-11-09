@@ -9,9 +9,10 @@
 # repository; with one, it first copies that export there, without its
 # "modified_by" column (who edited a line: not ours to publish).
 #
-# The list is under the CC BY 4.0 licence (granted by its authors,
-# 2026-10-27). Attribution, as they wrote it: "Renato Corsetti, Noam Mohr,
-# kaj la laborgrupo de la Bona Lingvo, labonalingvo.org". One line of the CSV is one
+# The list is under the CC BY-SA 4.0 licence (its authors granted CC BY 4.0
+# on 2026-10-27, then chose CC BY-SA 4.0 in November 2026). Attribution, as
+# they wrote it: "Renato Corsetti, Noam Mohr, kaj la laborgrupo de la Bona
+# Lingvo, labonalingvo.org". One line of the CSV is one
 # simplification: the word ("source_word"), one word to say instead
 # ("target_word"), "malrekomendo" (the word is advised against: →) or
 # "alternativo" (a simpler word is proposed: ~), their contexts, the
@@ -171,7 +172,7 @@ for word in sorted(by_word, key=lambda w: (w.lower().strip("-"), w)):
 latest = max(r["updated_at"] for r in rows)[:10]
 os.makedirs(os.path.dirname(OUT), exist_ok=True)
 with open(OUT, "w", encoding="utf-8") as f:
-    f.write("# Vortoj de la bona lingvo, CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/).\n"
+    f.write("# Vortoj de la bona lingvo, CC BY-SA 4.0 (https://creativecommons.org/licenses/by-sa/4.0/).\n"
             "# Atribuo: Renato Corsetti, Noam Mohr, kaj la laborgrupo de la Bona Lingvo, labonalingvo.org.\n"
             "# Adapted with scripts/bona-lingvo.py from data/bona-lingvo.csv.\n"
             f"# Version: {latest} (its last change).\n"

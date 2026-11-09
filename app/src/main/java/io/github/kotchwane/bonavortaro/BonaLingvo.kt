@@ -89,7 +89,7 @@ class BonaLingvoEntry(val word: String, val context: String, val simplifications
  * "Vortoj de la bona lingvo" (labonalingvo.org), by Renato Corsetti, Noam
  * Mohr and the working group of La Bona Lingvo: neologisms, and the
  * Esperanto words to say instead, in Claude Piron's spirit; only what the
- * group has checked. Under CC BY 4.0. In assets/bonalingvo/bl.tsv, written by
+ * group has checked. Under CC BY-SA 4.0. In assets/bonalingvo/bl.tsv, written by
  * scripts/bona-lingvo.py from data/bona-lingvo.csv.
  */
 object BonaLingvo {
