@@ -114,6 +114,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withTimeoutOrNull
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.runtime.withFrameNanos
+import androidx.compose.ui.draw.alpha
 import kotlinx.coroutines.launch
 
 class ArticleActivity : BonaActivity() {
@@ -738,7 +739,11 @@ private fun ArticleScreen(
             CompositionLocalProvider(LocalToggledParts provides toggledParts) {
                 LazyColumn(
                     state = listState,
-                    modifier = Modifier.fillMaxSize(),
+                    /* Opened at a later card: not drawn until it is in place,
+                     * rather than the top of the root shown, then a jump to
+                     * it ("akvumi") */
+                    modifier = Modifier.fillMaxSize()
+                        .alpha(if (showedSection || (positions[initialSection] ?: 0) == 0) 1f else 0f),
                     /* Beside the bar of the phone too, when it is on the
                      * side, in landscape */
                     contentPadding = PaddingValues(

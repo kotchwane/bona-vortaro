@@ -357,11 +357,20 @@ object BonaLingvo {
         if ('(' in word || ')' in word)
             return emptyList()
         val by = data(context).byPreferred[Vikivortaro.key(word)] ?: return emptyList()
-        if (entry(context, word) != null || Vikivortaro.revoEsperanto(index, word) != null ||
-            Vikivortaro.esperantoResult(context, word) != null || Vikivortaro.anyForeignOf(context, word))
+        /* As the list writes it: "ambau" typed is its "ambaŭ", which Reta
+         * Vortaro has; not a word only the list proposes */
+        val written = proposedWord(by, word)
+        if (entry(context, written) != null || Vikivortaro.revoEsperanto(index, written) != null ||
+            Vikivortaro.esperantoResult(context, written) != null || Vikivortaro.anyForeignOf(context, written))
             return emptyList()
         return by.map { it to Vikivortaro.revoEsperanto(index, it.word) }
     }
+
+    /** The word that [entries] propose as the list writes it, for a word
+     * typed without its accents: "ambau" is "ambaŭ" */
+    fun proposedWord(entries: List<BonaLingvoEntry>, typed: String): String =
+        entries.flatMap { it.preferred }.map { withoutBrackets(it.word) }
+            .firstOrNull { Vikivortaro.key(it) == Vikivortaro.key(typed) } ?: typed
 
     /** The entry of a word, if the group advises against it. Disk access:
      * not on the main thread. */

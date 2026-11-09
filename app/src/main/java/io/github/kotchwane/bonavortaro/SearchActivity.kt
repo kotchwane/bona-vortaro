@@ -759,7 +759,7 @@ private fun ResultList(
             if (outcome.proposedInstead.isNotEmpty())
                 item {
                     ProposedInstead(
-                        outcome.query.trim(),
+                        BonaLingvo.proposedWord(outcome.proposedInstead.map { it.first }, outcome.query.trim()),
                         outcome.proposedInstead,
                         onOpenEntry = { onResultClick(it, "eo") },
                         onOpenListWord = onBonaLingvoClick,
