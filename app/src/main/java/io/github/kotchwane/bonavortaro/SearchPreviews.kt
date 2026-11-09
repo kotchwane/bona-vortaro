@@ -96,6 +96,10 @@ object SearchPreviews {
             translationSense(article, language!!, result.word, result.mark)?.let { (section, sense) ->
                 return previewOf(article, section, sense)?.also { senses.put(text, it) }
             }
+            /* No sense said once: the word's own preview, kept too, so
+             * that it isn't made again at each search ("water") */
+            return (previews.get(key) ?: previewOf(article, result.mark)?.also { previews.put(key, it) })
+                ?.also { senses.put(text, it) }
         }
         return previewOf(article, result.mark)?.also { previews.put(key, it) }
     }

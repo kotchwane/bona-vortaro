@@ -239,6 +239,8 @@
   <!-- In a remark: "Laŭ Vortoj de la bona lingvo: prefere diru akvokondukilo." -->
   <string name="bl_according">Laŭ %1$s</string>
   <string name="bl_say_instead">prefere diru</string>
+  <!-- In a remark on several spellings: "…; por „dezajno“ ankaŭ modelo." -->
+  <string name="bl_also_for">por „%1$s“ ankaŭ</string>
   <string name="bl_also_say">ankaŭ eblas diri</string>
   <string name="bl_proposes">%1$s proponas „%2$s“ anstataŭ %3$s.</string>
   <string name="bl_only_not_here">%1$s ne estas en la vortaro.</string>

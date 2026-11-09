@@ -388,6 +388,12 @@ fun parseOfficial(header: Spanned): OfficialTitle {
 fun splitOfficial(header: Spanned): Pair<List<String>, CharSequence> =
     parseOfficial(header).let { it.marks to it.text }
 
+/** The header of a section without its officiality marks: "akvo", not
+ * "*akvo", for what is shown, copied or shared outside the card, where
+ * the badge isn't */
+val ArticleSection.headword: CharSequence
+    get() = splitOfficial(header).second
+
 /** Splits the content into text and remarks. prevodb writes a remark as a
  * "quotation" span starting with "Rim.". */
 private fun splitBlocks(content: Spanned): List<ContentBlock> {

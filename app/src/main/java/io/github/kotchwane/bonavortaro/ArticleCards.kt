@@ -546,19 +546,29 @@ private fun FoldedExamples(
     /* The first example cut at the end of its last shown line, for the
      * width and the size it was measured with; null while it fits. Kept
      * while unfolded, so that folding again doesn't show it whole first */
-    var folded by remember(first, link) { mutableStateOf<FoldedNote?>(null) }
-    /* The lines of the others, at the same width and size */
-    var othersLines by remember(first, link) { mutableStateOf<Int?>(null) }
-    var measuredFor by remember(first, link) { mutableStateOf<Pair<Int, Float>?>(null) }
+    /* With the lines of the others, at the same width and size, and for
+     * the text and colour of links measured: one state, not a new one for
+     * each theme, as for the remarks (see [NoteBox]) */
+    var measured by remember { mutableStateOf<MeasuredExamples?>(null) }
+    val linkArgb = link.toArgb()
+    val current = measured?.takeIf { it.cut.source == first && it.cut.link == linkArgb }
+    val folded = current?.cut?.folded
+    val othersLines = current?.othersLines
+    val latestExamples by rememberUpdatedState(examples)
+    val latestLink by rememberUpdatedState(linkArgb)
     val measure: (TextView) -> Unit = { view ->
         val width = view.layout.width
         val size = view.paint.textSize
-        if (measuredFor != width to size) {
-            folded = foldNote(first, view.paint, width, more, link.toArgb(), FOLD_EXAMPLE_ABOVE, FOLDED_EXAMPLE_LINES) {
+        val text = latestExamples.first().text
+        val now = measured?.cut
+        if (now == null || now.source != text || now.link != latestLink || now.width != width || now.size != size) {
+            val cut = foldNote(text, view.paint, width, more, latestLink, FOLD_EXAMPLE_ABOVE, FOLDED_EXAMPLE_LINES) {
                 setExpanded(true)
             }
-            othersLines = examples.drop(1).sumOf { lineCount(it.text, view.paint, width) }
-            measuredFor = width to size
+            measured = MeasuredExamples(
+                CutNote(cut, text, latestLink, width, size),
+                latestExamples.drop(1).sumOf { lineCount(it.text, view.paint, width) },
+            )
         }
     }
     /* Folding hides too little when the first example isn't cut and the
@@ -909,10 +919,17 @@ private fun NoteBox(text: CharSequence, key: String, unfolded: Boolean, onLongPr
     val link = MaterialTheme.colorScheme.primary
     val (expanded, setExpanded) = unfoldedState(key, unfolded)
     val more = stringResource(R.string.note_more)
-    /* The text cut at the end of its last shown line, for the width and
-     * the size it was measured with; null while it fits. Cut again with
-     * the colour of the links of another theme */
-    var folded by remember(text, link) { mutableStateOf<FoldedNote?>(null) }
+    /* The text cut at the end of its last shown line, for the text, the
+     * colour of its links, the width and the size it was measured with;
+     * null while it fits. One state for the box, rather than a new one for
+     * each theme: a measure posted before a second change of theme then
+     * still lands in it, rather than in a forgotten one, which left the
+     * remark whole (and the box at its unfolded height) */
+    var cut by remember { mutableStateOf<CutNote?>(null) }
+    val linkArgb = link.toArgb()
+    val folded = cut?.takeIf { it.source == text && it.link == linkArgb }?.folded
+    val latestText by rememberUpdatedState(text)
+    val latestLink by rememberUpdatedState(linkArgb)
 
     val isFolded = folded != null && !expanded
     val start = remember { BringIntoViewRequester() }
@@ -947,8 +964,12 @@ private fun NoteBox(text: CharSequence, key: String, unfolded: Boolean, onLongPr
                 onLayout = { view ->
                     val width = view.layout.width
                     val size = view.paint.textSize
-                    if (folded?.width != width || folded?.size != size)
-                        folded = foldNote(text, view.paint, width, more, link.toArgb()) { setExpanded(true) }
+                    val now = cut
+                    if (now == null || now.source != latestText || now.link != latestLink || now.width != width || now.size != size)
+                        cut = CutNote(
+                            foldNote(latestText, view.paint, width, more, latestLink) { setExpanded(true) },
+                            latestText, latestLink, width, size,
+                        )
                 },
                 modifier = Modifier.fillMaxWidth(),
             )
@@ -984,6 +1005,13 @@ private fun lineCount(text: CharSequence, paint: android.text.TextPaint, width: 
 
 /** A remark cut to its first lines, and what it was measured for. */
 private class FoldedNote(val text: CharSequence, val width: Int, val size: Float)
+
+/** A remark as measured: [folded], null if it fits, for this text, colour
+ * of links, width and size */
+private class CutNote(val folded: FoldedNote?, val source: CharSequence, val link: Int, val width: Int, val size: Float)
+
+/** Folded examples as measured: the first one, and the lines of the others */
+private class MeasuredExamples(val cut: CutNote, val othersLines: Int)
 
 /** The remark cut at the end of its [FOLDED_NOTE_LINES]th line, between two
  * words, with "… legi plu ▾" where it fits; null if it is not longer than
@@ -1586,11 +1614,19 @@ fun SpannedText(
      * not the text size of the settings that the density carries */
     val size = with(LocalDensity.current) { style.fontSize.toPx() }
 
+    val latestOnLayout by rememberUpdatedState(onLayout)
+
     AndroidView(
         factory = { context ->
             TextView(context).apply {
                 movementMethod = LinkMovementMethod.getInstance()
                 setLineSpacing(0f, 1.2f)
+                /* And after each layout: a text changed while the screen
+                 * was hidden (a change of theme in the settings) has none
+                 * yet when the above runs, only once it is shown again */
+                addOnLayoutChangeListener { view, _, _, _, _, _, _, _, _ ->
+                    view.post { (view as TextView).let { if (it.layout != null) latestOnLayout?.invoke(it) } }
+                }
             }
         },
         update = { view ->
@@ -1598,6 +1634,7 @@ fun SpannedText(
             view.setTextColor(color.toArgb())
             view.setLinkTextColor(linkColor.toArgb())
             view.setTextSize(TypedValue.COMPLEX_UNIT_PX, size)
+            /* Laid out again or not: a new text of the same size isn't */
             if (onLayout != null)
                 view.post { if (view.layout != null) onLayout(view) }
             /* Where the finger went down: the word under a long press, the
