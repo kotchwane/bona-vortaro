@@ -83,13 +83,17 @@ object WordLookup {
         val forms = if (language == "eo") candidates(word) else listOf(word.lowercase(Locale.ROOT))
         val results = arrayOfNulls<SearchResult>(32)
 
-        return forms.flatMap { form ->
+        val found = forms.flatMap { form ->
             /* The words of the node come first, then the longer ones */
             val count = trie.search(form, results)
             /* The word itself before its examples in other articles */
             results.take(count).filterNotNull().filter { it.word.lowercase(Locale.ROOT) == form }
                 .sortedBy { it.isExample }
-        }.distinctBy { it.article to it.mark }.take(MAX_ENTRIES)
+        }.distinctBy { it.article to it.mark }
+        /* A word of another language: its translations in the order of the
+         * search, before keeping the first ones */
+        return (if (language == "eo") found else DictionarySearch.inSearchOrder(context, found, language))
+            .take(MAX_ENTRIES)
     }
 
     /** The word around a place in a text, or null if the place isn't

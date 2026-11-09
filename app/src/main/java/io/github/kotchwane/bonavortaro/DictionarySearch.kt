@@ -363,6 +363,13 @@ object DictionarySearch {
 
     private const val LESSER_CHECKED = 24
 
+    /** The Esperanto words a word of another language is translated by,
+     * [results] all of that word, in the order the search gives them: the
+     * long press on "water" lists akvo first, as the search does. Disk
+     * access. */
+    internal fun inSearchOrder(context: Context, results: List<SearchResult>, language: String): List<SearchResult> =
+        lesserLast(context, results, language) { false }
+
     /* A word's Esperanto translations, [group]:
      * 1. those that are rare, archaic or to avoid, "(malofte) uvo", or
      *    that "Vortoj de la bona lingvo" advises against, after the others:

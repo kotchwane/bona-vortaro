@@ -431,7 +431,7 @@ class ArticleActivity : BonaActivity() {
     private fun share(section: ArticleSection) {
         val intent = Intent(Intent.ACTION_SEND)
             .setType("text/plain")
-            .putExtra(Intent.EXTRA_TEXT, "${section.header}\n\n${withoutOutsideSigns(section.content)}")
+            .putExtra(Intent.EXTRA_TEXT, "${section.headword}\n\n${withoutOutsideSigns(section.content)}")
 
         startActivity(Intent.createChooser(intent, null))
     }
@@ -816,9 +816,9 @@ private fun ArticleScreen(
             onCopy = { onCopy(section) },
             /* "definition → word": the definition is asked, the word is
              * the answer, and the other way round */
-            onFlashcardWord = { onFlashcard(withoutSources(section.content), section.header) },
-            onFlashcardDefinition = { onFlashcard(section.header, withoutSources(section.content)) },
-            onLookUpInPiv = { onLookUpInPiv(section.header) },
+            onFlashcardWord = { onFlashcard(withoutSources(section.content), section.headword) },
+            onFlashcardDefinition = { onFlashcard(section.headword, withoutSources(section.content)) },
+            onLookUpInPiv = { onLookUpInPiv(section.headword) },
             onShare = { onShare(section) },
         )
     }
@@ -1002,7 +1002,7 @@ private fun DefinitionActions(
     ) {
         Column(Modifier.verticalScroll(rememberScrollState())) {
             Text(
-                section.header.toString(),
+                section.headword.toString(),
                 style = MaterialTheme.typography.titleMedium,
                 color = MaterialTheme.colorScheme.primary,
                 modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
