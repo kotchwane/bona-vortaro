@@ -276,6 +276,14 @@ object DictionarySearch {
             if (under.isNotEmpty())
                 indexed = (indexed + under).sortedBy { sortKey(it.word, esperanto) }
         }
+        /* The expressions the index files under one word, in its own
+         * order: "ice rink, ice cellar, ice box" under "ice"; in
+         * alphabetical order, where Vikivortaro's words go among them
+         * (user, 2026-11-10). Stable: the same words keep their order */
+        if (!isPattern(filter)) {
+            val searched = sortKey(words, esperanto)
+            indexed = indexed.sortedBy { orderKey(it.word, searched, esperanto) }
+        }
         /* The index has some entries twice, the same word for the same
          * sense; or with its other case, "Januaro, januaro": once, as
          * typed if it is so */
