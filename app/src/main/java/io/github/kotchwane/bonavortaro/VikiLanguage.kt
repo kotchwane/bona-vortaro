@@ -109,6 +109,8 @@ class VikiLanguage(
                 "durch", "oder", "und", "als", "wie", "sich", "nicht"),
             glossDescribing = setOf("abkürzung", "handlung", "vorgang", "zustand", "eigenschaft", "tätigkeit"),
             capitalNouns = true,
+            /* Every pair reviewed, 401 left out (2026-11-10) */
+            showsUndescribed = true,
         )
 
         /** The languages whose Wiktionary Bona vortaro has, in the order

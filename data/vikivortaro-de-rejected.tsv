@@ -1,0 +1,406 @@
+# German → Esperanto pairs of the German Wiktionary that Bona vortaro leaves out: not translations
+# (wrong meaning, false friend, a description or fragment taken for a word, a misspelt or non-Esperanto word,
+# a misleading word class). Never for being offensive.
+# Reviewed 2026-11-10: every pair that Reta Vortaro lacks (8,357), by six reviewers; the doubtful ones read again.
+# Read by scripts/vikivortaro.py. Columns: the German word, the Esperanto word, why.
+abbleiben	esti	esti too loose for abbleiben
+Abdeckplane	litkovrilo	tarpaulin vs bedspread
+Abessinien	Abesenio	Abesenio: unusual spelling, PIV has Abisenio
+abfeiern	malkromlaborigi	malkromlaborigi odd coinage
+abfeiern	senlaborigi	senlaborigi = make jobless, not take time off
+Abflug	migrado	Abflug is departure by air, not migration
+abgedreht	ekterrealeca	misspelt (eksterrealeca)
+Abkühlung	refreŝigaĵo	Abkühlung is cooling; refreŝigaĵo is a refreshment/drink
+abs.	for	abbreviation abs. does not mean "away"
+Abschleppwagen	trenilstiranto	tow-truck driver, not tow truck
+Abschreibung	deskribo	Abschreibung mainly depreciation; deskribo only the copying sense
+absehen	mautilemi	mautilemi not a word (typo)
+Abstellgleis	helpovojero	vojero unknown word
+abwerben	ĉerpi	ĉerpi = draw (water); poaching sense unclear
+Acetanilid	acetanelido	misspelt: acetanilido
+Adelheid	Adelajdo	Adelajdo is the city Adelaide; German name Adelheid
+Adenom	adeno	adeno is gland/rare; adenoma = adenomo
+adult	adulta	false friend: adulta = adulterous
+akkordieren	agordi	akkordieren = agree/settle; agordi = tune
+alkoholfrei	alkohola	opposite: alkohola = alcoholic
+alkoholhaltig	senalkohava	opposite: senalkohola = alcohol-free
+Allzweckwaffe	universala celilo	celilo is a gun sight, not a weapon
+Andenken	memoro pri	fragment with dangling preposition
+Android	homunkulo	Android is a humanoid robot (androido), not homunculus
+anfahren	ekspluati	ekspluati only via a mining sense, unclear
+anlehnen	esti inspirita en	wrong preposition (inspirita de)
+anlehnen	imiti	imiti = imitate; anlehnen = lean against
+anrichten	trudi	trudi = impose; anrichten = cause/prepare
+anschwemmen	alnaĝi	alnaĝi = swim to; anschwemmen = wash ashore
+Archivale	arkivajo	misspelt: arkivaĵo
+Armada	armado	armado is arming; Armada is a fleet
+auf Zack sein	bonfari	bonfari = do good, not be on the ball
+auffallen	bati	bati = beat; auffallen = be noticeable
+Aufforstung	arbara flegado	afforestation, not forest maintenance
+aufschlitzen	dispremi	dispremi = crush, not slit open
+aufschlitzen	frakasi	frakasi = shatter, not slit open
+aufschlitzen	krevigi	krevigi = burst, not slit open
+auftragen	diŝajnigi	diŝajnigi not a word
+australisch	aŭstrala	aŭstrala = southern; Australian = aŭstralia
+Austrofaschismus	austrofaŝismo	misspelt: aŭstrofaŝismo
+Autosom	aŭtosemo	misspelt: aŭtosomo
+b-Moll	bemolo	bemolo = flat sign, not B-flat minor
+Backslash	deklivo	deklivo is a slope; unsure it names the backslash sign
+Ballermann	kaoso	Ballermann (party resort/gun) is not chaos
+Ballermann	ĥaoso	Ballermann (party resort/gun) is not chaos
+ballern	injekti drogojn	injecting drugs sense of ballern unclear
+begehrt	pridemandita	pridemandita = questioned, not in demand
+Beiordnung	aljuĝo	aljuĝo is award/adjudication; Beiordnung is appointment/coordination
+Belang	gravi por	verb phrase for a noun
+Belorezk	Beloreck	not an Esperanto form (ck spelling, no -o)
+Bembel	koro	Bembel is a cider jug/dangling trinket, not heart
+Bembel	medalo	only an example of a dangling trinket, not a translation
+Bembel	poŝhorloĝo	only an example of a dangling trinket, not a translation
+bestreben	misii	misii = go on a mission; weak match for bestreben
+Bestseller	mendanto	mendanto is a person who orders
+Betreuung	prizorganto	caregiver (person) for the act of care
+Birdie	sub la normo	description, not a term
+Birkenleder	betulŝelo	Birkenleder is Russia leather, not birch bark
+Biss	sinpelado volonteco	garbage: two words merged
+Bitternis	amaaĵo	misspelt: amaraĵo
+blank	blanka	false friend: blank = shiny/bare, blanka = white
+Bobby	Bobio	Bobby (British policeman) vs a first name
+bockig	kaprovireca	literal "billy-goat-ness", not stubborn
+Bonität	boneco	Bonität is creditworthiness, not goodness
+Bord	bordo	false friend: Bord is shelf/ship's side, bordo is shore
+Bozen	Bolzano-Bozen	Italian-German double name, not an Esperanto form
+brodeln	okazonti	okazonti as verb is non-standard
+Bromberg	Bydgoszcz	Polish spelling, not Esperantised
+Buchmacher	bukmekro	unusual form; bukmekero expected
+bunkern	enŝipiĝi	enŝipiĝi = embark; bunkern = bunker fuel/hoard
+Butan	Butano	German Butan is butane; Butano is Bhutan
+C-Dur	Do-maĵora Ut-maĵora	two terms merged into one entry
+Champagne	ĉampanjo	Champagne is the region (Ĉampanjo); ĉampanjo is the wine
+Chatte	ĥato	German Chatte unclear; ĥato is a Slavic hut
+Chiffrat	ĉifrado	Chiffrat is ciphertext, ĉifrado the process
+Community	homaro	homaro is mankind, not a community
+Cyrenaika	Cyrenaica	Latin form, not Esperanto (Cirenajko)
+danebengehen	rezultigaĉi	rezultigaĉi odd coinage
+das crazy	bone	"das crazy" filler sense; bone a stretch
+das crazy	nu	"das crazy" filler sense; nu only via description
+das crazy	senvorte	senvorte = wordlessly; loose
+davonkommen	elsavi	elsavi transitive (rescue); davonkommen = escape
+davonkommen	savi	savi transitive (save); davonkommen = escape
+Defektivität	difektado	difektado is damaging, not defectiveness
+Demetrius	Zmitro	Zmitro is a Belarusian form, not Esperanto Demetrio
+den Bach runtergehen	fali de la pato en la fajron	different idiom (frying pan into fire)
+den Bach runtergehen	fali de sitelo en barelon	different idiom (from bad to worse)
+den Bach runtergehen	salti el la pato en la fajron	different idiom (frying pan into fire)
+den Bach runtergehen	trafi de Scilo al Ĥaribdo	different idiom (Scylla to Charybdis)
+den Bach runtergehen	trafi el sub pluvo en riveron	different idiom (from bad to worse)
+Derby	grava ludo inter urbaj rivaloj	description, not a term
+derjenige	kiu...	fragment "kiu..."
+Dextrose	glukozo glikozo	two words merged into one entry
+die Wogen glätten	forakrigi aspraĵojn	forakrigi odd coinage
+Dienstweg	nurdungitara vojo	odd coinage, meaning unclear
+Diffamierung	misfamo	misfamo is ill repute; Diffamierung is defamation
+diffizil	dificila	dificila looks like Ido; Esperanto malfacila
+diffus	difusa	misspelt (difuza)
+Dimmer	dimo	dimo unknown; dimilo expected
+distinguiert	distinga	distinga = distinctive, not distinguished
+doxen	tropublikigi	tropublikigi = over-publish; doxing sense unclear
+dran	veri	veri only via "dran sein"; misleading for dran
+drankriegen	enproblemi	enproblemi odd coinage
+draufhaben	boni por	"boni por" odd phrase
+dreifach	trifaja	trifaja not a word (triobla)
+drüben	trans	preposition for an adverb (transe)
+Duktus	dukto	Duktus is handwriting style; dukto is a duct
+Dunking	desupro	'desupro' odd fragment, unclear
+Durchsetzungsvermögen	aserto	aserto is a claim, not assertiveness
+Durchsetzungsvermögen	atingeblo	atingeblo is attainability, not assertiveness
+durchtrieben	virtŝajniga	virtŝajniga = feigning virtue, not sly
+eindecken	malavari	malavari = be generous; loose for eindecken
+einen Zahn zulegen	repidiĝi	misspelt (rapidiĝi)
+Einhalt	haltigi	verb for a noun; only fits 'Einhalt gebieten'
+Einhalt	ĉesigi	verb for a noun; only fits 'Einhalt gebieten'
+einleiten	eki	eki is intransitive (begin); einleiten is transitive (ekigi)
+einleuchten	evidenta	adjective for a verb (fits einleuchtend)
+einleuchten	klara	adjective for a verb (fits einleuchtend)
+einrennen	sin ĵeti	einrennen = break in by running; sin ĵeti too loose
+Einschulung	antaŭtrejnado	Einschulung is school enrolment, not pre-training
+Elektrakomplex	Elektra konflikto	conflict instead of complex
+Encomienda	superindiĝena reĝkomisio	ad-hoc paraphrase rather than a term
+Endeffekt	efektive	only fits the idiom ('im Endeffekt'); adverb for a noun
+Endeffekt	esence	only fits the idiom ('im Endeffekt'); adverb for a noun
+Endeffekt	fine	only fits the idiom ('im Endeffekt'); adverb for a noun
+Endeffekt	finfine	only fits the idiom ('im Endeffekt'); adverb for a noun
+entgegennehmen	alpreni	alpreni = adopt/assume; entgegennehmen = receive
+ergehen	situacii	situacii is an odd coinage, unclear meaning
+erhoffen	fidi	fidi = trust, not hope
+erwärmen	ektaŭgi	ektaŭgi = become suitable, not warm to
+erwärmen	konektiĝi	konektiĝi = get connected, not warm to
+erwärmen	kuniĝi	kuniĝi = come together, not warm to
+etlich	dekkelke	dekkelke = a dozen-odd, loose for etlich
+etwas aufs Spiel setzen	ludi	ludi = play; aufs Spiel setzen = risk
+etwas eine Abfuhr erteilen	sendi ion en ordo tra la pordo	odd unattested phrase for reject
+Exklamation	eksklamatio	unusual form; eksklamacio expected
+expandieren	ekspandri	ekspandri is not an Esperanto word (misspelt)
+expressiv	ekspresa	false friend: ekspresa = express (fast); expressiv = esprimplena
+Fanmeile	stratekranega sport-forvidejo	ad-hoc descriptive coinage
+Fanmeile	zelotejo	zeloto is a zealot, not a fan
+Faustregel	eta regulo	eta regulo is 'small rule', not rule of thumb
+Feinschmecker	amanto de fajnaj ..oj	garbage with placeholder '..oj'
+Feinschmecker	fakulo	fakulo is expert, not gourmet
+feststecken	nemobleviĝi	nemobleviĝi is not an Esperanto word
+Flakgeschütz	kontraŭaviadila pafaĵo	pafaĵo is the shell, not the gun
+Franziska	francisko	Franziska is a woman's name or axe; francisko unclear
+Französische Revolution	Francaj revolucioj	plural 'French revolutions', not the French Revolution
+freilich	sed	sed = but; freilich = admittedly, of course
+Freiwild	malprotektaĵo	odd coinage for 'fair game'
+Freiwild	trafaĵo	trafaĵo is a hit, not fair game
+frönen	devontiĝi	devontiĝi = commit oneself; frönen = indulge in
+fuchsteufelswild	vulpdiable sovaĝa	word-for-word calque, not Esperanto usage
+fundieren	fondi	fundi unclear (bottom?), not found/base
+Füllsel	farĉajo	misspelt: farĉaĵo
+Fünen	Fyn	Danish form, not Esperantised
+Galanterie	galanterio	Galanterie is gallantry; galanterio is fancy goods
+Galgenfrist	portempa repuŝo	repuŝo is a repulse, not a reprieve
+Gdingen	Gdynia	Polish form, not Esperantised
+Gebrauchsanweisung	uzuzinstrukcioj	misspelt: uzinstrukcioj
+gegebenenfalls	se apliki	ungrammatical (se apliki)
+gegensteuern	malaktivigi	malaktivigi = deactivate, not counteract
+gegensteuern	malpliigi	malpliigi = reduce, loose for gegensteuern
+Geheimratsecke	senharema angulo	odd coinage
+Gezeter	tiom da bruo	fragment 'so much noise'
+GI	usona et-ranga soldato	description, not a term
+Gicht	faŭko	only furnace-throat sense of Gicht; main sense gout
+Gischt	gisto	false friend: Gischt is spray/spume, gisto is yeast
+Glatteis	glatiga glacio	glatiga 'smoothing'; likely misspelt glitiga
+Glatteis	glatiso	unknown Esperanto word glatiso
+grasen	gresi	gresi is not an Esperanto word (graze = paŝtiĝi)
+Grenadine	granato	Grenadine is the syrup (or fabric), granato the fruit
+Gründerzeit	Periodo de spekulanto-kompanioj	description, not a term
+Grüne	en la kamparo	adverbial idiom fragment for noun (im Grünen)
+Grüne	en la kamparon	adverbial idiom fragment for noun (ins Grüne)
+H-Dur	H-maĵora B-maĵora	garbage: two keys merged
+Haftung	responseco	misspelt (respondeco)
+hallöchen	saluton ĉiuj	saluton ĉiuj = hi everyone; hallöchen = hi there
+Heimwerker	metiisto	Heimwerker is a DIY amateur; metiisto a professional craftsman
+Heimwerkerin	metiistino	Heimwerkerin is a DIY amateur; metiistino a professional
+Hektik	hektiko	Esperanto hektik- is medical (hectic fever), not hustle
+herumsitzen	side ĉirkaŭi	side ĉirkaŭi = surround sitting, not sit idle
+herumsitzen	sidi ĉirkaŭ	sidi ĉirkaŭ = sit around an object, literal calque
+herumzappeln	maltrankvili	maltrankvili = worry; herumzappeln = fidget
+hervorstechen	alii	alii is not a usable word for stand out
+Heuchlerei	hiprokritado	misspelt (hipokritado)
+hinaus	por jaroj	fragment (auf Jahre hinaus = for years)
+hineindenken	pensi interne	pensi interne = think internally, not put oneself in
+hinkriegen	kleri	kleri = enlightened, not manage
+hinterwäldlerisch	ansera	ansera = goose-like, loose for backwoods
+Hippe	hipo	unclear what hipo means; Hippe is a billhook/scythe
+Hochbahn	L-fervojo	L-fervojo is a calque of Chicago 'L', not a general term
+hochfliegen	ambicia	adjective ambitious fits hochfliegend, not the verb fly up
+hold	glata	glata = smooth, not gracious/favourable
+holprig	subita	subita = sudden, not bumpy
+Hänger	nescio pri okazontaĵo	description 'not knowing about a future event', no sense of Hänger
+Ichthyophage	iĥtiofagio	Ichthyophage is the fish-eater, iĥtiofagio the practice
+idiomatisch	idioma	idioma = of a language (idiomo); idiomatic = idiotisma
+im Begriff sein	emi	emi = tend to; im Begriff sein = be about to
+Impertinenz	impertinenteko	misspelt (impertinenteco)
+in die Brüche gehen	ne plui	fragment (ne plui)
+in Fahrt	bonhumore havanta inklinon	garbled phrase
+in Fahrt	en bonvola humoro	in Fahrt = in full swing/angry, not good-humoured
+Inbegriff	esencopreno	esencopreno 'taking of essence' is not an established word for Inbegriff
+Inbegriff	generaligo	generaligo 'generalisation' does not match Inbegriff
+Inch	Colo	should be lowercase colo
+Infektiosität	infektado	infektado is 'infecting', not 'infectiousness'
+Influenz	influenco	false friend: German Influenz is electrostatic induction, influenco is flu
+influenzieren	influki	influki is not an Esperanto word
+initialisieren	initi	initi not a standard word (inicializi)
+innewohnen	eri	eri is not a meaningful word for inhere
+insektenfressend	insekto manĝanta	insekto manĝanta = an insect eating; should be insektomanĝanta
+Insuffizienz	insufiĉieco	malformed hybrid (nesufiĉeco)
+Irrstern	kometo	Irrstern is archaic for planet, not comet
+Jakobskreuzkraut	jacob-senecio	non-Esperanto spelling jacob- (jakob-)
+Jakobskreuzkraut	jacob-trudherbo	non-Esperanto spelling jacob- (jakob-)
+jemandem den Wind aus den Segeln nehmen	antaŭiĝi al iu	antaŭiĝi al iu unclear
+jemandem einen Korb geben	refuti	refuti = refute an argument, not turn down
+jemandem jemanden auf den Hals hetzen	transdoni iun al iu	transdoni = hand over, not set someone on
+Junior	junular-rangulo	junular-rangulo is an obscure coinage
+Junior	posedanta filo	'owning son'; odd paraphrase of Junior(chef)
+Jussiv	volitive	English word, not Esperanto
+Jüdin	Judino	should be lowercase judino
+Kaisergranat	langosta norvego	malformed (langusta? word order); not a name for Norway lobster
+Kanarische Inseln	Kanaria Insuloj	grammar error (Kanariaj Insuloj)
+Kapotte	kapoto	Kapotte is a bonnet hat; kapoto is a car bonnet/cloak
+Karree	karoo	Karree mainly a square/block; diamonds suit is Karo
+Kartoffeldruck	terpompresi	verb infinitive for a noun
+kasuistisch	kazua	kazua not attested, unclear meaning
+Kattegat	kategato	proper name should be capitalised (Kategato)
+Kattowitz	Katowice	Polish name; Esperanto form is Katovico
+klarkommen	sufiĉi pri io	sufiĉi pri io unclear/ungrammatical
+klarmachen	kvitigi	kvitigi = settle accounts, loose for klarmachen
+Klitikon	kunantaŭera fandiĝilo	garbled coinage, not a word for clitic
+Knuddelbär	pluŝurset	misspelt, missing -o (pluŝurso/pluŝurseto)
+Konfidenz	konfidenco	konfidenco is a confided secret, not confidence/trust
+Kornisch	Kornvala lingvo	should be lowercase kornvala lingvo
+Korolle	karolo	Korolle is corolla (korolo); karolo is a whole note
+Kot	koto	Kot is mainly faeces; mud only archaic
+Kriegerverein	prabatalantara ligo	pra- 'primeval' is wrong prefix for veterans (eks-)
+körnerfressend	grajno manĝanta	grajno manĝanta = a grain eating; should be grajnomanĝanta
+laminar	lamenara	lamenara unattested form (laminara?)
+Landratte	ŝipanaĉo	ŝipanaĉo 'bad crew member', not a landlubber
+langer Rede kurzer Sinn	longa rakonto mallonga	garbled calque, not an Esperanto saying
+Lanzierer	lancisto	lancisto is a lancer; Lanzierer is someone who launches
+latschen	senmotive iri	senmotive iri = go without motive, not shuffle
+Lee	leo	unclear Esperanto leo for leeward side
+Leine	foriri	verb 'leave' for noun Leine (idiom Leine ziehen)
+Leine	forŝteliĝi	verb 'sneak away' for noun Leine (idiom Leine ziehen)
+letzthin	iam	iam = sometime/once, not recently
+levitieren	leveti	leveti = lift slightly, not levitate
+Lexikograf	leksikographo	misspelt (leksikografo)
+liebäugeln	observi	observi = observe, loose for ogle/toy with
+Mannsbild	bildigita viro	literal calque 'depicted man'; Mannsbild is just 'man'
+matschen	maĉi	false friend: matschen = squish, maĉi = chew
+meinetwegen	bonvolu	bonvolu = please; meinetwegen = fine by me
+Metaphysiker	metafisikisko	misspelt (metafizikisto)
+Metaphysikerin	metafisikiskino	misspelt (metafizikistino)
+Minderwertigkeitskomplex	komplekso de Malplivaloreco	stray capital in Malplivaloreco
+mir	min	min = mich (accusative); mir = al mi
+missbräuchlich	erare	erare = mistakenly; missbräuchlich = abusive
+Missernte	malbona ricolto	misspelt (malbona rikolto)
+mitgeben	prezenti	prezenti = present/perform, not give along
+Mittelwort	mezvorto	mezvorto is a literal calque, not used for participle
+mittlerweile	siatempe	siatempe = back then, not meanwhile
+Morphinist	morphinisto	misspelt (morfinisto)
+Mucks	unu vorto	'one word', fragment of idiom keinen Mucks sagen
+Möchtegern-	estema	adjective estema 'inclined to be' for a prefix
+nachgucken	fulmoserĉi	fulmoserĉi odd coinage
+Nachschlag	fina solvo pri reciprokaj devoj	description, not a word
+Nachschlag	trilfina dutona melodiornamo	description, not a word
+nachvollziehbar	postplenumebla	calque: postplenumebla = performable later, not understandable
+nachvollziehen	postplenumi	calque: postplenumi = carry out later, not comprehend
+Nachweis	provo	provo is 'attempt'; proof is pruvo
+Naivling	naivisto	naivisto is a naive-art painter; naive person is naivulo
+nebenher	senceremonie	senceremonie = unceremoniously, loose for incidentally
+Niedersorbisch	la malsuprasoraba	fragment: article + adjective
+No-Go	antaŭenneo	garbage coinage 'forward-no'
+Nordeuropa	Nordeŭropa	adjective, not the region (Nordeŭropo)
+Nyos-See	Nyos	bare unassimilated name without 'lago'
+ohnehin	ĉiam	ohnehin=anyway; ĉiam=always
+ohnehin	ĉiel	ĉiel=in every way, not 'anyway' (ĉiukaze)
+opt-	opt-	opt- is not an Esperanto prefix
+organisiert	organiza	organisiert=organizita; organiza=organisational
+panisch	terura	panisch=panic-stricken; terura=terrible, loose
+Panniculitis	paniklito	paniklito suggests panicle (paniklo); expected panikulito
+Para	mono	Para is a coin unit, not money in general
+Parther	parto	Parther is a Parthian, parto is a part
+pauschalisieren	paŭŝaligi	Germanism root paŭŝ- unknown in Esperanto
+Peinlichkeit	malfacilaĵo	malfacilaĵo is a difficulty, not embarrassment
+persuasiv	persvara	non-existent form (persvada)
+plattdeutsch	platdiĉa	diĉ- not an Esperanto root (platgermana)
+Pool	aro da samposedaĵaj investoj	descriptive paraphrase rather than a term
+Posen	Poznań	Polish form, not Esperanto (Poznano)
+Privatier	privatulo	privatulo is a private individual, not a person of independent means
+promoten	akceli	akceli=accelerate, not promote
+provenzalisch	provenza	misspelt; Esperanto is provenca (Provenco)
+Psychose	ligoperdo pri realeco	garbled descriptive coinage
+Psychose	realo-liga perdo	garbled descriptive coinage
+Racker	friponeto eta petolulo	two translations merged into one string
+ran	ĝis	ĝis=until/up to; ran=closer, hither
+rattern	pumpumi	pumpumi is an ad-hoc onomatopoeic verb
+raus	ekstere	raus is directional (eksteren), ekstere=outside
+rausschmeißen	piedbati	piedbati=to kick, only loosely 'kick out'
+reinpfeifen	elsuĉi	elsuĉi=suck out; reinpfeifen=gobble/consume
+reinstecken	klopodi atingi	klopodi atingi=try to reach; loose
+relegieren	rilegi	rilegi not attested (relegacii?)
+renommieren	renomi	false friend: renommieren=boast; renomi=rename
+respektiert	respekta	respektiert=respected (respektata); respekta=respectful
+runtergehen	desupri	desupri is not an attested verb
+Sachbearbeiterin	repondeculino	misspelt (respondeculino)
+schalten	deloki	deloki=displace; loose for schalten
+schalten	formovi	formovi=move away; loose for schalten
+schalten	movi	movi=move; schalten=switch/shift, loose
+Schlaftablette	enuulo	enuulo is a bored person, not a bore
+schleimen	peratenti ies favoron	peratenti is an odd coinage
+schnelllebig	rapidema	rapidema=hasty; schnelllebig=fast-paced/short-lived
+schwabbelig	ŝvela	ŝvela=swollen, not flabby
+schweflige Säure	sulfita acido	sulfurous acid is usually sulfurosa acido
+Serviererin	servistino	servistino is a maid; waitress is kelnerino
+sich aus dem Staub machen	forpeli siajn piedojn	odd literal phrase
+signieren	signi	signi=mark/signify; signieren=sign (subskribi)
+Solidus	solido	Solidus is a coin or slash; solido is a solid body
+Solvenz	solvento	solvency would be solventeco; solvento reads as a solvent
+Sonnenstrahlung	sunradiad	truncated, missing -o (sunradiado)
+sonstig	posttempa	sonstig=other/otherwise; posttempa=later
+sorgen	rezultemi je	rezultemi je is an odd coinage
+Spacko	malfruiĝinto	malfruiĝinto reads as latecomer, not idiot
+Spanisch	hispana malfermo	only the chess-opening sense; misleads for the language name
+Speerfisch	ksifio	ksifio is swordfish; Speerfisch is spearfish/marlin
+Splitt	splito	Splitt is gravel chippings; splito is a splinter
+spoilern	abortigi	abortigi=cause abortion; spoilern=reveal the plot
+Stakkato	stakkato	spelling stakkato; expected stakato
+Stettin	Szczecin	Polish form, not Esperanto (Ŝĉeĉino)
+Streusel	panero	panero is a breadcrumb, Streusel a crumble topping
+Synesis	sinetio	sinetio looks unrelated to synesis (expected sinezo)
+Taxon	vivul-ordigo	describes classification of living beings, not a taxon
+Teddybär	pluŝurset	truncated, missing -o (pluŝurseto)
+Teleobjektiv	teleobjectivo	misspelt (teleobjektivo)
+Theogonie	teogenio	misspelt (teogonio)
+Treck	promenego	promenego is a long walk; Treck is a convoy/trek
+Trompe	trumpo	trumpo unknown in Esperanto; meaning unclear
+Trottel	fi-erarulo	fi-erarulo means a blunderer, not an idiot
+Tschenstochau	Częstochowa	Polish form, not Esperanto (Ĉenstoĥovo)
+ultimativ	finkomunika	finkomunika is an odd coinage
+ultramontan	pappapista	misspelt (papista)
+umschwingen	adapti	adapti=adapt; loose for umschwingen
+umschwingen	aranĝi	aranĝi=arrange; umschwingen=swing round/change
+umspringen	aĉe pritrakti traktaĉi	two variants run together (aĉe pritrakti / traktaĉi)
+umtreiben	ĉifonumi	ĉifonumi is an odd coinage
+unbedankt	maldankema	unbedankt=unthanked; maldankema=ungrateful
+Unbehagen	mabonfartumo	misspelt (malbonfartumo)
+Unbehagen	malfacilaĵo	malfacilaĵo is a difficulty, not unease
+unbeirrt	neerarema	neerarema=not prone to error; unbeirrt=unwavering
+unpaarig	napara	misspelt (nepara)
+unüberbrückbar	malakordigebla	should be neakordigebla; mal- reverses meaning
+usw.	ktp. kaj tiel plu	abbreviation and full form run together
+Vendetta	vendetto	spelling vendetto; expected vendeto
+verheizen	krevigi	krevigi=burst; verheizen=burn up/sacrifice
+verkorksen	erari	erari=err; verkorksen=botch
+verlauten	laŭtigi	laŭtigi=make louder; verlauten=be announced
+Versicherungswesen	asekuraĵo	asekuraĵo is an insured item/policy, not the insurance sector
+verwenden	interesiĝi pri iu	sich verwenden für=intercede; interesiĝi=be interested
+Visage	malpugo	malpugo is an unclear jocular coinage
+vorbeilassen	fordormi	fordormi=sleep away; vorbeilassen=let pass
+vorfahren	aldomi	aldomi is an odd coinage
+Vorfuß	antajo	antajo is not a known Esperanto word
+Vorladung	ricevi citaĵon	verb phrase 'receive a quotation', not a summons
+voten	voĉi	voĉi=to voice; voten=vote (voĉdoni)
+Waffenschmied	armo-vendisto	arms dealer, not an armourer
+Walachei	transe de la pleja foro	"pleja" is non-standard Esperanto
+Wallach	valaĥo	valaĥo = Wallachian; gelding sense unattested
+Wallung	eksciti	verb for noun; Wallung = ekscitiĝo/bolado
+Wasserfarbe	akvopentraĵo	Wasserfarbe is paint, akvopentraĵo a painting
+weiterwissen	plukoni	plukoni=continue knowing; weiterwissen=know how to go on
+Weltgesundheitsorganisation	Verdenssundhedsorganisationen	Danish, not Esperanto
+Weltrang	mondumo	mondumo = high society, not world rank
+werken	verki	werken=do handicraft work; verki=write/compose
+wiederfinden	surprize rimarki	wiederfinden=find again; surprize rimarki loose
+wohlwollend	favorkara	favorkara looks like a slip for favorkora
+Wollknäuel	lanaro	lanaro = fleece, not ball of wool
+Wyk	Viko	Viko = Wicca per en.wikt; Wyk unclear
+Würdigung	plivaloro	plivaloro = increase in value, not appreciation
+Zeitschaltuhr	prokrastilo	prokrastilo = delayer, not timer switch
+Zeitschloss	tempoklok	"tempoklok" lacks ending, not a word
+zerfetzen	devori	devori=devour; zerfetzen=tear to pieces
+zerfetzen	vori	vori=devour; zerfetzen=tear to pieces
+zersägen	disigi	disigi=separate; zersägen=saw apart (dissegi)
+Zipp	cipo	cipo not an Esperanto word for zip
+Zippverschluss	lapfermilo	lapfermilo = Velcro, not zip
+zocken	marĉandi	marĉandi=haggle; zocken=gamble/play
+zocken	piedpilki	piedpilki=play football; zocken rarely means that
+Zugspitze	trenkapo	Zugspitze is a mountain; trenkapo meaningless
+Zusage	aga promeso	"aga promeso" odd phrase
+zusammenfinden	aglutiniĝi	aglutiniĝi=agglutinate; loose
+zusammenreißen	pliraciiĝi	pliraciiĝi=become more rational; loose
+zusammenreißen	puŝi sentojn	puŝi sentojn is not a translation (pull oneself together)
+zuschanden	nenien	nenien=to nowhere; zuschanden=ruined
+Zustandspassiv	ŝtat-pasivo	ŝtato = state (country); should be stato
+zuziehen	atingi	atingi=attain; sich zuziehen=contract/incur
+Zweifelsfall	dubo-okaze	adverb for a noun
+überwuchern	plenkreski	plenkreski=grow up/mature; überwuchern=overgrow
