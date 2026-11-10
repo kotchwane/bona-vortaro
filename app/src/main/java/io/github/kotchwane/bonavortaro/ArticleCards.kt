@@ -255,6 +255,14 @@ fun WordCard(
             }
 
             val exampleColor = MaterialTheme.colorScheme.onSurfaceVariant.toArgb()
+            /* An Esperanto word searched that Reta Vortaro has in an
+             * example only, "vicreĝo" in vic-: its examples unfolded, the
+             * word marked in them (user, 2026-11-10) */
+            val searchedWord = example?.takeIf { it.language == "eo" }?.example
+            val searchedColor = markColor().toArgb()
+            fun marked(examples: List<ContentBlock.Example>) =
+                if (searchedWord == null) examples
+                else examples.map { if (it.text.contains(searchedWord, ignoreCase = true)) ContentBlock.Example(markWord(it.text, searchedWord, searchedColor)) else it }
 
             for ((index, group) in groupExamples(entry.blocks, exampleColor).withIndex()) {
                 when (group) {
@@ -268,16 +276,19 @@ fun WordCard(
                                 onLongPress = onLongPressText,
                             )
                         }
-                        is ContentBlock.Example -> ExampleLine(block.text, onLongPressText)
+                        is ContentBlock.Example -> ExampleLine(marked(listOf(block)).first().text, onLongPressText)
                         is ContentBlock.Note ->
                             NoteBox(block.text, key = "${entry.section}-note-$index", unfolded = unfoldExamples, onLongPressText)
                         /* Under the headword, above */
                         is ContentBlock.Origin -> {}
                     }
-                    is BlockGroup.Examples ->
-                        FoldedExamples(group.examples, onLongPressText, key = "${entry.section}-$index", unfolded = unfoldExamples)
+                    is BlockGroup.Examples -> {
+                        val shown = marked(group.examples)
+                        FoldedExamples(shown, onLongPressText, key = "${entry.section}-$index",
+                            unfolded = unfoldExamples || shown.zip(group.examples).any { (a, b) -> a !== b })
+                    }
                     is BlockGroup.ShortExamples ->
-                        for (example in group.examples)
+                        for (example in marked(group.examples))
                             ExampleLine(example.text, onLongPressText)
                 }
             }
@@ -465,6 +476,17 @@ private fun CharSequence.hasSource(): Boolean =
 private fun CharSequence.withoutSourceLength(): Int =
     length - ((this as? Spanned)?.getSpans(0, length, ExampleSource::class.java)
         ?.sumOf { getSpanEnd(it) - getSpanStart(it) + 1 } ?: 0)
+
+/** An example with a word marked wherever it is, its case aside */
+private fun markWord(text: CharSequence, word: String, color: Int): CharSequence {
+    val result = SpannableStringBuilder(text)
+    var at = text.indexOf(word, ignoreCase = true)
+    while (at >= 0) {
+        result.setSpan(android.text.style.BackgroundColorSpan(color), at, at + word.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+        at = text.indexOf(word, at + word.length, ignoreCase = true)
+    }
+    return result
+}
 
 /** The text followed by a short example, in the colour of the
  * examples. The example keeps its italics and its links. */

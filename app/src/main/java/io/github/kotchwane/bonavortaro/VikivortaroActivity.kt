@@ -40,6 +40,9 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
@@ -72,6 +75,7 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -310,6 +314,9 @@ private fun VikiPage(
      * has: "femurosto", femur + osto; also under its words, which let the
      * reader see a wrong guess ("potirono" isn't po + tir + ono):
      * "marvirino", mar + vir + in + o (user, 2026-11-10) */
+    val otherCase by produceState<String?>(null, word) {
+        value = withContext(Dispatchers.IO) { Vikivortaro.otherCase(context, word) }
+    }
     val analysis by produceState<ShownAnalysis?>(null, word, read, foreign) {
         value = if (definitionRead)
             withContext(Dispatchers.IO) {
@@ -453,6 +460,22 @@ private fun VikiPage(
                                 }
                             }
                         }
+                    }
+                    /* The same word with the other case, which another
+                     * Wiktionary gives: "smurfo" (English), "Smurfo" (French).
+                     * Not merged, as some are other words: "Atena" the
+                     * goddess, "atena" Athenian (user, 2026-11-10) */
+                    otherCase?.let { other ->
+                        Text(
+                            stringResource(R.string.viki_other_case, other),
+                            style = MaterialTheme.typography.bodyMedium.copy(fontStyle = FontStyle.Italic),
+                            color = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier
+                                .padding(top = 8.dp)
+                                .heightIn(min = 48.dp)
+                                .clickable(role = Role.Button) { VikivortaroActivity.open(context, other) }
+                                .wrapContentHeight(Alignment.CenterVertically),
+                        )
                     }
                     analysis?.let {
                         HorizontalDivider(Modifier.padding(top = 12.dp), color = muted.copy(alpha = 0.25f))
