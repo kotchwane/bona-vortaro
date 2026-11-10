@@ -84,8 +84,6 @@ object Vikivortaro {
         val senses: Array<String?>,
         /* The words of the language for an Esperanto word */
         val foreignOf: Map<String, List<String>>,
-        /* The senses of those words, each once, for an Esperanto word */
-        val sensesOf: Map<String, List<String>>,
         val descriptions: Map<String, String>,
         /* Shared by the languages: the Esperanto Wiktionary's */
         val definitions: Map<String, EsperantoDefinition>,
@@ -193,12 +191,8 @@ object Vikivortaro {
         for ((foreign, esperanto) in pairs)
             /* By the word as written: "bruno" the colour isn't "Bruno" */
             foreignOf.getOrPut(esperanto) { mutableListOf() }.add(foreign)
-        val senses = Array(pairs.size) { senseOf[pairs[it]] }
-        val sensesOf = HashMap<String, MutableList<String>>()
-        for ((index, pair) in pairs.withIndex())
-            senses[index]?.let { sense -> sensesOf.getOrPut(pair.second) { mutableListOf() }.let { if (sense !in it) it.add(sense) } }
         return Data(
-            keyed.map { it.first }, pairs, senses, foreignOf, sensesOf, descriptions, definitions(context),
+            keyed.map { it.first }, pairs, Array(pairs.size) { senseOf[pairs[it]] }, foreignOf, descriptions, definitions(context),
             undescribed = if (language.showsUndescribed) foreignOf.keys else emptyList(),
         )
     }
@@ -420,7 +414,6 @@ object Vikivortaro {
         inEsperanto = true,
         foreignWords = data.foreignOf[word].orEmpty().distinctBy { key(it) },
         definition = data.definitions[word]?.senses?.firstOrNull(),
-        sense = senses(data, word),
     )
 
     /** Whether Reta Vortaro has a word that Wiktionary translates by
@@ -845,16 +838,6 @@ object Vikivortaro {
      * it says more than the words translated by it. Disk access: not on the
      * main thread. */
     fun description(context: Context, language: VikiLanguage, word: String): String? = informative(data(context, language), word)
-
-    /** What Wiktionary's tables say of the words of a language for an
-     * Esperanto word, when nothing else says what it is: their senses,
-     * "sonĝkaptilo", "decorative Native American object" (user,
-     * 2026-11-10); null when it has a description */
-    fun senses(context: Context, language: VikiLanguage, word: String): String? = senses(data(context, language), word)
-
-    private fun senses(data: Data, word: String): String? =
-        if (informative(data, word) != null) null
-        else data.sensesOf[word]?.joinToString("; ")?.takeIf { it.isNotEmpty() }
 
     /* Two descriptions in three only repeat a word: "spicisto", "Épicier." */
     private fun informative(data: Data, word: String): String? {
