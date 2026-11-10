@@ -255,14 +255,21 @@ for line in source_lines:
 # The pairs left out after a review (data/vikivortaro-<language>-rejected.tsv):
 # out of the translations, and listed for the app, which leaves them out of
 # the pairs it makes from the descriptions too ("painfully" → oj)
+# A "*" for the foreign word leaves the Esperanto word out altogether, its
+# pairs and its description: a word that isn't Esperanto as written,
+# "posivisto", "chiaroscuro" (review of the new roots, 2026-11-10)
 REJECTED = os.path.join(os.path.dirname(__file__), "..", "data", f"vikivortaro-{LANGUAGE}-rejected.tsv")
 rejected = set()
+rejected_words = set()
 if os.path.exists(REJECTED):
     with open(REJECTED, encoding="utf-8") as f:
         for row in f:
             fields = row.rstrip("\n").split("\t")
             if not row.startswith("#") and len(fields) >= 2:
-                rejected.add((fields[0], fields[1]))
+                if fields[0] == "*":
+                    rejected_words.add(fields[1])
+                else:
+                    rejected.add((fields[0], fields[1]))
 
 # Only the descriptions of the words that the foreign words lead to, counted
 # before the rejections: a description stays useful when only one pair leading
@@ -293,7 +300,7 @@ GLOSS_SMALL = {"of", "the", "a", "an", "to", "for", "by", "in", "on", "at", "wit
 # 2026-11-10 (438 kept of 455), after the pairs of the tables
 known_pairs = {(foreign.lower(), esperanto) for foreign, esperanto in translations}
 for esperanto in sorted(later_glosses):
-    if esperanto not in descriptions:
+    if esperanto not in descriptions or esperanto in rejected_words:
         continue
     for gloss in later_glosses[esperanto]:
         # Written as Wiktionary writes them, its capitals meant: "Cuban"
@@ -301,7 +308,8 @@ for esperanto in sorted(later_glosses):
             if (foreign.lower(), esperanto) not in known_pairs:
                 known_pairs.add((foreign.lower(), esperanto))
                 translations[(foreign, esperanto)] = (10 ** 9, 0)
-translations = {pair: group for pair, group in translations.items() if pair not in rejected}
+translations = {pair: group for pair, group in translations.items() if pair not in rejected and pair[1] not in rejected_words}
+descriptions = {k: v for k, v in descriptions.items() if k not in rejected_words}
 
 # How often Reta Vortaro's words are used (assets/frequency/leipzig.tsv)
 FREQUENCIES = os.path.join(os.path.dirname(__file__), "..", "app", "src", "main", "assets", "frequency", "leipzig.tsv")
@@ -369,4 +377,4 @@ if rejected:
         f.write(f"# Pairs left out after a review, from data/vikivortaro-{LANGUAGE}-rejected.tsv.\n")
         for foreign, esperanto in sorted(rejected):
             f.write(f"{foreign}\t{esperanto}\n")
-print(f"{len(translations)} translations, {len(descriptions)} descriptions, {len(rejected)} left out")
+print(f"{len(translations)} translations, {len(descriptions)} descriptions, {len(rejected)} pairs and {len(rejected_words)} words left out")
