@@ -893,7 +893,7 @@ private fun Section(section: ArticleSection, onLongPress: () -> Unit) {
  * the dictionary. */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun WordActions(
+internal fun WordActions(
     word: String,
     language: String,
     onDismiss: () -> Unit,

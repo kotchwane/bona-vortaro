@@ -284,6 +284,18 @@ private fun VikiPage(
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
+    /* A word of the definition long pressed: its entries, as in Reta
+     * Vortaro's articles (user, 2026-11-10) */
+    var wordFor by remember { mutableStateOf<String?>(null) }
+    wordFor?.let { pressed ->
+        WordActions(
+            word = pressed,
+            language = "eo",
+            onDismiss = { wordFor = null },
+            onOpen = onOpenEntry,
+            onCopy = { SpannedCopy.copyText(context, context.getText(R.string.word_label), pressed) },
+        )
+    }
     /* Reta Vortaro's roots around the place the word would have there, to
      * read on as from any article */
     val neighbours by produceState<List<Neighbour?>?>(null, word) {
@@ -427,10 +439,10 @@ private fun VikiPage(
                                             style = MaterialTheme.typography.bodyLarge,
                                             modifier = Modifier.widthIn(min = 24.dp).padding(end = 6.dp),
                                         )
-                                        Text(sense, style = MaterialTheme.typography.bodyLarge)
+                                        SenseLine(sense, onLongPress = { wordFor = it })
                                     }
                                 else
-                                    Text(sense, style = MaterialTheme.typography.bodyLarge, modifier = top)
+                                    SenseLine(sense, top, onLongPress = { wordFor = it })
                             }
                         }
                     }
@@ -667,3 +679,16 @@ private fun AdviceText(
 /** What the Wiktionary of [language] says of a word: its words for it, and
  * its description when it says more */
 private data class ForeignWords(val language: String, val words: List<String>, val description: String?)
+
+/** A sense of a definition, each word long pressed looked up, as in Reta
+ * Vortaro's articles */
+@Composable
+private fun SenseLine(sense: String, modifier: Modifier = Modifier, onLongPress: (String) -> Unit) {
+    SpannedText(
+        sense,
+        style = MaterialTheme.typography.bodyLarge,
+        color = MaterialTheme.colorScheme.onSurface,
+        onLongPress = { it?.let(onLongPress) },
+        modifier = modifier,
+    )
+}
