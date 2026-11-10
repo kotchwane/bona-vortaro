@@ -2,6 +2,8 @@
 # (wrong meaning, false friend, a description or fragment taken for a word, a misspelt or non-Esperanto word,
 # a misleading word class). Never for being offensive.
 # Reviewed 2026-11-10: every pair that Reta Vortaro lacks (8,357), by six reviewers; the doubtful ones read again.
+# Then the words on a root Reta Vortaro lacks (454): errors ("*": the word left out), needless roots where Reta
+# Vortaro translates the German word, duplicates of unconfirmed Bona lingvo lines.
 # Read by scripts/vikivortaro.py. Columns: the German word, the Esperanto word, why.
 abbleiben	esti	esti too loose for abbleiben
 Abdeckplane	litkovrilo	tarpaulin vs bedspread
@@ -404,3 +406,15 @@ Zustandspassiv	ŝtat-pasivo	ŝtato = state (country); should be stato
 zuziehen	atingi	atingi=attain; sich zuziehen=contract/incur
 Zweifelsfall	dubo-okaze	adverb for a noun
 überwuchern	plenkreski	plenkreski=grow up/mature; überwuchern=overgrow
+*	resusfaktoro	misspelling of rezusfaktoro (rezuso); not Esperanto as written
+*	silentiga manposo	misspelling of manpozo (pozo); not Esperanto as written
+Elsässer	alsacano	needless new root where Reta Vortaro translates Elsässer (middle ground, 2026-11-10)
+Grönländer	groenlandano	needless new root where Reta Vortaro translates Grönländer (middle ground)
+Obduktion	obdukcio	needless new root where Reta Vortaro translates Obduktion (middle ground)
+Orang-Utan	orangutano	needless new root where Reta Vortaro translates Orang-Utan (middle ground)
+royal	rojala	needless new root where Reta Vortaro translates royal (middle ground)
+Colorado	Koloradio	an unconfirmed Bona lingvo line prefers Kolorado, which Colorado also gives
+Flugsaurier	pterosaŭro	an unconfirmed Bona lingvo line prefers flugsaŭro, which Flugsaurier also gives
+Lochien	loĥio	an unconfirmed Bona lingvo line prefers lokio, which Lochien also gives
+Trachyt	traĥito	an unconfirmed Bona lingvo line prefers trakito, which Trachyt also gives
+insolvent	insolventa	an unconfirmed Bona lingvo line prefers nesolventa, which insolvent also gives
