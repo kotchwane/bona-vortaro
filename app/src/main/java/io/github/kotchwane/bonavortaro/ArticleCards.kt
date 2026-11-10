@@ -1383,11 +1383,12 @@ private fun TranslationsBox(
                                         onTap = { position ->
                                             val offset = layout?.getOffsetForPosition(position) ?: return@detectTapGestures
                                             val word = vikiRanges.firstOrNull { offset in it || offset == it.last + 1 }
-                                            if (word != null)
-                                                bubble = position to shownText.text.substring(word)
-                                            /* A tap on the line searched unmarks it */
-                                            else if (marked?.let { offset in it } == true)
+                                            /* A tap on the line searched unmarks it, first,
+                                             * even on its Wiktionary word ("viceroy") */
+                                            if (markShown && marked?.let { offset in it } == true)
                                                 markShown = false
+                                            else if (word != null)
+                                                bubble = position to shownText.text.substring(word)
                                         },
                                         onLongPress = { position ->
                                             val offset = layout?.getOffsetForPosition(position) ?: return@detectTapGestures
