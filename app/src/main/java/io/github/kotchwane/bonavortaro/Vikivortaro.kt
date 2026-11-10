@@ -319,8 +319,27 @@ object Vikivortaro {
             }
             result(context, language, data, esperanto, word, esperantoWord, foreign, revo, sense)?.let { results.add(it) }
         }
-        /* In the order of the keys, the exact matches first */
-        return results
+        /* In the order of the keys, the exact matches first; for each word,
+         * the Esperanto words built from Reta Vortaro's roots before those
+         * made on a root it lacks, unlabelled: "spray" ŝpruci before
+         * spraji (user, 2026-11-10) */
+        return newRootsLast(esperanto, results)
+    }
+
+    internal fun newRootsLast(esperanto: Trie, results: List<VikiResult>): List<VikiResult> {
+        val late = HashMap<String, Boolean>()
+        fun isLate(result: VikiResult) = result.revo == null && late.getOrPut(result.esperanto) { newRoot(esperanto, result.esperanto) }
+        val ordered = ArrayList<VikiResult>(results.size)
+        var start = 0
+        while (start < results.size) {
+            val word = key(results[start].foreign)
+            var end = start
+            while (end < results.size && key(results[end].foreign) == word) end++
+            /* A stable sort: Wiktionary's order otherwise */
+            ordered += results.subList(start, end).sortedBy { isLate(it) }
+            start = end
+        }
+        return ordered
     }
 
     /** The Esperanto words starting with the query that only Vikivortaro

@@ -327,6 +327,14 @@ class VikivortaroTest {
     }
 
     @Test
+    fun aWordOnANewRootComesAfterTheOthers() {
+        val esperanto = trie("eo")
+        val results = listOf("sprajo", "ŝpruci", "spraji").map { VikiResult("en", "spray", it, null, null) } +
+            VikiResult("en", "spread", "disvastigi", null, null)
+        assertEquals(listOf("ŝpruci", "sprajo", "spraji", "disvastigi"), Vikivortaro.newRootsLast(esperanto, results).map { it.esperanto })
+    }
+
+    @Test
     fun aLongerDescriptionDoesNotTranslate() {
         assertEquals(emptyList<Pair<String, String>>(), Vikivortaro.glossPairs(mapOf(
             "Abuĝo" to "Abuja, capitale du Nigeria.",
