@@ -19,9 +19,7 @@
 # Kaikki changes its extract every week, and the app is built the same
 # every time, as F-Droid requires.
 """Writes, into app/src/main/assets/vikivortaro/ (here for French, "en" for English):
-  fr-eo.tsv   a French word, a tab, an Esperanto translation (one per line);
-              in English, a tab and the sense of the word it translates, the
-              heading of its table, when there is one
+  fr-eo.tsv   a French word, a tab, an Esperanto translation (one per line)
   eo-fr.tsv   an Esperanto word, a tab, its French description
 Lines starting with "#" are comments: the source, its date, the licence."""
 import email.utils
@@ -161,38 +159,50 @@ def eo_translations(entry):
     return [(t, sense) for t, sense in found if t.get("lang_code") == "eo" and t.get("word")]
 
 
-# What a heading of a table adds to its sense, or a heading that says
-# nothing of it: "— see also hug", "1.1. ", "Translations"
-SEE_ALSO = re.compile(r"\s+—\s+see also\b.*$")
-NUMBERING = re.compile(r"^\d+(\.\d+)*\.\s+")
+# How the English Wiktionary says an Esperanto word is made: its parts
+# ("{{af|eo|maro|virino}}", "{{ety|eo|:af|forĵeti|-ebla}}"), or that it
+# was borrowed ("{{ety|eo|:bor|pl:ocelot}}"), for the app to tell its own
+# cut of a word ("mar·virin·o") from a wrong one ("oceloto", ocel·ot·o)
+PARTS_TEMPLATES = {"af": 2, "affix": 2, "suffix": 2, "prefix": 2, "compound": 2, "com": 2, "confix": 2}
+BORROWED_TEMPLATES = {"bor", "bor+", "der", "der+", "inh", "inh+", "calque", "cal", "univ"}
+BORROWED = "<"
 
 
-# What the extract leaves of the page's markup: italics, links, a power of
-# ten ("10<sup>33</sup>"); and the notes of the editors to themselves
-WIKI_LINK = re.compile(r"\[\[(?:[^\]|]*\|)?([^\]]*)\]\]")
-SUP = re.compile(r"<sup>([0-9+−-]+)</sup>")
-EDITORS_NOTE = re.compile(r"\s*\((?:to be merged|these are translations)[^)]*\)|\s+-\s+translation entry$", re.I)
-# A power whose exponent the extract lost: "1060" for 10⁶⁰, "260 bytes"
-# for 2⁶⁰ (round 9); not 1000, 1024, nor a year
-LOST_POWER = re.compile(r"\b10(?!00\b|24\b)\d{2,3}\b|\b2[1-9]0 (?:bits|bytes|or)\b")
-
-
-def sense_heading(translation):
-    """The sense of the word that an English translation translates, as the
-    heading of its table says it: "go → fari", "to make (a specified
-    sound)"; None if it says nothing, or if it lost a power of ten"""
-    heading = clean(translation.get("sense") or "")
-    heading = SUP.sub(lambda m: m.group(1).translate(SUPERSCRIPT_DIGITS), heading)
-    if LOST_POWER.search(heading):
+def made_of(entry):
+    """The stems of the parts of an Esperanto word, "mar·virin" for
+    marvirino, "kaf·far·ist" for kafofaristo; BORROWED if it was taken
+    from another language whole; None if Wiktionary doesn't say"""
+    parts = None
+    borrowed = False
+    for template in entry.get("etymology_templates") or []:
+        name, args = template.get("name"), template.get("args") or {}
+        numbered = [args[k] for k in sorted((k for k in args if k.isdigit()), key=int)]
+        if name == "ety" and len(numbered) > 1:
+            markers = [i for i, x in enumerate(numbered) if x.startswith(":af")]
+            if markers:
+                parts = parts or numbered[markers[0] + 1:]
+            elif numbered[1].startswith((":bor", ":der", ":inh")):
+                borrowed = True
+        elif name in PARTS_TEMPLATES and args.get("1") == "eo":
+            parts = parts or numbered[PARTS_TEMPLATES[name] - 1:]
+        elif name in BORROWED_TEMPLATES and args.get("1") == "eo":
+            borrowed = True
+    if parts:
+        stems = [stem for stem in (stem_of(part) for part in parts) if stem]
+        if len(stems) > 1 and all(re.fullmatch(r"[a-zĉĝĥĵŝŭ]+", stem) for stem in stems):
+            return "·".join(stems)
         return None
-    heading = WIKI_LINK.sub(r"\1", heading).replace("''", "")
-    heading = EDITORS_NOTE.sub("", NUMBERING.sub("", SEE_ALSO.sub("", heading))).lstrip("—– ").strip()
-    if heading.lower() in ("translations", "translation", "translations to be checked"):
-        return None
-    return heading or None
+    return BORROWED if borrowed else None
 
 
-SUPERSCRIPT_DIGITS = str.maketrans("0123456789+−-", "⁰¹²³⁴⁵⁶⁷⁸⁹⁺⁻⁻")
+def stem_of(part):
+    """"maro<t:sea>" mar, "-isto" ist, "ne-" ne, "-e" nothing (an ending)"""
+    part = re.sub(r"<[^>]*>", "", part).strip().lower()
+    if ":" in part:
+        return ""
+    if part.endswith("-"):
+        return part.strip("-")
+    return re.sub(r"(oj|aj|on|an|o|a|e|i|j)$", "", part.strip("-"))
 
 
 def likeliest_sense(translation):
@@ -212,9 +222,8 @@ translations = {}
 # In English, the senses of an Esperanto word after its first, its
 # description: "memkontenta", self-satisfied; complacent; smug
 later_glosses = {}
-# In English, each pair's sense, by the heading of its table
-headings = {}
-any_case_headings = {}
+# In English, how each Esperanto word is made (made_of)
+made = {}
 entry_number = 0
 descriptions = {}
 for line in source_lines:
@@ -253,15 +262,12 @@ for line in source_lines:
                     or (esperanto[:1].isupper() and not re.search(r"(oj?|a)$", esperanto))):
                 continue
             translations.setdefault((french, esperanto), (entry_number, group))
-            # As written, and in any case for when the case kept is
-            # another table's ("Irish wolfhound", "irish wolfhound"); not
-            # instead of its own: "Bible" isn't "bible", a manual
-            heading = sense_heading(t) if LANGUAGE == "en" else None
-            if heading:
-                headings.setdefault((french, esperanto), heading)
-                any_case_headings.setdefault((french.lower(), esperanto), heading)
     elif code == "eo":
         esperanto = esperanto_spelling(clean(entry.get("word", ""))) or ""
+        if LANGUAGE == "en" and esperanto and esperanto not in made:
+            how = made_of(entry)
+            if how:
+                made[esperanto] = how
         for sense in entry.get("senses") or []:
             # In English, a form of a word, "plural of", "past of", is tagged
             if LANGUAGE == "en" and {"form-of", "alt-of"} & set(sense.get("tags") or []):
@@ -392,8 +398,7 @@ header = (f"# From the {NAME} Wiktionary ({LANGUAGE}.wiktionary.org), by its con
 with open(os.path.join(OUT, f"{LANGUAGE}-eo.tsv"), "w", encoding="utf-8") as f:
     f.write(header)
     for french, esperanto in ordered(translations):
-        heading = headings.get((french, esperanto)) or any_case_headings.get((french.lower(), esperanto))
-        f.write(f"{french}\t{esperanto}\t{heading}\n" if heading else f"{french}\t{esperanto}\n")
+        f.write(f"{french}\t{esperanto}\n")
 with open(os.path.join(OUT, f"eo-{LANGUAGE}.tsv"), "w", encoding="utf-8") as f:
     f.write(header)
     for esperanto, gloss in sorted(descriptions.items()):
@@ -414,6 +419,14 @@ if advised:
         f.write("# Translations whose sense Vortoj de la bona lingvo advises against, from data/vikivortaro-advised.tsv.\n")
         for foreign, esperanto in sorted(advised):
             f.write(f"{foreign}\t{esperanto}\n")
+if made:
+    shown = {esperanto for _, esperanto in translations} | set(descriptions)
+    with open(os.path.join(OUT, "eo-parts.tsv"), "w", encoding="utf-8") as f:
+        f.write(header)
+        f.write(f"# An Esperanto word, a tab, the stems of its parts as Wiktionary gives them, or \"{BORROWED}\" if borrowed whole.\n")
+        for esperanto in sorted(made):
+            if esperanto in shown:
+                f.write(f"{esperanto}\t{made[esperanto]}\n")
 if rejected:
     with open(os.path.join(OUT, f"{LANGUAGE}-eo-not.tsv"), "w", encoding="utf-8") as f:
         f.write(f"# Pairs left out after a review, from data/vikivortaro-{LANGUAGE}-rejected.tsv.\n")

@@ -327,15 +327,6 @@ class VikivortaroTest {
     }
 
     @Test
-    fun aPairMayHaveItsSense() {
-        assertEquals(Triple("go", "fari", "to make (a specified sound)"), Vikivortaro.pairLine("go\tfari\tto make (a specified sound)"))
-        assertEquals(Triple("lovely", "rava", null), Vikivortaro.pairLine("lovely\trava"))
-        assertEquals(Triple("lovely", "rava", null), Vikivortaro.pairLine("lovely\trava\t "))
-        assertEquals(null, Vikivortaro.pairLine("lovely"))
-        assertEquals(null, Vikivortaro.pairLine("a\tb\tc\td"))
-    }
-
-    @Test
     fun reTaVortarosWordAndAnotherWordKeepTheirPlace() {
         val esperanto = trie("eo")
         /* Reta Vortaro's word isn't analysed; "Spray" and "spray" are one word of the search */
@@ -351,6 +342,19 @@ class VikivortaroTest {
             Vikivortaro.newRootsLast(esperanto, results) { it.revo != null }.map { it.esperanto })
         /* Stopped: as found */
         assertEquals(results, Vikivortaro.newRootsLast(esperanto, results) { true })
+    }
+
+    @Test
+    fun theCutOfAWordAgreesWithWiktionarysParts() {
+        val entries = IndexEntries(trie("eo"))
+        fun readings(word: String) = WordAnalyser.analyse(word, entries, needsEnding = true)
+        /* kaf·o·farist: as finely or less than kaf·far·ist */
+        assertTrue(readings("kafofaristo").any { WordAnalyses.agrees(it, listOf("kaf", "far", "ist")) })
+        /* neregul·ar·a isn't ne·regular; ne·regular·a is */
+        val neregulara = readings("neregulara")
+        assertFalse(WordAnalyses.agrees(neregulara.first(), listOf("ne", "regular")))
+        assertTrue(neregulara.any { WordAnalyses.agrees(it, listOf("ne", "regular")) })
+        assertFalse(readings("margrafo").any { WordAnalyses.agrees(it, listOf("margraf")) })
     }
 
     @Test

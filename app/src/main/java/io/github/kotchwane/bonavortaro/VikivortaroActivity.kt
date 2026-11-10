@@ -100,21 +100,17 @@ fun VikiResultRow(
     inLanguage: Boolean = VikiLanguage.of(result.language)?.let { Vikivortaro.inArticles(LocalContext.current, it) } == true,
 ) {
     val context = LocalContext.current
-    /* Reta Vortaro's definition; else Wiktionary's description, only for
-     * those who chose to see the translations in its language */
-    val description = result.description.takeIf { inLanguage }
-    /* The sense of the word typed, which Wiktionary's table gives: before
-     * all, it says which of the word's meanings the Esperanto one has,
-     * "go → fari", "to make (a specified sound)", also when the Esperanto
-     * word has several senses (user, 2026-11-10) */
-    val sense = result.sense.takeIf { inLanguage && !result.inEsperanto }
+    /* Only Esperanto under a word in the search: Reta Vortaro's
+     * definition, else the Esperanto Wiktionary's; not the other language's
+     * description nor the sense of its table, "furthermore → cetere", "In
+     * addition; besides…" (user, 2026-11-10) */
     /* Read already, when the row comes back into view: as it was, at once */
     val known = remember(result) { result.revo?.let { SearchPreviews.peek(it) } }
     var severalSenses by remember(result) { mutableStateOf(known?.severalSenses == true) }
-    val definition by produceState(if (result.revo != null) known?.definition else description, result, inLanguage) {
+    val definition by produceState(if (result.revo != null) known?.definition else result.definition, result) {
         /* The row may have shown another word just before: its own text
          * at once, whatever follows */
-        value = if (result.revo != null) known?.definition else description
+        value = if (result.revo != null) known?.definition else result.definition
         result.revo?.let { revo -> withContext(Dispatchers.IO) { SearchPreviews.get(context, revo) } }?.let {
             /* Not the first of several senses: Wiktionary doesn't say which
              * one its word is ("cafetière", not kafujo's tree) */
@@ -186,8 +182,8 @@ fun VikiResultRow(
              * Wiktionary says nothing ("maison de thé → teejo"): no
              * second line, rather than an empty one. One that Reta Vortaro
              * has keeps its line while its definition is read. */
-            val nothingToSay = advice == null && !result.inEsperanto && sense == null && (severalSenses ||
-                result.revo == null && (definition ?: result.description).isNullOrEmpty())
+            val nothingToSay = advice == null && !result.inEsperanto && (severalSenses ||
+                result.revo == null && definition.isNullOrEmpty())
             /* Found in Esperanto: its Esperanto definition, for everyone;
              * else what it says in the other language, saying so */
             if (!nothingToSay) Text(
@@ -199,11 +195,10 @@ fun VikiResultRow(
                             R.string.viki_in_language,
                             LanguageList.getDefault(context).getLanguageName(result.language),
                             result.foreignWords.joinToString(", "),
-                        ) +
-                            (result.description?.let { " — $it" } ?: "")
+                        )
                     /* Nothing in the reader's languages */
                     else stringResource(R.string.not_in_revo)
-                else sense ?: definition ?: result.description ?: ""),
+                else definition ?: ""),
                 style = small.copy(fontStyle = FontStyle.Italic),
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 /* All the words to say, on several lines if need be */
@@ -315,9 +310,12 @@ private fun VikiPage(
      * has: "femurosto", femur + osto; also under its words, which let the
      * reader see a wrong guess ("potirono" isn't po + tir + ono):
      * "marvirino", mar + vir + in + o (user, 2026-11-10) */
-    val analysis by produceState<ShownAnalysis?>(null, word, read) {
+    val analysis by produceState<ShownAnalysis?>(null, word, read, foreign) {
         value = if (definitionRead)
-            withContext(Dispatchers.IO) { WordAnalyses.find(context, word, needsEnding = true) }
+            withContext(Dispatchers.IO) {
+                if (foreign.isEmpty()) WordAnalyses.find(context, word, needsEnding = true)
+                else WordAnalyses.forWiktionaryWord(context, word, foreign.flatMap { it.words }, advice?.discouraged == true)
+            }
         else null
     }
     val edge = MaterialTheme.colorScheme.primary
