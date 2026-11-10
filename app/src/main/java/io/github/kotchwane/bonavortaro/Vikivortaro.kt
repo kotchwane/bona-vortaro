@@ -323,8 +323,8 @@ object Vikivortaro {
         }
         /* In the order of the keys, the exact matches first; for each word,
          * the Esperanto words built from Reta Vortaro's roots before those
-         * made on a root it lacks, unlabelled: "spray" ŝpruci before
-         * spraji (user, 2026-11-10) */
+         * made on a root it lacks, unlabelled: "frogmouth" ranbuŝulo
+         * before podargo (user, 2026-11-10) */
         return newRootsLast(esperanto, results, stopped)
     }
 
