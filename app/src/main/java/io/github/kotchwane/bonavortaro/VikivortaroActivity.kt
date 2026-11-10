@@ -197,7 +197,7 @@ fun VikiResultRow(
                             LanguageList.getDefault(context).getLanguageName(result.language),
                             result.foreignWords.joinToString(", "),
                         ) +
-                            (result.description?.let { " — $it" } ?: "")
+                            ((result.description ?: result.sense)?.let { " — $it" } ?: "")
                     /* Nothing in the reader's languages */
                     else stringResource(R.string.not_in_revo)
                 else sense ?: definition ?: result.description ?: ""),
@@ -295,7 +295,10 @@ private fun VikiPage(
      * articles; for the others, the page has nothing in their languages */
     val foreign by produceState(emptyList<ForeignWords>(), word, vikiLanguages) {
         value = withContext(Dispatchers.IO) {
-            vikiLanguages.map { ForeignWords(it.code, Vikivortaro.foreignOf(context, it, word), Vikivortaro.description(context, it, word)) }
+            vikiLanguages.map {
+                ForeignWords(it.code, Vikivortaro.foreignOf(context, it, word), Vikivortaro.description(context, it, word),
+                    Vikivortaro.senses(context, it, word))
+            }
                 .filter { it.words.isNotEmpty() || it.description != null }
         }
     }
@@ -432,9 +435,10 @@ private fun VikiPage(
                             }
                         }
                     }
-                    for ((code, words, description) in foreign) {
+                    for ((code, words, description, senses) in foreign) {
                         /* Its words, then the description when it says
-                         * more than them */
+                         * more than them; else the senses of its words, as
+                         * Wiktionary's tables give them */
                         Row(Modifier.padding(top = 10.dp)) {
                             Text(
                                 LanguageList.getDefault(context).getLanguageName(code),
@@ -448,7 +452,7 @@ private fun VikiPage(
                             Column {
                                 if (words.isNotEmpty())
                                     Text(words.joinToString(", "), style = MaterialTheme.typography.bodyLarge)
-                                description?.let {
+                                (description ?: senses)?.let {
                                     Text(
                                         it,
                                         style = MaterialTheme.typography.bodyMedium,
@@ -646,4 +650,4 @@ private fun AdviceText(
 
 /** What the Wiktionary of [language] says of a word: its words for it, and
  * its description when it says more */
-private data class ForeignWords(val language: String, val words: List<String>, val description: String?)
+private data class ForeignWords(val language: String, val words: List<String>, val description: String?, val senses: String? = null)
