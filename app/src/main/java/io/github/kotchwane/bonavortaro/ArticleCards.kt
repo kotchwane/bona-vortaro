@@ -1384,7 +1384,7 @@ private fun TranslationsBox(
 
 /** Dots under the given ranges of a text: Vikivortaro's words among Reta
  * Vortaro's, quietly, like a note there is to read */
-private fun Modifier.dottedUnder(ranges: List<IntRange>, layout: TextLayoutResult?, color: Color) =
+internal fun Modifier.dottedUnder(ranges: List<IntRange>, layout: TextLayoutResult?, color: Color) =
     if (ranges.isEmpty()) this else drawBehind {
         val laid = layout ?: return@drawBehind
         val step = 3.dp.toPx()

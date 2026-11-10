@@ -375,4 +375,10 @@ object BonaLingvo {
     /** The entry of a word, if the group advises against it. Disk access:
      * not on the main thread. */
     fun discouraged(context: Context, word: String): BonaLingvoEntry? = entry(context, word)?.takeIf { it.discouragedEverywhere }
+
+    /** The same for a translation from Wiktionary: also when the group
+     * advises against the word in some senses only, if the translation is
+     * of one of them ([VikiResult.advised]): "glitch → cimo" */
+    fun discouraged(context: Context, result: VikiResult): BonaLingvoEntry? =
+        entry(context, result.esperanto)?.takeIf { it.discouragedEverywhere || (it.discouraged && result.advised) }
 }

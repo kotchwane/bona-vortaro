@@ -47,6 +47,10 @@ class VikiResult(
      * the heading of Wiktionary's table says it: "go → fari", "to make (a
      * specified sound)". English only, so far */
     val sense: String? = null,
+    /** Whether "Vortoj de la bona lingvo" advises against the Esperanto word
+     * in the sense of this translation, when it does in some senses only:
+     * "glitch → cimo" (pri komputiloj), not "bedbug → cimo" */
+    val advised: Boolean = false,
 ) {
     /** The word as the search found it */
     val word: String get() = if (inEsperanto) esperanto else foreign
@@ -87,6 +91,9 @@ object Vikivortaro {
         val descriptions: Map<String, String>,
         /* Shared by the languages: the Esperanto Wiktionary's */
         val definitions: Map<String, EsperantoDefinition>,
+        /* The pairs whose Esperanto word "Vortoj de la bona lingvo" advises
+         * against in their sense, reviewed one by one (data/vikivortaro-advised.tsv) */
+        val advised: Set<Pair<String, String>> = emptySet(),
         /* The Esperanto words with nothing said of them that are shown
          * all the same ([VikiLanguage.showsUndescribed]) */
         val undescribed: Collection<String> = emptyList(),
@@ -115,14 +122,18 @@ object Vikivortaro {
         BonaSettings.translationFilter(context).let { shown -> readerOrder(context).filter { shown(it.code) } }
 
     /** The languages of the Wiktionaries in the reader's order: those whose
-     * translations they read, in the order of the translations; then the
-     * others. An English reader gets "anakondo"'s English words, not the
-     * French ones (test round 7). */
+     * translations they read, in the order of their search tabs, then of
+     * the translations; then the others. An English reader gets
+     * "anakondo"'s English words, not the French ones (test round 7); one
+     * whose tabs say EO, EN, FR gets "marvirino"'s English (user,
+     * 2026-11-10). */
     fun readerOrder(context: Context): List<VikiLanguage> {
+        val tabs = BonaSettings.getSearchLanguages(context)
         val order = BonaSettings.getTranslationOrder(context)
         val shown = BonaSettings.translationFilter(context)
+        fun place(list: List<String>, code: String) = list.indexOf(code).let { if (it < 0) Int.MAX_VALUE else it }
         return VikiLanguage.ALL.sortedWith(
-            compareBy({ !shown(it.code) }, { order.indexOf(it.code).let { index -> if (index < 0) Int.MAX_VALUE else index } })
+            compareBy({ !shown(it.code) }, { place(tabs, it.code) }, { place(order, it.code) })
         )
     }
 
@@ -195,6 +206,7 @@ object Vikivortaro {
             foreignOf.getOrPut(esperanto) { mutableListOf() }.add(foreign)
         return Data(
             keyed.map { it.first }, pairs, Array(pairs.size) { senseOf[pairs[it]] }, foreignOf, descriptions, definitions(context),
+            advised = lines(context, "${language.code}-eo-advised.tsv", optional = true).toHashSet(),
             undescribed = if (language.showsUndescribed) foreignOf.keys else emptyList(),
         )
     }
@@ -325,7 +337,7 @@ object Vikivortaro {
          * the Esperanto words built from Reta Vortaro's roots before those
          * made on a root it lacks, unlabelled: "frogmouth" ranbuŝulo
          * before podargo (user, 2026-11-10) */
-        return newRootsLast(esperanto, results, stopped)
+        return newRootsLast(esperanto, results, stopped) { BonaLingvo.discouraged(context, it) != null }
     }
 
     /* Whether each Esperanto word is on a new root, kept for the next
@@ -334,7 +346,14 @@ object Vikivortaro {
     private val onNewRoot = java.util.concurrent.ConcurrentHashMap<String, Boolean>()
     private const val ON_NEW_ROOT_KEPT = 5000
 
-    internal fun newRootsLast(esperanto: Trie, results: List<VikiResult>, stopped: () -> Boolean = { false }): List<VikiResult> {
+    /* And a word "Vortoj de la bona lingvo" advises against in that
+     * sense, [discouraged], after them all: "glitch" problemo before cimo */
+    internal fun newRootsLast(
+        esperanto: Trie,
+        results: List<VikiResult>,
+        stopped: () -> Boolean = { false },
+        discouraged: (VikiResult) -> Boolean = { false },
+    ): List<VikiResult> {
         if (onNewRoot.size > ON_NEW_ROOT_KEPT)
             onNewRoot.clear()
         fun isLate(result: VikiResult) = result.revo == null && onNewRoot.getOrPut(result.esperanto) { newRoot(esperanto, result.esperanto) }
@@ -348,7 +367,7 @@ object Vikivortaro {
             var end = start
             while (end < results.size && key(results[end].foreign) == word) end++
             /* A stable sort: Wiktionary's order otherwise */
-            ordered += results.subList(start, end).sortedBy { isLate(it) }
+            ordered += results.subList(start, end).sortedBy { if (discouraged(it)) 2 else if (isLate(it)) 1 else 0 }
             start = end
         }
         return ordered
@@ -634,7 +653,7 @@ object Vikivortaro {
          * "dreamcatcher → sonĝkaptilo" (user, 2026-11-10) */
         return if (revo != null || word in data.descriptions || word in data.definitions || language.showsUndescribed ||
             BonaLingvo.entry(context, word) != null)
-            VikiResult(language.code, foreign, word, revo, informative(data, word), sense = sense)
+            VikiResult(language.code, foreign, word, revo, informative(data, word), sense = sense, advised = (foreign to word) in data.advised)
         else null
     }
 

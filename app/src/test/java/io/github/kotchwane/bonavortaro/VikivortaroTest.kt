@@ -346,6 +346,9 @@ class VikivortaroTest {
             VikiResult("en", "Spray", "ŝpruci", null, null),
         )
         assertEquals(listOf("sprajo", "ŝpruci", "ŝpruci", "spraji"), Vikivortaro.newRootsLast(esperanto, results).map { it.esperanto })
+        /* An advised-against word after them all */
+        assertEquals(listOf("ŝpruci", "ŝpruci", "spraji", "sprajo"),
+            Vikivortaro.newRootsLast(esperanto, results) { it.revo != null }.map { it.esperanto })
         /* Stopped: as found */
         assertEquals(results, Vikivortaro.newRootsLast(esperanto, results) { true })
     }

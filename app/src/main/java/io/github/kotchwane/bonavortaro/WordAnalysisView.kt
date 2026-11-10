@@ -20,6 +20,7 @@ package io.github.kotchwane.bonavortaro
 import android.content.Context
 import android.util.Log
 import androidx.compose.foundation.clickable
+import androidx.compose.ui.text.withLink
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -229,3 +230,50 @@ private fun endingGloss(ending: String): String = stringResource(
         else -> R.string.ending_u
     }
 )
+
+
+/** How a word only Wiktionary has is built, discreetly under its words
+ * (user, 2026-11-10): the word cut, "mar·virino", then each part with the
+ * start of its definition, the parts opening their article; two lines
+ * at most. */
+@Composable
+fun CompactAnalysis(shown: ShownAnalysis, onOpen: (SearchResult) -> Unit, modifier: Modifier = Modifier) {
+    val reading = shown.readings.first()
+    val muted = MaterialTheme.colorScheme.onSurfaceVariant
+    val faint = muted.copy(alpha = 0.55f)
+    val onSurface = MaterialTheme.colorScheme.onSurface
+    val pieces = reading.pieces.filter { it.result != null || it.gloss != null }
+    val glosses = pieces.map { it.gloss ?: it.ending?.let { ending -> endingGloss(ending) } }
+    Column(modifier.fillMaxWidth().padding(horizontal = 20.dp)) {
+        Text(
+            cutWord(reading.analysis, faint).text.replace(" + ", "·"),
+            style = MaterialTheme.typography.bodyMedium.copy(fontStyle = FontStyle.Italic),
+            color = muted,
+            modifier = Modifier.padding(top = 10.dp),
+        )
+        Text(
+            buildAnnotatedString {
+                pieces.forEachIndexed { i, piece ->
+                    if (i > 0) append(" · ")
+                    val result = piece.result
+                    if (result != null)
+                        withLink(androidx.compose.ui.text.LinkAnnotation.Clickable(piece.label) { onOpen(result) }) {
+                            withStyle(SpanStyle(textDecoration = TextDecoration.Underline, color = onSurface)) { append(piece.label) }
+                        }
+                    else append(piece.label)
+                    glosses[i]?.let { append(": $it") }
+                }
+            },
+            style = MaterialTheme.typography.bodySmall,
+            color = muted,
+            maxLines = 2,
+            overflow = TextOverflow.Ellipsis,
+        )
+        Text(
+            stringResource(R.string.analysis_note),
+            style = MaterialTheme.typography.bodySmall.copy(fontStyle = FontStyle.Italic),
+            color = faint,
+            modifier = Modifier.padding(top = 6.dp, bottom = 12.dp),
+        )
+    }
+}

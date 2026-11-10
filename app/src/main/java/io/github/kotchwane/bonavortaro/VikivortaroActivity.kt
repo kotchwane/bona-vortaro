@@ -72,6 +72,7 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -134,7 +135,7 @@ fun VikiResultRow(
             /* Advised against by "Vortoj de la bona lingvo", as Reta
              * Vortaro's words */
             val advice by produceState<BonaLingvoEntry?>(null, result.esperanto) {
-                value = withContext(Dispatchers.IO) { BonaLingvo.discouraged(context, result.esperanto) }
+                value = withContext(Dispatchers.IO) { BonaLingvo.discouraged(context, result) }
             }
             Row(verticalAlignment = Alignment.CenterVertically) {
                 /* The label after the word, on the next line when it doesn't
@@ -153,13 +154,22 @@ fun VikiResultRow(
                             style = MaterialTheme.typography.titleMedium,
                             color = bonaDesign.headword,
                         )
-                    /* A word of another language: "potiron → kukurbo", as Reta Vortaro's,
-                     * not bold */
-                    else
+                    /* A word of another language: "potiron → kukurbo", as Reta
+                     * Vortaro's; the translation from Wiktionary, dotted under
+                     * the word as in the articles; the Esperanto word bold when
+                     * Reta Vortaro has it, "amidst → meze de", which isn't
+                     * Wiktionary's word (user, 2026-11-10) */
+                    else {
+                        var layout by remember { mutableStateOf<TextLayoutResult?>(null) }
+                        val style = MaterialTheme.typography.titleMedium
                         Text(
-                            translationTitle(result.word, result.esperanto, MaterialTheme.typography.titleMedium),
-                            style = MaterialTheme.typography.titleMedium,
+                            translationTitle(result.word, result.esperanto,
+                                if (result.revo != null) style.copy(fontWeight = FontWeight.Bold) else style),
+                            style = style,
+                            onTextLayout = { layout = it },
+                            modifier = Modifier.dottedUnder(listOf(result.word.indices), layout, MaterialTheme.colorScheme.onSurfaceVariant),
                         )
+                    }
                     if (advice != null)
                         DiscouragedChip()
                 }
@@ -301,10 +311,12 @@ private fun VikiPage(
     val definitionRead = read != null
     val definition = read?.definition
     val advice = read?.advice
-    /* Without them, how the word may be built, as for a word nobody has:
-     * "femurosto", femur + osto */
-    val analysis by produceState<ShownAnalysis?>(null, word, vikiLanguages, read) {
-        value = if (definitionRead && definition == null && advice == null && vikiLanguages.isEmpty())
+    /* How the word is built of Reta Vortaro's roots, as for a word nobody
+     * has: "femurosto", femur + osto; also under its words, which let the
+     * reader see a wrong guess ("potirono" isn't po + tir + ono):
+     * "marvirino", mar + vir + in + o (user, 2026-11-10) */
+    val analysis by produceState<ShownAnalysis?>(null, word, read) {
+        value = if (definitionRead)
             withContext(Dispatchers.IO) { WordAnalyses.find(context, word, needsEnding = true) }
         else null
     }
@@ -342,10 +354,8 @@ private fun VikiPage(
                 .padding(12.dp)
                 .navigationBarsPadding(),
         ) {
-            /* A card like Reta Vortaro's, saying that the word isn't there.
-             * The word analysis only when there is no Wiktionary language to
-             * read: its words say what the word means, a guess from its pieces can
-             * be wrong ("potirono" isn't po + tir + ono). */
+            /* A card like Reta Vortaro's, saying that the word isn't there,
+             * with its words, then how it is built */
             /* A word only "Vortoj de la bona lingvo" has: not an entry, a
              * note that it isn't in the dictionary, and what to say instead
              * (user, 2026-10-27) */
@@ -448,7 +458,9 @@ private fun VikiPage(
                     }
                     analysis?.let {
                         HorizontalDivider(Modifier.padding(top = 12.dp), color = muted.copy(alpha = 0.25f))
-                        WordAnalysisView(it, onOpen = onOpenEntry)
+                        /* Discreet under the words; in full when it is all the page has */
+                        if (foreign.isNotEmpty()) CompactAnalysis(it, onOpen = onOpenEntry)
+                        else WordAnalysisView(it, onOpen = onOpenEntry)
                     }
                 }
             }
