@@ -167,12 +167,32 @@ SEE_ALSO = re.compile(r"\s+—\s+see also\b.*$")
 NUMBERING = re.compile(r"^\d+(\.\d+)*\.\s+")
 
 
+# What the extract leaves of the page's markup: italics, links, a power of
+# ten ("10<sup>33</sup>"); and the notes of the editors to themselves
+WIKI_LINK = re.compile(r"\[\[(?:[^\]|]*\|)?([^\]]*)\]\]")
+SUP = re.compile(r"<sup>([0-9+−-]+)</sup>")
+EDITORS_NOTE = re.compile(r"\s*\((?:to be merged|these are translations)[^)]*\)|\s+-\s+translation entry$", re.I)
+# A power whose exponent the extract lost: "1060" for 10⁶⁰, "260 bytes"
+# for 2⁶⁰ (round 9); not 1000, 1024, nor a year
+LOST_POWER = re.compile(r"\b10(?!00\b|24\b)\d{2,3}\b|\b2[1-9]0 (?:bits|bytes|or)\b")
+
+
 def sense_heading(translation):
     """The sense of the word that an English translation translates, as the
     heading of its table says it: "go → fari", "to make (a specified
-    sound)"; None if it says nothing"""
-    heading = NUMBERING.sub("", SEE_ALSO.sub("", clean(translation.get("sense") or "")))
-    return heading if heading and heading.lower() != "translations" else None
+    sound)"; None if it says nothing, or if it lost a power of ten"""
+    heading = clean(translation.get("sense") or "")
+    heading = SUP.sub(lambda m: m.group(1).translate(SUPERSCRIPT_DIGITS), heading)
+    if LOST_POWER.search(heading):
+        return None
+    heading = WIKI_LINK.sub(r"\1", heading).replace("''", "")
+    heading = EDITORS_NOTE.sub("", NUMBERING.sub("", SEE_ALSO.sub("", heading))).lstrip("—– ").strip()
+    if heading.lower() in ("translations", "translation", "translations to be checked"):
+        return None
+    return heading or None
+
+
+SUPERSCRIPT_DIGITS = str.maketrans("0123456789+−-", "⁰¹²³⁴⁵⁶⁷⁸⁹⁺⁻⁻")
 
 
 def likeliest_sense(translation):

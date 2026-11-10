@@ -857,8 +857,8 @@ Chinese	ĉino	person from China or of Chinese descent
 Chinese	ĥino	person from China or of Chinese descent
 Chinese	ĉinino	person from China or of Chinese descent
 Chinese	ĥinino	person from China or of Chinese descent
-Chinese	ĉinoj	the people of China (to be merged into the translations table above, or reconstituted as a new translations table)
-Chinese	ĥinoj	the people of China (to be merged into the translations table above, or reconstituted as a new translations table)
+Chinese	ĉinoj	the people of China
+Chinese	ĥinoj	the people of China
 Chinese Taipei	Ĉina Tajpeo	a name under which Taiwan participates in international organisations
 Chinese character	ĉina signo	CJKV character
 Chink	ĉinaĉo	offensive: Chinese person
@@ -2504,7 +2504,7 @@ Manichaeism	Manikeismo	religion
 Manila	Manilo	capital of the Philippines
 Manipur	Manipuro	state in northeastern India
 Manitoba	Manitobo	province in western Canada
-Manx	Manksa kato	cat of the Manx breed (these are translations of the word alone; for translations of the phrase "Manx cat", see Manx cat)
+Manx	Manksa kato	cat of the Manx breed
 Manx	manksa	a Goidelic language spoken on the Isle of Man
 Manx cat	manksa kato	mammal
 Maoism	maoismo	philosophy espoused by Mao Zedong
@@ -3299,7 +3299,7 @@ Pythagorean	pitagorisma	of or relating to Pythagoras or his philosophy
 Pythagorean	pitagorana	of or relating to Pythagoras or his philosophy
 Pythagorean	hipitagorana	of or relating to Pythagoras or his philosophy
 Pyxis	Kompaso	constellation
-Q.E.D.	KEP	''initialism placed at the end of a mathematical proof to show that the theorem under discussion is proved''
+Q.E.D.	KEP	initialism placed at the end of a mathematical proof to show that the theorem under discussion is proved
 QR code	rapidresponda kodo	2-D barcode
 QR code	QR-kodo	2-D barcode
 Qatar	Kataro	country in West Asia
@@ -3440,7 +3440,6 @@ Rusian	rusja	related to the Rus (people)
 Russia	Rusio	country in Eastern Europe and North Asia
 Russia	Rusujo	country in Eastern Europe and North Asia
 Russia	Ruslando	country in Eastern Europe and North Asia
-Russia	Moskvio
 Russian	rusa	of or pertaining to Russia
 Russian	rusujano	citizen or national of Russia
 Russian	rusujanino	citizen or national of Russia
@@ -5457,7 +5456,7 @@ alleviate	mildigi	make less severe
 alleviate	moderigi	make less severe
 alley	strateto	narrow street
 alliance	alianco	union resembling that of families or states
-alligator	aligatoro	large amphibious reptile of genus ''Alligator''
+alligator	aligatoro	large amphibious reptile of genus Alligator
 allistic	neaŭtisma	not autistic
 alliterate	aliteracii	to exhibit alliteration
 alliteration	aliteracio	the repetition of letters or sounds
@@ -6547,8 +6546,8 @@ at least	almenaŭ	at a lower limit
 at length	longe	for a long time
 at length	fine	finally
 at length	finfine	finally
-at length	detale	''(archaic in English)'' in full; without omission or abbreviation
-at length	plene	''(archaic in English)'' in full; without omission or abbreviation
+at length	detale	(archaic in English) in full; without omission or abbreviation
+at length	plene	(archaic in English) in full; without omission or abbreviation
 at most	maksimume	at the most; at a maximum or upper limit
 at night	nokte	during the night
 at once	tuj	immediately
@@ -6616,7 +6615,7 @@ attain	atingi	(transitive) to gain (a desired result or other objective) through
 attainable	atingebla	able to be accomplished, achieved, or obtained
 attempt	provi	to try
 attempt	provo	the action of trying at something
-attend	ĉeesti	(''ambitransitive'') to be present at or regularly go to
+attend	ĉeesti	(ambitransitive) to be present at or regularly go to
 attend to	zorgi	to diligently work on; to pay attention to
 attendance	ĉeesto
 attendee	ĉeestanto	a person who is in attendance or in the audience of an event
@@ -7657,7 +7656,7 @@ billiards	bilardo	any cue sport
 billiards table	bilardo
 billion	miliardo	a thousand million (1,000,000,000); a milliard
 billion	duiliono	a million million; 1,000,000,000,000
-billionaire	miliardulo	wealth exceeding one billion (10<sup>9</sup>)
+billionaire	miliardulo	wealth exceeding one billion (10⁹)
 billow	ondego	large wave
 billsticker	afiŝisto	someone who sticks up advertisements
 billy goat	virkapro	male goat
@@ -8826,8 +8825,8 @@ cake	briko	block of dense material
 cake shop	kukejo	shop where cakes can be bought; patisserie
 caked	kunpremita	congealed into a cakelike consistency
 calabash	kalabaso	musical instrument
-calabash	lagenario	''Lagenaria siceraria''
-calabash	botelkukurbo	''Lagenaria siceraria''
+calabash	lagenario	Lagenaria siceraria
+calabash	botelkukurbo	Lagenaria siceraria
 calamite	kalamito	genus of extinct treelike horsetails
 calamity	katastrofo	event resulting in great loss
 calamity	plago	event resulting in great loss
@@ -9224,7 +9223,7 @@ casino	kazino	public building or room for entertainment, especially gambling
 casket	kesteto	little box e.g. for jewelry
 casket	skatoleto	little box e.g. for jewelry
 cassation	kasacio	the abrogation of a law by a higher authority; annulment
-cassava	manioko	plant (''Manihot esculenta'')
+cassava	manioko	plant (Manihot esculenta)
 casserole	kaserolo	glass or earthenware dish
 cassette	kasedo	small flat case containing magnetic tape
 cassowary	kazuaro	a large flightless bird of the genus Casuarius
@@ -9377,8 +9376,8 @@ center	centri	cause to occupy the center
 center	centrigi	cause to occupy the center
 centigram	centigramo	a metric measurement of 1/100 of a gram
 centilitre	centilitro	1/100 of a litre
-centillion	kvindekiliardo	10303
-centillion	centiliono	10600
+centillion	kvindekiliardo
+centillion	centiliono
 centimetre	centimetro	one-hundredth of a metre
 centimorgan	centimorgano	length of chromosome
 centipede	centpiedulo	a segmented arthropod of class Chilopoda
@@ -9482,7 +9481,7 @@ chambermaid	ĉambristino	a maid who handles the chores in a bedroom
 chameleon	ĥameleono	reptile
 chamois	ĉamo	goat-like antelope
 champagne	ĉampano	sparkling white wine produced in Champagne
-champignon	agariko	any mushroom of the genus ''Agaricus''
+champignon	agariko	any mushroom of the genus Agaricus
 champion	ĉampiono	someone who has been winner in a contest
 champion	ĉampionino	someone who has been winner in a contest
 championship	ĉampionado	competition to determine a champion
@@ -10010,7 +10009,7 @@ clap	aplaŭdi	transitive: to applaud by clapping the hands
 clapper	koro	the tongue of a bell
 clarified butter	buterograso	cooking fat made from butter
 clarify	klarigi	(transitive) to make clear or bright by freeing from impurities
-clarify	pliklarigi	(''transitive'') to make clear or easily understood
+clarify	pliklarigi	(transitive) to make clear or easily understood
 clarinet	klarneto	woodwind musical instrument
 clarity	klareco	the state or measure of being clear
 clasp	agrafo	fastener or holder
@@ -10417,7 +10416,7 @@ combined	kunigita	resulting from adding together
 combustion chamber	brulkamero	space in a heat engine
 come	veni	to move nearer
 come	ĉuri	to orgasm
-come back	reveni	(''intransitive'') To return to a place
+come back	reveni	(intransitive) To return to a place
 come between	enmiksiĝi inter	to affect negatively
 come on	venu	come along with me
 come out	elveni	to exit
@@ -10904,7 +10903,7 @@ construction	konstruo	process of constructing
 construction	konstruado	process of constructing
 construction	konstruaĵo	structure
 constructor	konstruilo	in object oriented programming: code that creates objects
-construe	traduko	translation
+construe	traduko
 construe	interpreto	interpretation
 construe	konjekti	to interpret or explain the meaning of something
 construe	klarigi	to interpret or explain the meaning of something
@@ -11498,7 +11497,7 @@ criterion	kriterio	standard for comparison and judgment
 critic	kritikisto	person who appraises the works of others
 critical	kriza	extremely important
 critical path	krita vojo	sequence of steps
-critical section	krita sekcio	translation
+critical section	krita sekcio
 critically	kritike	in terms of critique, review
 criticism	kritiko	act of criticising
 criticism	kritika pensado	critical review or comment
@@ -11905,7 +11904,7 @@ damn	diable
 damnable	damninda	deserving of damnation
 damnably	damninde	in a damnable manner
 damnation	damno	Condemnation to everlasting punishment in the future state, or the punishment itself
-damned	damninda	variant of profane ''damn,'' used to express contempt, exasperation, etc. towards someone or something
+damned	damninda	variant of profane damn, used to express contempt, exasperation, etc. towards someone or something
 damned	damna
 damp	malseketa	Being in a state between dry and wet
 damp	amortizi	to suppress vibrations or oscillations
@@ -12001,7 +12000,7 @@ day	tago	period of 24 hours
 day	labortago	part of a day period which one spends at one's job, school, etc.
 day after day	tagon post tago	For an indefinite number of days
 day after tomorrow	postmorgaŭ	day after tomorrow
-day before yesterday	antaŭhieraŭ	day before yesterday - translation entry
+day before yesterday	antaŭhieraŭ	day before yesterday
 day for night	dumtaga noktefekto	cinematographic technique
 day off	ferio	a day of vacation etc.
 daybed	sofolito	couch
@@ -12034,7 +12033,7 @@ deadline	limdato	date on or before which something must be completed
 deadly nightshade	beladono	deadly nightshade; Atropa belladonna
 deadly sin	morta peko	any of the seven deadly sins
 deaf	surda	unable to hear
-deaf person	surdulo	deaf person - translation entry
+deaf person	surdulo	deaf person
 deaf-mute	surdmuta	unable to hear or speak
 deaf-mute	surdamuta	unable to hear or speak
 deaf-mute	surdmutulo	person who is unable to hear or speak
@@ -12108,8 +12107,8 @@ decide	decidi	to resolve or settle
 deciduous	falfolia	of or pertaining to trees which lose their leaves in winter or the dry season
 decigram	decigramo	metric measurement
 decilitre	decilitro	unit of volume
-decillion	dekiliono	1060
-decillion	kviniliardo	10<sup>33</sup>
+decillion	dekiliono
+decillion	kviniliardo	10³³
 decimal	dekuma	concerning numbers expressed in decimal or calculations using decimal
 decimal	decimala	concerning numbers expressed in decimal or calculations using decimal
 decimal	dekuma sistemo	number system
@@ -13384,7 +13383,7 @@ dungeon	forgeskelo	underground prison or vault
 dungeon	loĝejturo	the main tower of a motte or castle; a keep or donjon
 dunghill	sterkejo	heap of dung
 duo	duopo	twosome, especially musicians
-duodecillion	sesiliardo	1039
+duodecillion	sesiliardo
 duodenum	duodeno	first part of the small intestine
 dupe	trompito	deceived person
 dupe	trompato	deceived person
@@ -14324,8 +14323,8 @@ ex-husband	eksedzo	a former husband
 ex-wife	eksedzino	a former wife
 exa-	eksa-	SI prefix
 exabit	eksabito	one quintillion bits
-exabyte	eksabajto	260 or 1018 bytes
-exabyte	eksabitoko	260 or 1018 bytes
+exabyte	eksabajto
+exabyte	eksabitoko
 exact	ekzakta	precisely agreeing
 exacting	postulema	making great demands; difficult to satisfy
 exactitude	precizeco	attention to small details
@@ -15573,7 +15572,7 @@ forgetfulness	forgeso	loss of remembrance
 forgetfulness	forgesemo	proneness to let slip from the mind
 forgettable	forgesebla	easily forgotten
 forgivable	pardonebla	able to be forgiven
-forgive	pardoni	(''transitive'') to pardon
+forgive	pardoni	(transitive) to pardon
 forgiveness	pardono	the action of forgiving
 forgiveness	kompato	readiness to forgive
 forgotten	forgesita	of which knowledge has been lost, which is no longer remembered
@@ -16138,9 +16137,9 @@ gastronomy	gastronomio	study of the relationship between food and culture
 gate	pordego	door-like structure outside
 gate	barilpordo	doorway, opening, or passage in a fence or wall
 gate	pasejo	doorway, opening, or passage in a fence or wall
-gather	amasigi	—to accumulate over time
-gather	kunveni	—to congregate
-gather	amasiĝi	—to congregate
+gather	amasigi	to accumulate over time
+gather	kunveni	to congregate
+gather	amasiĝi	to congregate
 gather	kolekti	to bring together; to collect
 gathering	kunveno	get-together, social function
 gauche	plumpa	awkward, bumbling
@@ -16347,8 +16346,8 @@ giant panda	granda pando	mammal
 gibberish	galimatio	unintelligible speech or writing
 gibberish	volapukaĵo	unintelligible speech or writing
 gibbous	ĝiba	phase of moon or planet
-gibibit	gibibito	230 bits
-gibibyte	gibibitoko	230 bytes
+gibibit	gibibito
+gibibyte	gibibitoko
 giddyup	hot	used to make a horse go faster
 gift	donaco	something given to another voluntarily, without charge
 gift	naturdono	talent or natural ability
@@ -16616,7 +16615,7 @@ good heavens	Dio mia	exclamation of surprise or shock
 good heavens	ĉielo	exclamation of surprise or shock
 good morning	bonan matenon	when seeing someone for the first time in the morning
 good night	bonan nokton	a farewell
-good riddance	ĝis neniam	''departure or loss is welcome''
+good riddance	ĝis neniam	departure or loss is welcome
 good-for-nothing	sentaŭga	useless, worthless
 good-for-nothing	sentaŭgulo	person of little worth or usefulness
 good-looking	bela	attractive
@@ -17966,7 +17965,7 @@ honour killing	honormurdo	murder as a cultural practice
 honourably	honore	in an honourable manner
 honoured	honorita	respected, having received honour
 hood	kapuĉo	covering for the head attached to a larger garment such as a jacket or cloak
-hood	kapoto	hinged cover over the engine of a motor vehicle, known as a bonnet in other countries; ''(by extension)'' cover over the engine, driving machinery or inner workings of something
+hood	kapoto	hinged cover over the engine of a motor vehicle, known as a bonnet in other countries; (by extension) cover over the engine, driving machinery or inner workings of something
 hooded	kapuĉata	wearing a hood
 hooded crow	griza korniko	Corvus cornix
 hooded greatcoat	kapoto
@@ -18023,7 +18022,7 @@ horror	teruraĵo	thing that which excites horror
 horror	hororo	intense dislike or aversion
 horror movie	horora filmo	motion picture which horrifies or frightens
 hors d'oeuvre	antaŭmanĝaĵo	appetizer
-horse	ĉevalo	members of the species ''Equus ferus''
+horse	ĉevalo	members of the species Equus ferus
 horse	ekvedo	related or similar species
 horse chestnut	hipokaŝtano	tree
 horse-drawn	ĉevaltirata	pulled along by horse
@@ -18725,7 +18724,6 @@ incubus	inkubo	an evil spirit
 indecent	maldeca	not in keeping with conventional moral values
 indeed	ja	modal: truly; in fact; actually
 indeed	vere	modal: truly; in fact; actually
-indeed	tamen
 indefinite article	artikolo nedefinida	word preceding a noun to indicate any member of the class of objects
 indefinite article	nedefinida artikolo	word preceding a noun to indicate any member of the class of objects
 indefinite pronoun	nedifina pronomo	Pronoun not specifying the identity of its referent
@@ -19204,7 +19202,7 @@ invertebrate	senvertebrulo	animal without backbone
 invertible	inversigebla	(mathematics) which has an inverse
 invertible	invershava	(mathematics) which has an inverse
 invest	investi	to spend money, time, and effort into something
-investigate	enketi	(''transitive'') to examine
+investigate	enketi	(transitive) to examine
 investigation	enketo	the act of investigating
 investigatory	enketa
 investment	investado	act of investing
@@ -19637,7 +19635,7 @@ khamsin	ĥamsino	a hot wind in Egypt
 khan	ĥano	a ruler over various Turkic and Mongol peoples in the Middle Ages
 khat	ĉato	Catha edulis
 kibbutz	kibuco	a community
-kibibit	kibibito	210 bits
+kibibit	kibibito
 kibibyte	kibibitoko	1,024 bytes
 kick	piedbati	strike with or raise the foot or leg
 kick wheel	potfarilo	A wheel or disc used to throw pots, turned by kicking or pushing a heavy stone or concrete base with the foot
@@ -19660,8 +19658,8 @@ killer	murdinto	murderer, person who kills
 killer	murdintino	murderer, person who kills
 killer	mortigisto	murderer, person who kills
 killer	mortigistino	murderer, person who kills
-killer whale	orcino	a sea mammal, ''Orcinus orca''
-killer whale	orko	a sea mammal, ''Orcinus orca''
+killer whale	orcino	a sea mammal, Orcinus orca
+killer whale	orko	a sea mammal, Orcinus orca
 killing	mortigo	the act of killing
 kilo-	kilo-	prefix
 kilobit	kilobito	1000 bits
@@ -21124,7 +21122,7 @@ mangy	skabia	afflicted with mange
 mania	manio
 maniac	maniulo	insane person
 manifest	manifesto	obsolete: public declaration
-manifest	manifesti	(''transitive'') to show plainly; to make to appear distinctly
+manifest	manifesti	(transitive) to show plainly; to make to appear distinctly
 manifestation	montro
 manifold	diversa	various in kind or quality
 manifold	pluropa	various in kind or quality
@@ -21454,7 +21452,7 @@ meatloaf	viandopano	mixture of ground meat
 meatloaf	viandokuko	mixture of ground meat
 meatloaf	viandhaketaĵpano	mixture of ground meat
 meatloaf	haketaĵpano	mixture of ground meat
-mebibit	mebibito	220 bits
+mebibit	mebibito
 mebibyte	mebibitoko	1,048,576 bytes
 mechanic	meĥaniko	skilled worker on machinery
 mechanic	maŝinisto	skilled worker on machinery
@@ -22879,8 +22877,8 @@ nonexistence	neekzistado	The state of not existing
 nonexistent	neekzistanta	not existent
 nonfiction	nefikcio	written works intended to give facts
 nonhuman animal	besto
-nonillion	kviniliono	1030
-nonillion	naŭiliono	1054
+nonillion	kviniliono
+nonillion	naŭiliono
 nonkilling	nemortigo	A precept or worldview
 nonmetal	nemetalo	element that does not have the properties of a metal
 nonprofessional	amatora	not professional
@@ -22991,7 +22989,7 @@ novel	romano	work of prose fiction
 novelist	romanisto	author of novels
 novelty	novaĵo	state of being new
 novelty	nekutimaĵo	new product
-novemdecillion	dekiliono	1060
+novemdecillion	dekiliono
 novice	novico	new member of a religious order
 now	nun	at the present time
 now	nu	(word to introduce a point)
@@ -23201,8 +23199,8 @@ octal	okuma	concerning numbers expressed in octal or mathematics calculations pe
 octane	oktano	isomeric aliphatic hydrocarbons
 octave	oktavo	interval
 octillion	kvariliardo	a thousand trillion trillion, 10
-octillion	okiliono	a trillion quintillion, 1048
-octodecillion	naŭiliardo	1057
+octillion	okiliono
+octodecillion	naŭiliardo
 octopus	polpo	mollusc
 octosyllabic	oksilaba	containing 8 syllables
 ocular	okula	of or relating to the eye
@@ -23392,7 +23390,7 @@ once again	ree	one more time
 once and for all	definitive	conclusively, finally, permanently
 once in a blue moon	ege malofte	very rarely
 once in a while	de tempo al tempo	occasionally
-once or twice	unu-dufoje	Translations to be Checked
+once or twice	unu-dufoje
 once upon a time	iam estis	traditional beginning of children’s stories, especially fairy tales
 oncologist	onkologo	one who specialises in oncology
 oncology	onkologio	branch of medicine
@@ -23553,8 +23551,8 @@ orb	sfero	spherical body
 orbit	orbito	path of one object around another
 orbital	orbita	of or relating to an orbit
 orc	orko	evil monstrous humanoid creature
-orca	orko	''Orcinus orca''
-orca	granda orcino	''Orcinus orca''
+orca	orko	Orcinus orca
+orca	granda orcino	Orcinus orca
 orchard	fruktarbejo	land for cultivation of fruit or nut trees
 orchard	horto	the trees in an orchard
 orchestra	orkestro	large group of musicians who play together on various instruments
@@ -23716,7 +23714,6 @@ outsider	eksterulo	one who is not part of a community or organization
 outsmart	superruzi	beat in a competition of wits
 outstanding	elstara	standing out from others
 outstretched	etendita	extended or stretched out
-outwards	ekstere
 ouzo	oŭzo	drink
 oval	ovalo	shape like an egg or ellipse
 oval	ovala	oval-shaped
@@ -24250,7 +24247,7 @@ peasant	kamparano	member of the agriculture low class
 peat	torfo	soil
 peat bog	torfejo	bog composed of peat
 pebble	ŝtoneto	stone
-pebibit	pebibito	250 bits
+pebibit	pebibito
 pecan	pekano	nut
 pecan pie	pekanotorto	pie made from corn syrup and pecans
 peccary	tajasuo	a family of mammals related to pigs
@@ -24644,7 +24641,6 @@ piece	peco	part of a larger whole
 piece of furniture	meblo	item of furniture
 pier	piero	raised platform built from the shore out over water
 piety	pieco	reverence and devotion to God
-piety	pio
 pig	porko	mammal of family Suidae
 pig	virporko	mammal of family Suidae
 pig	porkino	mammal of family Suidae
@@ -24660,7 +24656,7 @@ pilaf	pilafo	dish
 pile	stako	mass of things heaped together; heap
 pile	amaso	mass of things heaped together; heap
 pile driver	ramo	machine for forcing a pile into the ground
-pile up	amasigi	(''transitive'') to form a pile etc.
+pile up	amasigi	(transitive) to form a pile etc.
 pile up	amasiĝi	(intransitive) to accumulate
 pilfer	ŝteleti	to steal in small quantities
 pilferer	ŝteletinto	one who pilfers
@@ -24730,8 +24726,8 @@ pirate	marrabisto	one who plunders at sea
 pirate	pirati	engage in piracy
 piratically	pirate	in the manner of a pirate
 piss	urino	urine
-piss	pisi	''(vulgar)'' to urinate
-piss	urini	''(vulgar)'' to urinate
+piss	pisi	(vulgar) to urinate
+piss	urini	(vulgar) to urinate
 piss off	forpisiĝi	to leave, to go away
 piss off	ĝenaĉi	to annoy
 piss off	tedaĉi	to annoy
@@ -26023,7 +26019,7 @@ qigong	ĉigongo	system of breathing control
 qua	kiel	in the capacity of
 quack	kvako	sound made by a duck
 quack	kvaki	to make a noise like a duck
-quadragintillion	dudekiliardo	10123
+quadragintillion	dudekiliardo
 quadrangular	kvarangula	in the shape of a quadrangle
 quadratic	kvadrata	of a class of polynomial of the form y = ax² + bx + c
 quadratically	kvadrate	in a quadratic way
@@ -26077,7 +26073,7 @@ quarter-century	kvaronjarcento	period of twenty-five years
 quartz	kvarco	mineral
 quasar	kvazaro	An extragalactic object
 quasi	kvazaŭ	showing likeness
-quattuordecillion	sepiliardo	1045
+quattuordecillion	sepiliardo
 quay	kajo	structure for loading and unloading vessels
 qubit	kvantumbito	quantum bit
 quecto-	kvekto-	SI prefix
@@ -26150,14 +26146,14 @@ quilt	litkovrilo	bed covering
 quim	piĉo	(vulgar, slang) female genitalia
 quince	cidoniarbo	tree
 quince	cidonio	fruit
-quindecillion	okiliono	1048
+quindecillion	okiliono
 quinine	kinino	alkaloid used to treat malaria
 quinine	ĥinino	alkaloid used to treat malaria
 quinoa	kvinoo	Chenopodium quinoa
 quinsy	angino	painful pus-filled inflammation or abscess of the tonsils and surrounding tissues
 quintet	kvinopo	any group of five
-quintillion	triiliono	a billion billion, 1018
-quintillion	kviniliono	a million quadrillion, 1030
+quintillion	triiliono
+quintillion	kviniliono
 quirk	strangaĵo	idiosyncrasy
 quit	forlasi	to leave
 quit	demisii	to resign
@@ -26408,8 +26404,8 @@ reality	realo	entirety of all that is real
 reality	realeco	state of being actual or real
 reality	vero
 realizable	realigebla	capable of being realized or achieved
-realize	ekkompreni	(''transitive'') to become aware of or understand (a fact or situation)
-realize	ekkonscii	(''transitive'') to become aware of or understand (a fact or situation)
+realize	ekkompreni	(transitive) to become aware of or understand (a fact or situation)
+realize	ekkonscii	(transitive) to become aware of or understand (a fact or situation)
 realize	konscii	to sense (something) strongly or vividly as if real
 realize	realigi	to convert (something imaginary or planned) into reality; to make real
 really	efektive	actually
@@ -28055,11 +28051,11 @@ sepia	sepia	of a dark reddish-brown colour
 seppuku	harakiro	ritual suicide by disembowelment
 sepsis	sepso	serious medical condition in which the whole body is inflamed
 sepsis	sangoveneniĝo	serious medical condition in which the whole body is inflamed
-septendecillion	naŭiliono	1054
+septendecillion	naŭiliono
 septentrional	norda	northern
 septic	sepsa	of or pertaining to sepsis
 septillion	kvariliono	a trillion trillion, 1024
-septillion	sepiliono	a billion quintillion, 1042
+septillion	sepiliono
 sepulchral	sepulteja	suggestive of grave
 sepulchre	sepultejo	burial chamber
 sequel	daŭrigo	a narrative written after another narrative set in the same universe
@@ -28190,14 +28186,14 @@ sex toy	erotika helpilo	sex aid
 sex worker	sekslaboristo	person who supplies sexual services for money
 sex worker	amoristo	person who supplies sexual services for money
 sex worker	amoristino	person who supplies sexual services for money
-sexdecillion	okiliardo	1051
+sexdecillion	okiliardo
 sexily	amoroalloge	in a sexy manner
 sexily	seksoalloge	in a sexy manner
 sexism	seksismo	discrimination based on sex or gender
 sexology	seksologio	study of sex and sexuality
 sextant	sekstanto	navigational instrument
-sextillion	triiliardo	a trillion billion, 1021
-sextillion	sesiliono	a million quintillion, 1036
+sextillion	triiliardo
+sextillion	sesiliono
 sexual	seksa	of or relating to having sex
 sexual	amora	of or relating to having sex
 sexual harassment	seksa mobingo	sexual harassment
@@ -28266,7 +28262,7 @@ shanzhai	falsado	imitation and trademark infringing brands and goods
 shanzhai	falsigita	imitation and trademark infringing brands and goods
 shanzhai	piratado	imitation and trademark infringing brands and goods
 shape	formo	form; formation
-shape	formi	to give something a [[shape]]
+shape	formi	to give something a shape
 shaped	formita	having been given a shape
 shapeless	senforma	without a shape
 share	parto	portion of something
@@ -28712,9 +28708,9 @@ singular	singulara	being the only one of a kind
 singular	ununombra	grammar: referring to only one thing
 singularly	aparte	solely; only; uniquely
 sinister	minaca	ominous
-sink	alfundiĝi	(''intransitive'') descend into liquid, etc.
-sink	droni	(''intransitive'') descend into liquid, etc.
-sink	sinki	(''intransitive'') descend into liquid, etc.
+sink	alfundiĝi	(intransitive) descend into liquid, etc.
+sink	droni	(intransitive) descend into liquid, etc.
+sink	sinki	(intransitive) descend into liquid, etc.
 sink	alfundigi	cause (ship, etc) to sink
 sink	lavujo	basin
 sinkhole	dolino	geology: hole formed in soluble rock
@@ -29065,8 +29061,8 @@ snow	neĝi	have snow fall from the atmosphere
 snow bunting	neĝemberizo	bird
 snow cannon	neĝopafilego	machine that spurts out snow over pistes
 snow chain	neĝoĉeno	a chain put on a wheel of a vehicle to give it more traction
-snow leopard	uncio	a large feline mammal, ''Panthera uncia''
-snow leopard	neĝleopardo	a large feline mammal, ''Panthera uncia''
+snow leopard	uncio	a large feline mammal, Panthera uncia
+snow leopard	neĝleopardo	a large feline mammal, Panthera uncia
 snow-covered	neĝkovrita	covered with snow
 snow-white	neĝblanka	as white as snow
 snowball	neĝobulo	ball of snow
@@ -29216,7 +29212,7 @@ some	iuj	indefinite quantity or number
 some	ia	certain, unspecified or unknown
 some	certa
 somebody	iu	some unspecified person
-somebody's	ies	belonging to somebody (possessive form of ''somebody'')
+somebody's	ies	belonging to somebody (possessive form of somebody)
 someday	iam	sometime; at some time in the future
 somehow	iel	in one way or another; in some way not yet known or designated
 someone	iu	some person
@@ -30290,8 +30286,8 @@ suede	svedledo	type of leather
 suet	sebo	fat
 suffer	suferi	undergo hardship
 suffer	toleri	to endure, undergo
-suffer	permesi	''(archaic in English)'' to allow
-suffer	lasi	''(archaic in English)'' to allow
+suffer	permesi	(archaic in English) to allow
+suffer	lasi	(archaic in English) to allow
 suffer	doloriĝi	feel pain
 suffer	plimalboniĝi	become worse
 suffering	suferanta	experiencing pain
@@ -30587,7 +30583,7 @@ swindle	trompi	to defraud someone
 swindle	trompo	an instance of swindling
 swindler	fikomercisto	person who swindles, cheats or defrauds
 swine flu	porka gripo	influenza caused by orthomyxoviruses
-swing	balanci	(''intransitive'') to rotate about an off-centre fixed point
+swing	balanci	(intransitive) to rotate about an off-centre fixed point
 swing	svingi	(transitive) to move an object backward and forward
 swing	svingomuzikumi	to dance
 swing	svingo	dance style
@@ -30924,7 +30920,7 @@ tear	elŝiri	to remove by tearing
 tear	larmo	drop of clear salty liquid from the eyes
 tear	larmi	to produce tears
 tear gas	larmiga gaso	chemical compound
-tear off	elŝiri	(''transitive'') to rip away from
+tear off	elŝiri	(transitive) to rip away from
 tear out	elŝiri	to remove by tearing
 tearily	larme	tearily
 tease	moketi	to poke fun at
@@ -30934,8 +30930,8 @@ teat	cico	projection of mammary gland
 teat	mampinto	projection of mammary gland
 teat	cicumo	feeding bottle top
 teatime	tehoro	a time specifically for the serving of tea
-tebibit	tebibito	240 bits
-tebibyte	tebibitoko	240 bytes
+tebibit	tebibito
+tebibyte	tebibitoko
 technetium	teknecio	chemical element
 technetium	teĥnecio	chemical element
 technical	teĥnika	pertaining to the useful or mechanic arts
@@ -31187,10 +31183,10 @@ that is	tio estas	in other words
 that's all	jen ĉio	that's all
 that's why	pro kio	the reason
 thaumaturgy	taŭmaturgio	the working of miracles
-thaw	fandi	(''transitive'') to gradually cause (something frozen, such as earth, ice, or snow) to melt or soften by raising the temperature
-thaw	degeli	(''intransitive'') of something frozen, such as earth, ice, or snow: to gradually melt or soften as a result of the temperature being raised
-thaw	fandiĝi	(''intransitive'') of something frozen, such as earth, ice, or snow: to gradually melt or soften as a result of the temperature being raised
-thaw	likviĝi	(''intransitive'') of something frozen, such as earth, ice, or snow: to gradually melt or soften as a result of the temperature being raised
+thaw	fandi	(transitive) to gradually cause (something frozen, such as earth, ice, or snow) to melt or soften by raising the temperature
+thaw	degeli	(intransitive) of something frozen, such as earth, ice, or snow: to gradually melt or soften as a result of the temperature being raised
+thaw	fandiĝi	(intransitive) of something frozen, such as earth, ice, or snow: to gradually melt or soften as a result of the temperature being raised
+thaw	likviĝi	(intransitive) of something frozen, such as earth, ice, or snow: to gradually melt or soften as a result of the temperature being raised
 thaw	degelo	period of weather warm enough to melt ice, snow, etc.
 thaw	fando	gradual melting or softening of something frozen when the temperature rises
 the	la	article
@@ -31944,7 +31940,7 @@ treatment	kuracado	medical care for an illness or injury
 treaty	traktato	formal binding agreement concluded by subjects of international law
 trebuchet	ĵetmaŝino	trebuchet
 trebuchet	trebuŝeto	trebuchet
-tredecillion	sepiliono	1042
+tredecillion	sepiliono
 tree	arbo	large woody plant
 tree of heaven	ailanto	Ailanthus altissima
 tree trunk	arbotrunko	the main structural member of a tree
@@ -32007,15 +32003,15 @@ tried	elprovita	tested, proven to be firm or reliable
 trifle	bagatelo	thing of little importance or worth
 trigger	baskulo	finger-operated lever used to fire a gun
 trigger	ekigi	to initiate something
-trigintillion	dekkviniliardo	1093
+trigintillion	dekkviniliardo
 trigonometry	trigonometrio	branch of mathematics
 trihedron	triedro	geometric figure
 trilemma	trilemo	circumstance in which a choice must be made between three options
 trilingual	trilingvulo	person who speaks three languages
 trill	trilo	vibrating consonant
-trillion	biliono	a million million, 1012
-trillion	duiliono	a million million, 1012
-trillion	triiliono	a million million million, 1018
+trillion	biliono
+trillion	duiliono
+trillion	triiliono
 trilobite	trilobulo	member of the class Trilobita
 trilogy	trilogio	collection of three works
 trim	ĉirkaŭhaki	to reduce slightly
@@ -32420,7 +32416,7 @@ undead	malmorta	being animate, though non-living
 undead	malmortulo	those creatures which are dead but still animate
 undead	vivkadavro	those creatures which are dead but still animate
 undecided	nedecidita	open and not yet settled or determined
-undecillion	sesiliono	1036
+undecillion	sesiliono
 undecipherable	nedeĉifrebla	not easily deciphered
 undefeated	nevenkita	not defeated
 undemocratic	nedemokrata	not democratic
@@ -32453,8 +32449,8 @@ underskirt	jupo
 understand	kompreni	to grasp the meaning of
 understandable	komprenebla	capable of being understood
 understandably	kompreneble	for reasons that are easy to understand
-understanding	kompreno	(''uncountable'') the mental process of discernment of meaning
-understanding	intelekto	(''uncountable'') the mental process of discernment of meaning
+understanding	kompreno	(uncountable) the mental process of discernment of meaning
+understanding	intelekto	(uncountable) the mental process of discernment of meaning
 understatement	maltroigo	statement less than complete
 understory	subarbaraĵo	(layer of) plants that grow in the shade of the canopy of a forest above the forest floor
 undertake	entrepreni	to start an enterprise
@@ -32802,7 +32798,7 @@ utmost	plej	most extreme
 utopia	utopio	world in perfect harmony
 utopian	utopia	of or pertaining to a utopia
 utter	absoluta	to the furthest or most extreme extent
-utter	eldiri	(''transitive'') to produce (a cry, speech, or other sounds) with the voice
+utter	eldiri	(transitive) to produce (a cry, speech, or other sounds) with the voice
 uttermost	plej ekstrema	extreme utmost
 uvula	uvulo	appendage that hangs from the palate
 uxoricide	edzinmurdo	the killing of one's wife
@@ -33079,7 +33075,7 @@ vigesimal	dudekuma	to the base twenty
 vigil	vigilo	period of observation or surveillance
 vigilance	vigleco	Alert watchfulness
 vigilant	vigla	watchful
-vigintillion	dekiliardo	1063
+vigintillion	dekiliardo
 vignette	vinjeto	running ornament used in Gothic architecture
 vigorous	vigla	physically strong and active
 vigorously	vigle	with intense energy
@@ -34217,8 +34213,8 @@ yokel	kamparanaĉo	a person from or living in the countryside, viewed as being u
 yolk	ovoflavo	yellow of egg
 yotta-	jota-	SI prefix
 yottabit	jotabito	one septillion bits
-yottabyte	jotabajto	280 or 1024 bytes
-yottabyte	jotabitoko	280 or 1024 bytes
+yottabyte	jotabajto
+yottabyte	jotabitoko
 you	vin	object pronoun: the person being addressed
 you	cin	object pronoun: the person being addressed
 you	vi	subject pronoun: the person being addressed
@@ -34293,8 +34289,8 @@ zerothly	nule
 zeta	zeto	sixth letter of the Greek alphabet
 zetetic	zetetika
 zettabit	zetabito	one sextillion bits
-zettabyte	zetabajto	270 or 1021 bytes
-zettabyte	zetabitoko	270 or 1021 bytes
+zettabyte	zetabajto
+zettabyte	zetabitoko
 zeugma	zeŭgmo	using a word to apply to more than one noun
 ziggurat	zigurato	temple tower of the ancient Mesopotamian valley
 zigzag	zigzago	line or path
