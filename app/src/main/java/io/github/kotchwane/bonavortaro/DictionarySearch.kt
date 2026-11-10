@@ -261,10 +261,25 @@ object DictionarySearch {
             limit = MAX_RESULTS
         }
 
+        /* An expression the index files under its first word: "ice cream"
+         * under "ice", where typing "ice c" didn't reach it (user's test
+         * round, 2026-11-09). With what the first word finds that starts
+         * as typed, in the index's order. */
+        var indexed = results.take(count).filterNotNull()
+        val words = filter.trim()
+        val space = words.indexOf(' ')
+        if (!isPattern(filter) && space >= 2) {
+            val more = arrayOfNulls<SearchResult>(MAX_RESULTS)
+            val found = trie.searchIgnoringAccents(words.substring(0, space), more, esperanto)
+            val key = Vikivortaro.key(words)
+            val under = more.take(found).filterNotNull().filter { Vikivortaro.key(it.word).startsWith(key) }
+            if (under.isNotEmpty())
+                indexed = (indexed + under).sortedBy { sortKey(it.word, esperanto) }
+        }
         /* The index has some entries twice, the same word for the same
          * sense; or with its other case, "Januaro, januaro": once, as
          * typed if it is so */
-        val all = inTypedCase(once(results.take(count).filterNotNull(), filter), filter)
+        val all = inTypedCase(once(indexed, filter), filter)
         /* The word as a whole, accents and case aside, alone or followed
          * by other words: "malva " leaves out "malvacoj"; "eleve " finds
          * "élève"; "valet " keeps "valet d'écurie" */
@@ -511,7 +526,8 @@ object DictionarySearch {
             val revo = results.take(count).filterNotNull().filter { it.word.lowercase(Locale.ROOT) == form }
                 .distinctBy { Triple(it.word, it.article, it.mark) }.sortedBy { it.isExample }
                 .filter { isFormOf(typed, form) { hasRoot(context, it.article) } }
-            val viki = Vikivortaro.searchEsperanto(context, form).filter { it.esperanto.lowercase(Locale.ROOT) == form }
+            /* That word only, not a whole search for each form (test round 7) */
+            val viki = if (revo.isNotEmpty()) emptyList() else listOfNotNull(Vikivortaro.onlyInWiktionary(context, form))
             if (revo.isNotEmpty() || viki.isNotEmpty())
                 return revo.map { FoundWord.InRevo(it) } + viki.map { FoundWord.InWiktionary(it) }
         }

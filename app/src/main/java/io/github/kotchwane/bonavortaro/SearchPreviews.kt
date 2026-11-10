@@ -162,9 +162,11 @@ internal fun exampleOf(
             /* An example Reta Vortaro translates into no language, whose
              * translation only a Wiktionary has: "drinki kiel funelo" */
             ?: run {
-                val (code, words) = VikiLanguage.ALL.firstNotNullOfOrNull { viki ->
-                    vikiWords(viki.code, word).takeIf { it.isNotEmpty() }?.let { viki.code to it }
-                } ?: return null
+                /* The reader's languages first */
+                val (code, words) = (readerLanguages.mapNotNull { VikiLanguage.of(it) } + VikiLanguage.ALL).distinct()
+                    .firstNotNullOfOrNull { viki ->
+                        vikiWords(viki.code, word).takeIf { it.isNotEmpty() }?.let { viki.code to it }
+                    } ?: return null
                 return ExamplePreview(word, title, code, words.joinToString(", "))
             }
         val translated = readerLanguages.firstNotNullOfOrNull { reader ->

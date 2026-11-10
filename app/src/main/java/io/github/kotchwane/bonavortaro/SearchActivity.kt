@@ -221,6 +221,7 @@ class SearchActivity : BonaActivity() {
         val before = History.get(this)
         History.remove(this, search.entry)
         recent = recent?.filter { it !== search }
+        historySize = historySize?.minus(1)
         return before
     }
 
@@ -492,7 +493,10 @@ private fun SearchScreen(
                 header = {
                     Column {
                         RandomRootButton(onClick = { editing = false; onRandomRoot() })
-                        ContributeInvitation(recent?.size ?: historySize ?: 0)
+                        /* The size of the history as kept, read first: not the words
+                         * found again in it, fewer when an update dropped
+                         * some, which showed it and then hid it (test round 7) */
+                        ContributeInvitation(historySize ?: recent?.size ?: 0)
                     }
                 },
             )

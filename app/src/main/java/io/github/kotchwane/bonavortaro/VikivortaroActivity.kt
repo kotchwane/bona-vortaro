@@ -472,7 +472,9 @@ private fun VikiPage(
                     if (definition == null && read!!.inViki) listOfNotNull(read!!.vikiLanguage) else emptyList()
                 },
                 vikiWord = word,
-                vikiDescription = foreign.isNotEmpty(),
+                /* "and its description" only when one is shown: not
+                 * for "anakondo", whose page has only words */
+                vikiDescription = foreign.any { it.description != null },
                 vikiEsperanto = definition,
                 bonaLingvo = advice != null,
                 modifier = Modifier.padding(horizontal = 8.dp, vertical = 10.dp),
@@ -532,7 +534,7 @@ private class PageSources(
                 firstDefinition = first?.let { SearchPreviews.get(context, it)?.definition },
                 inViki = Vikivortaro.esperantoResult(context, word) != null || Vikivortaro.anyForeignOf(context, word),
                 vikiLanguage = Vikivortaro.esperantoResult(context, word)?.language
-                    ?: VikiLanguage.ALL.firstOrNull { Vikivortaro.foreignOf(context, it, word).isNotEmpty() }?.code,
+                    ?: Vikivortaro.readerOrder(context).firstOrNull { Vikivortaro.foreignOf(context, it, word).isNotEmpty() }?.code,
             )
         }
     }

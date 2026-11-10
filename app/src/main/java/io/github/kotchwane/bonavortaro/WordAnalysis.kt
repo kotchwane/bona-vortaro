@@ -332,6 +332,25 @@ object WordAnalyser {
     private val ALPHABET = "abcĉdefgĝhĥijĵklmnoprsŝtuŭvz".toSet()
     private val ENDINGS = listOf("as", "is", "os", "us", "u", "o", "a", "e", "i")
     private val WORD_ENDINGS = listOf("o", "a", "i", "e")
+    /** Whether a word is made of affixes only, with its ending: "ineco",
+     * "umulo", "fiigi", where the analysis wants a root */
+    fun ofAffixes(word: String): Boolean {
+        var stem = word.lowercase(Locale.ROOT)
+        if (stem.endsWith("n")) stem = stem.dropLast(1)
+        if (stem.endsWith("j")) stem = stem.dropLast(1)
+        stem = listOf("as", "is", "os", "us", "u", "o", "a", "e", "i")
+            .firstOrNull { stem.endsWith(it) && stem.length > it.length }?.let { stem.dropLast(it.length) } ?: return false
+        val pieces = PREFIXES + SUFFIXES + PREPOSITIONS
+        /* Whether the stem up to each place is made of them */
+        val made = BooleanArray(stem.length + 1).also { it[0] = true }
+        for (i in stem.indices)
+            if (made[i])
+                for (piece in pieces)
+                    if (stem.startsWith(piece, i))
+                        made[i + piece.length] = true
+        return made[stem.length]
+    }
+
     private val PREFIXES = setOf("mal", "re", "ek", "ge", "dis", "mis", "eks", "for", "pra", "bo", "fi", "ne", "vic", "et", "po")
     private val PREPOSITIONS = setOf(
         "al", "ĉe", "de", "el", "en", "kun", "por", "pri", "sen", "sub", "sur", "super", "tra", "trans", "inter",
