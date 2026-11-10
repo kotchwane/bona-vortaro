@@ -115,14 +115,18 @@ object Vikivortaro {
         BonaSettings.translationFilter(context).let { shown -> readerOrder(context).filter { shown(it.code) } }
 
     /** The languages of the Wiktionaries in the reader's order: those whose
-     * translations they read, in the order of the translations; then the
-     * others. An English reader gets "anakondo"'s English words, not the
-     * French ones (test round 7). */
+     * translations they read, in the order of their search tabs, then of
+     * the translations; then the others. An English reader gets
+     * "anakondo"'s English words, not the French ones (test round 7); one
+     * whose tabs say EO, EN, FR gets "marvirino"'s English (user,
+     * 2026-11-10). */
     fun readerOrder(context: Context): List<VikiLanguage> {
+        val tabs = BonaSettings.getSearchLanguages(context)
         val order = BonaSettings.getTranslationOrder(context)
         val shown = BonaSettings.translationFilter(context)
+        fun place(list: List<String>, code: String) = list.indexOf(code).let { if (it < 0) Int.MAX_VALUE else it }
         return VikiLanguage.ALL.sortedWith(
-            compareBy({ !shown(it.code) }, { order.indexOf(it.code).let { index -> if (index < 0) Int.MAX_VALUE else index } })
+            compareBy({ !shown(it.code) }, { place(tabs, it.code) }, { place(order, it.code) })
         )
     }
 
