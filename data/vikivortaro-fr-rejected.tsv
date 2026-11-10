@@ -4,3 +4,131 @@
 eau	pluvo	'rain', only in 'eau de pluie'
 eau	salivo	'saliva', only in 'eau à la bouche'
 eau	ŝvito	'sweat', only in 'en eau'
+# Esperanto words left out altogether ("*"): not Esperanto as written. Review of the new roots, 2026-11-10.
+*	abceso	misspelling of absceso; the meaning given (furuncle) is furunko
+*	akutimiĝo	misspelling of alkutimiĝo
+*	audaco	misspelling of aŭdaco
+*	batardiĉo	not a word: looks like a garbled bastardo + -iĉ
+*	bosniak	missing ending (bosniako/bosniaka)
+*	chiaroscuro	Italian word left as is
+*	chronourbanism	French/English word left as is, no Esperanto ending
+*	cimbasso	Italian word left as is (double s, no ending)
+*	cirkaŭe	misspelling of ĉirkaŭe
+*	criproĉi	garbled form of riproĉi
+*	diviantulo	misspelling of deviantulo (devii)
+*	dobermanno	double n; foreign spelling of dobermano
+*	earobia	misspelling of aerobia
+*	ekspancio	misspelling of ekspansio
+*	ekspoldmotoro	misspelling of eksplodmotoro
+*	elenĥus	Latin/Greek form left as is (-us ending)
+*	enculofobio	French slang (enculer) left as is, not Esperanto
+*	fakih	missing ending (fakiho)
+*	fandajo	misspelling of fandaĵo
+*	forhkakejo	misspelling of forhakejo
+*	franj'	garbage elided form; the French gloss (frère) contradicts franjo (sister)
+*	frarj'	garbage elided form, not a word
+*	fraĝj'	garbage elided form, not a word
+*	fumtobo	misspelling (fumtubo)
+*	gazeno	misspelling of gazono
+*	incubo	misspelling of inkubo (Italian c)
+*	introitus	Latin word left as is (-us)
+*	iri antauen	misspelling: antaŭen (missing ŭ)
+*	jipitagorana	garbled form of pitagora
+*	john	English word left as is
+*	kainit	missing ending (kainito)
+*	kannibalism	foreign spelling, no ending; kanibalismo exists
+*	kaŭaii	Japanese word left as is, no Esperanto ending
+*	kirmesa kverko	misspelling of kermesa kverko
+*	kliodynamica	foreign spelling (y, -ica), not Esperanto
+*	koklass-fazano	foreign spelling koklass left as is
+*	kolportitsto	misspelling of kolportisto
+*	kommando	double m; komando exists
+*	lajk	English word without an ending
+*	libro juego	Spanish word juego left as is
+*	lonjunktivito	typo of konjunktivito
+*	malantaŭajo	misspelling of malantaŭaĵo
+*	manspreading	English word left as is
+*	matcha	foreign spelling left as is (tch)
+*	mebebla	misspelling of meblebla
+*	mezklalita	misspelling (probably mezkvalita)
+*	microphona bastono	microphona is not Esperanto (mikrofona)
+*	mielchelaro	ch written for ĉ (mielĉelaro)
+*	musikrango	misspelling of muzikrango
+*	noesic	English/French word left as is
+*	nozem	Dutch word left as is
+*	olivella	Latin/Italian spelling left as is (ll)
+*	orwellis	English adjective left as is
+*	otaku	Japanese word left as is, no ending
+*	pankreta karcinomo	misspelling of pankreata (pankreato)
+*	pedimenta	not an Esperanto word for pedantic (pedanta)
+*	posivisto	misspelling of pozitivisto
+*	poskasedilo	s written for ŝ (poŝkasedilo)
+*	prehistoriador	Spanish word left as is
+*	prestidigitiisto	misspelling of prestidigitisto (double i)
+*	putto	Italian word left as is
+*	raii	garbage, double i (raio)
+*	savannah-kato	English spelling savannah left as is
+*	storge	Greek word left as is, no ending
+*	terlerbretaro	misspelling of telerbretaro
+*	triptico	misspelling of triptiko
+*	turfparuo	probably a misspelling of tufparuo (tufo, crested tit)
+*	ureata acido	misspelling of urata acido
+*	vendimiero	misspelling of vendemiero
+*	vulcanologiisto	misspelling of vulkanologo (c for k, double i)
+*	ŝauma	misspelling of ŝaŭma
+*	ŝeĥavati	place name without an ending
+# A word on a root Reta Vortaro lacks, where common roots would do, left out for a word Reta Vortaro already translates (user, 2026-11-10).
+accélération	spurto	a compound of common roots would do, and Reta Vortaro translates this word already
+accélérer	spurti	a compound of common roots would do, and Reta Vortaro translates this word already
+alpha	alfao	a compound of common roots would do, and Reta Vortaro translates this word already
+aérosol	sprajo	a compound of common roots would do, and Reta Vortaro translates this word already
+basket	toluo	a compound of common roots would do, and Reta Vortaro translates this word already
+belette	vizelo	a compound of common roots would do, and Reta Vortaro translates this word already
+coasser	kŭaksi	a compound of common roots would do, and Reta Vortaro translates this word already
+cochon d’Inde	kavio	a compound of common roots would do, and Reta Vortaro translates this word already
+colibri	kolibrio	a compound of common roots would do, and Reta Vortaro translates this word already
+crèche	betlehemo	a compound of common roots would do, and Reta Vortaro translates this word already
+drogue	narko	a compound of common roots would do, and Reta Vortaro translates this word already
+drogué	narkita	a compound of common roots would do, and Reta Vortaro translates this word already
+drogué	narkulo	a compound of common roots would do, and Reta Vortaro translates this word already
+démoniaque	demoniako	a compound of common roots would do, and Reta Vortaro translates this word already
+ensiler	insili	a compound of common roots would do, and Reta Vortaro translates this word already
+exactitude	akureco	a compound of common roots would do, and Reta Vortaro translates this word already
+fraterniser	fraterniĝi	a compound of common roots would do, and Reta Vortaro translates this word already
+fraterniser	interfraterniĝi	a compound of common roots would do, and Reta Vortaro translates this word already
+fusée	fuzeo	a compound of common roots would do, and Reta Vortaro translates this word already
+gaine	gaino	a compound of common roots would do, and Reta Vortaro translates this word already
+gigolo	ĝigolo	a compound of common roots would do, and Reta Vortaro translates this word already
+hortensia	hidrangeo	a compound of common roots would do, and Reta Vortaro translates this word already
+hum	ahem	a compound of common roots would do, and Reta Vortaro translates this word already
+héroïne	heroeno	a compound of common roots would do, and Reta Vortaro translates this word already
+mare	stavo	a compound of common roots would do, and Reta Vortaro translates this word already
+muguet	mugeto	a compound of common roots would do, and Reta Vortaro translates this word already
+orchidée	orĥideo	a compound of common roots would do, and Reta Vortaro translates this word already
+polisson	laciva	a compound of common roots would do, and Reta Vortaro translates this word already
+prothèse	proteziko	a compound of common roots would do, and Reta Vortaro translates this word already
+préservatif	femidomo	a compound of common roots would do, and Reta Vortaro translates this word already
+renversement	inverto	a compound of common roots would do, and Reta Vortaro translates this word already
+sikh	siĥa	a compound of common roots would do, and Reta Vortaro translates this word already
+thermique	varmika	a compound of common roots would do, and Reta Vortaro translates this word already
+titane	titanio	a compound of common roots would do, and Reta Vortaro translates this word already
+étang	stavo	a compound of common roots would do, and Reta Vortaro translates this word already
+# Words of Wiktionary only, advised against by a line of "Vortoj de la bona lingvo" not yet confirmed, left out where the same word keeps the preferred one (user, 2026-11-10).
+Brandebourg	Brandenburgio	Vortoj de la bona lingvo (line not yet confirmed) prefers Brandenburgo, which this word keeps
+New York	Nov-Jorkio	Vortoj de la bona lingvo (line not yet confirmed) prefers Nov-Jorko, which this word keeps
+Procuste	Prokusto	Vortoj de la bona lingvo (line not yet confirmed) prefers Prokrusto, which this word keeps
+Rangoun	Jangono	Vortoj de la bona lingvo (line not yet confirmed) prefers Ranguno, which this word keeps
+amande	amando	Vortoj de la bona lingvo (line not yet confirmed) prefers migdalo, which this word keeps
+ambroisie	ambrosio	Vortoj de la bona lingvo (line not yet confirmed) prefers ambrozio, which this word keeps
+androcée	androceo	Vortoj de la bona lingvo (line not yet confirmed) prefers stamenaro, which this word keeps
+bouddhisme Won	ŭonbulismo	Vortoj de la bona lingvo (line not yet confirmed) prefers vonbulismo, which this word keeps
+compilateur	kompilero	Vortoj de la bona lingvo (line not yet confirmed) prefers tradukilo, which this word keeps
+crématorium	krematorio	Vortoj de la bona lingvo (line not yet confirmed) prefers kremaciejo, cindrigejo, which this word keeps
+fractale	frakto	Vortoj de la bona lingvo (line not yet confirmed) prefers fraktalo, which this word keeps
+méristème	meristemo	Vortoj de la bona lingvo (line not yet confirmed) prefers kreskopinto, kreskopunkto, which this word keeps
+nectaire	nektario	Vortoj de la bona lingvo (line not yet confirmed) prefers nektarujo, which this word keeps
+psaltérion	psalterio	Vortoj de la bona lingvo (line not yet confirmed) prefers psaltero, which this word keeps
+ptérosaure	pterosaŭro	Vortoj de la bona lingvo (line not yet confirmed) prefers flugsaŭro, which this word keeps
+sikh	siĥo	Vortoj de la bona lingvo (line not yet confirmed) prefers siko, which this word keeps
+tritium	tricio	Vortoj de la bona lingvo (line not yet confirmed) prefers tritio, which this word keeps
+won	ŭono	Vortoj de la bona lingvo (line not yet confirmed) prefers vono, which this word keeps

@@ -19,7 +19,9 @@
 # Kaikki changes its extract every week, and the app is built the same
 # every time, as F-Droid requires.
 """Writes, into app/src/main/assets/vikivortaro/ (here for French, "en" for English):
-  fr-eo.tsv   a French word, a tab, an Esperanto translation (one per line)
+  fr-eo.tsv   a French word, a tab, an Esperanto translation (one per line);
+              in English, a tab and the sense of the word it translates, the
+              heading of its table, when there is one
   eo-fr.tsv   an Esperanto word, a tab, its French description
 Lines starting with "#" are comments: the source, its date, the licence."""
 import email.utils
@@ -159,6 +161,40 @@ def eo_translations(entry):
     return [(t, sense) for t, sense in found if t.get("lang_code") == "eo" and t.get("word")]
 
 
+# What a heading of a table adds to its sense, or a heading that says
+# nothing of it: "— see also hug", "1.1. ", "Translations"
+SEE_ALSO = re.compile(r"\s+—\s+see also\b.*$")
+NUMBERING = re.compile(r"^\d+(\.\d+)*\.\s+")
+
+
+# What the extract leaves of the page's markup: italics, links, a power of
+# ten ("10<sup>33</sup>"); and the notes of the editors to themselves
+WIKI_LINK = re.compile(r"\[\[(?:[^\]|]*\|)?([^\]]*)\]\]")
+SUP = re.compile(r"<sup>([0-9+−-]+)</sup>")
+EDITORS_NOTE = re.compile(r"\s*\((?:to be merged|these are translations)[^)]*\)|\s+-\s+translation entry$", re.I)
+# A power whose exponent the extract lost: "1060" for 10⁶⁰, "260 bytes"
+# for 2⁶⁰ (round 9); not 1000, 1024, nor a year
+LOST_POWER = re.compile(r"\b10(?!00\b|24\b)\d{2,3}\b|\b2[1-9]0 (?:bits|bytes|or)\b")
+
+
+def sense_heading(translation):
+    """The sense of the word that an English translation translates, as the
+    heading of its table says it: "go → fari", "to make (a specified
+    sound)"; None if it says nothing, or if it lost a power of ten"""
+    heading = clean(translation.get("sense") or "")
+    heading = SUP.sub(lambda m: m.group(1).translate(SUPERSCRIPT_DIGITS), heading)
+    if LOST_POWER.search(heading):
+        return None
+    heading = WIKI_LINK.sub(r"\1", heading).replace("''", "")
+    heading = EDITORS_NOTE.sub("", NUMBERING.sub("", SEE_ALSO.sub("", heading))).lstrip("—– ").strip()
+    if heading.lower() in ("translations", "translation", "translations to be checked"):
+        return None
+    return heading or None
+
+
+SUPERSCRIPT_DIGITS = str.maketrans("0123456789+−-", "⁰¹²³⁴⁵⁶⁷⁸⁹⁺⁻⁻")
+
+
 def likeliest_sense(translation):
     """The sense of a table that Kaikki didn't tie to one: the one its
     scores (_dis1) make likeliest, "slut"'s first for ĉiesulino, "hand"'s
@@ -173,6 +209,12 @@ def likeliest_sense(translation):
 dates, source_lines = entries()
 # Each pair with its group: the entry and the sense its table translates
 translations = {}
+# In English, the senses of an Esperanto word after its first, its
+# description: "memkontenta", self-satisfied; complacent; smug
+later_glosses = {}
+# In English, each pair's sense, by the heading of its table
+headings = {}
+any_case_headings = {}
 entry_number = 0
 descriptions = {}
 for line in source_lines:
@@ -211,6 +253,13 @@ for line in source_lines:
                     or (esperanto[:1].isupper() and not re.search(r"(oj?|a)$", esperanto))):
                 continue
             translations.setdefault((french, esperanto), (entry_number, group))
+            # As written, and in any case for when the case kept is
+            # another table's ("Irish wolfhound", "irish wolfhound"); not
+            # instead of its own: "Bible" isn't "bible", a manual
+            heading = sense_heading(t) if LANGUAGE == "en" else None
+            if heading:
+                headings.setdefault((french, esperanto), heading)
+                any_case_headings.setdefault((french.lower(), esperanto), heading)
     elif code == "eo":
         esperanto = esperanto_spelling(clean(entry.get("word", ""))) or ""
         for sense in entry.get("senses") or []:
@@ -220,28 +269,73 @@ for line in source_lines:
             for gloss in sense.get("glosses") or []:
                 if MARKUP.search(gloss):
                     continue
+                written = NOTE.sub("", LABEL.sub("", clean(gloss))).strip(" ;,")
                 gloss = clean_gloss(gloss)
                 if esperanto and usable(gloss) and esperanto not in descriptions:
                     descriptions[esperanto] = gloss
+                elif esperanto and usable(gloss) and LANGUAGE == "en":
+                    # As written: "Cuban" stays a capital, "fellow
+                    # Esperantist" doesn't take one
+                    later_glosses.setdefault(esperanto, []).append(written)
 
 # The pairs left out after a review (data/vikivortaro-<language>-rejected.tsv):
 # out of the translations, and listed for the app, which leaves them out of
 # the pairs it makes from the descriptions too ("painfully" → oj)
+# A "*" for the foreign word leaves the Esperanto word out altogether, its
+# pairs and its description: a word that isn't Esperanto as written,
+# "posivisto", "chiaroscuro" (review of the new roots, 2026-11-10)
 REJECTED = os.path.join(os.path.dirname(__file__), "..", "data", f"vikivortaro-{LANGUAGE}-rejected.tsv")
 rejected = set()
+rejected_words = set()
 if os.path.exists(REJECTED):
     with open(REJECTED, encoding="utf-8") as f:
         for row in f:
             fields = row.rstrip("\n").split("\t")
             if not row.startswith("#") and len(fields) >= 2:
-                rejected.add((fields[0], fields[1]))
+                if fields[0] == "*":
+                    rejected_words.add(fields[1])
+                else:
+                    rejected.add((fields[0], fields[1]))
 
 # Only the descriptions of the words that the foreign words lead to, counted
 # before the rejections: a description stays useful when only one pair leading
 # to it was wrong ("minuskla: Lowercase." gives lowercase → minuskla)
 wanted = {esperanto for _, esperanto in translations}
 descriptions = {k: v for k, v in descriptions.items() if k in wanted}
-translations = {pair: group for pair, group in translations.items() if pair not in rejected}
+
+
+def gloss_words(gloss):
+    """The English words a sense gives, when it is only such words, as the
+    app takes them from a description (Vikivortaro.glossPairs): at most two
+    words each, no small words, no signs"""
+    text = gloss.rstrip(".")
+    if not text or "." in text or any(c in "()[]:#«»\"/=+…!?" or c.isdigit() for c in text):
+        return []
+    items = [item.strip() for item in re.split("[,;]", text)]
+    if any(len(item.split(" ")) not in (1, 2) or any(not w or w.lower() in GLOSS_SMALL for w in item.split(" "))
+           for item in items):
+        return []
+    return items
+
+
+GLOSS_SMALL = {"of", "the", "a", "an", "to", "for", "by", "in", "on", "at", "with", "from", "who", "which", "that",
+               "or", "and"}
+
+# The words of an Esperanto word's later senses, which the app doesn't read
+# (it reads the description, the first): "smug → memkontenta", reviewed on
+# 2026-11-10 (438 kept of 455), after the pairs of the tables
+known_pairs = {(foreign.lower(), esperanto) for foreign, esperanto in translations}
+for esperanto in sorted(later_glosses):
+    if esperanto not in descriptions or esperanto in rejected_words:
+        continue
+    for gloss in later_glosses[esperanto]:
+        # Written as Wiktionary writes them, its capitals meant: "Cuban"
+        for foreign in gloss_words(gloss):
+            if (foreign.lower(), esperanto) not in known_pairs:
+                known_pairs.add((foreign.lower(), esperanto))
+                translations[(foreign, esperanto)] = (10 ** 9, 0)
+translations = {pair: group for pair, group in translations.items() if pair not in rejected and pair[1] not in rejected_words}
+descriptions = {k: v for k, v in descriptions.items() if k not in rejected_words}
 
 # How often Reta Vortaro's words are used (assets/frequency/leipzig.tsv)
 FREQUENCIES = os.path.join(os.path.dirname(__file__), "..", "app", "src", "main", "assets", "frequency", "leipzig.tsv")
@@ -298,7 +392,8 @@ header = (f"# From the {NAME} Wiktionary ({LANGUAGE}.wiktionary.org), by its con
 with open(os.path.join(OUT, f"{LANGUAGE}-eo.tsv"), "w", encoding="utf-8") as f:
     f.write(header)
     for french, esperanto in ordered(translations):
-        f.write(f"{french}\t{esperanto}\n")
+        heading = headings.get((french, esperanto)) or any_case_headings.get((french.lower(), esperanto))
+        f.write(f"{french}\t{esperanto}\t{heading}\n" if heading else f"{french}\t{esperanto}\n")
 with open(os.path.join(OUT, f"eo-{LANGUAGE}.tsv"), "w", encoding="utf-8") as f:
     f.write(header)
     for esperanto, gloss in sorted(descriptions.items()):
@@ -308,4 +403,4 @@ if rejected:
         f.write(f"# Pairs left out after a review, from data/vikivortaro-{LANGUAGE}-rejected.tsv.\n")
         for foreign, esperanto in sorted(rejected):
             f.write(f"{foreign}\t{esperanto}\n")
-print(f"{len(translations)} translations, {len(descriptions)} descriptions, {len(rejected)} left out")
+print(f"{len(translations)} translations, {len(descriptions)} descriptions, {len(rejected)} pairs and {len(rejected_words)} words left out")

@@ -1,38 +1,61 @@
 # Pairs left out after a review, from data/vikivortaro-en-rejected.tsv.
 Ali	Eljo
 Americanism	amerikanisme
+Athena	Ateno
 Austin	Aŭguĉjo
 Baptist	baptisma
+Brandenburg	Brandenburgio
+Calcutta	Kalkato
 Christmas Day	kristnaskotago. Kristnaska Tago
+Colorado	Koloradio
 Cypriot	kipro
+Dalai Lama	dalai-lamao
 Eastern European	Okcident-Eŭropa
+Eurovision	Eŭrovido
 GPS receiver	birilo
 Gaelic football	pejlo
 German Empire	Germano Regno
+Greenland	Groenlando
+Greenlander	groenlandanino
+Greenlander	groenlandano
 Grim Reaper	Mortulo
 I don't care	mi ne fajfas
 I don't speak English	mi ne parolas Esperanton
+Japan	Nipono
+Jericho	Jeriko
+Kazakhstan	Kazaĥstano
+Kolkata	Kalkato
 MEP	eŭropoparlamenrano
 Manchurian	manĉura
 Mirandese	mirandese
+New York	Nov-Jorkio
+Niger	Niĝerlando
 Orthodox Church	Ortodoxa Eklesio
 Quenya	quenya
+Russia	Moskvio
+Senegal	Senegalio
 Sleeping Beauty	La dormanta belulo
 Svalbard and Jan Mayen Islands	Jan-majen-insulo
+Tajikistan	Taĝikistano
+Turkmenistan	Turkmenistano
 Tyrolean	tirolino
 Tyrolean	tirolo
 Vatican City State	Vatikanurbo aŭ Vatikano
+Virgil	Virgilio
 Virginian	virginino
 Virginian	virgino
 Volsci	Volsques
 Weltschmerz	mondopereo
+Yangon	Jangono
 Zairean	zairino
 Zairean	zairo
 a bird in the hand is worth two in the bush	pli bona ol dek branĉoj sur centono
 aback	malantaŭa
 abandonment	dezerteco
 abandonment	natureco
+absolute value	absoluta
 accidence	hazardo
+accident	pereo
 aircraft carrier	aviadilporta
 alexandrine	aleksandro
 all work and no play makes Jack a dull boy	ĉiom da laboro kaj neniom da ludoj igas Jakobon al obtuza knabo
@@ -41,15 +64,21 @@ ambassadress	ambasadorinedzino
 androgyny	ambaŭseksa
 animator	animisto
 antibody	antipartiklo
+arrow worm	ketognato
 at a time	samtempe
 at length	laŭlonge
+atomic number	atomnombro
 attested	atesta
+aural	aŭra
+automation	aŭtomatizo
+autopsy	obdukcio
 avarice	avaro
 avuncular	onklina
 away with the fairies	for kun la feinoj
 b	bit
 backstage	kuliso
 bankrupt	bankroti
+basil	ocimo
 bass guitar	malalta
 be	egali
 beside oneself	krom si mem
@@ -62,9 +91,16 @@ bloodbath	samgoverŝado
 boarding pass	ŝipa bileto ŝipobileto
 brazen	bronza
 brute force	burtforta metodo
+caribou	karibuo
+carob	ceratonio
+castrated animal	eks-
 cavort	ĉirkausalti
 cephalic	testa
+championship	ĉampioneco
+choana	ĥoano
 choke down	sufokiĝi
+chopstick	kvajzo
+chord	ĥordo
 cistus	kisto
 clam	muslo
 clock cycle	traktoperiodo
@@ -73,6 +109,9 @@ coaster	marborda ŝiptrafiko
 coaster	marborduloj
 cockfight	batalkoko
 cockfighting	batalkoko
+code point	kodono
+collate	ordizi
+collectively	poŝto
 color depth	kolorozo
 come-on	venu
 coming-out	elŝrankiĝi
@@ -80,6 +119,7 @@ commuter rail	aglomeraĵo fervojo
 concerning wolves	lupa
 confirmed bachelor	neniam edziĝis
 conscript	konskripto
+consequent	konkludo
 consist of	konsistanta el
 consuming	konsumema
 control variable	iteracinombrilo
@@ -88,6 +128,7 @@ corner	angula
 cornett	klariono
 coronation	enposteniĝo
 cringe	ŝrumpaĵo
+crustacean	krustaco
 cut out	altranĉi
 cut the mustard	tranĉi la mustardon
 days of yore	praantaŭ
@@ -95,7 +136,11 @@ delete	eksigi
 denotes opposites	mal-
 departure	disiĝo foriro
 description	diskuto
+devotion	devocio
+diatomaceous earth	diatomito
+diatomaceous earth	kiselguro
 dipteral	diptero
+disc jockey	DĴ
 discolored	diskolora
 dissolute	fi-
 dogsbody	komisiito
@@ -107,9 +152,12 @@ download	malenretigi
 drench	irigacii
 driven	devigita
 dudette	ulo
+each	ĉia
 eat out	frandzi
 electrocardiograph	elektrokardiografio
 emphatic particle	ja
+enemy	inamiko
+enemy	inimiko
 engaged	fianĉiĝita
 entresol	etaĝo
 eschew	negi
@@ -117,12 +165,15 @@ exceeding	tre ega
 exemplary	ekzemplero
 exhibitionism	ekshibicio
 expectant	atendema
+expectation	anticipio
 extant	daŭras ĝis nuntage
 extant	nemalaperi
 extortion	malhonestaĵo
 fall victim	iĝis viktimo
 fashy	faŝo
 fatalistically	fatalisma
+feather	plumizi
+feature	prezento
 fire basket	fajrokorboj
 firstborn	lastenaskito
 fishing	fiŝkapti
@@ -132,6 +183,8 @@ foobar	ajn
 forbidden	malpermesa
 fossa	foso
 freestyle skiing	libertstila skiado
+function	mapo
+fund	monizi
 fussy	finika
 gasthaus	gastejoj
 gemütlich	ujutna
@@ -142,16 +195,20 @@ glare	kolerrigard
 go	rompiĝi
 good morning	bonan tagon
 gossipy	ĉikanema
+gratification	gratifo
 great egret	lertxuntxo handia
 great-grandfather-in-law	prapatro
+green	verde
 grisly	malbelega
 grit	knari
 grok	povoscii
 groomer	pederasto
 guerrilla	gerilano gerilisto
 gyration	ĝirado
+gyrfalcon	girfalko
 haily	hajlaj
 hand off	delokigi
+hang	pendaĵizi
 haunting	sorĉado
 head	fonti
 head	kapi
@@ -159,9 +216,12 @@ head	kapizi
 head	kapumi
 heartbreakingly	oj
 hello there	saluton ĉiuj
+hibernation	letargo
+hibernation	sezona letargo
 high five	doni alt-frapo
 high five	doni alt-kvino
 him	al
+hopscotch	marelo
 hypoglossal nerve	hipogloso
 ice cream parlor	glaciaĵisto
 ice group	glaciaro
@@ -172,17 +232,20 @@ in accordance with	graŭ
 in-flight	fluganta
 including	inkluzivida
 indecipherable	malĉifri
+indeed	tamen
 independence	sendependenco
 indicates repetition	re-
 inequity	misproporcio
 infant	infana
 inoperable	nefunkciantaj
 interspersed	intermetitaj
+iodine	iodo
 ironclad	kirasa
 irresistible grace	nekontraŭstarebla gracio
 it's	estas. ĝi estas
 it's about time	jam temp' está
 itsy-bitsy	minuskla
+jar	ĵaro
 jeer	ŝerci
 jetsam	fuko
 jigsaw	ĵigo
@@ -190,8 +253,12 @@ jilt	forlasito
 just in case	divenprove
 juxtaposition	nominacio
 kind	aminda
+king	damo
 kismet	sorco
+lactic acid	laktata acido
 leftist	livulo
+legume	legumo
+lens	kristalino
 living wage	dumviva salajro
 loudly	maltrankvile
 luster	jarkvino
@@ -199,8 +266,10 @@ luster	pendlumigilo
 luxuriance	lukseco
 magma chamber	magma kameno
 mainframe	ĉeforgano
+mastalgia	mastalgio
 measured	laŭmezura
 metaphysician	metafisikisko
+meter	komptilo
 milksop	invertito
 millennialist	miljarismo
 ministration	ministerio
@@ -210,24 +279,31 @@ mutator	mutaciulo
 nail file	ungofajliloj
 namespace	nomspacoj
 natural child	eksteredzeco
+necropsy	obdukcio
 need not	devi ne
 niche nook	niĉo
 no smoking	malpermesi fumi
 noisily	maltrankvile
+nome	nomarkio
 noxious	venefna
 off-roader	ajnagrundaj aŭtomobiloj
 once again	reen
 one's bark is worse than one's bite	ŝelo estas pli malbona ol via mordo
+oracle	oraklo
+orchid	orĥido
 out of order	nefunkciantaj
+outwards	ekstere
 overground	aglomeraĵo fervojo
 painfully	oj
 paronymous	paronimo
 pasta-like dumplings	nokoj
 pat	tapeti
 penduline tit	remizedoj
+permille	promilo
 persona non grata	persono non plaĉa
 pesky	incitema
 petulant	petola
+piety	pio
 piss off	fotri
 pleased	plaĉita
 political party	politiko partio
@@ -242,12 +318,14 @@ pristine	antaŭa
 pristine	primitiva
 prod	palpi
 puppy	hundida
+rape	rapio
 readworthy	leĝinda
 redirect	nomumi
 reproduction	reprodukto generado
 romanticist	romanikisto
 romanticist	romanikulo
 roughness	maltrankvileco
+runway	avia dromo
 sadly	oj
 sailing	lofado
 sailing	lofi
@@ -255,13 +333,17 @@ sailing	navigi
 sailing	veladi
 sailing	ŝipiri
 saint	sanktulino sankta
+salamander	salamandra
 screw the pooch	fleksiĝi
+script	skribesko
 scum	ŝaŭmo
 secret ballot	sekreta voĉdonrajto
 see you later	ĝis baldaŭ ĝis la revido
 serrated	denta
+sheikh	ŝejĥo
 shirk	eskapeviti
 sieving	kribro
+silo	insilujo
 singsong	kvazaŭ kanti
 skill	lerteco lerto
 skyward	ĉiela
@@ -269,37 +351,52 @@ slice of life	sekco de vivo
 slutty	fi-
 small	juna
 smoking jacket	smokingo
+sniper	snajperino
 so much	tiamaniere
 sod	turfo
+solo	soloo
 spankingly	malvarme
 specially	spefice
 spinning jenny	ŝpinolo Jenny
+spotlight	spoti
+spotlight	spoto
+spray	sprajilo
+spray	sprajo
 squamous	skavmplena
 squirm	svingiĝi
 stateless	senŝtateco
 streamlet	kanaleto
 stumped	trompus
 subliminal message	sublima mesaĝo
+subtitle	subtitulo
+subtitle	subtituloj
 successionist	sendependisto
 surcharge	taksi
 surrounding	ĉirkaŭe
 sweet nothings	paroli dolĉe en la orelon
 swelter	sufoki
 synclinal	synklinale
+synthesizer	sinto
 take	scenfilmado
 tankie	tankisto
 tea cosy	tekruomufo
 telematics	telematika
+term	markigo
 thinness	subtilaĵo
 three-legged	penisego
+through sound	persone
 thwarted	senigita
+tincture	alkoholaturo
 tinkerer	ladisto
+titanium	titanio
 total eclipse	plen eklipso
 trilingual	trilingvuloj
 trilliard	triiliardo
+tritium	tricio
 turf	torfo
 turf	turfo
 two wrongs don't make a right	du eraroj ne faras rajton
+typical	tipika
 ugly duckling	malbelaj anasidoj
 uh-oh	aĉ
 unacceptable	malakceptebla
@@ -316,9 +413,12 @@ verisimilitude	verosimila
 wavering	ŝancelanta
 weaponize	armiliĝi
 weaponize	armiĝi
+weasel	virmusteledo
+weasel	vizelo
 weightfulness	gravito
 well-rounded	valida
 wellness	komforto
+werewolf	likantropo
 what's up	kiel vi
 wheelwright	veturilfarado
 wheelwright	ĉarfarado
@@ -327,10 +427,12 @@ whipping boy	vipanta knabon
 wicked	malafabla
 woof	teksaĵo
 woolgathering	novali
+workflow management	procezo
 world-weariness	mondopereo
 worldbuilding	mirostrojeno
 would	In the winters
 would	We sat on the bench
 would	ke li tuj revenos.
 would	ĉu la buso malfruos ĉi tiun fojon.
+yes	tamen
 zeroth	nulaj

@@ -53,11 +53,6 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun DiscouragedChip(modifier: Modifier = Modifier) = WordChip(stringResource(R.string.bl_discouraged), modifier)
 
-/** "nova radiko", after a word of Wiktionary made on a root that Reta
- * Vortaro doesn't have: a fact, in the look of "malrekomendata" */
-@Composable
-fun NewRootChip(modifier: Modifier = Modifier) = WordChip(stringResource(R.string.new_root), modifier)
-
 @Composable
 private fun WordChip(text: String, modifier: Modifier) {
     val colors = MaterialTheme.colorScheme

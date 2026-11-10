@@ -102,6 +102,11 @@ fun VikiResultRow(
     /* Reta Vortaro's definition; else Wiktionary's description, only for
      * those who chose to see the translations in its language */
     val description = result.description.takeIf { inLanguage }
+    /* The sense of the word typed, which Wiktionary's table gives: before
+     * all, it says which of the word's meanings the Esperanto one has,
+     * "go → fari", "to make (a specified sound)", also when the Esperanto
+     * word has several senses (user, 2026-11-10) */
+    val sense = result.sense.takeIf { inLanguage && !result.inEsperanto }
     /* Read already, when the row comes back into view: as it was, at once */
     val known = remember(result) { result.revo?.let { SearchPreviews.peek(it) } }
     var severalSenses by remember(result) { mutableStateOf(known?.severalSenses == true) }
@@ -131,11 +136,6 @@ fun VikiResultRow(
             val advice by produceState<BonaLingvoEntry?>(null, result.esperanto) {
                 value = withContext(Dispatchers.IO) { BonaLingvo.discouraged(context, result.esperanto) }
             }
-            /* A word made on a root that Reta Vortaro lacks: "aŭdicio",
-             * "anakondo" (user, 2026-11-09) */
-            val newRoot by produceState(false, result.esperanto, result.revo) {
-                value = result.revo == null && withContext(Dispatchers.IO) { Vikivortaro.newRoot(context, result.esperanto) }
-            }
             Row(verticalAlignment = Alignment.CenterVertically) {
                 /* The label after the word, on the next line when it doesn't
                  * fit: never the word broken to make room for it */
@@ -162,8 +162,6 @@ fun VikiResultRow(
                         )
                     if (advice != null)
                         DiscouragedChip()
-                    else if (newRoot)
-                        NewRootChip()
                 }
                 if (label != null)
                     Text(
@@ -178,7 +176,7 @@ fun VikiResultRow(
              * Wiktionary says nothing ("maison de thé → teejo"): no
              * second line, rather than an empty one. One that Reta Vortaro
              * has keeps its line while its definition is read. */
-            val nothingToSay = advice == null && !result.inEsperanto && (severalSenses ||
+            val nothingToSay = advice == null && !result.inEsperanto && sense == null && (severalSenses ||
                 result.revo == null && (definition ?: result.description).isNullOrEmpty())
             /* Found in Esperanto: its Esperanto definition, for everyone;
              * else what it says in the other language, saying so */
@@ -195,7 +193,7 @@ fun VikiResultRow(
                             (result.description?.let { " — $it" } ?: "")
                     /* Nothing in the reader's languages */
                     else stringResource(R.string.not_in_revo)
-                else definition ?: result.description ?: ""),
+                else sense ?: definition ?: result.description ?: ""),
                 style = small.copy(fontStyle = FontStyle.Italic),
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 /* All the words to say, on several lines if need be */
@@ -303,10 +301,6 @@ private fun VikiPage(
     val definitionRead = read != null
     val definition = read?.definition
     val advice = read?.advice
-    /* Made on a root that Reta Vortaro lacks, as in the search */
-    val newRoot by produceState(false, word) {
-        value = withContext(Dispatchers.IO) { Vikivortaro.newRoot(context, word) }
-    }
     /* Without them, how the word may be built, as for a word nobody has:
      * "femurosto", femur + osto */
     val analysis by produceState<ShownAnalysis?>(null, word, vikiLanguages, read) {
@@ -383,8 +377,6 @@ private fun VikiPage(
                         )
                         if (advice?.discouragedEverywhere == true)
                             DiscouragedChip()
-                        else if (newRoot)
-                            NewRootChip()
                     }
                     /* Where it comes from, as the search's "laŭ Reta Vortaro" */
                     val origin = stringResource(

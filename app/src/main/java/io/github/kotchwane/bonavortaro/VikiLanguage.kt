@@ -54,6 +54,12 @@ class VikiLanguage(
     /** An item that doesn't translate an Esperanto word, which a
      * description gives for it: "d’eau", "of water", for the adjective akva */
     val glossNotFor: (esperanto: String, item: String) -> Boolean = { _, _ -> false },
+    /** Whether its pairs show when nothing is said of their Esperanto word
+     * (no article in Reta Vortaro, no description, no definition): when
+     * they were all reviewed. In French, such words were too often doubtful
+     * ("fondre → fundi"); in English, after a review of every pair, 6,400
+     * good ones were hidden, "dreamcatcher → sonĝkaptilo" (2026-11-10) */
+    val showsUndescribed: Boolean = false,
 ) {
 
     companion object {
@@ -85,6 +91,7 @@ class VikiLanguage(
             glossDescribing = setOf("abbreviation", "act", "action", "process", "state", "quality"),
             /* Not "of water" for akva */
             glossNotFor = { esperanto, item -> esperanto.endsWith('a') && item.lowercase(java.util.Locale.ROOT).startsWith("of ") },
+            showsUndescribed = true,
         )
 
         /** The languages whose Wiktionary Bona vortaro has, in the order
