@@ -654,7 +654,9 @@ private fun ArticleScreen(
             }
     }
     /* The languages whose Wiktionary adds words to the page, in their order */
-    val withViki = (articleViki + vikiSections.values.flatten()).let { codes -> VikiLanguage.ALL.map { it.code }.filter { it in codes } }
+    val withViki = (articleViki + vikiSections.values.flatten()).let { codes ->
+        (vikiLanguages + VikiLanguage.ALL).distinct().map { it.code }.filter { it in codes }
+    }
 
     /* Links to another section of the same article. This keeps running,
      * so it needs to see the current article, not the one it started

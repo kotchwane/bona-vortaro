@@ -1164,10 +1164,16 @@ private fun TranslationsBox(
     val markColor = markColor()
     /* A Wiktionary's words go on the line of Reta Vortaro's translation in
      * its language, which comes first if Reta Vortaro has none */
-    val translations = remember(translations, viki, vikiExamples) {
+    val context = LocalContext.current
+    /* In the order of the reader's translations, as Reta Vortaro's:
+     * "angla" before "franca" if so chosen (test round 7); read again when
+     * it changes, also on a card without Reta Vortaro's (round 8) */
+    val order = BonaSettings.getTranslationOrder(context)
+    val translations = remember(translations, viki, vikiExamples, order) {
         val missing = VikiLanguage.ALL.map { it.code }
             .filter { code -> (code in viki || vikiExamples.any { it.language == code }) && translations.none { it.language == code } }
-        missing.map { Translation(it, "") } + translations
+        (missing.map { Translation(it, "") } + translations)
+            .sortedBy { translation -> order.indexOf(translation.language).let { if (it < 0) Int.MAX_VALUE else it } }
     }
     val folded = foldable && !expanded
     val shown = if (folded) translations.take(SHOWN_TRANSLATIONS) else translations
@@ -1179,7 +1185,6 @@ private fun TranslationsBox(
      * to a share of the box that grows with the text; a longer name, at a
      * large text size or "internaci-signolingva", goes above its
      * translation rather than being cut */
-    val context = LocalContext.current
     val names = remember(translations) {
         val list = LanguageList.getDefault(context)
         translations.associate { it.language to list.getLanguageName(it.language) }
@@ -1543,6 +1548,14 @@ fun SourcesLine(
                                     ),
                                 links = listOf("eo" to VIKI_EO_SITE + page, code to vikiSite(code) + page),
                             )
+                            /* Each other Wiktionary whose words the page
+                             * shows, credited too (test round 7) */
+                            for (other in vikiLanguages.drop(1))
+                                Source(
+                                    stringResource(R.string.sources_viki_editions_one, vikiName, other),
+                                    stringResource(R.string.sources_viki_word_only, vikiWord),
+                                    vikiSite(other) + page,
+                                )
                         }
                         else
                             Source(

@@ -76,6 +76,12 @@ fun findRecentSearches(context: Context, entries: List<HistoryEntry>): List<Rece
         if (entry.wiktionary != null)
             return@mapNotNull Vikivortaro.revoEntry(
                 trie, entry.word, esperanto = entry.language == "eo", language = VikiLanguage.of(entry.language) ?: VikiLanguage.FRENCH,
+                esperantoIndex = try {
+                    TrieCache.getTrie(context, "eo")
+                } catch (e: IOException) {
+                    null
+                },
+                esperantoWord = entry.wiktionary,
             )
                 ?.let { RecentSearch(entry, FoundWord.InRevo(it)) }
                 ?: (

@@ -240,6 +240,44 @@ class VikivortaroTest {
     }
 
     @Test
+    fun theHistoryFindsReVosEntryOnlyForTheSameEsperantoWord() {
+        val (french, esperanto) = trie("fr") to trie("eo")
+        /* Wiktionary's "cafetière → kafujo" isn't Reta Vortaro's
+         * "cafetière (verseuse) → kafkruĉo" */
+        assertEquals(null, Vikivortaro.revoEntry(french, "cafetière", esperantoIndex = esperanto, esperantoWord = "kafujo"))
+        assertTrue(Vikivortaro.revoEntry(french, "cafetière", esperantoIndex = esperanto, esperantoWord = "kafkruĉo") != null)
+    }
+
+    @Test
+    fun aWordInOneWordIsRetaVortarosInTwo() {
+        val (english, esperanto) = trie("en") to trie("eo")
+        /* Reta Vortaro's "humming bird" */
+        assertTrue(Vikivortaro.inRevo(english, "hummingbird", esperanto, "kolibro", "humm", language = VikiLanguage.ENGLISH))
+        /* Not another Esperanto word */
+        assertFalse(Vikivortaro.inRevo(english, "hummingbird", esperanto, "hundo", "humm", language = VikiLanguage.ENGLISH))
+    }
+
+    @Test
+    fun aNewRootIsOnlyOneRetaVortaroLacks() {
+        val esperanto = trie("eo")
+        assertTrue(Vikivortaro.newRoot(esperanto, "aŭdicio"))
+        assertTrue(Vikivortaro.newRoot(esperanto, "anakondo"))
+        /* Built from its roots and affixes, or in it */
+        assertFalse(Vikivortaro.newRoot(esperanto, "kaŝpasaĝero"))
+        assertFalse(Vikivortaro.newRoot(esperanto, "kvindek-naŭa"))
+        assertFalse(Vikivortaro.newRoot(esperanto, "hundoj"))
+        /* Made of affixes only; with an elided vowel (test round 7) */
+        assertFalse(Vikivortaro.newRoot(esperanto, "ineco"))
+        assertFalse(Vikivortaro.newRoot(esperanto, "umulo"))
+        assertFalse(Vikivortaro.newRoot(esperanto, "fiigi"))
+        assertFalse(Vikivortaro.newRoot(esperanto, "dank' al Dio"))
+        assertFalse(Vikivortaro.newRoot(esperanto, "grand'osta"))
+        /* A name, an abbreviation */
+        assertFalse(Vikivortaro.newRoot(esperanto, "Kazaĥstano"))
+        assertFalse(Vikivortaro.newRoot(esperanto, "k.t.p."))
+    }
+
+    @Test
     fun oeTypedMatchesTheLigature() {
         assertTrue(Vikivortaro.matches("coeur", "cœur"))
         assertTrue(Vikivortaro.matches("cœ", "coeur"))

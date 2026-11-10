@@ -74,9 +74,22 @@ class VikiLanguage(
             },
         )
 
+        val ENGLISH = VikiLanguage(
+            code = "en",
+            leading = Regex("^(the |a |an |to )"),
+            articles = Regex("^(the |a |an )"),
+            nameArticles = Regex("^(?i)(the )"),
+            formEndings = setOf("s", "es", " of", " to", " for", " with"),
+            glossSmallWords = setOf("of", "the", "a", "an", "to", "for", "by", "in", "on", "at", "with", "from",
+                "who", "which", "that", "or", "and"),
+            glossDescribing = setOf("abbreviation", "act", "action", "process", "state", "quality"),
+            /* Not "of water" for akva */
+            glossNotFor = { esperanto, item -> esperanto.endsWith('a') && item.lowercase(java.util.Locale.ROOT).startsWith("of ") },
+        )
+
         /** The languages whose Wiktionary Bona vortaro has, in the order
          * of their lines */
-        val ALL = listOf(FRENCH)
+        val ALL = listOf(FRENCH, ENGLISH)
 
         fun of(code: String): VikiLanguage? = ALL.firstOrNull { it.code == code }
     }

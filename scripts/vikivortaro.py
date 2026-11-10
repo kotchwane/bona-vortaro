@@ -1,19 +1,24 @@
 #!/usr/bin/env python3
-# Extracts from the French Wiktionary what Bona vortaro shows next to Reta
-# Vortaro: French words with their Esperanto translations, and the short
-# French descriptions of Esperanto words.
+# Extracts from the French or English Wiktionary what Bona vortaro shows next
+# to Reta Vortaro: the words of that language with their Esperanto
+# translations, and the short descriptions of Esperanto words in it.
 #
 # Usage, from the root of the repository:
 #   python3 scripts/vikivortaro.py https://kaikki.org/dictionary/downloads/fr/fr-extract.jsonl.gz
-#   (or the path of that file, downloaded)
+#   python3 scripts/vikivortaro.py en \
+#       https://kaikki.org/dictionary/English/kaikki.org-dictionary-English.jsonl.gz \
+#       https://kaikki.org/dictionary/Esperanto/kaikki.org-dictionary-Esperanto.jsonl
+#   (or the paths of those files, downloaded)
 #
-# The source is Kaikki's extraction (wiktextract) of the French Wiktionary.
-# Its content is by the contributors of the French Wiktionary, under the
+# The source is Kaikki's extraction (wiktextract) of the French Wiktionary,
+# which has both the French words and the Esperanto ones; of the English
+# Wiktionary, Kaikki's files of its English words and of its Esperanto ones.
+# Its content is by the contributors of that Wiktionary, under the
 # licence CC BY-SA 4.0, and stays so in the files written here, which are
 # kept apart from Reta Vortaro's data (GPL-2.0). The files are committed:
 # Kaikki changes its extract every week, and the app is built the same
 # every time, as F-Droid requires.
-"""Writes, into app/src/main/assets/vikivortaro/:
+"""Writes, into app/src/main/assets/vikivortaro/ (here for French, "en" for English):
   fr-eo.tsv   a French word, a tab, an Esperanto translation (one per line)
   eo-fr.tsv   an Esperanto word, a tab, its French description
 Lines starting with "#" are comments: the source, its date, the licence."""
@@ -25,7 +30,9 @@ import re
 import sys
 import urllib.request
 
-SOURCE = sys.argv[1]
+LANGUAGE = sys.argv[1] if sys.argv[1] in ("fr", "en") else "fr"
+SOURCES = sys.argv[2:] if sys.argv[1] in ("fr", "en") else sys.argv[1:]
+NAME = {"fr": "French", "en": "English"}[LANGUAGE]
 OUT = os.path.join(os.path.dirname(__file__), "..", "app", "src", "main", "assets", "vikivortaro")
 
 # The descriptions that only send to another word: "Pluriel de …", not
@@ -34,6 +41,10 @@ OUT = os.path.join(os.path.dirname(__file__), "..", "app", "src", "main", "asset
 FORM = re.compile(r"^(pluriel|accusatif|forme|participe|présent|passé|futur|conditionnel|impératif|infinitif|"
                   r"orthographe|variante|singulier|nominatif|graphie)\b(?=\s*\S)(?!\s*\.?$)", re.I)
 SENDS = re.compile(r"\b(volitif|pseudo-accusatif|synonyme de)\b", re.I)
+# In English, the forms are tagged ("form-of"); what only sends to another
+# word: "Synonym of …", "Alternative form of …"
+SENDS_EN = re.compile(r"\b(synonym of|alternative (form|spelling) of|obsolete (form|spelling) of|misspelling of|"
+                      r"abbreviation of|initialism of|clipping of|short for)\b", re.I)
 
 # What the extract sometimes gives instead of a description: the source of the
 # page, its pronunciation, its placeholders ("Exemple d'utilisation manquant")
@@ -71,6 +82,32 @@ def clean(word):
     return " ".join(word.split()).strip(" ,;")
 
 
+# Esperanto words as Wiktionary's editors sometimes write them: in the
+# x-system ("vespermangxo"), with ǔ or ù for ŭ ("neǔtrino", "laùaserte"),
+# the Czech š for ŝ ("šiplifto")
+X_SYSTEM = {"c": "ĉ", "g": "ĝ", "h": "ĥ", "j": "ĵ", "s": "ŝ", "u": "ŭ",
+            "C": "Ĉ", "G": "Ĝ", "H": "Ĥ", "J": "Ĵ", "S": "Ŝ", "U": "Ŭ"}
+TYPOS = str.maketrans({"ǔ": "ŭ", "ù": "ŭ", "Ǔ": "Ŭ", "š": "ŝ", "Š": "Ŝ"})
+# A letter Esperanto doesn't have (q, w, x, y are kept, as in names)
+FOREIGN_LETTER = re.compile(r"(?![a-pr-vzĉĝĥĵŝŭqwxy])[^\W\d_]", re.I)
+
+
+def esperanto_spelling(word):
+    """An Esperanto word of Wiktionary in Esperanto's letters; None for what
+    isn't one: a word written small in other letters, "vandløs", "de día en
+    día", "jam temp' está" (a name keeps its letters, "Schrödinger"), or a
+    note to the reader, "but see Usono" (test round 7)"""
+    word = " ".join(
+        re.sub(r"([cghjsuCGHJSU])[xX]", lambda m: X_SYSTEM[m.group(1)], token) if token[:1].islower() else token
+        for token in word.split(" ")).translate(TYPOS)
+    word = re.sub(r"\s+[Ll]iterally$", "", word)
+    if re.search(r"\b(but see|see also)\b", word):
+        return None
+    if any(token[:1].islower() and FOREIGN_LETTER.search(token) for token in re.split(r"[\s\-’']+", word)):
+        return None
+    return word
+
+
 # Words, not signs: "(((écho)))" or "#" are left out
 WORD = re.compile(r"^[^\W\d_][\w '’\-.]*$")
 
@@ -93,11 +130,50 @@ def clean_gloss(gloss):
 
 
 def usable(gloss):
+    if LANGUAGE == "en":
+        return gloss and not SENDS_EN.search(gloss) and not MARKUP.search(gloss)
     return gloss and not FORM.match(gloss) and not SENDS.search(gloss) and not MARKUP.search(gloss)
 
 
-date, source_lines = lines(SOURCE)
-translations = set()
+def entries():
+    """The entries of all the sources, and the date of the first one"""
+    dates = []
+    def read(source):
+        date, source_lines = lines(source)
+        dates.append(date)
+        for line in source_lines:
+            yield line
+    def all_lines():
+        for source in SOURCES:
+            yield from read(source)
+    return dates, all_lines()
+
+
+def eo_translations(entry):
+    """The Esperanto translations of an entry: in the French Wiktionary, of
+    the entry; in the English one, of the entry and of each sense"""
+    found = [(t, likeliest_sense(t)) for t in entry.get("translations") or []]
+    if LANGUAGE == "en":
+        for index, sense in enumerate(entry.get("senses") or []):
+            found += [(t, index) for t in sense.get("translations") or []]
+    return [(t, sense) for t, sense in found if t.get("lang_code") == "eo" and t.get("word")]
+
+
+def likeliest_sense(translation):
+    """The sense of a table that Kaikki didn't tie to one: the one its
+    scores (_dis1) make likeliest, "slut"'s first for ĉiesulino, "hand"'s
+    fourth for plenmano; else after the others, in the order of the page"""
+    try:
+        scores = [int(score) for score in translation.get("_dis1", "").split()]
+    except ValueError:
+        scores = []
+    return scores.index(max(scores)) if scores and max(scores) > 0 else 10_000
+
+
+dates, source_lines = entries()
+# Each pair with its group: the entry and the sense its table translates
+translations = {}
+entry_number = 0
 descriptions = {}
 for line in source_lines:
     try:
@@ -105,14 +181,16 @@ for line in source_lines:
     except ValueError:
         continue
     code = entry.get("lang_code")
-    if code == "fr":
+    if code == LANGUAGE:
         french = clean(entry.get("word", ""))
-        masculine = "masculine" in (entry.get("tags") or []) and "feminine" not in (entry.get("tags") or [])
-        found = [t for t in entry.get("translations") or [] if t.get("lang_code") == "eo"]
-        words = {clean(t.get("word", "")) for t in found}
-        for t in found:
-            esperanto = clean(t.get("word", ""))
-            if not (WORD.match(french) and WORD.match(esperanto)) or DATE_PATTERN.match(french):
+        # French only: its words have a gender, English ones don't
+        masculine = LANGUAGE == "fr" and "masculine" in (entry.get("tags") or []) and "feminine" not in (entry.get("tags") or [])
+        entry_number += 1
+        found = eo_translations(entry)
+        words = {clean(t.get("word", "")) for t, _ in found}
+        for t, group in found:
+            esperanto = esperanto_spelling(clean(t.get("word", "")))
+            if not esperanto or not (WORD.match(french) and WORD.match(esperanto)) or DATE_PATTERN.match(french):
                 continue
             # A masculine word for a woman, "Algérien" → "alĝerianino", next to
             # the word for a man ("alĝeriano"); not "kazino", "ravino", "ĉino"
@@ -132,10 +210,13 @@ for line in source_lines:
                     not ESPERANTO.match(esperanto)
                     or (esperanto[:1].isupper() and not re.search(r"(oj?|a)$", esperanto))):
                 continue
-            translations.add((french, esperanto))
+            translations.setdefault((french, esperanto), (entry_number, group))
     elif code == "eo":
-        esperanto = clean(entry.get("word", ""))
+        esperanto = esperanto_spelling(clean(entry.get("word", ""))) or ""
         for sense in entry.get("senses") or []:
+            # In English, a form of a word, "plural of", "past of", is tagged
+            if LANGUAGE == "en" and {"form-of", "alt-of"} & set(sense.get("tags") or []):
+                continue
             for gloss in sense.get("glosses") or []:
                 if MARKUP.search(gloss):
                     continue
@@ -143,19 +224,88 @@ for line in source_lines:
                 if esperanto and usable(gloss) and esperanto not in descriptions:
                     descriptions[esperanto] = gloss
 
-# Only the descriptions of the words that the French words lead to
+# The pairs left out after a review (data/vikivortaro-<language>-rejected.tsv):
+# out of the translations, and listed for the app, which leaves them out of
+# the pairs it makes from the descriptions too ("painfully" → oj)
+REJECTED = os.path.join(os.path.dirname(__file__), "..", "data", f"vikivortaro-{LANGUAGE}-rejected.tsv")
+rejected = set()
+if os.path.exists(REJECTED):
+    with open(REJECTED, encoding="utf-8") as f:
+        for row in f:
+            fields = row.rstrip("\n").split("\t")
+            if not row.startswith("#") and len(fields) >= 2:
+                rejected.add((fields[0], fields[1]))
+
+# Only the descriptions of the words that the foreign words lead to, counted
+# before the rejections: a description stays useful when only one pair leading
+# to it was wrong ("minuskla: Lowercase." gives lowercase → minuskla)
 wanted = {esperanto for _, esperanto in translations}
 descriptions = {k: v for k, v in descriptions.items() if k in wanted}
+translations = {pair: group for pair, group in translations.items() if pair not in rejected}
+
+# How often Reta Vortaro's words are used (assets/frequency/leipzig.tsv)
+FREQUENCIES = os.path.join(os.path.dirname(__file__), "..", "app", "src", "main", "assets", "frequency", "leipzig.tsv")
+frequency = {}
+with open(FREQUENCIES, encoding="utf-8") as f:
+    for row in f:
+        fields = row.rstrip("\n").split("\t")
+        if not row.startswith("#") and len(fields) >= 2:
+            try:
+                frequency[fields[0]] = float(fields[1])
+            except ValueError:
+                pass
+
+
+RARE = 1.0
+
+
+def ordered(pairs):
+    """The pairs by word; each word's translations by entry, as the page
+    gives them (the noun "hand", mano, before the verb, enmanigi, doni);
+    in an entry, by sense as Wiktionary orders its senses, except a sense
+    whose words are all rare (less than once per million words), after the
+    others: Kaikki ties "dog"'s "animal" (hundo, hundino) to a later sense
+    than "male canine" (virhundo). Not by how used the words are, though:
+    "have" would start with esti, the auxiliary, "dream" with revo, the
+    hope, "slut" with hundino, the old "female dog". The app keeps this
+    order."""
+    # Once for words that differ only in their case: the one written as the
+    # Esperanto word, "man → homo", "Bible → Biblio", not also "Man → homo",
+    # "bible → Biblio"; else the first ("Irish wolfhound", "irish wolfhound",
+    # test round 7)
+    chosen = {}
+    for foreign, esperanto in pairs:
+        key = (foreign.lower(), esperanto)
+        if key not in chosen or (foreign[:1].isupper() == esperanto[:1].isupper()
+                                 and chosen[key][:1].isupper() != esperanto[:1].isupper()):
+            chosen[key] = foreign
+    by_word = {}
+    for (foreign, esperanto), group in pairs.items():
+        if chosen[(foreign.lower(), esperanto)] == foreign:
+            by_word.setdefault(foreign, {}).setdefault(group, []).append(esperanto)
+    for foreign in sorted(by_word):
+        groups = sorted(by_word[foreign].items(),
+                        key=lambda item: (item[0][0], max(frequency.get(w, 0.0) for w in item[1]) < RARE, item[0][1]))
+        for _, words in groups:
+            for esperanto in words:
+                yield foreign, esperanto
+
 
 os.makedirs(OUT, exist_ok=True)
-header = (f"# From the French Wiktionary (fr.wiktionary.org), by its contributors, CC BY-SA 4.0.\n"
+date = dates[0] if dates else ""
+header = (f"# From the {NAME} Wiktionary ({LANGUAGE}.wiktionary.org), by its contributors, CC BY-SA 4.0.\n"
           f"# Extracted by Kaikki (kaikki.org), {date or 'date unknown'}, with scripts/vikivortaro.py.\n")
-with open(os.path.join(OUT, "fr-eo.tsv"), "w", encoding="utf-8") as f:
+with open(os.path.join(OUT, f"{LANGUAGE}-eo.tsv"), "w", encoding="utf-8") as f:
     f.write(header)
-    for french, esperanto in sorted(translations):
+    for french, esperanto in ordered(translations):
         f.write(f"{french}\t{esperanto}\n")
-with open(os.path.join(OUT, "eo-fr.tsv"), "w", encoding="utf-8") as f:
+with open(os.path.join(OUT, f"eo-{LANGUAGE}.tsv"), "w", encoding="utf-8") as f:
     f.write(header)
     for esperanto, gloss in sorted(descriptions.items()):
         f.write(f"{esperanto}\t{gloss}\n")
-print(f"{len(translations)} translations, {len(descriptions)} descriptions")
+if rejected:
+    with open(os.path.join(OUT, f"{LANGUAGE}-eo-not.tsv"), "w", encoding="utf-8") as f:
+        f.write(f"# Pairs left out after a review, from data/vikivortaro-{LANGUAGE}-rejected.tsv.\n")
+        for foreign, esperanto in sorted(rejected):
+            f.write(f"{foreign}\t{esperanto}\n")
+print(f"{len(translations)} translations, {len(descriptions)} descriptions, {len(rejected)} left out")

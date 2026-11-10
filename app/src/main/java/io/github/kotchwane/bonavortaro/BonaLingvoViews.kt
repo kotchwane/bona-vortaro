@@ -51,7 +51,15 @@ import androidx.compose.ui.unit.dp
 /** "malrekomendata", after a word that "Vortoj de la bona lingvo" advises
  * against: a label like the kinds of words ("transitiva") */
 @Composable
-fun DiscouragedChip(modifier: Modifier = Modifier) {
+fun DiscouragedChip(modifier: Modifier = Modifier) = WordChip(stringResource(R.string.bl_discouraged), modifier)
+
+/** "nova radiko", after a word of Wiktionary made on a root that Reta
+ * Vortaro doesn't have: a fact, in the look of "malrekomendata" */
+@Composable
+fun NewRootChip(modifier: Modifier = Modifier) = WordChip(stringResource(R.string.new_root), modifier)
+
+@Composable
+private fun WordChip(text: String, modifier: Modifier) {
     val colors = MaterialTheme.colorScheme
     Surface(
         modifier = modifier,
@@ -61,7 +69,7 @@ fun DiscouragedChip(modifier: Modifier = Modifier) {
         border = BorderStroke(1.dp, colors.outlineVariant),
     ) {
         Text(
-            stringResource(R.string.bl_discouraged),
+            text,
             style = MaterialTheme.typography.labelMedium,
             modifier = Modifier.padding(horizontal = 8.dp, vertical = 1.dp),
         )
