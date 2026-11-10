@@ -458,7 +458,9 @@ private fun VikiPage(
                     }
                     analysis?.let {
                         HorizontalDivider(Modifier.padding(top = 12.dp), color = muted.copy(alpha = 0.25f))
-                        WordAnalysisView(it, onOpen = onOpenEntry)
+                        /* Discreet under the words; in full when it is all the page has */
+                        if (foreign.isNotEmpty()) CompactAnalysis(it, onOpen = onOpenEntry)
+                        else WordAnalysisView(it, onOpen = onOpenEntry)
                     }
                 }
             }
