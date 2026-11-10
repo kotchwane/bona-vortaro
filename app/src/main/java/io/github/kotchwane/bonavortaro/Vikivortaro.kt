@@ -155,16 +155,18 @@ object Vikivortaro {
      * column) */
     private fun senses(context: Context, file: String): List<Triple<String, String, String?>> = try {
         context.assets.open("vikivortaro/$file").bufferedReader().useLines { lines ->
-            lines.filter { !it.startsWith("#") }
-                .mapNotNull { line ->
-                    line.split('\t').takeIf { it.size in 2..3 }?.let { Triple(it[0], it[1], it.getOrNull(2)?.takeIf { sense -> sense.isNotBlank() }) }
-                }
-                .toList()
+            lines.filter { !it.startsWith("#") }.mapNotNull { pairLine(it) }.toList()
         }
     } catch (e: IOException) {
         Log.w(TAG, "Failed to read $file")
         emptyList()
     }
+
+    /** A line of a file of pairs: the word, its Esperanto word and, in a
+     * third column, its sense; null for a line that isn't one */
+    internal fun pairLine(line: String): Triple<String, String, String?>? =
+        line.split('\t').takeIf { it.size in 2..3 && it[0].isNotEmpty() && it[1].isNotEmpty() }
+            ?.let { Triple(it[0], it[1], it.getOrNull(2)?.takeIf { sense -> sense.isNotBlank() }) }
 
     private fun load(context: Context, language: VikiLanguage): Data {
         val descriptions = lines(context, "eo-${language.code}.tsv").toMap()
@@ -323,15 +325,25 @@ object Vikivortaro {
          * the Esperanto words built from Reta Vortaro's roots before those
          * made on a root it lacks, unlabelled: "spray" ŝpruci before
          * spraji (user, 2026-11-10) */
-        return newRootsLast(esperanto, results)
+        return newRootsLast(esperanto, results, stopped)
     }
 
-    internal fun newRootsLast(esperanto: Trie, results: List<VikiResult>): List<VikiResult> {
-        val late = HashMap<String, Boolean>()
-        fun isLate(result: VikiResult) = result.revo == null && late.getOrPut(result.esperanto) { newRoot(esperanto, result.esperanto) }
+    /* Whether each Esperanto word is on a new root, kept for the next
+     * keystrokes: "s", "sp", "spr" analyse the same words (round 9); a
+     * few thousand at most, emptied past that */
+    private val onNewRoot = java.util.concurrent.ConcurrentHashMap<String, Boolean>()
+    private const val ON_NEW_ROOT_KEPT = 5000
+
+    internal fun newRootsLast(esperanto: Trie, results: List<VikiResult>, stopped: () -> Boolean = { false }): List<VikiResult> {
+        if (onNewRoot.size > ON_NEW_ROOT_KEPT)
+            onNewRoot.clear()
+        fun isLate(result: VikiResult) = result.revo == null && onNewRoot.getOrPut(result.esperanto) { newRoot(esperanto, result.esperanto) }
         val ordered = ArrayList<VikiResult>(results.size)
         var start = 0
         while (start < results.size) {
+            /* A newer search: as found, the rest of it */
+            if (stopped())
+                return ordered + results.subList(start, results.size)
             val word = key(results[start].foreign)
             var end = start
             while (end < results.size && key(results[end].foreign) == word) end++
@@ -704,17 +716,7 @@ object Vikivortaro {
     /** Whether an Esperanto word that Reta Vortaro doesn't have is made on
      * a root it lacks too: "anakondo", "aŭdicio"; not a word built from
      * its roots and affixes ("kaŝpasaĝero"), a name, nor an abbreviation.
-     * Said as a fact, not as advice: only "Vortoj de la bona lingvo"
-     * advises. Disk access. */
-    fun newRoot(context: Context, word: String): Boolean {
-        val index = try {
-            TrieCache.getTrie(context, "eo")
-        } catch (e: IOException) {
-            return false
-        }
-        return newRoot(index, word)
-    }
-
+     * Such words come after the others ([newRootsLast]), unlabelled. */
     internal fun newRoot(index: Trie, word: String): Boolean {
         if (word.isEmpty() || word[0].isUpperCase())
             return false

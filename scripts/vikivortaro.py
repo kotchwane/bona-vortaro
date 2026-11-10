@@ -214,6 +214,7 @@ translations = {}
 later_glosses = {}
 # In English, each pair's sense, by the heading of its table
 headings = {}
+any_case_headings = {}
 entry_number = 0
 descriptions = {}
 for line in source_lines:
@@ -252,8 +253,13 @@ for line in source_lines:
                     or (esperanto[:1].isupper() and not re.search(r"(oj?|a)$", esperanto))):
                 continue
             translations.setdefault((french, esperanto), (entry_number, group))
-            if LANGUAGE == "en" and sense_heading(t):
-                headings.setdefault((french, esperanto), sense_heading(t))
+            # As written, and in any case for when the case kept is
+            # another table's ("Irish wolfhound", "irish wolfhound"); not
+            # instead of its own: "Bible" isn't "bible", a manual
+            heading = sense_heading(t) if LANGUAGE == "en" else None
+            if heading:
+                headings.setdefault((french, esperanto), heading)
+                any_case_headings.setdefault((french.lower(), esperanto), heading)
     elif code == "eo":
         esperanto = esperanto_spelling(clean(entry.get("word", ""))) or ""
         for sense in entry.get("senses") or []:
@@ -386,7 +392,7 @@ header = (f"# From the {NAME} Wiktionary ({LANGUAGE}.wiktionary.org), by its con
 with open(os.path.join(OUT, f"{LANGUAGE}-eo.tsv"), "w", encoding="utf-8") as f:
     f.write(header)
     for french, esperanto in ordered(translations):
-        heading = headings.get((french, esperanto))
+        heading = headings.get((french, esperanto)) or any_case_headings.get((french.lower(), esperanto))
         f.write(f"{french}\t{esperanto}\t{heading}\n" if heading else f"{french}\t{esperanto}\n")
 with open(os.path.join(OUT, f"eo-{LANGUAGE}.tsv"), "w", encoding="utf-8") as f:
     f.write(header)

@@ -53,7 +53,6 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun DiscouragedChip(modifier: Modifier = Modifier) = WordChip(stringResource(R.string.bl_discouraged), modifier)
 
-
 @Composable
 private fun WordChip(text: String, modifier: Modifier) {
     val colors = MaterialTheme.colorScheme

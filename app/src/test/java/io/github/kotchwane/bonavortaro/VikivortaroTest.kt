@@ -327,6 +327,30 @@ class VikivortaroTest {
     }
 
     @Test
+    fun aPairMayHaveItsSense() {
+        assertEquals(Triple("go", "fari", "to make (a specified sound)"), Vikivortaro.pairLine("go\tfari\tto make (a specified sound)"))
+        assertEquals(Triple("lovely", "rava", null), Vikivortaro.pairLine("lovely\trava"))
+        assertEquals(Triple("lovely", "rava", null), Vikivortaro.pairLine("lovely\trava\t "))
+        assertEquals(null, Vikivortaro.pairLine("lovely"))
+        assertEquals(null, Vikivortaro.pairLine("a\tb\tc\td"))
+    }
+
+    @Test
+    fun reTaVortarosWordAndAnotherWordKeepTheirPlace() {
+        val esperanto = trie("eo")
+        /* Reta Vortaro's word isn't analysed; "Spray" and "spray" are one word of the search */
+        val results = listOf(
+            VikiResult("en", "spray", "sprajo", SearchResult("sprajo", 1, 0), null),
+            VikiResult("en", "spray", "spraji", null, null),
+            VikiResult("en", "spray", "ŝpruci", null, null),
+            VikiResult("en", "Spray", "ŝpruci", null, null),
+        )
+        assertEquals(listOf("sprajo", "ŝpruci", "ŝpruci", "spraji"), Vikivortaro.newRootsLast(esperanto, results).map { it.esperanto })
+        /* Stopped: as found */
+        assertEquals(results, Vikivortaro.newRootsLast(esperanto, results) { true })
+    }
+
+    @Test
     fun aWordOnANewRootComesAfterTheOthers() {
         val esperanto = trie("eo")
         val results = listOf("sprajo", "ŝpruci", "spraji").map { VikiResult("en", "spray", it, null, null) } +
