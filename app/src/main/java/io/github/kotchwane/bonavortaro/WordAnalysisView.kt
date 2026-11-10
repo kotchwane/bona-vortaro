@@ -74,6 +74,42 @@ object WordAnalyses {
         return if (readings.isEmpty()) null else ShownAnalysis(readings)
     }
 
+    /** How a word only Wiktionary has is built, shown under its words
+     * only when the cut can be trusted (user, 2026-11-10): not for a word
+     * advised against, whose page says what to say instead; as the English
+     * Wiktionary cuts it when it says ("mar·virin"), and not if it says
+     * the word was borrowed whole ("oceloto"); else the app's own cut, but
+     * not of a word that looks like one of its translations, which the
+     * reader understands anyway and the cut gets wrong ("valino", val·in·o
+     * for valine; "holdingo", hold·ing·o for holding company). Disk access:
+     * not on the main thread. */
+    fun forWiktionaryWord(context: Context, word: String, foreign: List<String>, discouraged: Boolean): ShownAnalysis? {
+        if (discouraged)
+            return null
+        val made = Vikivortaro.madeOf(context, word)
+        if (made == Vikivortaro.BORROWED)
+            return null
+        val shown = find(context, word, needsEnding = true) ?: return null
+        if (made != null)
+            return shown.readings.firstOrNull { agrees(it.analysis, made.split('·')) }?.let { ShownAnalysis(listOf(it)) }
+        val lookalike = foreign.any { words ->
+            Frequency.looksLike(words, word) || words.split(' ', '-').any { it.length > 3 && Frequency.looksLike(it, word) }
+        }
+        return shown.takeUnless { lookalike }
+    }
+
+    /** Whether a cut of the app agrees with the stems Wiktionary gives,
+     * as finely or less: "kaf·o·farist" with kaf·far·ist, not
+     * "neregul·ar" with ne·regular */
+    internal fun agrees(analysis: WordAnalysis, stems: List<String>): Boolean {
+        val ours = analysis.pieces.filter { it.kind != WordPiece.Kind.ENDING && it.kind != WordPiece.Kind.LINK }
+            .map { it.text.lowercase(java.util.Locale.ROOT) }
+        if (!analysis.complete || ours.joinToString("") != stems.joinToString(""))
+            return false
+        fun cuts(parts: List<String>) = parts.runningFold(0) { at, part -> at + part.length }.drop(1).dropLast(1).toSet()
+        return cuts(stems).containsAll(cuts(ours))
+    }
+
     /** A word "Vortoj de la bona lingvo" proposes, as the group cut it
      * ("urin·kanal·inflam·o"), with what its parts mean. Disk access: not
      * on the main thread. */

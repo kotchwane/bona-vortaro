@@ -310,9 +310,12 @@ private fun VikiPage(
      * has: "femurosto", femur + osto; also under its words, which let the
      * reader see a wrong guess ("potirono" isn't po + tir + ono):
      * "marvirino", mar + vir + in + o (user, 2026-11-10) */
-    val analysis by produceState<ShownAnalysis?>(null, word, read) {
+    val analysis by produceState<ShownAnalysis?>(null, word, read, foreign) {
         value = if (definitionRead)
-            withContext(Dispatchers.IO) { WordAnalyses.find(context, word, needsEnding = true) }
+            withContext(Dispatchers.IO) {
+                if (foreign.isEmpty()) WordAnalyses.find(context, word, needsEnding = true)
+                else WordAnalyses.forWiktionaryWord(context, word, foreign.flatMap { it.words }, advice?.discouraged == true)
+            }
         else null
     }
     val edge = MaterialTheme.colorScheme.primary
