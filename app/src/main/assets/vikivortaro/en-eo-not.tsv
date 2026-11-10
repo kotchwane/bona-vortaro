@@ -1,6 +1,7 @@
 # Pairs left out after a review, from data/vikivortaro-en-rejected.tsv.
 Ali	Eljo
 Americanism	amerikanisme
+Athena	Ateno
 Austin	Aŭguĉjo
 Baptist	baptisma
 Christmas Day	kristnaskotago. Kristnaska Tago
@@ -32,7 +33,9 @@ a bird in the hand is worth two in the bush	pli bona ol dek branĉoj sur centono
 aback	malantaŭa
 abandonment	dezerteco
 abandonment	natureco
+absolute value	absoluta
 accidence	hazardo
+accident	pereo
 aircraft carrier	aviadilporta
 alexandrine	aleksandro
 all work and no play makes Jack a dull boy	ĉiom da laboro kaj neniom da ludoj igas Jakobon al obtuza knabo
@@ -62,9 +65,11 @@ bloodbath	samgoverŝado
 boarding pass	ŝipa bileto ŝipobileto
 brazen	bronza
 brute force	burtforta metodo
+castrated animal	eks-
 cavort	ĉirkausalti
 cephalic	testa
 choke down	sufokiĝi
+chord	ĥordo
 cistus	kisto
 clam	muslo
 clock cycle	traktoperiodo
@@ -73,6 +78,7 @@ coaster	marborda ŝiptrafiko
 coaster	marborduloj
 cockfight	batalkoko
 cockfighting	batalkoko
+collectively	poŝto
 color depth	kolorozo
 come-on	venu
 coming-out	elŝrankiĝi
@@ -80,6 +86,7 @@ commuter rail	aglomeraĵo fervojo
 concerning wolves	lupa
 confirmed bachelor	neniam edziĝis
 conscript	konskripto
+consequent	konkludo
 consist of	konsistanta el
 consuming	konsumema
 control variable	iteracinombrilo
@@ -107,6 +114,7 @@ download	malenretigi
 drench	irigacii
 driven	devigita
 dudette	ulo
+each	ĉia
 eat out	frandzi
 electrocardiograph	elektrokardiografio
 emphatic particle	ja
@@ -123,6 +131,7 @@ extortion	malhonestaĵo
 fall victim	iĝis viktimo
 fashy	faŝo
 fatalistically	fatalisma
+feature	prezento
 fire basket	fajrokorboj
 firstborn	lastenaskito
 fishing	fiŝkapti
@@ -132,6 +141,7 @@ foobar	ajn
 forbidden	malpermesa
 fossa	foso
 freestyle skiing	libertstila skiado
+function	mapo
 fussy	finika
 gasthaus	gastejoj
 gemütlich	ujutna
@@ -144,6 +154,7 @@ good morning	bonan tagon
 gossipy	ĉikanema
 great egret	lertxuntxo handia
 great-grandfather-in-law	prapatro
+green	verde
 grisly	malbelega
 grit	knari
 grok	povoscii
@@ -190,6 +201,7 @@ jilt	forlasito
 just in case	divenprove
 juxtaposition	nominacio
 kind	aminda
+king	damo
 kismet	sorco
 leftist	livulo
 living wage	dumviva salajro
@@ -255,6 +267,7 @@ sailing	navigi
 sailing	veladi
 sailing	ŝipiri
 saint	sanktulino sankta
+salamander	salamandra
 screw the pooch	fleksiĝi
 scum	ŝaŭmo
 secret ballot	sekreta voĉdonrajto
@@ -290,8 +303,10 @@ take	scenfilmado
 tankie	tankisto
 tea cosy	tekruomufo
 telematics	telematika
+term	markigo
 thinness	subtilaĵo
 three-legged	penisego
+through sound	persone
 thwarted	senigita
 tinkerer	ladisto
 total eclipse	plen eklipso
@@ -327,10 +342,12 @@ whipping boy	vipanta knabon
 wicked	malafabla
 woof	teksaĵo
 woolgathering	novali
+workflow management	procezo
 world-weariness	mondopereo
 worldbuilding	mirostrojeno
 would	In the winters
 would	We sat on the bench
 would	ke li tuj revenos.
 would	ĉu la buso malfruos ĉi tiun fojon.
+yes	tamen
 zeroth	nulaj

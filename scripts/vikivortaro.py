@@ -189,6 +189,9 @@ def likeliest_sense(translation):
 dates, source_lines = entries()
 # Each pair with its group: the entry and the sense its table translates
 translations = {}
+# In English, the senses of an Esperanto word after its first, its
+# description: "memkontenta", self-satisfied; complacent; smug
+later_glosses = {}
 # In English, each pair's sense, by the heading of its table
 headings = {}
 entry_number = 0
@@ -240,9 +243,14 @@ for line in source_lines:
             for gloss in sense.get("glosses") or []:
                 if MARKUP.search(gloss):
                     continue
+                written = NOTE.sub("", LABEL.sub("", clean(gloss))).strip(" ;,")
                 gloss = clean_gloss(gloss)
                 if esperanto and usable(gloss) and esperanto not in descriptions:
                     descriptions[esperanto] = gloss
+                elif esperanto and usable(gloss) and LANGUAGE == "en":
+                    # As written: "Cuban" stays a capital, "fellow
+                    # Esperantist" doesn't take one
+                    later_glosses.setdefault(esperanto, []).append(written)
 
 # The pairs left out after a review (data/vikivortaro-<language>-rejected.tsv):
 # out of the translations, and listed for the app, which leaves them out of
@@ -261,6 +269,38 @@ if os.path.exists(REJECTED):
 # to it was wrong ("minuskla: Lowercase." gives lowercase → minuskla)
 wanted = {esperanto for _, esperanto in translations}
 descriptions = {k: v for k, v in descriptions.items() if k in wanted}
+
+
+def gloss_words(gloss):
+    """The English words a sense gives, when it is only such words, as the
+    app takes them from a description (Vikivortaro.glossPairs): at most two
+    words each, no small words, no signs"""
+    text = gloss.rstrip(".")
+    if not text or "." in text or any(c in "()[]:#«»\"/=+…!?" or c.isdigit() for c in text):
+        return []
+    items = [item.strip() for item in re.split("[,;]", text)]
+    if any(len(item.split(" ")) not in (1, 2) or any(not w or w.lower() in GLOSS_SMALL for w in item.split(" "))
+           for item in items):
+        return []
+    return items
+
+
+GLOSS_SMALL = {"of", "the", "a", "an", "to", "for", "by", "in", "on", "at", "with", "from", "who", "which", "that",
+               "or", "and"}
+
+# The words of an Esperanto word's later senses, which the app doesn't read
+# (it reads the description, the first): "smug → memkontenta", reviewed on
+# 2026-11-10 (438 kept of 455), after the pairs of the tables
+known_pairs = {(foreign.lower(), esperanto) for foreign, esperanto in translations}
+for esperanto in sorted(later_glosses):
+    if esperanto not in descriptions:
+        continue
+    for gloss in later_glosses[esperanto]:
+        # Written as Wiktionary writes them, its capitals meant: "Cuban"
+        for foreign in gloss_words(gloss):
+            if (foreign.lower(), esperanto) not in known_pairs:
+                known_pairs.add((foreign.lower(), esperanto))
+                translations[(foreign, esperanto)] = (10 ** 9, 0)
 translations = {pair: group for pair, group in translations.items() if pair not in rejected}
 
 # How often Reta Vortaro's words are used (assets/frequency/leipzig.tsv)
