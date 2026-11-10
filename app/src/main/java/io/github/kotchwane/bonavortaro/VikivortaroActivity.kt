@@ -135,7 +135,7 @@ fun VikiResultRow(
             /* Advised against by "Vortoj de la bona lingvo", as Reta
              * Vortaro's words */
             val advice by produceState<BonaLingvoEntry?>(null, result.esperanto) {
-                value = withContext(Dispatchers.IO) { BonaLingvo.discouraged(context, result.esperanto) }
+                value = withContext(Dispatchers.IO) { BonaLingvo.discouraged(context, result) }
             }
             Row(verticalAlignment = Alignment.CenterVertically) {
                 /* The label after the word, on the next line when it doesn't

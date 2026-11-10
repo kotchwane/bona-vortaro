@@ -398,6 +398,22 @@ with open(os.path.join(OUT, f"eo-{LANGUAGE}.tsv"), "w", encoding="utf-8") as f:
     f.write(header)
     for esperanto, gloss in sorted(descriptions.items()):
         f.write(f"{esperanto}\t{gloss}\n")
+# The translations whose sense "Vortoj de la bona lingvo" advises against,
+# when it does in some senses only ("glitch → cimo", pri komputiloj),
+# reviewed one by one (data/vikivortaro-advised.tsv): marked so in the app
+ADVISED = os.path.join(os.path.dirname(__file__), "..", "data", "vikivortaro-advised.tsv")
+advised = []
+if os.path.exists(ADVISED):
+    with open(ADVISED, encoding="utf-8") as f:
+        for row in f:
+            fields = row.rstrip("\n").split("\t")
+            if not row.startswith("#") and len(fields) >= 3 and fields[0] == LANGUAGE and (fields[1], fields[2]) in translations:
+                advised.append((fields[1], fields[2]))
+if advised:
+    with open(os.path.join(OUT, f"{LANGUAGE}-eo-advised.tsv"), "w", encoding="utf-8") as f:
+        f.write("# Translations whose sense Vortoj de la bona lingvo advises against, from data/vikivortaro-advised.tsv.\n")
+        for foreign, esperanto in sorted(advised):
+            f.write(f"{foreign}\t{esperanto}\n")
 if rejected:
     with open(os.path.join(OUT, f"{LANGUAGE}-eo-not.tsv"), "w", encoding="utf-8") as f:
         f.write(f"# Pairs left out after a review, from data/vikivortaro-{LANGUAGE}-rejected.tsv.\n")

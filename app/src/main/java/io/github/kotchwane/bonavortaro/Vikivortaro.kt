@@ -47,6 +47,10 @@ class VikiResult(
      * the heading of Wiktionary's table says it: "go → fari", "to make (a
      * specified sound)". English only, so far */
     val sense: String? = null,
+    /** Whether "Vortoj de la bona lingvo" advises against the Esperanto word
+     * in the sense of this translation, when it does in some senses only:
+     * "glitch → cimo" (pri komputiloj), not "bedbug → cimo" */
+    val advised: Boolean = false,
 ) {
     /** The word as the search found it */
     val word: String get() = if (inEsperanto) esperanto else foreign
@@ -87,6 +91,9 @@ object Vikivortaro {
         val descriptions: Map<String, String>,
         /* Shared by the languages: the Esperanto Wiktionary's */
         val definitions: Map<String, EsperantoDefinition>,
+        /* The pairs whose Esperanto word "Vortoj de la bona lingvo" advises
+         * against in their sense, reviewed one by one (data/vikivortaro-advised.tsv) */
+        val advised: Set<Pair<String, String>> = emptySet(),
         /* The Esperanto words with nothing said of them that are shown
          * all the same ([VikiLanguage.showsUndescribed]) */
         val undescribed: Collection<String> = emptyList(),
@@ -199,6 +206,7 @@ object Vikivortaro {
             foreignOf.getOrPut(esperanto) { mutableListOf() }.add(foreign)
         return Data(
             keyed.map { it.first }, pairs, Array(pairs.size) { senseOf[pairs[it]] }, foreignOf, descriptions, definitions(context),
+            advised = lines(context, "${language.code}-eo-advised.tsv", optional = true).toHashSet(),
             undescribed = if (language.showsUndescribed) foreignOf.keys else emptyList(),
         )
     }
@@ -638,7 +646,7 @@ object Vikivortaro {
          * "dreamcatcher → sonĝkaptilo" (user, 2026-11-10) */
         return if (revo != null || word in data.descriptions || word in data.definitions || language.showsUndescribed ||
             BonaLingvo.entry(context, word) != null)
-            VikiResult(language.code, foreign, word, revo, informative(data, word), sense = sense)
+            VikiResult(language.code, foreign, word, revo, informative(data, word), sense = sense, advised = (foreign to word) in data.advised)
         else null
     }
 
