@@ -82,6 +82,32 @@ def clean(word):
     return " ".join(word.split()).strip(" ,;")
 
 
+# Esperanto words as Wiktionary's editors sometimes write them: in the
+# x-system ("vespermangxo"), with ǔ or ù for ŭ ("neǔtrino", "laùaserte"),
+# the Czech š for ŝ ("šiplifto")
+X_SYSTEM = {"c": "ĉ", "g": "ĝ", "h": "ĥ", "j": "ĵ", "s": "ŝ", "u": "ŭ",
+            "C": "Ĉ", "G": "Ĝ", "H": "Ĥ", "J": "Ĵ", "S": "Ŝ", "U": "Ŭ"}
+TYPOS = str.maketrans({"ǔ": "ŭ", "ù": "ŭ", "Ǔ": "Ŭ", "š": "ŝ", "Š": "Ŝ"})
+# A letter Esperanto doesn't have (q, w, x, y are kept, as in names)
+FOREIGN_LETTER = re.compile(r"(?![a-pr-vzĉĝĥĵŝŭqwxy])[^\W\d_]", re.I)
+
+
+def esperanto_spelling(word):
+    """An Esperanto word of Wiktionary in Esperanto's letters; None for what
+    isn't one: a word written small in other letters, "vandløs", "de día en
+    día", "jam temp' está" (a name keeps its letters, "Schrödinger"), or a
+    note to the reader, "but see Usono" (test round 7)"""
+    word = " ".join(
+        re.sub(r"([cghjsuCGHJSU])[xX]", lambda m: X_SYSTEM[m.group(1)], token) if token[:1].islower() else token
+        for token in word.split(" ")).translate(TYPOS)
+    word = re.sub(r"\s+[Ll]iterally$", "", word)
+    if re.search(r"\b(but see|see also)\b", word):
+        return None
+    if any(token[:1].islower() and FOREIGN_LETTER.search(token) for token in re.split(r"[\s\-’']+", word)):
+        return None
+    return word
+
+
 # Words, not signs: "(((écho)))" or "#" are left out
 WORD = re.compile(r"^[^\W\d_][\w '’\-.]*$")
 
@@ -163,8 +189,8 @@ for line in source_lines:
         found = eo_translations(entry)
         words = {clean(t.get("word", "")) for t, _ in found}
         for t, group in found:
-            esperanto = clean(t.get("word", ""))
-            if not (WORD.match(french) and WORD.match(esperanto)) or DATE_PATTERN.match(french):
+            esperanto = esperanto_spelling(clean(t.get("word", "")))
+            if not esperanto or not (WORD.match(french) and WORD.match(esperanto)) or DATE_PATTERN.match(french):
                 continue
             # A masculine word for a woman, "Algérien" → "alĝerianino", next to
             # the word for a man ("alĝeriano"); not "kazino", "ravino", "ĉino"
@@ -186,7 +212,7 @@ for line in source_lines:
                 continue
             translations.setdefault((french, esperanto), (entry_number, group))
     elif code == "eo":
-        esperanto = clean(entry.get("word", ""))
+        esperanto = esperanto_spelling(clean(entry.get("word", ""))) or ""
         for sense in entry.get("senses") or []:
             # In English, a form of a word, "plural of", "past of", is tagged
             if LANGUAGE == "en" and {"form-of", "alt-of"} & set(sense.get("tags") or []):
@@ -243,9 +269,20 @@ def ordered(pairs):
     "have" would start with esti, the auxiliary, "dream" with revo, the
     hope, "slut" with hundino, the old "female dog". The app keeps this
     order."""
+    # Once for words that differ only in their case: the one written as the
+    # Esperanto word, "man → homo", "Bible → Biblio", not also "Man → homo",
+    # "bible → Biblio"; else the first ("Irish wolfhound", "irish wolfhound",
+    # test round 7)
+    chosen = {}
+    for foreign, esperanto in pairs:
+        key = (foreign.lower(), esperanto)
+        if key not in chosen or (foreign[:1].isupper() == esperanto[:1].isupper()
+                                 and chosen[key][:1].isupper() != esperanto[:1].isupper()):
+            chosen[key] = foreign
     by_word = {}
     for (foreign, esperanto), group in pairs.items():
-        by_word.setdefault(foreign, {}).setdefault(group, []).append(esperanto)
+        if chosen[(foreign.lower(), esperanto)] == foreign:
+            by_word.setdefault(foreign, {}).setdefault(group, []).append(esperanto)
     for foreign in sorted(by_word):
         groups = sorted(by_word[foreign].items(),
                         key=lambda item: (item[0][0], max(frequency.get(w, 0.0) for w in item[1]) < RARE, item[0][1]))

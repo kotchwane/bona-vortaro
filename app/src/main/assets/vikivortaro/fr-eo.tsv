@@ -358,7 +358,6 @@ Biélorusse	beloruso
 Biélorusse	belorusino
 Biélorussie	Belorusio
 Blaise	Blazio
-Blanc	blankulo
 Blanche-Neige	Neĝulino
 Bogota	Bogoto
 Bohême	Bohemio
@@ -639,7 +638,6 @@ Cubain	kubano
 Cujavie	Kujavio
 Cupidon	Amoro
 Cupidon	Kupido
-Curcuma	kurkumo
 Cyclades	Cykladoj
 Cygne	Cigno
 Cyrille	Cirilo
@@ -840,7 +838,6 @@ Gambie	Gambio
 Gambien	gambiano
 Gand	Gento
 Ganymède	Ganimedo
-Gardénal	luminalo
 Gargamel	Gargamelo
 Gargantua	Gargantuo
 Garonne	Garono
@@ -1133,7 +1130,6 @@ Karakalpakistan	Karakalpakstano
 Kari	Karo
 Katmandou	Katmanduo
 Kaunas	Kaŭno
-Kazakh	kazaĥo
 Kazakhstan	Kazaĥio
 Kenya	Kenjo
 Kerbéros	Cerbero
@@ -1163,6 +1159,7 @@ Komodo	Komodo
 Kosovo	Kosovo
 Koweït	Kuvajto
 Koweïtien	kuvajtano
+Košice	Koŝice
 Kremlin	Kremlo
 Ku Klux Klan	Ku-Kluks-Klano
 Kuala Lumpur	Kuala-Lumpuro
@@ -1220,7 +1217,6 @@ Libreville	Liberurbo
 Libye	Libio
 Libyen	libiano
 Libéria	Liberio
-Libérien	liberiano
 Liechtenstein	Liĥtenŝtejno
 Liechtensteinois	liĥtenŝtejnano
 Ligurie	Ligurujo
@@ -1267,7 +1263,6 @@ Lucky Luke	Bonsorta Luko
 Lugano	Lugano
 Lumières	lumoj
 Lunarien	lunano
-Lune	luno
 Lusace	Luzacio
 Lusaka	Lusako
 Luxembourg	Luksemburgio
@@ -1298,8 +1293,6 @@ Macédoine du Nord	Nord-Makedonujo
 Macédonien	makedono
 Madagascar	Malagasio
 Madagascar	Madagaskaro
-Madame	sinjorino
-Mademoiselle	fraŭlino
 Madrid	Madrido
 Madrilène	madridano
 Madrilène	madridanino
@@ -1402,7 +1395,6 @@ Michée	Miĥa
 Michée	Miĥao
 Micronésie	Mikronezio
 Midi-Pyrénées	Sudo-Pireneoj
-Mikado	mikado
 Milan	Milano
 Milet	Mileto
 Milos	Meloso
@@ -1434,7 +1426,6 @@ Mongolie	Mongolio
 Mongolie intérieure	Interna Mongolio
 Monique	Monika
 Monopoly	Monopolo
-Monsieur	sinjoro
 Monstre en Spaghetti Volant	Fluganta Spageta Monstro
 Monstre en Spaghetti Volant	Fluganta Spagetmonstro
 Monstre en spaghettis volant	Fluganta Spagetmonstro
@@ -1501,7 +1492,6 @@ Napoléon	Napoleono
 Narcisse	Narciso
 Narva	Narva
 Narvi	Narvo
-Nasa	NAKA
 Natacha	Nataŝa
 Nathalie	Natalia
 Nathan	Natano
@@ -1540,7 +1530,6 @@ Nimègue	Nimego
 Nintendo	Nintendo
 Nioué	Niuo
 Nix	Nikso
-Noir	nigrulo
 Noire	nigrulino
 Nord-Coréen	nordkoreo
 Nord-Irlandais	nordirlandano
@@ -1635,7 +1624,6 @@ Oslo	Oslo
 Ossétie du Sud	Sud-Osetio
 Ostrogoth	Ostrogoto
 Ostrogoths	Ostrogotoj
-Otan	NATO
 Othon	Oto
 Ottawa	Otavo
 Ouagadougou	Uagaduguo
@@ -1726,7 +1714,6 @@ Petit Renard	Vulpo
 Petite Ourse	Malgranda Ursino
 Petites Antilles	Malgrandaj Antiloj
 Phanérozoïque	Fanerozoiko
-Pharaon	faraono
 Phidias	Fidio
 Philadelphie	Filadelfio
 Philibert	Filiberto
@@ -1802,7 +1789,6 @@ Prusse	Prusujo
 Prusse	Pruslando
 Prussien	pruso
 Prussienne	prusino
-Préhistoire	prahistorio
 Psamathée	Psamato
 Psyché	Psiĥo
 Psyché	Psiĥa
@@ -1929,7 +1915,6 @@ Sa Majesté Impériale	Lia Imperia Moŝto
 Sa Majesté Impériale	Ŝia Imperia Moŝtino
 Sacha	Aleĉjo
 Sacha	Alenjo
-Sagittaire	sagitario
 Sahara	Saharo
 Sahara occidental	Okcidenta Saharo
 Sahul	Sahulo
@@ -2115,7 +2100,6 @@ Sylvain	Silvano
 Syrie	Sirio
 Syrien	siriano
 Syrte	Sirto
-Système solaire	sunsistemo
 Sébastien	Sebastiano
 Sébastopol	Sebastopolo
 Ségeste	Segesta
@@ -2293,7 +2277,6 @@ Union Soviétique	Sovetunio
 Union africaine	Afrika Unio
 Union des républiques socialistes soviétiques	Unio de sovetaj socialismaj respublikoj
 Union européenne	Eŭropa Unio
-Union soviétique	Sovetunio
 Untel	Ajnulo
 Uranus	Urano
 Uri	Urio
@@ -2359,7 +2342,6 @@ Vénézuélien	venezuelano
 Vérone	Verono
 Véronique	Veronika
 Vésuve	Vezuvio
-W.-C.	necesejo
 WYSIWYG	vidate-vidote
 Wallis-et-Futuna	Valiso kaj Futuno
 Wallon	valono
@@ -2418,7 +2400,6 @@ Zeus	Zeŭso
 Zimbabwe	Zimbabvo
 Zimbabwéen	zimbabvano
 Zoroastre	Zaratuŝtro
-Zoulou	zuluo
 Zouloue	zuluo
 Zurich	Zuriko
 Zélandais	zelandano
@@ -4130,7 +4111,6 @@ annihilation	detruo
 anniversaire	datreveno
 anniversaire	naskiĝtago
 annoncer	anonci
-annonciation	Anunciacio
 annotation	prinoto
 annuaire	adreslibro
 annuaire	almanako
@@ -4207,7 +4187,7 @@ antimicrobien	antimikroba
 antimicrobien	kontraŭmikroba
 antimitotique	antimitoza
 antimoine	antimono
-antineutrino	antineǔtrino
+antineutrino	antineŭtrino
 antipaste	antaŭmanĝaĵo
 antipaste	almanĝaĵoj
 antipathie	malsimpatio
@@ -5622,7 +5602,6 @@ bande	strio
 bande	bandaĝo
 bande	roto
 bande	bando
-bande de Gaza	Gaza Sektoro
 bande dessinée	bildliteraturo
 bande dessinée	bildstrio
 bande dessinée	komikso
@@ -9846,7 +9825,7 @@ cœlentéré	celenterulo
 cœur	koro
 cœur	amoro
 cœur	brusto
-cœur	kuragxo
+cœur	kuraĝo
 cœur	kero
 cœur	kerno
 cœur de palmier	palmomedolo
@@ -9951,7 +9930,6 @@ de contre-hermine	malermeno
 de contre-vair	malvajro
 de façon que	tiamaniere ke
 de gueules	gorĝo
-de jour en jour	de día en día
 de là	pro tio
 de là	kaŭze de tio
 de merde	merda
@@ -16699,7 +16677,7 @@ lecture	legado
 ledit	la dirita
 ledit	la menciita
 leggings	kruringo
-legs	heredajxo
+legs	heredaĵo
 lemme	lemo
 lemme	kapvorto
 lendemain	morgaŭo
@@ -17927,7 +17905,6 @@ mercerie	merceraĵo
 merci	dankon
 merci beaucoup	multan dankon
 mercredi	merkredo
-mercredi des Cendres	Cindromerkredo
 mercredi des cendres	Cindromerkredo
 mercure	hidrargo
 mercuriale	merkurialo
@@ -19053,11 +19030,11 @@ neutralité	neŭtraleco
 neutre	neŭtrala
 neutre	neŭtra
 neutrino	neŭtrino
-neutrino muonique	muonneǔtrino
-neutrino muonique	muona neǔtrino
-neutrino tauique	taǔonneǔtrino
-neutrino électronique	elektronneǔtrino
-neutrino électronique	elektrona neǔtrino
+neutrino muonique	muonneŭtrino
+neutrino muonique	muona neŭtrino
+neutrino tauique	taŭonneŭtrino
+neutrino électronique	elektronneŭtrino
+neutrino électronique	elektrona neŭtrino
 neutron	neŭtrono
 neuvième	naŭa
 neuvièmement	naŭe
@@ -19270,7 +19247,6 @@ noème	pensaĵo
 noèse	pensado
 noésique	noesic
 noésique	noeta
-noël	Kristnasko
 nu	nuda
 nu	nuo
 nu metal	nu-metalo
@@ -20719,7 +20695,6 @@ pet	furzo
 petit	malgranda
 petit	juna
 petit ami	koramiko
-petit chaperon rouge	Ruĝkufulineto
 petit chevalier à pattes jaunes	flavkrura tringo
 petit déjeuner	matenmanĝo
 petit gravelot	malgranda pluvio
@@ -22328,7 +22303,7 @@ présomptueux	bravaĉulo
 prétendant	pretendanto
 prétendant	svatulo
 prétendre	pretendi
-prétendument	laùaserte
+prétendument	laŭaserte
 prétexte	preteksto
 prétexter	preteksti
 prétoire	tribunalo
@@ -26104,7 +26079,6 @@ s’écrouler	disfali
 s’égrener	disgrajniĝi
 s’évader	eskapi
 s’évanouir	sveni
-t-shirt	T-ĉemizo
 ta	via
 tabac	tabako
 tabac à priser	snuftabako
@@ -26975,7 +26949,6 @@ triangulaire	triangula
 triangulation	triangulado
 triboluminescence	triboluminesko
 tribu	gento
-tribu	σ-alĝebro
 tribule	tera tribuluso
 tribun	tribunuso
 tribunal	tribunalo
@@ -28314,7 +28287,6 @@ złoty	zloto
 Écosse	Skotlando
 Édimbourg	Edinburgo
 Édouard	Eduardo
-Église	eklezio
 Église catholique	Katolika Eklezio
 Égypte	Egiptio
 Égypte ancienne	antikva Egiptio
@@ -28348,7 +28320,6 @@ złoty	zloto
 Érythréen	eritreano
 Ésope	Ezopo
 État	lando
-État	ŝtato
 État-nation	nacio-ŝtato
 États fédérés de Micronésie	Federacio de Mikronezio
 États-Unien	usonano
@@ -29205,17 +29176,10 @@ złoty	zloto
 îles Ashmore-et-Cartier	Aŝmora kaj Kartia Insuloj
 îles Baléares	Balearoj
 îles Britanniques	Britaj Insuloj
-îles Caïmans	Kajmaninsuloj
-îles Cocos	Kokosinsuloj
 îles Cook	Kukinsuloj
-îles Féroé	Ferooj
 îles Malouines	Falklandoj
-îles Mariannes du Nord	Nord-Marianoj
-îles Marshall	Marŝaloj
 îles Midway	Midvejinsuloj
 îles Pitcairn	Pitkarna Insulo
-îles Salomon	Salomonoj
-îles Turques et Caïques	Turkoj kaj Kajkoj
 îles Vierges	Virgulinsuloj
 îles Vierges britanniques	Britaj Virgulinsuloj
 îles Vierges des États-Unis	Usonaj Virgulinsuloj
