@@ -653,7 +653,8 @@ object Vikivortaro {
          * "dreamcatcher → sonĝkaptilo" (user, 2026-11-10) */
         return if (revo != null || word in data.descriptions || word in data.definitions || language.showsUndescribed ||
             BonaLingvo.entry(context, word) != null)
-            VikiResult(language.code, foreign, word, revo, informative(data, word), sense = sense, advised = (foreign to word) in data.advised)
+            VikiResult(language.code, foreign, word, revo, informative(data, word), sense = sense, advised = (foreign to word) in data.advised,
+                definition = data.definitions[word]?.senses?.firstOrNull())
         else null
     }
 
