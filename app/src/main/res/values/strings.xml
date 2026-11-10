@@ -22,6 +22,7 @@
   <string name="search">Serĉi</string>
   <string name="preferences">Agordoj</string>
   <string name="no_results">Neniu vorto troviĝis</string>
+  <string name="no_results_contribute">Ĉu ĝi mankas? Helpu plibonigi la vortaron ›</string>
   <string name="other_language_note">Neniu vorto troviĝis en %1$s, jen vortoj en %2$s</string>
   <string name="type_to_filter">Tajpi ion por serĉi</string>
   <string name="search_language">Serĉi lingvon</string>

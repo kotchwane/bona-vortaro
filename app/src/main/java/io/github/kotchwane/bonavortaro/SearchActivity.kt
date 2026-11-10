@@ -72,6 +72,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.material3.SnackbarResult
+import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.runtime.Composable
@@ -379,11 +380,13 @@ private fun SearchScreen(
     val removed = stringResource(R.string.history_removed)
     val undo = stringResource(R.string.undo)
 
-    /* A removal from the history can be undone for a moment */
+    /* A removal from the history can be undone for a moment: a notice
+     * with an action stays until closed unless given a duration (user,
+     * 2026-11-10) */
     fun offerUndo(message: String, before: List<HistoryEntry>) {
         scope.launch {
             snackbar.currentSnackbarData?.dismiss()
-            if (snackbar.showSnackbar(message, actionLabel = undo, withDismissAction = true) ==
+            if (snackbar.showSnackbar(message, actionLabel = undo, withDismissAction = true, duration = SnackbarDuration.Long) ==
                 SnackbarResult.ActionPerformed)
                 onRestoreHistory(before)
         }
@@ -520,17 +523,21 @@ private fun SearchScreen(
                 ScaledText(textSize) {
                     WordAnalysisView(analysis!!, onOpen = { onResultClick(it, "eo") })
                 }
+                MissingWordLink(Modifier.padding(horizontal = 20.dp, vertical = 8.dp))
             }
         } else if (current != null && current.isEmpty) {
             Box(
                 Modifier.fillMaxSize().padding(padding).consumeWindowInsets(padding).imePadding(),
                 contentAlignment = Alignment.Center,
             ) {
-                Text(
-                    stringResource(R.string.no_results),
-                    style = MaterialTheme.typography.bodyLarge.copy(fontStyle = FontStyle.Italic),
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Text(
+                        stringResource(R.string.no_results),
+                        style = MaterialTheme.typography.bodyLarge.copy(fontStyle = FontStyle.Italic),
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                    MissingWordLink(Modifier.padding(top = 8.dp))
+                }
             }
         } else if (current != null) {
             ResultList(
@@ -949,6 +956,23 @@ internal fun ResultRow(
 /* How many words the history must have for the invitation to show: the
  * app is used, not discovered */
 private const val INVITE_AFTER = 20
+
+/** Under "Neniu vorto troviĝis": a word the dictionary may lack, and how
+ * to help add it (user, 2026-11-10) */
+@Composable
+private fun MissingWordLink(modifier: Modifier = Modifier) {
+    val context = LocalContext.current
+    Text(
+        stringResource(R.string.no_results_contribute),
+        style = MaterialTheme.typography.bodyMedium.copy(fontStyle = FontStyle.Italic),
+        color = MaterialTheme.colorScheme.primary,
+        modifier = modifier
+            .heightIn(min = 48.dp)
+            .clickable(role = Role.Button) { ContributeActivity.open(context) }
+            .padding(horizontal = 12.dp)
+            .wrapContentHeight(Alignment.CenterVertically),
+    )
+}
 
 /** Once, to those who use the app: an invitation to the page on improving
  * the dictionary, until it is tapped or closed. From the history the app
