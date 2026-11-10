@@ -1,0 +1,6 @@
+# French → Esperanto pairs of the French Wiktionary that Bona vortaro leaves out: not translations
+# (wrong meaning, a description taken for a word, a misleading word class). Never for being offensive.
+# Reviewed 2026-11-10 (test round 7). Read by scripts/vikivortaro.py. Columns: the French word, the Esperanto word, why.
+eau	pluvo	'rain', only in 'eau de pluie'
+eau	salivo	'saliva', only in 'eau à la bouche'
+eau	ŝvito	'sweat', only in 'en eau'
