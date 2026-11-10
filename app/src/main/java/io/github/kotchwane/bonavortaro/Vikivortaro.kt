@@ -43,6 +43,10 @@ class VikiResult(
     /** For an Esperanto word, the first sense of its definition in the
      * Esperanto Wiktionary, if it has one */
     val definition: String? = null,
+    /** For a word of [language], the sense it has in that translation, as
+     * the heading of Wiktionary's table says it: "go → fari", "to make (a
+     * specified sound)". English only, so far */
+    val sense: String? = null,
 ) {
     /** The word as the search found it */
     val word: String get() = if (inEsperanto) esperanto else foreign
@@ -76,15 +80,20 @@ object Vikivortaro {
         /* Sorted by key: the word without its case and accents */
         val keys: List<String>,
         val pairs: List<Pair<String, String>>,
+        /* The sense of each pair, by its place in [pairs], or null */
+        val senses: Array<String?>,
         /* The words of the language for an Esperanto word */
         val foreignOf: Map<String, List<String>>,
         val descriptions: Map<String, String>,
         /* Shared by the languages: the Esperanto Wiktionary's */
         val definitions: Map<String, EsperantoDefinition>,
+        /* The Esperanto words with nothing said of them that are shown
+         * all the same ([VikiLanguage.showsUndescribed]) */
+        val undescribed: Collection<String> = emptyList(),
     ) {
         /* The Esperanto words that Vikivortaro describes or defines, sorted
-         * by key */
-        private val keyed = (descriptions.keys + definitions.keys).distinct().map { key(it) to it }.sortedBy { it.first }
+         * by key; in English, all of its Esperanto words */
+        private val keyed = (descriptions.keys + definitions.keys + undescribed).distinct().map { key(it) to it }.sortedBy { it.first }
         val esperantoWords: List<String> = keyed.map { it.second }
         val esperantoKeys: List<String> = keyed.map { it.first }
     }
@@ -142,12 +151,34 @@ object Vikivortaro {
         emptyList()
     }
 
+    /* A file of pairs, each with its sense when it has one (a third
+     * column) */
+    private fun senses(context: Context, file: String): List<Triple<String, String, String?>> = try {
+        context.assets.open("vikivortaro/$file").bufferedReader().useLines { lines ->
+            lines.filter { !it.startsWith("#") }
+                .mapNotNull { line ->
+                    line.split('\t').takeIf { it.size in 2..3 }?.let { Triple(it[0], it[1], it.getOrNull(2)?.takeIf { sense -> sense.isNotBlank() }) }
+                }
+                .toList()
+        }
+    } catch (e: IOException) {
+        Log.w(TAG, "Failed to read $file")
+        emptyList()
+    }
+
     private fun load(context: Context, language: VikiLanguage): Data {
         val descriptions = lines(context, "eo-${language.code}.tsv").toMap()
         /* The pairs left out after a review, which the descriptions would
          * give again: "painfully", oj ("Ouch, painfully") */
         val rejected = lines(context, "${language.code}-eo-not.tsv", optional = true).toHashSet()
-        val translations = lines(context, "${language.code}-eo.tsv").filter { it !in rejected }
+        /* Each heading once in memory: a table's words share it */
+        val headings = HashMap<String, String>()
+        val sensed = senses(context, "${language.code}-eo.tsv").filter { (it.first to it.second) !in rejected }
+        val translations = sensed.map { it.first to it.second }
+        val senseOf = HashMap<Pair<String, String>, String>()
+        for ((foreign, esperanto, sense) in sensed)
+            if (sense != null)
+                senseOf[foreign to esperanto] = headings.getOrPut(sense) { sense }
         /* Case aside: the description "Irish wolfhound." of "irlanda
          * lupohundo" gives "irish wolfhound", the table's "Irish
          * wolfhound" (test round 8) */
@@ -160,7 +191,10 @@ object Vikivortaro {
         for ((foreign, esperanto) in pairs)
             /* By the word as written: "bruno" the colour isn't "Bruno" */
             foreignOf.getOrPut(esperanto) { mutableListOf() }.add(foreign)
-        return Data(keyed.map { it.first }, pairs, foreignOf, descriptions, definitions(context))
+        return Data(
+            keyed.map { it.first }, pairs, Array(pairs.size) { senseOf[pairs[it]] }, foreignOf, descriptions, definitions(context),
+            undescribed = if (language.showsUndescribed) foreignOf.keys else emptyList(),
+        )
     }
 
     /** The words that a description of a Wiktionary gives as the meaning
@@ -263,6 +297,7 @@ object Vikivortaro {
         var looked = 0
         while (i < data.keys.size && data.keys[i].startsWith(prefix) && results.size < MAX_RESULTS && looked < MAX_LOOKED_AT &&
             (looked % 16 != 0 || !stopped())) {
+            val sense = data.senses[i]
             val (word, esperantoWord) = data.pairs[i++]
             if (!matches(typed, word))
                 continue
@@ -282,7 +317,7 @@ object Vikivortaro {
                 if (revo == null || entries.any { it.article in articles })
                     continue
             }
-            result(context, language, data, esperanto, word, esperantoWord, foreign, revo)?.let { results.add(it) }
+            result(context, language, data, esperanto, word, esperantoWord, foreign, revo, sense)?.let { results.add(it) }
         }
         /* In the order of the keys, the exact matches first */
         return results
@@ -363,7 +398,8 @@ object Vikivortaro {
      * of the data dropped it. */
     fun esperantoResult(context: Context, word: String): VikiResult? {
         val languages = readerOrder(context).map { it to data(context, it) }
-        if (languages.none { (_, data) -> word in data.descriptions || word in data.definitions })
+        if (languages.none { (language, data) -> word in data.descriptions || word in data.definitions ||
+                (language.showsUndescribed && word in data.foreignOf) })
             return null
         val (language, data) = languageOf(languages, word)
         return esperantoResult(language, data, word)
@@ -540,7 +576,7 @@ object Vikivortaro {
         } catch (e: IOException) {
             return null
         }
-        return result(context, language, data, esperanto, foreign, word, foreignIndex)
+        return result(context, language, data, esperanto, foreign, word, foreignIndex, sense = data.senses[i])
     }
 
     /* Nothing to show for a word that has neither an article in Reta
@@ -557,12 +593,17 @@ object Vikivortaro {
         foreignIndex: Trie? = null,
         /* Its entry, if already looked up */
         known: SearchResult? = null,
+        sense: String? = null,
     ): VikiResult? {
         val revo = known ?: revoEsperanto(esperanto, word, foreignIndex, data.foreignOf[word].orEmpty(), language)
         if (revo == null && isReformOfRevo(esperanto, word))
             return null
-        return if (revo != null || word in data.descriptions || BonaLingvo.entry(context, word) != null)
-            VikiResult(language.code, foreign, word, revo, informative(data, word))
+        /* Its definition in the Esperanto Wiktionary says something too:
+         * "seabed → marfundo"; in English, every pair, all reviewed:
+         * "dreamcatcher → sonĝkaptilo" (user, 2026-11-10) */
+        return if (revo != null || word in data.descriptions || word in data.definitions || language.showsUndescribed ||
+            BonaLingvo.entry(context, word) != null)
+            VikiResult(language.code, foreign, word, revo, informative(data, word), sense = sense)
         else null
     }
 

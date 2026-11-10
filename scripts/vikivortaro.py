@@ -19,7 +19,9 @@
 # Kaikki changes its extract every week, and the app is built the same
 # every time, as F-Droid requires.
 """Writes, into app/src/main/assets/vikivortaro/ (here for French, "en" for English):
-  fr-eo.tsv   a French word, a tab, an Esperanto translation (one per line)
+  fr-eo.tsv   a French word, a tab, an Esperanto translation (one per line);
+              in English, a tab and the sense of the word it translates, the
+              heading of its table, when there is one
   eo-fr.tsv   an Esperanto word, a tab, its French description
 Lines starting with "#" are comments: the source, its date, the licence."""
 import email.utils
@@ -159,6 +161,20 @@ def eo_translations(entry):
     return [(t, sense) for t, sense in found if t.get("lang_code") == "eo" and t.get("word")]
 
 
+# What a heading of a table adds to its sense, or a heading that says
+# nothing of it: "— see also hug", "1.1. ", "Translations"
+SEE_ALSO = re.compile(r"\s+—\s+see also\b.*$")
+NUMBERING = re.compile(r"^\d+(\.\d+)*\.\s+")
+
+
+def sense_heading(translation):
+    """The sense of the word that an English translation translates, as the
+    heading of its table says it: "go → fari", "to make (a specified
+    sound)"; None if it says nothing"""
+    heading = NUMBERING.sub("", SEE_ALSO.sub("", clean(translation.get("sense") or "")))
+    return heading if heading and heading.lower() != "translations" else None
+
+
 def likeliest_sense(translation):
     """The sense of a table that Kaikki didn't tie to one: the one its
     scores (_dis1) make likeliest, "slut"'s first for ĉiesulino, "hand"'s
@@ -173,6 +189,8 @@ def likeliest_sense(translation):
 dates, source_lines = entries()
 # Each pair with its group: the entry and the sense its table translates
 translations = {}
+# In English, each pair's sense, by the heading of its table
+headings = {}
 entry_number = 0
 descriptions = {}
 for line in source_lines:
@@ -211,6 +229,8 @@ for line in source_lines:
                     or (esperanto[:1].isupper() and not re.search(r"(oj?|a)$", esperanto))):
                 continue
             translations.setdefault((french, esperanto), (entry_number, group))
+            if LANGUAGE == "en" and sense_heading(t):
+                headings.setdefault((french, esperanto), sense_heading(t))
     elif code == "eo":
         esperanto = esperanto_spelling(clean(entry.get("word", ""))) or ""
         for sense in entry.get("senses") or []:
@@ -298,7 +318,8 @@ header = (f"# From the {NAME} Wiktionary ({LANGUAGE}.wiktionary.org), by its con
 with open(os.path.join(OUT, f"{LANGUAGE}-eo.tsv"), "w", encoding="utf-8") as f:
     f.write(header)
     for french, esperanto in ordered(translations):
-        f.write(f"{french}\t{esperanto}\n")
+        heading = headings.get((french, esperanto))
+        f.write(f"{french}\t{esperanto}\t{heading}\n" if heading else f"{french}\t{esperanto}\n")
 with open(os.path.join(OUT, f"eo-{LANGUAGE}.tsv"), "w", encoding="utf-8") as f:
     f.write(header)
     for esperanto, gloss in sorted(descriptions.items()):
