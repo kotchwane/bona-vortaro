@@ -426,6 +426,15 @@ object Vikivortaro {
     private fun languageOf(languages: List<Pair<VikiLanguage, Data>>, word: String): Pair<VikiLanguage, Data> =
         languages.firstOrNull { (_, data) -> word in data.foreignOf || word in data.descriptions } ?: languages.first()
 
+    /** The same word with its first letter in the other case, when only
+     * Wiktionary has both: "Smurfo" for "smurfo"; null otherwise. Disk
+     * access: not on the main thread. */
+    fun otherCase(context: Context, word: String): String? {
+        val first = word.firstOrNull() ?: return null
+        val other = (if (first.isUpperCase()) first.lowercaseChar() else first.uppercaseChar()) + word.drop(1)
+        return other.takeIf { it != word && onlyInWiktionary(context, it) != null && onlyInWiktionary(context, word) != null }
+    }
+
     /** An Esperanto word that only Vikivortaro has, found again for the
      * history, with the reader's language that has it; null if an update
      * of the data dropped it. */

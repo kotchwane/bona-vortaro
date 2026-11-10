@@ -270,8 +270,8 @@ private fun endingGloss(ending: String): String = stringResource(
 
 /** How a word only Wiktionary has is built, discreetly under its words
  * (user, 2026-11-10): the word cut, "mar·virino", then each part with the
- * start of its definition, the parts opening their article; two lines
- * at most. */
+ * start of its definition, one line each, the parts opening their
+ * article. */
 @Composable
 fun CompactAnalysis(shown: ShownAnalysis, onOpen: (SearchResult) -> Unit, modifier: Modifier = Modifier) {
     val reading = shown.readings.first()
@@ -287,24 +287,25 @@ fun CompactAnalysis(shown: ShownAnalysis, onOpen: (SearchResult) -> Unit, modifi
             color = muted,
             modifier = Modifier.padding(top = 10.dp),
         )
-        Text(
-            buildAnnotatedString {
-                pieces.forEachIndexed { i, piece ->
-                    if (i > 0) append(" · ")
-                    val result = piece.result
+        /* Each part on its line, all of them: "ilo" too in apog·stang·ilo
+         * (user, 2026-11-10) */
+        pieces.forEachIndexed { i, piece ->
+            val result = piece.result
+            Text(
+                buildAnnotatedString {
                     if (result != null)
                         withLink(androidx.compose.ui.text.LinkAnnotation.Clickable(piece.label) { onOpen(result) }) {
                             withStyle(SpanStyle(textDecoration = TextDecoration.Underline, color = onSurface)) { append(piece.label) }
                         }
                     else append(piece.label)
                     glosses[i]?.let { append(": $it") }
-                }
-            },
-            style = MaterialTheme.typography.bodySmall,
-            color = muted,
-            maxLines = 2,
-            overflow = TextOverflow.Ellipsis,
-        )
+                },
+                style = MaterialTheme.typography.bodySmall,
+                color = muted,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+            )
+        }
         Text(
             stringResource(R.string.analysis_note),
             style = MaterialTheme.typography.bodySmall.copy(fontStyle = FontStyle.Italic),

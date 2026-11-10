@@ -255,6 +255,19 @@ fun WordCard(
             }
 
             val exampleColor = MaterialTheme.colorScheme.onSurfaceVariant.toArgb()
+            /* An Esperanto word searched that Reta Vortaro has in an
+             * example only, "vicreĝo" in vic-: its examples unfolded, the
+             * word marked in them (user, 2026-11-10); not if the
+             * translations mark its line already, and no more once tapped */
+            val searchedWord = example?.takeIf { it.language == "eo" }?.example?.takeIf { word ->
+                entry.translations.none { t -> t.examples.any { it.example == word } } &&
+                    vikiExamples.none { it.example == word }
+            }
+            var markShown by rememberSaveable(searchedWord) { mutableStateOf(searchedWord != null) }
+            val searchedColor = markColor().toArgb()
+            fun marked(examples: List<ContentBlock.Example>) =
+                if (searchedWord == null || !markShown) examples
+                else examples.map { if (it.text.contains(searchedWord, ignoreCase = true)) ContentBlock.Example(markWord(it.text, searchedWord, searchedColor)) else it }
 
             for ((index, group) in groupExamples(entry.blocks, exampleColor).withIndex()) {
                 when (group) {
@@ -268,17 +281,28 @@ fun WordCard(
                                 onLongPress = onLongPressText,
                             )
                         }
-                        is ContentBlock.Example -> ExampleLine(block.text, onLongPressText)
+                        is ContentBlock.Example -> marked(listOf(block)).first().let { shown ->
+                            ExampleLine(shown.text, onLongPressText,
+                                onClick = if (shown !== block) { { markShown = false } } else null)
+                        }
                         is ContentBlock.Note ->
                             NoteBox(block.text, key = "${entry.section}-note-$index", unfolded = unfoldExamples, onLongPressText)
                         /* Under the headword, above */
                         is ContentBlock.Origin -> {}
                     }
-                    is BlockGroup.Examples ->
-                        FoldedExamples(group.examples, onLongPressText, key = "${entry.section}-$index", unfolded = unfoldExamples)
+                    is BlockGroup.Examples -> {
+                        val shown = marked(group.examples)
+                        /* Unfolded for the word, and still once it is
+                         * unmarked */
+                        val holds = searchedWord != null && group.examples.any { it.text.contains(searchedWord, ignoreCase = true) }
+                        FoldedExamples(shown, onLongPressText, key = "${entry.section}-$index",
+                            unfolded = unfoldExamples || holds,
+                            onClick = if (holds && markShown) { { markShown = false } } else null)
+                    }
                     is BlockGroup.ShortExamples ->
-                        for (example in group.examples)
-                            ExampleLine(example.text, onLongPressText)
+                        for ((shown, block) in marked(group.examples).zip(group.examples))
+                            ExampleLine(shown.text, onLongPressText,
+                                onClick = if (shown !== block) { { markShown = false } } else null)
                 }
             }
 
@@ -466,6 +490,17 @@ private fun CharSequence.withoutSourceLength(): Int =
     length - ((this as? Spanned)?.getSpans(0, length, ExampleSource::class.java)
         ?.sumOf { getSpanEnd(it) - getSpanStart(it) + 1 } ?: 0)
 
+/** An example with a word marked wherever it is, its case aside */
+private fun markWord(text: CharSequence, word: String, color: Int): CharSequence {
+    val result = SpannableStringBuilder(text)
+    var at = text.indexOf(word, ignoreCase = true)
+    while (at >= 0) {
+        result.setSpan(android.text.style.BackgroundColorSpan(color), at, at + word.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+        at = text.indexOf(word, at + word.length, ignoreCase = true)
+    }
+    return result
+}
+
 /** The text followed by a short example, in the colour of the
  * examples. The example keeps its italics and its links. */
 private fun withExample(text: CharSequence, example: CharSequence, color: Int): CharSequence {
@@ -538,6 +573,8 @@ private fun FoldedExamples(
     onLongPress: (String?) -> Unit,
     key: String,
     unfolded: Boolean,
+    /** A tap on an example shown, links aside: the word searched unmarked */
+    onClick: (() -> Unit)? = null,
 ) {
     /* Unfolded at first if the user chose it, and can still be folded */
     val (expanded, setExpanded) = unfoldedState(key, unfolded)
@@ -583,9 +620,9 @@ private fun FoldedExamples(
     val top = topWithRoom()
     val scope = rememberCoroutineScope()
     if (expanded || all) {
-        ExampleLine(first, onLongPress, onLayout = measure, modifier = Modifier.bringIntoViewRequester(start))
+        ExampleLine(first, onLongPress, onClick = onClick, onLayout = measure, modifier = Modifier.bringIntoViewRequester(start))
         for (example in examples.drop(1))
-            ExampleLine(example.text, onLongPress)
+            ExampleLine(example.text, onLongPress, onClick = onClick)
         if (hidden)
             FoldLink(stringResource(R.string.examples_less), link) {
                 /* Back to the start of the group first: folding removes
@@ -1346,11 +1383,12 @@ private fun TranslationsBox(
                                         onTap = { position ->
                                             val offset = layout?.getOffsetForPosition(position) ?: return@detectTapGestures
                                             val word = vikiRanges.firstOrNull { offset in it || offset == it.last + 1 }
-                                            if (word != null)
-                                                bubble = position to shownText.text.substring(word)
-                                            /* A tap on the line searched unmarks it */
-                                            else if (marked?.let { offset in it } == true)
+                                            /* A tap on the line searched unmarks it, first,
+                                             * even on its Wiktionary word ("viceroy") */
+                                            if (markShown && marked?.let { offset in it } == true)
                                                 markShown = false
+                                            else if (word != null)
+                                                bubble = position to shownText.text.substring(word)
                                         },
                                         onLongPress = { position ->
                                             val offset = layout?.getOffsetForPosition(position) ?: return@detectTapGestures

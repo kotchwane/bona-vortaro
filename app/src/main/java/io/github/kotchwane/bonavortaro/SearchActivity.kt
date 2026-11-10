@@ -293,6 +293,14 @@ class SearchActivity : BonaActivity() {
                 .putExtra(ArticleActivity.EXTRA_VIKI_FOREIGN, result.foreign)
                 .putExtra(ArticleActivity.EXTRA_VIKI_LANGUAGE, result.language)
                 .putExtra(ArticleActivity.EXTRA_VIKI_WORD, result.esperanto)
+                /* A word Reta Vortaro has in an example only, "vicreĝo" in
+                 * vic-: its line shown, unfolded (user, 2026-11-10) */
+                .apply {
+                    if (revo.isExample) {
+                        putExtra(ArticleActivity.EXTRA_EXAMPLE_WORD, revo.word)
+                        putExtra(ArticleActivity.EXTRA_EXAMPLE_LANGUAGE, "eo")
+                    }
+                }
         )
     }
 
