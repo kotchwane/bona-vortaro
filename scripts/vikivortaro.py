@@ -1,24 +1,26 @@
 #!/usr/bin/env python3
-# Extracts from the French or English Wiktionary what Bona vortaro shows next
+# Extracts from the French, English or German Wiktionary what Bona vortaro shows next
 # to Reta Vortaro: the words of that language with their Esperanto
 # translations, and the short descriptions of Esperanto words in it.
 #
 # Usage, from the root of the repository:
 #   python3 scripts/vikivortaro.py https://kaikki.org/dictionary/downloads/fr/fr-extract.jsonl.gz
+#   python3 scripts/vikivortaro.py de https://kaikki.org/dictionary/downloads/de/de-extract.jsonl.gz
 #   python3 scripts/vikivortaro.py en \
 #       https://kaikki.org/dictionary/English/kaikki.org-dictionary-English.jsonl.gz \
 #       https://kaikki.org/dictionary/Esperanto/kaikki.org-dictionary-Esperanto.jsonl
 #   (or the paths of those files, downloaded)
 #
 # The source is Kaikki's extraction (wiktextract) of the French Wiktionary,
-# which has both the French words and the Esperanto ones; of the English
+# which has both the French words and the Esperanto ones, and the same of the
+# German Wiktionary; of the English
 # Wiktionary, Kaikki's files of its English words and of its Esperanto ones.
 # Its content is by the contributors of that Wiktionary, under the
 # licence CC BY-SA 4.0, and stays so in the files written here, which are
 # kept apart from Reta Vortaro's data (GPL-2.0). The files are committed:
 # Kaikki changes its extract every week, and the app is built the same
 # every time, as F-Droid requires.
-"""Writes, into app/src/main/assets/vikivortaro/ (here for French, "en" for English):
+"""Writes, into app/src/main/assets/vikivortaro/ (here for French, "en" for English, "de" for German):
   fr-eo.tsv   a French word, a tab, an Esperanto translation (one per line)
   eo-fr.tsv   an Esperanto word, a tab, its French description
 Lines starting with "#" are comments: the source, its date, the licence."""
@@ -30,9 +32,11 @@ import re
 import sys
 import urllib.request
 
-LANGUAGE = sys.argv[1] if sys.argv[1] in ("fr", "en") else "fr"
-SOURCES = sys.argv[2:] if sys.argv[1] in ("fr", "en") else sys.argv[1:]
-NAME = {"fr": "French", "en": "English"}[LANGUAGE]
+LANGUAGE = sys.argv[1] if sys.argv[1] in ("fr", "en", "de") else "fr"
+SOURCES = sys.argv[2:] if sys.argv[1] in ("fr", "en", "de") else sys.argv[1:]
+NAME = {"fr": "French", "en": "English", "de": "German"}[LANGUAGE]
+# Where the forms of a word are tagged ("form-of"), not told by their text
+TAGGED_FORMS = LANGUAGE in ("en", "de")
 OUT = os.path.join(os.path.dirname(__file__), "..", "app", "src", "main", "assets", "vikivortaro")
 
 # The descriptions that only send to another word: "Pluriel de …", not
@@ -45,6 +49,11 @@ SENDS = re.compile(r"\b(volitif|pseudo-accusatif|synonyme de)\b", re.I)
 # word: "Synonym of …", "Alternative form of …"
 SENDS_EN = re.compile(r"\b(synonym of|alternative (form|spelling) of|obsolete (form|spelling) of|misspelling of|"
                       r"abbreviation of|initialism of|clipping of|short for)\b", re.I)
+# In German: "Nominativ Plural des Substantivs blato", when untagged;
+# "Variante von …", "Synonym zu …"
+SENDS_DE = re.compile(r"(^(Nominativ|Akkusativ|Indikativ|Imperativ|Konditional|Infinitiv|Partizip)\b.*\b(des|der) "
+                      r"(Substantivs|Verbs|Adjektivs|Pronomens)\b|\b(Variante|Nebenform|Schreibvariante|Synonym|"
+                      r"Abkürzung|Kurzform) (von|zu|für)\b)", re.I)
 
 # What the extract sometimes gives instead of a description: the source of the
 # page, its pronunciation, its placeholders ("Exemple d'utilisation manquant")
@@ -117,11 +126,13 @@ DATE_PATTERN = re.compile(r"^(AAAA|MM|JJ)(-?(AAAA|MM|JJ))+$")
 
 def clean_gloss(gloss):
     """A description as a reader reads it: without its label nor a note to the
-    editors, with a capital and a final stop, and once only: "ex.." """
+    editors, with a capital and a final stop, and once only: "ex.."; in
+    German without a capital, which would make "stehlen", ŝteli, a noun"""
     gloss = NOTE.sub("", LABEL.sub("", clean(gloss))).strip(" ;,")
     if not gloss:
         return gloss
-    gloss = gloss[0].upper() + gloss[1:]
+    if LANGUAGE != "de":
+        gloss = gloss[0].upper() + gloss[1:]
     if gloss.endswith("..") and not gloss.endswith("..."):
         gloss = gloss[:-1]
     elif gloss[-1].isalnum() or gloss[-1] in ")»":
@@ -132,6 +143,8 @@ def clean_gloss(gloss):
 def usable(gloss):
     if LANGUAGE == "en":
         return gloss and not SENDS_EN.search(gloss) and not MARKUP.search(gloss)
+    if LANGUAGE == "de":
+        return gloss and not SENDS_DE.search(gloss) and not MARKUP.search(gloss)
     return gloss and not FORM.match(gloss) and not SENDS.search(gloss) and not MARKUP.search(gloss)
 
 
@@ -151,8 +164,9 @@ def entries():
 
 def eo_translations(entry):
     """The Esperanto translations of an entry: in the French Wiktionary, of
-    the entry; in the English one, of the entry and of each sense"""
-    found = [(t, likeliest_sense(t)) for t in entry.get("translations") or []]
+    the entry; in the English one, of the entry and of each sense; in the
+    German one, of the entry, with the number of their sense ("2", "1a")"""
+    found = [(t, numbered_sense(t) if LANGUAGE == "de" else likeliest_sense(t)) for t in entry.get("translations") or []]
     if LANGUAGE == "en":
         for index, sense in enumerate(entry.get("senses") or []):
             found += [(t, index) for t in sense.get("translations") or []]
@@ -205,6 +219,13 @@ def stem_of(part):
     return re.sub(r"(oj|aj|on|an|o|a|e|i|j)$", "", part.strip("-"))
 
 
+def numbered_sense(translation):
+    """The sense of a translation by its number, from 0: "1a", "1, 2" are
+    the first; none, after the others"""
+    number = re.match(r"\s*(\d+)", str(translation.get("sense_index") or ""))
+    return int(number.group(1)) - 1 if number else 10_000
+
+
 def likeliest_sense(translation):
     """The sense of a table that Kaikki didn't tie to one: the one its
     scores (_dis1) make likeliest, "slut"'s first for ĉiesulino, "hand"'s
@@ -234,8 +255,8 @@ for line in source_lines:
     code = entry.get("lang_code")
     if code == LANGUAGE:
         french = clean(entry.get("word", ""))
-        # French only: its words have a gender, English ones don't
-        masculine = LANGUAGE == "fr" and "masculine" in (entry.get("tags") or []) and "feminine" not in (entry.get("tags") or [])
+        # French and German: their words have a gender, English ones don't
+        masculine = LANGUAGE in ("fr", "de") and "masculine" in (entry.get("tags") or []) and "feminine" not in (entry.get("tags") or [])
         entry_number += 1
         found = eo_translations(entry)
         words = {clean(t.get("word", "")) for t, _ in found}
@@ -269,8 +290,8 @@ for line in source_lines:
             if how:
                 made[esperanto] = how
         for sense in entry.get("senses") or []:
-            # In English, a form of a word, "plural of", "past of", is tagged
-            if LANGUAGE == "en" and {"form-of", "alt-of"} & set(sense.get("tags") or []):
+            # In English and German, a form of a word, "plural of", "past of", is tagged
+            if TAGGED_FORMS and {"form-of", "alt-of"} & set(sense.get("tags") or []):
                 continue
             for gloss in sense.get("glosses") or []:
                 if MARKUP.search(gloss):

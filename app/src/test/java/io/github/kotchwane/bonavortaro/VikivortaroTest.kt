@@ -374,4 +374,14 @@ class VikivortaroTest {
             "aŭtobushaltejo" to "Arrêt de bus.",
         )))
     }
+
+    @Test
+    fun aGermanNounKeepsItsCapital() {
+        val pairs = Vikivortaro.glossPairs(mapOf(
+            "cerbo" to "Gehirn, Hirn.",
+            "ŝteli" to "stehlen.",
+            "kverko" to "die Eiche.",
+        ), VikiLanguage.GERMAN)
+        assertEquals(listOf("Gehirn" to "cerbo", "Hirn" to "cerbo", "stehlen" to "ŝteli"), pairs)
+    }
 }

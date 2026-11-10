@@ -209,8 +209,8 @@ object Vikivortaro {
                 .filter { ' ' !in it || it.substringBefore(' ').lowercase(Locale.ROOT) !in language.glossDescribing }
                 .map { item ->
                     /* Its capital only as the first word of the description,
-                     * unless a name ("États-Unien") */
-                    val foreign = if (!name && item.first().isUpperCase() && item.drop(1).none { it.isUpperCase() })
+                     * unless a name ("États-Unien"), or a German noun */
+                    val foreign = if (!name && !language.capitalNouns && item.first().isUpperCase() && item.drop(1).none { it.isUpperCase() })
                         item.replaceFirstChar { it.lowercase(Locale.ROOT) } else item
                     foreign to esperanto
                 }
