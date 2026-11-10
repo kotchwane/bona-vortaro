@@ -148,9 +148,12 @@ object Vikivortaro {
          * give again: "painfully", oj ("Ouch, painfully") */
         val rejected = lines(context, "${language.code}-eo-not.tsv", optional = true).toHashSet()
         val translations = lines(context, "${language.code}-eo.tsv").filter { it !in rejected }
-        val known = translations.toHashSet()
+        /* Case aside: the description "Irish wolfhound." of "irlanda
+         * lupohundo" gives "irish wolfhound", the table's "Irish
+         * wolfhound" (test round 8) */
+        val known = translations.mapTo(HashSet()) { it.first.lowercase(Locale.ROOT) to it.second }
         /* Each key made once, not at each comparison of the sort */
-        val keyed = (translations + glossPairs(descriptions, language).filter { it !in known && it !in rejected })
+        val keyed = (translations + glossPairs(descriptions, language).filter { (it.first.lowercase(Locale.ROOT) to it.second) !in known && it !in rejected })
             .map { key(it.first) to it }.sortedBy { it.first }
         val pairs = keyed.map { it.second }
         val foreignOf = HashMap<String, MutableList<String>>()

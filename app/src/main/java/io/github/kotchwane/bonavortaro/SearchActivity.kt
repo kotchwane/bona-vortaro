@@ -395,7 +395,9 @@ private fun SearchScreen(
 
     /* null until the first search is done, so that "no results" isn't
      * shown while the index is still loading */
-    val outcome by produceState<SearchOutcome?>(null, query, selected, languages) {
+    /* Again when the reader's languages of Wiktionary change, in the
+     * settings: "anakondo" gives the words of their first one (round 8) */
+    val outcome by produceState<SearchOutcome?>(null, query, selected, languages, vikiShown) {
         /* Nothing is searched while nothing is typed: the history shows */
         value = if (query.isBlank()) null else withContext(Dispatchers.Default) {
             /* Stopped when another key is typed: its words would come too

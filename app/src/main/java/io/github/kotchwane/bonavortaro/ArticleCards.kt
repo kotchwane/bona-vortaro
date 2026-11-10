@@ -1165,12 +1165,13 @@ private fun TranslationsBox(
     /* A Wiktionary's words go on the line of Reta Vortaro's translation in
      * its language, which comes first if Reta Vortaro has none */
     val context = LocalContext.current
-    val translations = remember(translations, viki, vikiExamples) {
+    /* In the order of the reader's translations, as Reta Vortaro's:
+     * "angla" before "franca" if so chosen (test round 7); read again when
+     * it changes, also on a card without Reta Vortaro's (round 8) */
+    val order = BonaSettings.getTranslationOrder(context)
+    val translations = remember(translations, viki, vikiExamples, order) {
         val missing = VikiLanguage.ALL.map { it.code }
             .filter { code -> (code in viki || vikiExamples.any { it.language == code }) && translations.none { it.language == code } }
-        /* In the order of the reader's translations, as Reta Vortaro's:
-         * "angla" before "franca" if so chosen (test round 7) */
-        val order = BonaSettings.getTranslationOrder(context)
         (missing.map { Translation(it, "") } + translations)
             .sortedBy { translation -> order.indexOf(translation.language).let { if (it < 0) Int.MAX_VALUE else it } }
     }
