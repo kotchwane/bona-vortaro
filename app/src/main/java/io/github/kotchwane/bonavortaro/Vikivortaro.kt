@@ -337,7 +337,7 @@ object Vikivortaro {
          * the Esperanto words built from Reta Vortaro's roots before those
          * made on a root it lacks, unlabelled: "frogmouth" ranbuŝulo
          * before podargo (user, 2026-11-10) */
-        return newRootsLast(esperanto, results, stopped)
+        return newRootsLast(esperanto, results, stopped) { BonaLingvo.discouraged(context, it) != null }
     }
 
     /* Whether each Esperanto word is on a new root, kept for the next
@@ -346,7 +346,14 @@ object Vikivortaro {
     private val onNewRoot = java.util.concurrent.ConcurrentHashMap<String, Boolean>()
     private const val ON_NEW_ROOT_KEPT = 5000
 
-    internal fun newRootsLast(esperanto: Trie, results: List<VikiResult>, stopped: () -> Boolean = { false }): List<VikiResult> {
+    /* And a word "Vortoj de la bona lingvo" advises against in that
+     * sense, [discouraged], after them all: "glitch" problemo before cimo */
+    internal fun newRootsLast(
+        esperanto: Trie,
+        results: List<VikiResult>,
+        stopped: () -> Boolean = { false },
+        discouraged: (VikiResult) -> Boolean = { false },
+    ): List<VikiResult> {
         if (onNewRoot.size > ON_NEW_ROOT_KEPT)
             onNewRoot.clear()
         fun isLate(result: VikiResult) = result.revo == null && onNewRoot.getOrPut(result.esperanto) { newRoot(esperanto, result.esperanto) }
@@ -360,7 +367,7 @@ object Vikivortaro {
             var end = start
             while (end < results.size && key(results[end].foreign) == word) end++
             /* A stable sort: Wiktionary's order otherwise */
-            ordered += results.subList(start, end).sortedBy { isLate(it) }
+            ordered += results.subList(start, end).sortedBy { if (discouraged(it)) 2 else if (isLate(it)) 1 else 0 }
             start = end
         }
         return ordered
