@@ -64,6 +64,9 @@ object WordAnalyser {
         val entry = { form: String ->
             if (form in known) known[form] else entryOf(form).also { known[form] = it }
         }
+        /* A root as a name only, "Remo", after the same root as a word
+         * with another ending, "remi" (user, 2026-11-10) */
+        val nameOnly: (String) -> Boolean = (entryOf as? IndexEntries)?.let { index -> { form: String -> index.isNameOnly(form) } } ?: { false }
 
         /* The grammar at the end, as Esperanto allows it: -j after -o or -a,
          * -n after -o, -a, -e or -j; then the ending. Not "hundin" read as
@@ -86,11 +89,11 @@ object WordAnalyser {
         if (ending != null)
             readings.add(analyseStem(lower, stem.dropLast(ending.length), (listOf(ending) + tail).map {
                 WordPiece(it, WordPiece.Kind.ENDING, null)
-            }, entry, best, needsEnding))
+            }, entry, nameOnly, best, needsEnding))
         /* A word being typed may not have its ending yet: "hundin", "malsan"
          * read whole, if the reading with an ending says nothing complete */
         if (!needsEnding && readings.none { it.firstOrNull()?.complete == true })
-            readings.add(analyseStem(lower, lower, emptyList(), entry, best, needsEnding))
+            readings.add(analyseStem(lower, lower, emptyList(), entry, nameOnly, best, needsEnding))
         return readings.firstOrNull { it.firstOrNull()?.complete == true } ?: readings.firstOrNull { it.isNotEmpty() }.orEmpty()
     }
 
@@ -139,6 +142,7 @@ object WordAnalyser {
         stem: String,
         endingPieces: List<WordPiece>,
         entry: (String) -> String?,
+        nameOnly: (String) -> Boolean,
         best: Int,
         needsEnding: Boolean,
     ): List<WordAnalysis> {
@@ -146,7 +150,7 @@ object WordAnalyser {
          * 2 prefixes, 3 roots (not counting the numbers: du·dek·kvin·jara)
          * and 5 pieces. Beyond, a game or jargon cut into pieces
          * (hund·kat·bird·fiŝ·arb·dom·libro, klor·op·er·ok·sob·en·zo·ato) */
-        val cuts = Segmenter(stem, entry).cuts()
+        val cuts = Segmenter(stem, entry, nameOnly).cuts()
         /* The likeliest cut within; one far from the likeliest of all would
          * be stranger than saying nothing (hund·kat·bird·fiŝ·arb·dom·libro
          * has none near), but a near one is often the right one: tri·dek·
@@ -181,7 +185,7 @@ object WordAnalyser {
 
     /** The cuts of a stem, the likeliest first: complete ones if any,
      * else the longest beginning that can be cut. */
-    private class Segmenter(val stem: String, val entry: (String) -> String?) {
+    private class Segmenter(val stem: String, val entry: (String) -> String?, val nameOnly: (String) -> Boolean) {
         /* The best cuts of stem[i..], by what came before: whether a root
          * was met, and whether the last piece was a prefix */
         private val memo = HashMap<Triple<Int, Boolean, Boolean>, List<Cut>>()
@@ -212,7 +216,7 @@ object WordAnalyser {
                 return complete.map { Found(it.pieces, stem.length, it.cost) }
             /* Nothing complete: the longest beginning that can be cut */
             for (end in stem.length - 1 downTo 2) {
-                val part = Segmenter(stem.substring(0, end), entry).from(0, rootSeen = false, afterPrefix = false)
+                val part = Segmenter(stem.substring(0, end), entry, nameOnly).from(0, rootSeen = false, afterPrefix = false)
                 if (part.isNotEmpty())
                     return listOf(Found(part.first().pieces, end, part.first().cost))
             }
@@ -274,7 +278,9 @@ object WordAnalyser {
             val asItIs = if (text in WHOLE_WORDS) entry(text) else null
             /* A suffix is a root too where none came before: estr·ad·o */
             if (text.length >= 2 && (text !in SUFFIXES || !rootSeen))
-                (asItIs ?: WORD_ENDINGS.firstNotNullOfOrNull { entry(text + it) })?.let {
+                (asItIs ?: WORD_ENDINGS.map { text + it }.let { forms ->
+                    forms.firstOrNull { entry(it) != null && !nameOnly(it) } ?: forms.firstNotNullOfOrNull { entry(it) }
+                })?.let {
                     var cost = PIECE_COST
                     if (text.length <= 2 && text !in SHORT_ROOTS && asItIs == null) cost += SHORT_ROOT_COST
                     /* A second root, even after a prefix: a compound; but
@@ -395,6 +401,14 @@ class IndexEntries(
     }
 
     override fun invoke(form: String): String? = result(form)?.let { form }
+
+    /** Whether the index has the form only with a capital, as a name:
+     * "remo" only as Remo */
+    fun isNameOnly(form: String): Boolean {
+        val count = trie.search(form, results)
+        val found = results.take(count).filterNotNull().filter { it.word.lowercase(Locale.ROOT) == form }
+        return found.isNotEmpty() && found.none { it.word == form }
+    }
 
     /** The officiality of the entry written so (0 for the Fundamento),
      * null if it has none or isn't there */

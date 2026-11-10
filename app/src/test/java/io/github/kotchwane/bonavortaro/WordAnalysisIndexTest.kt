@@ -139,4 +139,15 @@ class WordAnalysisIndexTest {
         /* "eta", small, not "eto", the Greek letter */
         assertEquals(listOf("babilema", "ulo", "eta", null), analyse("babilemuleto").first().pieces.map { it.entry })
     }
+
+    @Test
+    fun aRootIsAWordBeforeAName() {
+        assumeTrue("the dictionary isn't built", file.exists())
+        val index = indexEntries(file.inputStream().use { Trie(it) })
+        /* rem·ad·o from remi, not from the name Remo */
+        val pieces = WordAnalyser.analyse("remado", index).first().pieces
+        assertEquals("remi", pieces.first().entry)
+        /* a name still, when the root is nothing else: Parizo */
+        assertEquals("parizo", WordAnalyser.analyse("parizeto", index).first().pieces.first().entry)
+    }
 }
