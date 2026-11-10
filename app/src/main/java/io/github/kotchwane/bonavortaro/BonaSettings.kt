@@ -104,9 +104,10 @@ object BonaSettings {
     }
 
     /** Whether the articles show where the words come from (see [Deveno]):
-     * not unless the user turns it on, as no one checked it. */
+     * by default, discreet as it is, else most readers would miss it
+     * (readers asked, 2026-11-10); "about" says no one checked it. */
     fun getShowOrigins(context: Context): Boolean =
-        prefs(context).getBoolean(PREF_SHOW_ORIGINS, false)
+        prefs(context).getBoolean(PREF_SHOW_ORIGINS, true)
 
     fun setShowOrigins(context: Context, show: Boolean) {
         prefs(context).edit().putBoolean(PREF_SHOW_ORIGINS, show).apply()
