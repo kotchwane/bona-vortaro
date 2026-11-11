@@ -191,16 +191,4 @@ class SearchQueryTest {
         assertEquals("...", withoutEndPunctuation("..."))
         assertEquals("hundo", withoutEndPunctuation("hundo"))
     }
-
-    @Test
-    fun germanIsAlsoSearchedWithItsSharpSAndUmlauts() {
-        assertEquals(listOf("Straße"), DictionarySearch.germanSpellings("Strasse", "de"))
-        assertEquals(listOf("Muller"), DictionarySearch.germanSpellings("Mueller", "de"))
-        /* Both at once: "Gruesse" Grüße */
-        assertEquals(listOf("Grueße", "Grusse", "Gruße"), DictionarySearch.germanSpellings("Gruesse", "de"))
-        /* Not in other languages, nor for a pattern */
-        assertEquals(emptyList<String>(), DictionarySearch.germanSpellings("Strasse", "en"))
-        assertEquals(emptyList<String>(), DictionarySearch.germanSpellings("Stra*e", "de"))
-    }
 }
-

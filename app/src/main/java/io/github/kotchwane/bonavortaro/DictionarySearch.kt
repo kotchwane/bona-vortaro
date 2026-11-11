@@ -211,7 +211,7 @@ object DictionarySearch {
             /* As typed; else with a hyphen for a space, or the other way
              * round, or without either: "petit dejeuner" is
              * "petit-déjeuner", "Porto-Riko" "Portoriko" */
-            for (typed in spellings(filter) + germanSpellings(filter, language)) {
+            for (typed in spellings(filter)) {
                 if (stopped())
                     return SearchOutcome(emptyList(), 0)
                 val outcome = searchAs(context, trie, typed, language, esperanto, whole, stopped)
@@ -232,18 +232,6 @@ object DictionarySearch {
         val proposedInstead: List<Pair<BonaLingvoEntry, SearchResult?>> = emptyList(),
     ) {
         val isEmpty get() = results.isEmpty() && wiktionary.isEmpty() && lemmas.isEmpty() && bonaLingvo.isEmpty() && proposedInstead.isEmpty()
-    }
-
-    /** In German, as typed without ß or umlauts, when nothing is found
-     * so: "Strasse" Straße, "Mueller" Müller (the accents are ignored, so
-     * "u" finds "ü") */
-    internal fun germanSpellings(filter: String, language: String): List<String> {
-        if (language != "de" || isPattern(filter))
-            return emptyList()
-        val sharp = filter.replace("ss", "ß")
-        val umlauts = { word: String -> word.replace("ue", "u").replace("ae", "a").replace("oe", "o")
-            .replace("Ue", "U").replace("Ae", "A").replace("Oe", "O") }
-        return listOf(sharp, umlauts(filter), umlauts(sharp)).filter { it != filter }.distinct()
     }
 
     private fun spellings(filter: String): List<String> =

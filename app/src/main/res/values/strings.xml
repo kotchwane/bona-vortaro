@@ -198,6 +198,8 @@
   <string name="contribute_viki">La vortoj kaj tradukoj kun punktita substreko, kelkaj difinoj kaj la devenoj markitaj „Vikivortaro“ venas el Vikivortaro, la libera vortaro, kiun ĉiu povas redakti, kun aŭ sen konto. Ĉiu tia vorto ligas al sia paĝo, kie vi povas korekti aŭ kompletigi ĝin; la komunumo de Vikivortaro kontrolas la ŝanĝojn.</string>
   <string name="contribute_viki_link">Kiel redakti la esperantan Vikivortaron</string>
   <string name="contribute_viki_fr_link">Helpo de la franca Vikivortaro</string>
+  <string name="contribute_viki_en_link">Helpo de la angla Vikivortaro</string>
+  <string name="contribute_viki_de_link">Helpo de la germana Vikivortaro</string>
   <string name="contribute_bl_title">Malrekomendataj vortoj</string>
   <string name="contribute_bl">La malrekomendoj kaj la pli simplaj vortoj venas el „Vortoj de la bona lingvo“. En ĝia retejo, ĉiu vorto havas formularon por sendi proponon aŭ korekton al la laborgrupo.</string>
   <string name="contribute_bl_link">labonalingvo.org</string>

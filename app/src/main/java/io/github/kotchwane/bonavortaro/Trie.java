@@ -354,6 +354,41 @@ public class Trie
     return numResults;
   }
 
+  /* The letters typed as two: the ligatures, the German umlauts and ß */
+  private static final java.util.Map<String, String> LETTER_PAIRS = new java.util.HashMap<String, String> ();
+  private static final String UMLAUTS = "\u00fc\u00e4\u00f6";
+  static
+  {
+    LETTER_PAIRS.put ("\u0153", "oe");
+    LETTER_PAIRS.put ("\u00e6", "ae");
+    LETTER_PAIRS.put ("\u00fc", "ue");
+    LETTER_PAIRS.put ("\u00e4", "ae");
+    LETTER_PAIRS.put ("\u00f6", "oe");
+    LETTER_PAIRS.put ("\u00df", "ss");
+  }
+
+  /* A node reached twice, or inside another reached ("mue" reaches "mü"
+   * as "ue", and "müe" as "u" then "e"): its words once, under the
+   * outer one */
+  private void keepOutermost (List<Integer> nodes, List<String> paths)
+  {
+    for (int i = nodes.size () - 1; i >= 0; i--)
+      {
+        int node = nodes.get (i);
+        for (int j = 0; j < nodes.size (); j++)
+          {
+            int outer = nodes.get (j);
+            int end = outer + (extractInt (data, outer) & 0x7fffffff);
+            if (j != i && outer <= node && node < end && (outer != node || j < i))
+              {
+                nodes.remove (i);
+                paths.remove (i);
+                break;
+              }
+          }
+      }
+  }
+
   /* The letter without its accents and in lower case, eg. "e" for "É" and
    * "c" for "ĉ", to compare letters ignoring their accents */
   private static String foldLetter (String letter)
@@ -446,19 +481,23 @@ public class Trie
             path.setLength (oldLength);
           }
         /* "oe" typed also finds "œ", and "ae" "æ": "coeur" finds "cœur";
-         * an "o" at the end of what is typed, already "œ" */
-        else if (plain)
+         * an "o" at the end of what is typed, already "œ". The German
+         * letters too: "ue" finds "ü" ("Mueller" Müller), "ae" "ä", "oe"
+         * "ö", and "ss" "ß" ("Strasse" Straße), with an "s" at the end
+         * already "ß"; an "u" alone finds "ü" above */
+        if (plain)
           {
             String ligature = childLetter.toLowerCase (Locale.ROOT);
-            String pair = ligature.equals ("\u0153") ? "oe" : ligature.equals ("\u00e6") ? "ae" : null;
+            String pair = LETTER_PAIRS.get (ligature);
             if (pair != null && letter.equals (pair.substring (0, 1)))
               {
+                boolean umlaut = UMLAUTS.indexOf (ligature) >= 0;
                 int pairEnd = letterEnd;
                 if (letterEnd < prefix.length ()
                     && prefix.substring (letterEnd, prefix.offsetByCodePoints (letterEnd, 1))
-                         .toLowerCase (Locale.ROOT).equals ("e"))
+                         .toLowerCase (Locale.ROOT).equals (pair.substring (1)))
                   pairEnd = prefix.offsetByCodePoints (letterEnd, 1);
-                else if (letterEnd < prefix.length ())
+                else if (letterEnd < prefix.length () || umlaut)
                   continue;
 
                 int oldLength = path.length ();
@@ -487,6 +526,7 @@ public class Trie
     List<String> paths = new ArrayList<String> ();
 
     findIgnoringAccents (0, prefix, 0, new StringBuilder (), nodes, paths);
+    keepOutermost (nodes, paths);
 
     /* The nodes reached, in groups that are the same in the order, eg.
      * "élève" and "eleve" */

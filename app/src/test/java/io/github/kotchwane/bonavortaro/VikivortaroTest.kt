@@ -384,4 +384,13 @@ class VikivortaroTest {
         ), VikiLanguage.GERMAN)
         assertEquals(listOf("Gehirn" to "cerbo", "Hirn" to "cerbo", "stehlen" to "ŝteli"), pairs)
     }
+
+    @Test
+    fun aGermanWordIsAlsoKeyedWithoutUmlautsNorSharpS() {
+        assertEquals("mueller", Vikivortaro.spelledOut("Müller"))
+        assertEquals("strasse", Vikivortaro.spelledOut("Straße"))
+        assertEquals("weissrussland", Vikivortaro.spelledOut("Weißrussland"))
+        assertEquals("bauer", Vikivortaro.spelledOut("Bauer"))
+    }
 }
+

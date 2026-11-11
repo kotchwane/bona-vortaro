@@ -19,6 +19,7 @@ Armada	armado
 Aufforstung	arbara flegado
 Austrofaschismus	austrofaŝismo
 Autosom	aŭtosemo
+Azoren	Acoroj pl.
 Backslash	deklivo
 Ballermann	kaoso
 Ballermann	ĥaoso
@@ -38,12 +39,15 @@ Bobby	Bobio
 Bonität	boneco
 Bord	bordo
 Bozen	Bolzano-Bozen
+Braunelle	Brunelo
+Braunelle	Pronelo
 Bromberg	Bydgoszcz
 Buchmacher	bukmekro
 Butan	Butano
 C-Dur	Do-maĵora Ut-maĵora
 Champagne	ĉampanjo
 Chatte	ĥato
+Chianti	Kianto
 Chiffrat	ĉifrado
 Colorado	Koloradio
 Community	homaro
@@ -51,7 +55,10 @@ Cyrenaika	Cyrenaica
 Defektivität	difektado
 Demetrius	Zmitro
 Derby	grava ludo inter urbaj rivaloj
+Deutsch	Germana
+Deutsche	Germano
 Dextrose	glukozo glikozo
+Dicker	ulo
 Dienstweg	nurdungitara vojo
 Diffamierung	misfamo
 Dimmer	dimo
@@ -69,6 +76,7 @@ Endeffekt	efektive
 Endeffekt	esence
 Endeffekt	fine
 Endeffekt	finfine
+Ersparnis	ŝparmonujo
 Exklamation	eksklamatio
 Fanmeile	stratekranega sport-forvidejo
 Fanmeile	zelotejo
@@ -84,6 +92,7 @@ Freiwild	trafaĵo
 Füllsel	farĉajo
 Fünen	Fyn
 GI	usona et-ranga soldato
+GOTO-Befehl GOTO-Anweisung	salto
 Galanterie	galanterio
 Galgenfrist	portempa repuŝo
 Gdingen	Gdynia
@@ -95,12 +104,14 @@ Gischt	gisto
 Glatteis	glatiga glacio
 Glatteis	glatiso
 Grenadine	granato
+Grundwortschatz	vortaro
 Grönländer	groenlandano
 Gründerzeit	Periodo de spekulanto-kompanioj
 Grüne	en la kamparo
 Grüne	en la kamparon
 H-Dur	H-maĵora B-maĵora
 Haftung	responseco
+Hals	colo
 Heimwerker	metiisto
 Heimwerkerin	metiistino
 Hektik	hektiko
@@ -130,14 +141,17 @@ Karree	karoo
 Kartoffeldruck	terpompresi
 Kattegat	kategato
 Kattowitz	Katowice
+Kirche	Diservo
 Kiste	lito
 Klitikon	kunantaŭera fandiĝilo
 Knuddelbär	pluŝurset
+Kolonne	rubando
 Konfidenz	konfidenco
 Kornisch	Kornvala lingvo
 Korolle	karolo
 Kot	koto
 Kriegerverein	prabatalantara ligo
+Lan	ulo
 Landratte	ŝipanaĉo
 Lanzierer	lancisto
 Lee	leo
@@ -145,7 +159,9 @@ Leine	foriri
 Leine	forŝteliĝi
 Lexikograf	leksikographo
 Lochien	loĥio
+Magnetschwebebahn	maglev
 Mannsbild	bildigita viro
+Marschsäule	rubando
 Metaphysiker	metafisikisko
 Metaphysikerin	metafisikiskino
 Minderwertigkeitskomplex	komplekso de Malplivaloreco
@@ -175,8 +191,10 @@ Privatier	privatulo
 Psychose	ligoperdo pri realeco
 Psychose	realo-liga perdo
 Racker	friponeto eta petolulo
+Rechenschaft	postuli klarigon de iu
 Sachbearbeiterin	repondeculino
 Schlaftablette	enuulo
+Schlange	rubando
 Schnecke	knabino
 Serviererin	servistino
 Solidus	solido
@@ -188,6 +206,7 @@ Speerfisch	ksifio
 Splitt	splito
 Stakkato	stakkato
 Stettin	Szczecin
+Straßburg	Aiud
 Streusel	panero
 Synesis	sinetio
 Taxon	vivul-ordigo
@@ -199,13 +218,19 @@ Treck	promenego
 Trompe	trumpo
 Trottel	fi-erarulo
 Tschenstochau	Częstochowa
+Typ Dingsbums	ulo
 Umgang	koridoro
 Unbehagen	mabonfartumo
 Unbehagen	malfacilaĵo
+Unfug	fari petolaĵojn fari friponaĵojn
+Untersetzter	ulo
 Vendetta	vendetto
+Verdruss	kaŭzi al iu ĉagrenon
 Versicherungswesen	asekuraĵo
 Visage	malpugo
+Vokabular	vortaro
 Vorfuß	antajo
+Vorgabe	ĝiseksploda plej mallonga spaco
 Vorladung	ricevi citaĵon
 Waffenschmied	armo-vendisto
 Walachei	transe de la pleja foro
@@ -215,6 +240,8 @@ Wasserfarbe	akvopentraĵo
 Weltgesundheitsorganisation	Verdenssundhedsorganisationen
 Weltrang	mondumo
 Wollknäuel	lanaro
+Wortgut	vortaro
+Wortschatz	vortaro
 Wyk	Viko
 Würdigung	plivaloro
 Zeitschaltuhr	prokrastilo
@@ -225,6 +252,7 @@ Zugspitze	trenkapo
 Zusage	aga promeso
 Zustandspassiv	ŝtat-pasivo
 Zweifelsfall	dubo-okaze
+Zwieback	biskvit
 abbleiben	esti
 abfeiern	malkromlaborigi
 abfeiern	senlaborigi
@@ -256,6 +284,7 @@ australisch	aŭstrala
 b-Moll	bemolo
 ballern	injekti drogojn
 begehrt	pridemandita
+beibringen	submeti ..n je
 bestellen	transdoni
 bestreben	misii
 betreiben	fari
@@ -263,6 +292,9 @@ blank	blanka
 bockig	kaprovireca
 brodeln	okazonti
 bunkern	enŝipiĝi
+dabei	ke
+dafür	ke
+damit	ke
 danebengehen	rezultigaĉi
 das crazy	bone
 das crazy	nu
@@ -336,6 +368,7 @@ initialisieren	initi
 innewohnen	eri
 insektenfressend	insekto manĝanta
 insolvent	insolventa
+intransitiv	krevi
 jemandem den Wind aus den Segeln nehmen	antaŭiĝi al iu
 jemandem einen Korb geben	refuti
 jemandem jemanden auf den Hals hetzen	transdoni iun al iu
@@ -350,12 +383,15 @@ latschen	senmotive iri
 letzthin	iam
 levitieren	leveti
 liebäugeln	observi
+lila	lilia
 matschen	maĉi
 meinetwegen	bonvolu
+miau	miaw
 mir	min
 missbräuchlich	erare
 mitgeben	prezenti
 mittlerweile	siatempe
+müde	streĉita
 nachgucken	fulmoserĉi
 nachvollziehbar	postplenumebla
 nachvollziehen	postplenumi
@@ -388,15 +424,22 @@ schalten	deloki
 schalten	formovi
 schalten	movi
 scharf	alloga
+schauerliche	abismo
 schleimen	peratenti ies favoron
 schnelllebig	rapidema
+schon wieder	preskaŭ
 schwabbelig	ŝvela
 schweflige Säure	sulfita acido
+sich an etwas machen	ek... -i
 sich aus dem Staub machen	forpeli siajn piedojn
 signieren	signi
 sonstig	posttempa
 sorgen	rezultemi je
 spoilern	abortigi
+stehen	kreski
+stoßen	malkovri
+stützen	apogi sin sur ...n
+transitiv	dediĉi
 ultimativ	finkomunika
 ultramontan	pappapista
 umschwingen	adapti
@@ -430,4 +473,6 @@ zusammenreißen	pliraciiĝi
 zusammenreißen	puŝi sentojn
 zuschanden	nenien
 zuziehen	atingi
+zypriotisch	Cipra
+übereinstimmen	konkordar
 überwuchern	plenkreski

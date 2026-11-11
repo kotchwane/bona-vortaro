@@ -109,7 +109,7 @@ class VikiLanguage(
                 "durch", "oder", "und", "als", "wie", "sich", "nicht"),
             glossDescribing = setOf("abkürzung", "handlung", "vorgang", "zustand", "eigenschaft", "tätigkeit"),
             capitalNouns = true,
-            /* Every pair reviewed, 401 left out (2026-11-10) */
+            /* Every pair reviewed (2026-11-10), 477 left out after test round 10 */
             showsUndescribed = true,
         )
 

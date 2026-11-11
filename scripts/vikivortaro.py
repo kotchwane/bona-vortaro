@@ -144,7 +144,7 @@ def clean_gloss(gloss):
 
 # The German Wiktionary's marks of a sense of the word, "satt₅", "noch₍₅₎",
 # "ansetzen_([10a])", and stray spaces, "Kopf , Birne", "( machen)"
-SENSE_MARK = re.compile(r"_?\(\[[^\]]*\]\)|[₀-₉₍₎]+")
+SENSE_MARK = re.compile(r"_?\(\[[^\]]*\]\)|_\(\w{1,4}\)|[₀-₉₍₎]+")
 
 
 def german_gloss(gloss):
@@ -153,6 +153,7 @@ def german_gloss(gloss):
     gloss = SENSE_MARK.sub("", gloss)
     gloss = re.sub(r"\s+([,;)])", r"\1", gloss)
     gloss = re.sub(r"\(\s+", "(", gloss)
+    gloss = re.sub(r";\s*:\s*", "; ", gloss)
     parts = re.split(r"(\s*[,;]\s*)", gloss)
     kept, seen = [], set()
     for i in range(0, len(parts), 2):
@@ -171,7 +172,8 @@ def usable(gloss):
         return gloss and not SENDS_EN.search(gloss) and not MARKUP.search(gloss)
     if LANGUAGE == "de":
         # Not a heading of the senses after it, "intransitiv:"
-        return gloss and not SENDS_DE.search(gloss) and not MARKUP.search(gloss) and not gloss.rstrip(".").endswith(":")
+        return gloss and not SENDS_DE.search(gloss) and not MARKUP.search(gloss) and not gloss.rstrip(".").endswith(":") \
+            and gloss.rstrip(".") not in ("transitiv", "intransitiv", "reflexiv")
     return gloss and not FORM.match(gloss) and not SENDS.search(gloss) and not MARKUP.search(gloss)
 
 
