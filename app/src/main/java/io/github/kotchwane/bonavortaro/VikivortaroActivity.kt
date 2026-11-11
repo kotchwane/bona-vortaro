@@ -111,15 +111,21 @@ fun VikiResultRow(
     /* Read already, when the row comes back into view: as it was, at once */
     val known = remember(result) { result.revo?.let { SearchPreviews.peek(it) } }
     var severalSenses by remember(result) { mutableStateOf(known?.severalSenses == true) }
-    val definition by produceState(if (result.revo != null) known?.definition else result.definition, result) {
+    /* A word Reta Vortaro has in an example only: which, as its own rows
+     * say, not the definition of the word it is an example of ("Bahnhof →
+     * fervoja stacio": ekzemplo ĉe fervoja, test round 10) */
+    fun secondLine(preview: WordPreview) =
+        if (result.revo?.isExample == true) context.getString(R.string.example_of, preview.title.split(',').first().trim())
+        else preview.definition
+    val definition by produceState(if (result.revo != null) known?.let(::secondLine) else result.definition, result) {
         /* The row may have shown another word just before: its own text
          * at once, whatever follows */
-        value = if (result.revo != null) known?.definition else result.definition
+        value = if (result.revo != null) known?.let(::secondLine) else result.definition
         result.revo?.let { revo -> withContext(Dispatchers.IO) { SearchPreviews.get(context, revo) } }?.let {
             /* Not the first of several senses: Wiktionary doesn't say which
              * one its word is ("cafetière", not kafujo's tree) */
             severalSenses = it.severalSenses
-            value = it.definition
+            value = secondLine(it)
         }
     }
     val small = MaterialTheme.typography.bodyMedium
@@ -194,6 +200,15 @@ fun VikiResultRow(
                 advice?.let { preferredLine(it) } ?: AnnotatedString(if (result.inEsperanto)
                     if (result.definition != null)
                         result.definition
+                    /* Only a translation table gives it: which, for every
+                     * reader, as its page says, its words being all there
+                     * is to it (user, 2026-11-11) */
+                    else if (result.description == null && result.foreignWords.isNotEmpty())
+                        stringResource(
+                            R.string.viki_only_translation,
+                            LanguageList.getDefault(context).getLanguageName(result.language),
+                            result.foreignWords.joinToString(", ") { "„$it“" },
+                        )
                     else if (inLanguage)
                         stringResource(
                             R.string.viki_in_language,
@@ -306,11 +321,20 @@ private fun VikiPage(
     }
     /* What each Wiktionary says of it, in its language: only for those
      * who chose to see the translations in that language, as in the
-     * articles; for the others, the page has nothing in their languages */
+     * articles; for the others, the page has nothing in their languages.
+     * But a word that only translation tables give, nothing describing
+     * it: those words for every reader, with the sense of their tables,
+     * all there is to it, the same for everyone (user, 2026-11-11: a Pole
+     * finds "belto" as a German does from "Belt") */
     val foreign by produceState(emptyList<ForeignWords>(), word, vikiLanguages) {
         value = withContext(Dispatchers.IO) {
-            vikiLanguages.map { ForeignWords(it.code, Vikivortaro.foreignOf(context, it, word), Vikivortaro.description(context, it, word)) }
-                .filter { it.words.isNotEmpty() || it.description != null }
+            fun wordsIn(languages: List<VikiLanguage>) =
+                languages.map { ForeignWords(it.code, Vikivortaro.foreignOf(context, it, word), Vikivortaro.description(context, it, word)) }
+                    .filter { it.words.isNotEmpty() || it.description != null }
+            val all = wordsIn(Vikivortaro.readerOrder(context))
+            if (all.any { it.description != null } || Vikivortaro.definition(context, word) != null)
+                wordsIn(vikiLanguages)
+            else all.map { it.copy(senses = Vikivortaro.senses(context, VikiLanguage.of(it.language)!!, word)) }
         }
     }
     /* Its definition in the Esperanto Wiktionary, for every reader; what
@@ -446,7 +470,7 @@ private fun VikiPage(
                             }
                         }
                     }
-                    for ((code, words, description) in foreign) {
+                    for ((code, words, description, senses) in foreign) {
                         /* Its words, then the description when it says
                          * more than them */
                         Row(Modifier.padding(top = 10.dp)) {
@@ -460,7 +484,24 @@ private fun VikiPage(
                                 modifier = Modifier.widthIn(min = 52.dp).padding(top = 2.dp, end = 12.dp),
                             )
                             Column {
-                                if (words.isNotEmpty())
+                                if (senses.isNotEmpty())
+                                    /* Each word, with the sense its table
+                                     * gives under it */
+                                    for ((index, foreignWord) in words.withIndex()) {
+                                        Text(
+                                            foreignWord,
+                                            style = MaterialTheme.typography.bodyLarge,
+                                            modifier = Modifier.padding(top = if (index > 0) 6.dp else 0.dp),
+                                        )
+                                        senses[foreignWord]?.let {
+                                            Text(
+                                                it,
+                                                style = MaterialTheme.typography.bodyMedium.copy(fontStyle = FontStyle.Italic),
+                                                color = muted,
+                                            )
+                                        }
+                                    }
+                                else if (words.isNotEmpty())
                                     Text(words.joinToString(", "), style = MaterialTheme.typography.bodyLarge)
                                 description?.let {
                                     Text(
@@ -512,6 +553,8 @@ private fun VikiPage(
                 /* "and its description" only when one is shown: not
                  * for "anakondo", whose page has only words */
                 vikiDescription = foreign.any { it.description != null },
+                /* Where a Wiktionary only translates by it, its words' pages */
+                vikiPages = foreign.filter { it.description == null && it.words.isNotEmpty() }.associate { it.language to it.words },
                 vikiEsperanto = definition,
                 bonaLingvo = advice != null,
                 modifier = Modifier.padding(horizontal = 8.dp, vertical = 10.dp),
@@ -678,7 +721,13 @@ private fun AdviceText(
 
 /** What the Wiktionary of [language] says of a word: its words for it, and
  * its description when it says more */
-private data class ForeignWords(val language: String, val words: List<String>, val description: String?)
+private data class ForeignWords(
+    val language: String,
+    val words: List<String>,
+    val description: String?,
+    /** Where nothing describes the word, the sense of each word's table */
+    val senses: Map<String, String> = emptyMap(),
+)
 
 /** A sense of a definition, each word long pressed looked up, as in Reta
  * Vortaro's articles */

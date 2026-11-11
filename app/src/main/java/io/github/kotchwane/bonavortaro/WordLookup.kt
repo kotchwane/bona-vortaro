@@ -27,7 +27,7 @@ import java.util.Locale
  * there: "arbojn" is found as "arbo", "kuris" as "kuri". */
 object WordLookup {
     private const val TAG = "bonaword"
-    private const val MAX_ENTRIES = 4
+    internal const val MAX_ENTRIES = 4
 
     /* The endings of the verbs, and of the participles before their own
      * ending (-anta, -inte…) */
@@ -93,6 +93,19 @@ object WordLookup {
         /* A word of another language: its translations in the order of the
          * search, before keeping the first ones */
         return (if (language == "eo") found else DictionarySearch.inSearchOrder(context, found, language))
+            .take(MAX_ENTRIES)
+    }
+
+    /** A word of another language that Reta Vortaro lacks but its
+     * Wiktionary translates, as the search shows it: "einhergehen → iri",
+     * a translation the articles show among Reta Vortaro's (test round 10).
+     * The word as a whole, case and accents aside. Disk access: not on the
+     * main thread. */
+    fun findInWiktionary(context: Context, word: String, language: String): List<VikiResult> {
+        val viki = VikiLanguage.of(language) ?: return emptyList()
+        val key = Vikivortaro.key(word)
+        return Vikivortaro.search(context, viki, word)
+            .filter { Vikivortaro.key(it.word) == key }
             .take(MAX_ENTRIES)
     }
 

@@ -1,6 +1,7 @@
 # Translations of Wiktionary whose Esperanto word "Vortoj de la bona lingvo" advises against in some senses
 # only, where the translation is of one of them: marked "malrekomendata" in the app. Reviewed one by one on
-# 2026-11-10 (741 pairs: 360 do, less Finnlando and finno, whose advice the group notes as contested).
+# 2026-11-10 (741 pairs: 360 do, less Finnlando and finno, whose advice the group notes as contested); German on
+# 2026-11-11 (69 pairs: 49 do).
 # Read by scripts/vikivortaro.py. Columns: language, the word, the Esperanto word, why.
 en	Angle	englo	Germanic tribe member
 en	Basque	vasko	always advised; ethnic Basque
@@ -357,3 +358,52 @@ fr	élaguer	stuci	pruning plants
 fr	éparchie	eparkio	orthodox eparchy
 fr	éparchie	eparĥio	orthodox eparchy
 fr	évacuer	evakui	always advised; evacuation covered
+de	Abrogation	abrogacio	law sense
+de	Country	kantrio	music genre
+de	Ektoplasma	ektoplasmo	cell biology sense
+de	Elfmeter	penalo	football
+de	Gynäkeion	gineceo	botany or women's quarters
+de	Haartrockner	feno	hair dryer
+de	Hypozentrum	hipocentro	earthquake
+de	Indulgenz	indulgenco	religious term
+de	Kaschmir	kaŝmiro	the wool
+de	Klan	klano	clan
+de	Konfirmation	konfirmacio	Christian rite
+de	Limette	limeto	the fruit
+de	Liquid	likvido	phonetics
+de	Meniskus	menisko	lens or knee
+de	Monismus	monismo	philosophy
+de	Ovulum	ovolo	biology
+de	Patella	patelo	kneecap
+de	Poularde	pulardo	the fowl
+de	Propädeutik	propedeŭtiko	introductory teaching
+de	Relativum	rilativo	grammar
+de	Remis	remiso	sport
+de	Scirocco	siroko	the wind
+de	Tequila	tekilo	the drink
+de	Yen	jeno	the currency
+de	agrarisch	agrara	agrarian
+de	avancieren	avanci	rise in rank
+de	beziehungsweise	respektive	or/and
+de	bäumen	baŭmi	of a horse
+de	dermaßen	tiom	so much
+de	dir	ci	familiar you as an ordinary pronoun
+de	hämat-	hemat-	medical prefix
+de	hämo-	hemo-	medical prefix
+de	inhibieren	inhibi	inhibit
+de	kardinal	kardinala	cardinal (main)
+de	kardio-	kardio-	medical prefix
+de	kicken	kiki	kick a ball
+de	neo-	neo-	prefix in science
+de	neuro-	neŭro-	medical prefix
+de	ortho-	orto-	prefix in science
+de	phyto-	fito-	prefix in science
+de	poly-	poli-	prefix in science
+de	potenziell	potenciala	possible
+de	promoten	promocii	promote
+de	pyro-	piro-	prefix in science
+de	relaxen	rilaksi	relax
+de	remis	remisa	sport
+de	spermato-	spermato-	prefix in science
+de	verrecken	krevi	to die
+de	zueinanderfinden	konverĝi	come together

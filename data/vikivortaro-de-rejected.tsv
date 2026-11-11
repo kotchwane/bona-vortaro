@@ -1,0 +1,1133 @@
+# German → Esperanto pairs of the German Wiktionary that Bona vortaro leaves out: not translations
+# (wrong meaning, false friend, a description or fragment taken for a word, a misspelt or non-Esperanto word,
+# a misleading word class). Never for being offensive.
+# Reviewed 2026-11-10: every pair that Reta Vortaro lacks (8,357), by six reviewers; the doubtful ones read again.
+# Then the words on a root Reta Vortaro lacks (454): errors ("*": the word left out), needless roots where Reta
+# Vortaro translates the German word, duplicates of unconfirmed Bona lingvo lines.
+# Read by scripts/vikivortaro.py. Columns: the German word, the Esperanto word, why.
+abbleiben	esti	esti too loose for abbleiben
+Abdeckplane	litkovrilo	tarpaulin vs bedspread
+Abessinien	Abesenio	Abesenio: unusual spelling, PIV has Abisenio
+abfeiern	malkromlaborigi	malkromlaborigi odd coinage
+abfeiern	senlaborigi	senlaborigi = make jobless, not take time off
+Abflug	migrado	Abflug is departure by air, not migration
+abgedreht	ekterrealeca	misspelt (eksterrealeca)
+Abkühlung	refreŝigaĵo	Abkühlung is cooling; refreŝigaĵo is a refreshment/drink
+abs.	for	abbreviation abs. does not mean "away"
+Abschleppwagen	trenilstiranto	tow-truck driver, not tow truck
+Abschreibung	deskribo	Abschreibung mainly depreciation; deskribo only the copying sense
+absehen	mautilemi	mautilemi not a word (typo)
+Abstellgleis	helpovojero	vojero unknown word
+abwerben	ĉerpi	ĉerpi = draw (water); poaching sense unclear
+Acetanilid	acetanelido	misspelt: acetanilido
+Adelheid	Adelajdo	Adelajdo is the city Adelaide; German name Adelheid
+Adenom	adeno	adeno is gland/rare; adenoma = adenomo
+adult	adulta	false friend: adulta = adulterous
+akkordieren	agordi	akkordieren = agree/settle; agordi = tune
+alkoholfrei	alkohola	opposite: alkohola = alcoholic
+alkoholhaltig	senalkohava	opposite: senalkohola = alcohol-free
+Allzweckwaffe	universala celilo	celilo is a gun sight, not a weapon
+Andenken	memoro pri	fragment with dangling preposition
+Android	homunkulo	Android is a humanoid robot (androido), not homunculus
+anfahren	ekspluati	ekspluati only via a mining sense, unclear
+anlehnen	esti inspirita en	wrong preposition (inspirita de)
+anlehnen	imiti	imiti = imitate; anlehnen = lean against
+anrichten	trudi	trudi = impose; anrichten = cause/prepare
+anschwemmen	alnaĝi	alnaĝi = swim to; anschwemmen = wash ashore
+Archivale	arkivajo	misspelt: arkivaĵo
+Armada	armado	armado is arming; Armada is a fleet
+auf Zack sein	bonfari	bonfari = do good, not be on the ball
+auffallen	bati	bati = beat; auffallen = be noticeable
+Aufforstung	arbara flegado	afforestation, not forest maintenance
+aufschlitzen	dispremi	dispremi = crush, not slit open
+aufschlitzen	frakasi	frakasi = shatter, not slit open
+aufschlitzen	krevigi	krevigi = burst, not slit open
+auftragen	diŝajnigi	diŝajnigi not a word
+australisch	aŭstrala	aŭstrala = southern; Australian = aŭstralia
+Austrofaschismus	austrofaŝismo	misspelt: aŭstrofaŝismo
+Autosom	aŭtosemo	misspelt: aŭtosomo
+b-Moll	bemolo	bemolo = flat sign, not B-flat minor
+Backslash	deklivo	deklivo is a slope; unsure it names the backslash sign
+Ballermann	kaoso	Ballermann (party resort/gun) is not chaos
+Ballermann	ĥaoso	Ballermann (party resort/gun) is not chaos
+ballern	injekti drogojn	injecting drugs sense of ballern unclear
+begehrt	pridemandita	pridemandita = questioned, not in demand
+Beiordnung	aljuĝo	aljuĝo is award/adjudication; Beiordnung is appointment/coordination
+Belang	gravi por	verb phrase for a noun
+Belorezk	Beloreck	not an Esperanto form (ck spelling, no -o)
+Bembel	koro	Bembel is a cider jug/dangling trinket, not heart
+Bembel	medalo	only an example of a dangling trinket, not a translation
+Bembel	poŝhorloĝo	only an example of a dangling trinket, not a translation
+bestreben	misii	misii = go on a mission; weak match for bestreben
+Bestseller	mendanto	mendanto is a person who orders
+Betreuung	prizorganto	caregiver (person) for the act of care
+Birdie	sub la normo	description, not a term
+Birkenleder	betulŝelo	Birkenleder is Russia leather, not birch bark
+Biss	sinpelado volonteco	garbage: two words merged
+Bitternis	amaaĵo	misspelt: amaraĵo
+blank	blanka	false friend: blank = shiny/bare, blanka = white
+Bobby	Bobio	Bobby (British policeman) vs a first name
+bockig	kaprovireca	literal "billy-goat-ness", not stubborn
+Bonität	boneco	Bonität is creditworthiness, not goodness
+Bord	bordo	false friend: Bord is shelf/ship's side, bordo is shore
+Bozen	Bolzano-Bozen	Italian-German double name, not an Esperanto form
+brodeln	okazonti	okazonti as verb is non-standard
+Bromberg	Bydgoszcz	Polish spelling, not Esperantised
+Buchmacher	bukmekro	unusual form; bukmekero expected
+bunkern	enŝipiĝi	enŝipiĝi = embark; bunkern = bunker fuel/hoard
+Butan	Butano	German Butan is butane; Butano is Bhutan
+C-Dur	Do-maĵora Ut-maĵora	two terms merged into one entry
+Champagne	ĉampanjo	Champagne is the region (Ĉampanjo); ĉampanjo is the wine
+Chatte	ĥato	German Chatte unclear; ĥato is a Slavic hut
+Chiffrat	ĉifrado	Chiffrat is ciphertext, ĉifrado the process
+Community	homaro	homaro is mankind, not a community
+Cyrenaika	Cyrenaica	Latin form, not Esperanto (Cirenajko)
+danebengehen	rezultigaĉi	rezultigaĉi odd coinage
+das crazy	bone	"das crazy" filler sense; bone a stretch
+das crazy	nu	"das crazy" filler sense; nu only via description
+das crazy	senvorte	senvorte = wordlessly; loose
+davonkommen	elsavi	elsavi transitive (rescue); davonkommen = escape
+davonkommen	savi	savi transitive (save); davonkommen = escape
+Defektivität	difektado	difektado is damaging, not defectiveness
+Demetrius	Zmitro	Zmitro is a Belarusian form, not Esperanto Demetrio
+den Bach runtergehen	fali de la pato en la fajron	different idiom (frying pan into fire)
+den Bach runtergehen	fali de sitelo en barelon	different idiom (from bad to worse)
+den Bach runtergehen	salti el la pato en la fajron	different idiom (frying pan into fire)
+den Bach runtergehen	trafi de Scilo al Ĥaribdo	different idiom (Scylla to Charybdis)
+den Bach runtergehen	trafi el sub pluvo en riveron	different idiom (from bad to worse)
+Derby	grava ludo inter urbaj rivaloj	description, not a term
+derjenige	kiu...	fragment "kiu..."
+Dextrose	glukozo glikozo	two words merged into one entry
+die Wogen glätten	forakrigi aspraĵojn	forakrigi odd coinage
+Dienstweg	nurdungitara vojo	odd coinage, meaning unclear
+Diffamierung	misfamo	misfamo is ill repute; Diffamierung is defamation
+diffizil	dificila	dificila looks like Ido; Esperanto malfacila
+diffus	difusa	misspelt (difuza)
+Dimmer	dimo	dimo unknown; dimilo expected
+distinguiert	distinga	distinga = distinctive, not distinguished
+doxen	tropublikigi	tropublikigi = over-publish; doxing sense unclear
+dran	veri	veri only via "dran sein"; misleading for dran
+drankriegen	enproblemi	enproblemi odd coinage
+draufhaben	boni por	"boni por" odd phrase
+dreifach	trifaja	trifaja not a word (triobla)
+drüben	trans	preposition for an adverb (transe)
+Duktus	dukto	Duktus is handwriting style; dukto is a duct
+Dunking	desupro	'desupro' odd fragment, unclear
+Durchsetzungsvermögen	aserto	aserto is a claim, not assertiveness
+Durchsetzungsvermögen	atingeblo	atingeblo is attainability, not assertiveness
+durchtrieben	virtŝajniga	virtŝajniga = feigning virtue, not sly
+eindecken	malavari	malavari = be generous; loose for eindecken
+einen Zahn zulegen	repidiĝi	misspelt (rapidiĝi)
+Einhalt	haltigi	verb for a noun; only fits 'Einhalt gebieten'
+Einhalt	ĉesigi	verb for a noun; only fits 'Einhalt gebieten'
+einleiten	eki	eki is intransitive (begin); einleiten is transitive (ekigi)
+einleuchten	evidenta	adjective for a verb (fits einleuchtend)
+einleuchten	klara	adjective for a verb (fits einleuchtend)
+einrennen	sin ĵeti	einrennen = break in by running; sin ĵeti too loose
+Einschulung	antaŭtrejnado	Einschulung is school enrolment, not pre-training
+Elektrakomplex	Elektra konflikto	conflict instead of complex
+Encomienda	superindiĝena reĝkomisio	ad-hoc paraphrase rather than a term
+Endeffekt	efektive	only fits the idiom ('im Endeffekt'); adverb for a noun
+Endeffekt	esence	only fits the idiom ('im Endeffekt'); adverb for a noun
+Endeffekt	fine	only fits the idiom ('im Endeffekt'); adverb for a noun
+Endeffekt	finfine	only fits the idiom ('im Endeffekt'); adverb for a noun
+entgegennehmen	alpreni	alpreni = adopt/assume; entgegennehmen = receive
+ergehen	situacii	situacii is an odd coinage, unclear meaning
+erhoffen	fidi	fidi = trust, not hope
+erwärmen	ektaŭgi	ektaŭgi = become suitable, not warm to
+erwärmen	konektiĝi	konektiĝi = get connected, not warm to
+erwärmen	kuniĝi	kuniĝi = come together, not warm to
+etlich	dekkelke	dekkelke = a dozen-odd, loose for etlich
+etwas aufs Spiel setzen	ludi	ludi = play; aufs Spiel setzen = risk
+etwas eine Abfuhr erteilen	sendi ion en ordo tra la pordo	odd unattested phrase for reject
+Exklamation	eksklamatio	unusual form; eksklamacio expected
+expandieren	ekspandri	ekspandri is not an Esperanto word (misspelt)
+expressiv	ekspresa	false friend: ekspresa = express (fast); expressiv = esprimplena
+Fanmeile	stratekranega sport-forvidejo	ad-hoc descriptive coinage
+Fanmeile	zelotejo	zeloto is a zealot, not a fan
+Faustregel	eta regulo	eta regulo is 'small rule', not rule of thumb
+Feinschmecker	amanto de fajnaj ..oj	garbage with placeholder '..oj'
+Feinschmecker	fakulo	fakulo is expert, not gourmet
+feststecken	nemobleviĝi	nemobleviĝi is not an Esperanto word
+Flakgeschütz	kontraŭaviadila pafaĵo	pafaĵo is the shell, not the gun
+Franziska	francisko	Franziska is a woman's name or axe; francisko unclear
+Französische Revolution	Francaj revolucioj	plural 'French revolutions', not the French Revolution
+freilich	sed	sed = but; freilich = admittedly, of course
+Freiwild	malprotektaĵo	odd coinage for 'fair game'
+Freiwild	trafaĵo	trafaĵo is a hit, not fair game
+frönen	devontiĝi	devontiĝi = commit oneself; frönen = indulge in
+fuchsteufelswild	vulpdiable sovaĝa	word-for-word calque, not Esperanto usage
+fundieren	fondi	fundi unclear (bottom?), not found/base
+Füllsel	farĉajo	misspelt: farĉaĵo
+Fünen	Fyn	Danish form, not Esperantised
+Galanterie	galanterio	Galanterie is gallantry; galanterio is fancy goods
+Galgenfrist	portempa repuŝo	repuŝo is a repulse, not a reprieve
+Gdingen	Gdynia	Polish form, not Esperantised
+Gebrauchsanweisung	uzuzinstrukcioj	misspelt: uzinstrukcioj
+gegebenenfalls	se apliki	ungrammatical (se apliki)
+gegensteuern	malaktivigi	malaktivigi = deactivate, not counteract
+gegensteuern	malpliigi	malpliigi = reduce, loose for gegensteuern
+Geheimratsecke	senharema angulo	odd coinage
+Gezeter	tiom da bruo	fragment 'so much noise'
+GI	usona et-ranga soldato	description, not a term
+Gicht	faŭko	only furnace-throat sense of Gicht; main sense gout
+Gischt	gisto	false friend: Gischt is spray/spume, gisto is yeast
+Glatteis	glatiga glacio	glatiga 'smoothing'; likely misspelt glitiga
+Glatteis	glatiso	unknown Esperanto word glatiso
+grasen	gresi	gresi is not an Esperanto word (graze = paŝtiĝi)
+Grenadine	granato	Grenadine is the syrup (or fabric), granato the fruit
+Gründerzeit	Periodo de spekulanto-kompanioj	description, not a term
+Grüne	en la kamparo	adverbial idiom fragment for noun (im Grünen)
+Grüne	en la kamparon	adverbial idiom fragment for noun (ins Grüne)
+H-Dur	H-maĵora B-maĵora	garbage: two keys merged
+Haftung	responseco	misspelt (respondeco)
+hallöchen	saluton ĉiuj	saluton ĉiuj = hi everyone; hallöchen = hi there
+Heimwerker	metiisto	Heimwerker is a DIY amateur; metiisto a professional craftsman
+Heimwerkerin	metiistino	Heimwerkerin is a DIY amateur; metiistino a professional
+Hektik	hektiko	Esperanto hektik- is medical (hectic fever), not hustle
+herumsitzen	side ĉirkaŭi	side ĉirkaŭi = surround sitting, not sit idle
+herumsitzen	sidi ĉirkaŭ	sidi ĉirkaŭ = sit around an object, literal calque
+herumzappeln	maltrankvili	maltrankvili = worry; herumzappeln = fidget
+hervorstechen	alii	alii is not a usable word for stand out
+Heuchlerei	hiprokritado	misspelt (hipokritado)
+hinaus	por jaroj	fragment (auf Jahre hinaus = for years)
+hineindenken	pensi interne	pensi interne = think internally, not put oneself in
+hinkriegen	kleri	kleri = enlightened, not manage
+hinterwäldlerisch	ansera	ansera = goose-like, loose for backwoods
+Hippe	hipo	unclear what hipo means; Hippe is a billhook/scythe
+Hochbahn	L-fervojo	L-fervojo is a calque of Chicago 'L', not a general term
+hochfliegen	ambicia	adjective ambitious fits hochfliegend, not the verb fly up
+hold	glata	glata = smooth, not gracious/favourable
+holprig	subita	subita = sudden, not bumpy
+Hänger	nescio pri okazontaĵo	description 'not knowing about a future event', no sense of Hänger
+Ichthyophage	iĥtiofagio	Ichthyophage is the fish-eater, iĥtiofagio the practice
+idiomatisch	idioma	idioma = of a language (idiomo); idiomatic = idiotisma
+im Begriff sein	emi	emi = tend to; im Begriff sein = be about to
+Impertinenz	impertinenteko	misspelt (impertinenteco)
+in die Brüche gehen	ne plui	fragment (ne plui)
+in Fahrt	bonhumore havanta inklinon	garbled phrase
+in Fahrt	en bonvola humoro	in Fahrt = in full swing/angry, not good-humoured
+Inbegriff	esencopreno	esencopreno 'taking of essence' is not an established word for Inbegriff
+Inbegriff	generaligo	generaligo 'generalisation' does not match Inbegriff
+Inch	Colo	should be lowercase colo
+Infektiosität	infektado	infektado is 'infecting', not 'infectiousness'
+Influenz	influenco	false friend: German Influenz is electrostatic induction, influenco is flu
+influenzieren	influki	influki is not an Esperanto word
+initialisieren	initi	initi not a standard word (inicializi)
+innewohnen	eri	eri is not a meaningful word for inhere
+insektenfressend	insekto manĝanta	insekto manĝanta = an insect eating; should be insektomanĝanta
+Insuffizienz	insufiĉieco	malformed hybrid (nesufiĉeco)
+Irrstern	kometo	Irrstern is archaic for planet, not comet
+Jakobskreuzkraut	jacob-senecio	non-Esperanto spelling jacob- (jakob-)
+Jakobskreuzkraut	jacob-trudherbo	non-Esperanto spelling jacob- (jakob-)
+jemandem den Wind aus den Segeln nehmen	antaŭiĝi al iu	antaŭiĝi al iu unclear
+jemandem einen Korb geben	refuti	refuti = refute an argument, not turn down
+jemandem jemanden auf den Hals hetzen	transdoni iun al iu	transdoni = hand over, not set someone on
+Junior	junular-rangulo	junular-rangulo is an obscure coinage
+Junior	posedanta filo	'owning son'; odd paraphrase of Junior(chef)
+Jussiv	volitive	English word, not Esperanto
+Jüdin	Judino	should be lowercase judino
+Kaisergranat	langosta norvego	malformed (langusta? word order); not a name for Norway lobster
+Kanarische Inseln	Kanaria Insuloj	grammar error (Kanariaj Insuloj)
+Kapotte	kapoto	Kapotte is a bonnet hat; kapoto is a car bonnet/cloak
+Karree	karoo	Karree mainly a square/block; diamonds suit is Karo
+Kartoffeldruck	terpompresi	verb infinitive for a noun
+kasuistisch	kazua	kazua not attested, unclear meaning
+Kattegat	kategato	proper name should be capitalised (Kategato)
+Kattowitz	Katowice	Polish name; Esperanto form is Katovico
+klarkommen	sufiĉi pri io	sufiĉi pri io unclear/ungrammatical
+klarmachen	kvitigi	kvitigi = settle accounts, loose for klarmachen
+Klitikon	kunantaŭera fandiĝilo	garbled coinage, not a word for clitic
+Knuddelbär	pluŝurset	misspelt, missing -o (pluŝurso/pluŝurseto)
+Konfidenz	konfidenco	konfidenco is a confided secret, not confidence/trust
+Kornisch	Kornvala lingvo	should be lowercase kornvala lingvo
+Korolle	karolo	Korolle is corolla (korolo); karolo is a whole note
+Kot	koto	Kot is mainly faeces; mud only archaic
+Kriegerverein	prabatalantara ligo	pra- 'primeval' is wrong prefix for veterans (eks-)
+körnerfressend	grajno manĝanta	grajno manĝanta = a grain eating; should be grajnomanĝanta
+laminar	lamenara	lamenara unattested form (laminara?)
+Landratte	ŝipanaĉo	ŝipanaĉo 'bad crew member', not a landlubber
+langer Rede kurzer Sinn	longa rakonto mallonga	garbled calque, not an Esperanto saying
+Lanzierer	lancisto	lancisto is a lancer; Lanzierer is someone who launches
+latschen	senmotive iri	senmotive iri = go without motive, not shuffle
+Lee	leo	unclear Esperanto leo for leeward side
+Leine	foriri	verb 'leave' for noun Leine (idiom Leine ziehen)
+Leine	forŝteliĝi	verb 'sneak away' for noun Leine (idiom Leine ziehen)
+letzthin	iam	iam = sometime/once, not recently
+levitieren	leveti	leveti = lift slightly, not levitate
+Lexikograf	leksikographo	misspelt (leksikografo)
+liebäugeln	observi	observi = observe, loose for ogle/toy with
+Mannsbild	bildigita viro	literal calque 'depicted man'; Mannsbild is just 'man'
+matschen	maĉi	false friend: matschen = squish, maĉi = chew
+meinetwegen	bonvolu	bonvolu = please; meinetwegen = fine by me
+Metaphysiker	metafisikisko	misspelt (metafizikisto)
+Metaphysikerin	metafisikiskino	misspelt (metafizikistino)
+Minderwertigkeitskomplex	komplekso de Malplivaloreco	stray capital in Malplivaloreco
+mir	min	min = mich (accusative); mir = al mi
+missbräuchlich	erare	erare = mistakenly; missbräuchlich = abusive
+Missernte	malbona ricolto	misspelt (malbona rikolto)
+mitgeben	prezenti	prezenti = present/perform, not give along
+Mittelwort	mezvorto	mezvorto is a literal calque, not used for participle
+mittlerweile	siatempe	siatempe = back then, not meanwhile
+Morphinist	morphinisto	misspelt (morfinisto)
+Mucks	unu vorto	'one word', fragment of idiom keinen Mucks sagen
+Möchtegern-	estema	adjective estema 'inclined to be' for a prefix
+nachgucken	fulmoserĉi	fulmoserĉi odd coinage
+Nachschlag	fina solvo pri reciprokaj devoj	description, not a word
+Nachschlag	trilfina dutona melodiornamo	description, not a word
+nachvollziehbar	postplenumebla	calque: postplenumebla = performable later, not understandable
+nachvollziehen	postplenumi	calque: postplenumi = carry out later, not comprehend
+Nachweis	provo	provo is 'attempt'; proof is pruvo
+Naivling	naivisto	naivisto is a naive-art painter; naive person is naivulo
+nebenher	senceremonie	senceremonie = unceremoniously, loose for incidentally
+Niedersorbisch	la malsuprasoraba	fragment: article + adjective
+No-Go	antaŭenneo	garbage coinage 'forward-no'
+Nordeuropa	Nordeŭropa	adjective, not the region (Nordeŭropo)
+Nyos-See	Nyos	bare unassimilated name without 'lago'
+ohnehin	ĉiam	ohnehin=anyway; ĉiam=always
+ohnehin	ĉiel	ĉiel=in every way, not 'anyway' (ĉiukaze)
+opt-	opt-	opt- is not an Esperanto prefix
+organisiert	organiza	organisiert=organizita; organiza=organisational
+panisch	terura	panisch=panic-stricken; terura=terrible, loose
+Panniculitis	paniklito	paniklito suggests panicle (paniklo); expected panikulito
+Para	mono	Para is a coin unit, not money in general
+Parther	parto	Parther is a Parthian, parto is a part
+pauschalisieren	paŭŝaligi	Germanism root paŭŝ- unknown in Esperanto
+Peinlichkeit	malfacilaĵo	malfacilaĵo is a difficulty, not embarrassment
+persuasiv	persvara	non-existent form (persvada)
+plattdeutsch	platdiĉa	diĉ- not an Esperanto root (platgermana)
+Pool	aro da samposedaĵaj investoj	descriptive paraphrase rather than a term
+Posen	Poznań	Polish form, not Esperanto (Poznano)
+Privatier	privatulo	privatulo is a private individual, not a person of independent means
+promoten	akceli	akceli=accelerate, not promote
+provenzalisch	provenza	misspelt; Esperanto is provenca (Provenco)
+Psychose	ligoperdo pri realeco	garbled descriptive coinage
+Psychose	realo-liga perdo	garbled descriptive coinage
+Racker	friponeto eta petolulo	two translations merged into one string
+ran	ĝis	ĝis=until/up to; ran=closer, hither
+rattern	pumpumi	pumpumi is an ad-hoc onomatopoeic verb
+raus	ekstere	raus is directional (eksteren), ekstere=outside
+rausschmeißen	piedbati	piedbati=to kick, only loosely 'kick out'
+reinpfeifen	elsuĉi	elsuĉi=suck out; reinpfeifen=gobble/consume
+reinstecken	klopodi atingi	klopodi atingi=try to reach; loose
+relegieren	rilegi	rilegi not attested (relegacii?)
+renommieren	renomi	false friend: renommieren=boast; renomi=rename
+respektiert	respekta	respektiert=respected (respektata); respekta=respectful
+runtergehen	desupri	desupri is not an attested verb
+Sachbearbeiterin	repondeculino	misspelt (respondeculino)
+schalten	deloki	deloki=displace; loose for schalten
+schalten	formovi	formovi=move away; loose for schalten
+schalten	movi	movi=move; schalten=switch/shift, loose
+Schlaftablette	enuulo	enuulo is a bored person, not a bore
+schleimen	peratenti ies favoron	peratenti is an odd coinage
+schnelllebig	rapidema	rapidema=hasty; schnelllebig=fast-paced/short-lived
+schwabbelig	ŝvela	ŝvela=swollen, not flabby
+schweflige Säure	sulfita acido	sulfurous acid is usually sulfurosa acido
+Serviererin	servistino	servistino is a maid; waitress is kelnerino
+sich aus dem Staub machen	forpeli siajn piedojn	odd literal phrase
+signieren	signi	signi=mark/signify; signieren=sign (subskribi)
+Solidus	solido	Solidus is a coin or slash; solido is a solid body
+Solvenz	solvento	solvency would be solventeco; solvento reads as a solvent
+Sonnenstrahlung	sunradiad	truncated, missing -o (sunradiado)
+sonstig	posttempa	sonstig=other/otherwise; posttempa=later
+sorgen	rezultemi je	rezultemi je is an odd coinage
+Spacko	malfruiĝinto	malfruiĝinto reads as latecomer, not idiot
+Spanisch	hispana malfermo	only the chess-opening sense; misleads for the language name
+Speerfisch	ksifio	ksifio is swordfish; Speerfisch is spearfish/marlin
+Splitt	splito	Splitt is gravel chippings; splito is a splinter
+spoilern	abortigi	abortigi=cause abortion; spoilern=reveal the plot
+Stakkato	stakkato	spelling stakkato; expected stakato
+Stettin	Szczecin	Polish form, not Esperanto (Ŝĉeĉino)
+Streusel	panero	panero is a breadcrumb, Streusel a crumble topping
+Synesis	sinetio	sinetio looks unrelated to synesis (expected sinezo)
+Taxon	vivul-ordigo	describes classification of living beings, not a taxon
+Teddybär	pluŝurset	truncated, missing -o (pluŝurseto)
+Teleobjektiv	teleobjectivo	misspelt (teleobjektivo)
+Theogonie	teogenio	misspelt (teogonio)
+Treck	promenego	promenego is a long walk; Treck is a convoy/trek
+Trompe	trumpo	trumpo unknown in Esperanto; meaning unclear
+Trottel	fi-erarulo	fi-erarulo means a blunderer, not an idiot
+Tschenstochau	Częstochowa	Polish form, not Esperanto (Ĉenstoĥovo)
+ultimativ	finkomunika	finkomunika is an odd coinage
+ultramontan	pappapista	misspelt (papista)
+umschwingen	adapti	adapti=adapt; loose for umschwingen
+umschwingen	aranĝi	aranĝi=arrange; umschwingen=swing round/change
+umspringen	aĉe pritrakti traktaĉi	two variants run together (aĉe pritrakti / traktaĉi)
+umtreiben	ĉifonumi	ĉifonumi is an odd coinage
+unbedankt	maldankema	unbedankt=unthanked; maldankema=ungrateful
+Unbehagen	mabonfartumo	misspelt (malbonfartumo)
+Unbehagen	malfacilaĵo	malfacilaĵo is a difficulty, not unease
+unbeirrt	neerarema	neerarema=not prone to error; unbeirrt=unwavering
+unpaarig	napara	misspelt (nepara)
+unüberbrückbar	malakordigebla	should be neakordigebla; mal- reverses meaning
+usw.	ktp. kaj tiel plu	abbreviation and full form run together
+Vendetta	vendetto	spelling vendetto; expected vendeto
+verheizen	krevigi	krevigi=burst; verheizen=burn up/sacrifice
+verkorksen	erari	erari=err; verkorksen=botch
+verlauten	laŭtigi	laŭtigi=make louder; verlauten=be announced
+Versicherungswesen	asekuraĵo	asekuraĵo is an insured item/policy, not the insurance sector
+verwenden	interesiĝi pri iu	sich verwenden für=intercede; interesiĝi=be interested
+Visage	malpugo	malpugo is an unclear jocular coinage
+vorbeilassen	fordormi	fordormi=sleep away; vorbeilassen=let pass
+vorfahren	aldomi	aldomi is an odd coinage
+Vorfuß	antajo	antajo is not a known Esperanto word
+Vorladung	ricevi citaĵon	verb phrase 'receive a quotation', not a summons
+voten	voĉi	voĉi=to voice; voten=vote (voĉdoni)
+Waffenschmied	armo-vendisto	arms dealer, not an armourer
+Walachei	transe de la pleja foro	"pleja" is non-standard Esperanto
+Wallach	valaĥo	valaĥo = Wallachian; gelding sense unattested
+Wallung	eksciti	verb for noun; Wallung = ekscitiĝo/bolado
+Wasserfarbe	akvopentraĵo	Wasserfarbe is paint, akvopentraĵo a painting
+weiterwissen	plukoni	plukoni=continue knowing; weiterwissen=know how to go on
+Weltgesundheitsorganisation	Verdenssundhedsorganisationen	Danish, not Esperanto
+Weltrang	mondumo	mondumo = high society, not world rank
+werken	verki	werken=do handicraft work; verki=write/compose
+wiederfinden	surprize rimarki	wiederfinden=find again; surprize rimarki loose
+wohlwollend	favorkara	favorkara looks like a slip for favorkora
+Wollknäuel	lanaro	lanaro = fleece, not ball of wool
+Wyk	Viko	Viko = Wicca per en.wikt; Wyk unclear
+Würdigung	plivaloro	plivaloro = increase in value, not appreciation
+Zeitschaltuhr	prokrastilo	prokrastilo = delayer, not timer switch
+Zeitschloss	tempoklok	"tempoklok" lacks ending, not a word
+zerfetzen	devori	devori=devour; zerfetzen=tear to pieces
+zerfetzen	vori	vori=devour; zerfetzen=tear to pieces
+zersägen	disigi	disigi=separate; zersägen=saw apart (dissegi)
+Zipp	cipo	cipo not an Esperanto word for zip
+Zippverschluss	lapfermilo	lapfermilo = Velcro, not zip
+zocken	marĉandi	marĉandi=haggle; zocken=gamble/play
+zocken	piedpilki	piedpilki=play football; zocken rarely means that
+Zugspitze	trenkapo	Zugspitze is a mountain; trenkapo meaningless
+Zusage	aga promeso	"aga promeso" odd phrase
+zusammenfinden	aglutiniĝi	aglutiniĝi=agglutinate; loose
+zusammenreißen	pliraciiĝi	pliraciiĝi=become more rational; loose
+zusammenreißen	puŝi sentojn	puŝi sentojn is not a translation (pull oneself together)
+zuschanden	nenien	nenien=to nowhere; zuschanden=ruined
+Zustandspassiv	ŝtat-pasivo	ŝtato = state (country); should be stato
+zuziehen	atingi	atingi=attain; sich zuziehen=contract/incur
+Zweifelsfall	dubo-okaze	adverb for a noun
+überwuchern	plenkreski	plenkreski=grow up/mature; überwuchern=overgrow
+*	resusfaktoro	misspelling of rezusfaktoro (rezuso); not Esperanto as written
+*	silentiga manposo	misspelling of manpozo (pozo); not Esperanto as written
+Elsässer	alsacano	needless new root where Reta Vortaro translates Elsässer (middle ground, 2026-11-10)
+Grönländer	groenlandano	needless new root where Reta Vortaro translates Grönländer (middle ground)
+Obduktion	obdukcio	needless new root where Reta Vortaro translates Obduktion (middle ground)
+Orang-Utan	orangutano	needless new root where Reta Vortaro translates Orang-Utan (middle ground)
+royal	rojala	needless new root where Reta Vortaro translates royal (middle ground)
+Colorado	Koloradio	an unconfirmed Bona lingvo line prefers Kolorado, which Colorado also gives
+Flugsaurier	pterosaŭro	an unconfirmed Bona lingvo line prefers flugsaŭro, which Flugsaurier also gives
+Lochien	loĥio	an unconfirmed Bona lingvo line prefers lokio, which Lochien also gives
+Trachyt	traĥito	an unconfirmed Bona lingvo line prefers trakito, which Trachyt also gives
+insolvent	insolventa	an unconfirmed Bona lingvo line prefers nesolventa, which insolvent also gives
+satt	abunda	only a narrow sense of satt (ample); misleading (pair taken from a cleaned description, 2026-11-11)
+aufnehmen	aldoni	a narrow sense of aufnehmen; misleading (pair taken from a cleaned description, 2026-11-11)
+scharf	alloga	slang sense of scharf; misleading (pair taken from a cleaned description, 2026-11-11)
+Pflaster	ejo	a narrow sense (place); Pflaster is a plaster or pavement (pair taken from a cleaned description, 2026-11-11)
+noch	eĉ	only "noch" + comparative; misleading (pair taken from a cleaned description, 2026-11-11)
+betreiben	fari	too loose (pair taken from a cleaned description, 2026-11-11)
+Schnecke	knabino	slang sense; Schnecke is a snail (pair taken from a cleaned description, 2026-11-11)
+aufnehmen	kolekti	a narrow sense of aufnehmen; misleading (pair taken from a cleaned description, 2026-11-11)
+Umgang	koridoro	architectural sense only; Umgang is mostly dealings (pair taken from a cleaned description, 2026-11-11)
+Kiste	lito	slang sense; Kiste is a box (pair taken from a cleaned description, 2026-11-11)
+Anlage	loko	too loose (pair taken from a cleaned description, 2026-11-11)
+willfahren	okazi	willfahren is to comply, not to happen (pair taken from a cleaned description, 2026-11-11)
+kommen	okazi	a narrow sense of kommen; misleading (pair taken from a cleaned description, 2026-11-11)
+dazwischenkommen	okazi	too loose (pair taken from a cleaned description, 2026-11-11)
+abgehen	okazi	too loose (pair taken from a cleaned description, 2026-11-11)
+ablaufen	okazi	too loose (pair taken from a cleaned description, 2026-11-11)
+ergehen	okazi	too loose (pair taken from a cleaned description, 2026-11-11)
+ankommen	plaĉi	only "ankommen bei"; misleading (pair taken from a cleaned description, 2026-11-11)
+noch	tamen	noch is not tamen (pair taken from a cleaned description, 2026-11-11)
+bestellen	transdoni	only "Grüße bestellen"; misleading (pair taken from a cleaned description, 2026-11-11)
+Alter	ulo	slang sense; Alter is age (pair taken from a cleaned description, 2026-11-11)
+schauerliche	abismo	an adjective from a description ("schauerliche, gefährliche Tiefe") (test round 10)
+Hals	colo	wrong description of colo (inch) on the German Wiktionary (test round 10)
+transitiv	dediĉi	a heading, not a word (test round 10)
+intransitiv	krevi	a heading, not a word (test round 10)
+damit	ke	wrong description of ke (test round 10)
+dafür	ke	wrong description of ke (test round 10)
+dabei	ke	wrong description of ke (test round 10)
+stehen	kreski	wrong description of kreski (test round 10)
+stoßen	malkovri	wrong description of malkovri (test round 10)
+schon wieder	preskaŭ	wrong description of preskaŭ (test round 10)
+Schlange	rubando	wrong sense (a queue) in the description of rubando (test round 10)
+Marschsäule	rubando	wrong sense in the description of rubando (test round 10)
+Kolonne	rubando	wrong sense in the description of rubando (test round 10)
+GOTO-Befehl GOTO-Anweisung	salto	two words run together (test round 10)
+müde	streĉita	wrong description of streĉita (test round 10)
+Typ Dingsbums	ulo	two words run together (test round 10)
+Lan	ulo	fragment (test round 10)
+Untersetzter	ulo	too loose (test round 10)
+Dicker	ulo	too loose (test round 10)
+Grundwortschatz	vortaro	a vocabulary is not a dictionary (vortprovizo) (test round 10)
+Wortgut	vortaro	a vocabulary is not a dictionary (test round 10)
+Wortschatz	vortaro	a vocabulary is not a dictionary (vortprovizo) (test round 10)
+Vokabular	vortaro	a vocabulary is not a dictionary (test round 10)
+Ersparnis	ŝparmonujo	savings, not a money box (test round 10)
+übereinstimmen	konkordar	not Esperanto as written (test round 10)
+Zwieback	biskvit	no ending; not Esperanto as written (test round 10)
+miau	miaw	not Esperanto as written (miaŭ) (test round 10)
+Magnetschwebebahn	maglev	no ending; not Esperanto as written (test round 10)
+Azoren	Acoroj pl.	abbreviation left in (test round 10)
+Unfug	fari petolaĵojn fari friponaĵojn	two phrases run together (test round 10)
+Vorgabe	ĝiseksploda plej mallonga spaco	not a translation (test round 10)
+beibringen	submeti ..n je	placeholder pattern (test round 10)
+stützen	apogi sin sur ...n	placeholder pattern (test round 10)
+sich an etwas machen	ek... -i	placeholder pattern (test round 10)
+lila	lilia	lilia is "of the lily" (test round 10)
+Straßburg	Aiud	another town (Straßburg am Mieresch) (test round 10)
+Rechenschaft	postuli klarigon de iu	a verb phrase for a noun (test round 10)
+Verdruss	kaŭzi al iu ĉagrenon	a verb phrase for a noun (test round 10)
+Deutsch	Germana	wrong capital (test round 10)
+Deutsche	Germano	wrong capital (test round 10)
+zypriotisch	Cipra	wrong capital (test round 10)
+Kirche	Diservo	diservo is a service (Gottesdienst); wrong capital (test round 10)
+Braunelle	Pronelo	wrong capital (test round 10)
+Braunelle	Brunelo	wrong capital (test round 10)
+Chianti	Kianto	duplicate of kianto with a capital (test round 10)
+sein	ŝia	ŝia is "ihr" (her), not the verb (test round 10, Pixel)
+Schlosser	forgisto	a locksmith is not a blacksmith (test round 10, Pixel)
+schusselig	distra	distra is distracting; absent-minded is distrita (test round 10, Pixel)
+mahlen	fari	too loose (test round 10, Pixel)
+aufsuchen	iri	too loose (test round 10, Pixel)
+ablegen	provizi	not a sense of ablegen (test round 10, Pixel)
+Bank	akvuja deponaĵo	a description, not a word (test round 10, Pixel)
+Bank	marfundaj restaĵoj	a description, not a word (test round 10, Pixel)
+Kopf	malpugo	not a translation (test round 10, Pixel)
+Kopf	nadlokapo	only the head of a pin (test round 10, Pixel)
+links	lefta	not Esperanto (maldekstra) (test round 10, Pixel)
+laufen	feste boni	not a translation (test round 10, Pixel)
+# 2026-11-11: words only translation tables give (no definition nor description in any Wiktionary), on a
+# root Reta Vortaro lacks: not understood from their parts, the translation likely not thought through (user).
+*	adelia pingveno	only a translation table, on a new root: nothing says what it means
+*	afrodiziako	only a translation table, on a new root: nothing says what it means
+*	agoro	only a translation table, on a new root: nothing says what it means
+*	aksiala	only a translation table, on a new root: nothing says what it means
+*	aleksitimio	only a translation table, on a new root: nothing says what it means
+*	anakruzo	only a translation table, on a new root: nothing says what it means
+*	androfobio	only a translation table, on a new root: nothing says what it means
+*	antropo-	only a translation table, on a new root: nothing says what it means
+*	anuro	only a translation table, on a new root: nothing says what it means
+*	apendicektomio	only a translation table, on a new root: nothing says what it means
+*	apercepto	only a translation table, on a new root: nothing says what it means
+*	apetenco	only a translation table, on a new root: nothing says what it means
+*	apleto	only a translation table, on a new root: nothing says what it means
+*	argoto	only a translation table, on a new root: nothing says what it means
+*	asimetria	only a translation table, on a new root: nothing says what it means
+*	aspiracio	only a translation table, on a new root: nothing says what it means
+*	astrala	only a translation table, on a new root: nothing says what it means
+*	ataraksio	only a translation table, on a new root: nothing says what it means
+*	atmano	only a translation table, on a new root: nothing says what it means
+*	atraktiveco	only a translation table, on a new root: nothing says what it means
+*	atricio	only a translation table, on a new root: nothing says what it means
+*	avitaminozo	only a translation table, on a new root: nothing says what it means
+*	azoa	only a translation table, on a new root: nothing says what it means
+*	aŭgito	only a translation table, on a new root: nothing says what it means
+*	aŭstereco	only a translation table, on a new root: nothing says what it means
+*	aŭtodromo	only a translation table, on a new root: nothing says what it means
+*	aŭtogamio	only a translation table, on a new root: nothing says what it means
+*	bageto	only a translation table, on a new root: nothing says what it means
+*	baktericida	only a translation table, on a new root: nothing says what it means
+*	balzo	only a translation table, on a new root: nothing says what it means
+*	bavo	only a translation table, on a new root: nothing says what it means
+*	belto	only a translation table, on a new root: nothing says what it means
+*	benzaldehido	only a translation table, on a new root: nothing says what it means
+*	bermo	only a translation table, on a new root: nothing says what it means
+*	biatlono	only a translation table, on a new root: nothing says what it means
+*	bigarado	only a translation table, on a new root: nothing says what it means
+*	bikonkava	only a translation table, on a new root: nothing says what it means
+*	bikonveksa	only a translation table, on a new root: nothing says what it means
+*	blizardo	only a translation table, on a new root: nothing says what it means
+*	bojlero	only a translation table, on a new root: nothing says what it means
+*	boĉio	only a translation table, on a new root: nothing says what it means
+*	boŭli	only a translation table, on a new root: nothing says what it means
+*	bromuso	only a translation table, on a new root: nothing says what it means
+*	brontosaŭro	only a translation table, on a new root: nothing says what it means
+*	brunelo	only a translation table, on a new root: nothing says what it means
+*	bujabeso	only a translation table, on a new root: nothing says what it means
+*	bunta kalidro	only a translation table, on a new root: nothing says what it means
+*	busolo	only a translation table, on a new root: nothing says what it means
+*	cerebra	only a translation table, on a new root: nothing says what it means
+*	codoromo	only a translation table, on a new root: nothing says what it means
+*	degresiva	only a translation table, on a new root: nothing says what it means
+*	demiurgo	only a translation table, on a new root: nothing says what it means
+*	derbio	only a translation table, on a new root: nothing says what it means
+*	derogi	only a translation table, on a new root: nothing says what it means
+*	diadoĥo	only a translation table, on a new root: nothing says what it means
+*	diskrecio	only a translation table, on a new root: nothing says what it means
+*	dobermano	only a translation table, on a new root: nothing says what it means
+*	ekscizo	only a translation table, on a new root: nothing says what it means
+*	ekshibicio	only a translation table, on a new root: nothing says what it means
+*	ektodermo	only a translation table, on a new root: nothing says what it means
+*	ektoplasmo	only a translation table, on a new root: nothing says what it means
+*	ekzogena	only a translation table, on a new root: nothing says what it means
+*	elodeo	only a translation table, on a new root: nothing says what it means
+*	elogo	only a translation table, on a new root: nothing says what it means
+*	emigri	only a translation table, on a new root: nothing says what it means
+*	enologio	only a translation table, on a new root: nothing says what it means
+*	enomanio	only a translation table, on a new root: nothing says what it means
+*	enurezo	only a translation table, on a new root: nothing says what it means
+*	enzimologio	only a translation table, on a new root: nothing says what it means
+*	eola	only a translation table, on a new root: nothing says what it means
+*	epika	only a translation table, on a new root: nothing says what it means
+*	epiko	only a translation table, on a new root: nothing says what it means
+*	estezio	only a translation table, on a new root: nothing says what it means
+*	eŭritmio	only a translation table, on a new root: nothing says what it means
+*	fango	only a translation table, on a new root: nothing says what it means
+*	fertila	only a translation table, on a new root: nothing says what it means
+*	fileo	only a translation table, on a new root: nothing says what it means
+*	finiŝo	only a translation table, on a new root: nothing says what it means
+*	fito-	only a translation table, on a new root: nothing says what it means
+*	flatulenco	only a translation table, on a new root: nothing says what it means
+*	flebito	only a translation table, on a new root: nothing says what it means
+*	flebotomio	only a translation table, on a new root: nothing says what it means
+*	fonemiko	only a translation table, on a new root: nothing says what it means
+*	frigida	only a translation table, on a new root: nothing says what it means
+*	frikando	only a translation table, on a new root: nothing says what it means
+*	funeraloj	only a translation table, on a new root: nothing says what it means
+*	fuzelo	only a translation table, on a new root: nothing says what it means
+*	gago	only a translation table, on a new root: nothing says what it means
+*	glasnosto	only a translation table, on a new root: nothing says what it means
+*	glikolizo	only a translation table, on a new root: nothing says what it means
+*	golĝa aparato	only a translation table, on a new root: nothing says what it means
+*	goniometro	only a translation table, on a new root: nothing says what it means
+*	gradualo	only a translation table, on a new root: nothing says what it means
+*	gravimetrio	only a translation table, on a new root: nothing says what it means
+*	grejhundo	only a translation table, on a new root: nothing says what it means
+*	gumozo	only a translation table, on a new root: nothing says what it means
+*	halmo	only a translation table, on a new root: nothing says what it means
+*	halofito	only a translation table, on a new root: nothing says what it means
+*	halso	only a translation table, on a new root: nothing says what it means
+*	haspeli	only a translation table, on a new root: nothing says what it means
+*	haspelo	only a translation table, on a new root: nothing says what it means
+*	hemat-	only a translation table, on a new root: nothing says what it means
+*	hematopedoj	only a translation table, on a new root: nothing says what it means
+*	hematopo	only a translation table, on a new root: nothing says what it means
+*	hemi-	only a translation table, on a new root: nothing says what it means
+*	hemo-	only a translation table, on a new root: nothing says what it means
+*	hept-	only a translation table, on a new root: nothing says what it means
+*	heptagono	only a translation table, on a new root: nothing says what it means
+*	hetero-	only a translation table, on a new root: nothing says what it means
+*	heterocefalo	only a translation table, on a new root: nothing says what it means
+*	heteronomio	only a translation table, on a new root: nothing says what it means
+*	heterozigota	only a translation table, on a new root: nothing says what it means
+*	hibernacio	only a translation table, on a new root: nothing says what it means
+*	higrostato	only a translation table, on a new root: nothing says what it means
+*	himnologio	only a translation table, on a new root: nothing says what it means
+*	hiperestezo	only a translation table, on a new root: nothing says what it means
+*	hipologio	only a translation table, on a new root: nothing says what it means
+*	hipsifobio	only a translation table, on a new root: nothing says what it means
+*	hipsometrio	only a translation table, on a new root: nothing says what it means
+*	ikonoklasmo	only a translation table, on a new root: nothing says what it means
+*	ileuso	only a translation table, on a new root: nothing says what it means
+*	imbecila	only a translation table, on a new root: nothing says what it means
+*	imbecileco	only a translation table, on a new root: nothing says what it means
+*	imenseco	only a translation table, on a new root: nothing says what it means
+*	imisiono	only a translation table, on a new root: nothing says what it means
+*	infamia	only a translation table, on a new root: nothing says what it means
+*	infamio	only a translation table, on a new root: nothing says what it means
+*	infiltri	only a translation table, on a new root: nothing says what it means
+*	inguŝa	only a translation table, on a new root: nothing says what it means
+*	inseminacio	only a translation table, on a new root: nothing says what it means
+*	instruktoro	only a translation table, on a new root: nothing says what it means
+*	insuficieno	only a translation table, on a new root: nothing says what it means
+*	interstica	only a translation table, on a new root: nothing says what it means
+*	interstico	only a translation table, on a new root: nothing says what it means
+*	iperito	only a translation table, on a new root: nothing says what it means
+*	itongo	only a translation table, on a new root: nothing says what it means
+*	izentropa	only a translation table, on a new root: nothing says what it means
+*	izokrona	only a translation table, on a new root: nothing says what it means
+*	jarlo	only a translation table, on a new root: nothing says what it means
+*	jaziono	only a translation table, on a new root: nothing says what it means
+*	juvenila	only a translation table, on a new root: nothing says what it means
+*	kaciko	only a translation table, on a new root: nothing says what it means
+*	kafro	only a translation table, on a new root: nothing says what it means
+*	kalma	only a translation table, on a new root: nothing says what it means
+*	kaluso	only a translation table, on a new root: nothing says what it means
+*	karcinologio	only a translation table, on a new root: nothing says what it means
+*	karcinomo	only a translation table, on a new root: nothing says what it means
+*	karenco	only a translation table, on a new root: nothing says what it means
+*	kariopso	only a translation table, on a new root: nothing says what it means
+*	karioza	only a translation table, on a new root: nothing says what it means
+*	kavitacio	only a translation table, on a new root: nothing says what it means
+*	kefalalgio	only a translation table, on a new root: nothing says what it means
+*	kianto	only a translation table, on a new root: nothing says what it means
+*	kiki	only a translation table, on a new root: nothing says what it means
+*	kiko	only a translation table, on a new root: nothing says what it means
+*	kinestezo	only a translation table, on a new root: nothing says what it means
+*	kiropraktiko	only a translation table, on a new root: nothing says what it means
+*	klimi	only a translation table, on a new root: nothing says what it means
+*	klinĉo	only a translation table, on a new root: nothing says what it means
+*	klupo	only a translation table, on a new root: nothing says what it means
+*	kneipi	only a translation table, on a new root: nothing says what it means
+*	kogo	only a translation table, on a new root: nothing says what it means
+*	kolumpluvio	only a translation table, on a new root: nothing says what it means
+*	konsomeo	only a translation table, on a new root: nothing says what it means
+*	koracio	only a translation table, on a new root: nothing says what it means
+*	kraŭli	only a translation table, on a new root: nothing says what it means
+*	kriptonimo	only a translation table, on a new root: nothing says what it means
+*	krokedo	only a translation table, on a new root: nothing says what it means
+*	krumkorno	only a translation table, on a new root: nothing says what it means
+*	ksantipo	only a translation table, on a new root: nothing says what it means
+*	ksenofoba	only a translation table, on a new root: nothing says what it means
+*	kserografio	only a translation table, on a new root: nothing says what it means
+*	kumuli	only a translation table, on a new root: nothing says what it means
+*	kumulo	only a translation table, on a new root: nothing says what it means
+*	kurvimetro	only a translation table, on a new root: nothing says what it means
+*	kvadricepso	only a translation table, on a new root: nothing says what it means
+*	kvadrofonio	only a translation table, on a new root: nothing says what it means
+*	kvantoro	only a translation table, on a new root: nothing says what it means
+*	kvesturo	only a translation table, on a new root: nothing says what it means
+*	leŭkotomio	only a translation table, on a new root: nothing says what it means
+*	lingvocido	only a translation table, on a new root: nothing says what it means
+*	locio	only a translation table, on a new root: nothing says what it means
+*	logopedio	only a translation table, on a new root: nothing says what it means
+*	lokativo	only a translation table, on a new root: nothing says what it means
+*	lokio	only a translation table, on a new root: nothing says what it means
+*	lokuso	only a translation table, on a new root: nothing says what it means
+*	lonĝi	only a translation table, on a new root: nothing says what it means
+*	luksacii	only a translation table, on a new root: nothing says what it means
+*	lumpo	only a translation table, on a new root: nothing says what it means
+*	lustracio	only a translation table, on a new root: nothing says what it means
+*	madamo	only a translation table, on a new root: nothing says what it means
+*	madjara	only a translation table, on a new root: nothing says what it means
+*	magnificenco	only a translation table, on a new root: nothing says what it means
+*	maharaĝo	only a translation table, on a new root: nothing says what it means
+*	malgranda pluvio	only a translation table, on a new root: nothing says what it means
+*	mandorlo	only a translation table, on a new root: nothing says what it means
+*	manualo	only a translation table, on a new root: nothing says what it means
+*	mediastino	only a translation table, on a new root: nothing says what it means
+*	mentala	only a translation table, on a new root: nothing says what it means
+*	metrologio	only a translation table, on a new root: nothing says what it means
+*	mezenkimo	only a translation table, on a new root: nothing says what it means
+*	meĥanizi	only a translation table, on a new root: nothing says what it means
+*	mialgio	only a translation table, on a new root: nothing says what it means
+*	micetismo	only a translation table, on a new root: nothing says what it means
+*	micetologio	only a translation table, on a new root: nothing says what it means
+*	midriazo	only a translation table, on a new root: nothing says what it means
+*	mikologo	only a translation table, on a new root: nothing says what it means
+*	minima	only a translation table, on a new root: nothing says what it means
+*	miotomio	only a translation table, on a new root: nothing says what it means
+*	miotonio	only a translation table, on a new root: nothing says what it means
+*	mirmekologio	only a translation table, on a new root: nothing says what it means
+*	mizandrio	only a translation table, on a new root: nothing says what it means
+*	mjelopatio	only a translation table, on a new root: nothing says what it means
+*	monoftongo	only a translation table, on a new root: nothing says what it means
+*	morelo	only a translation table, on a new root: nothing says what it means
+*	morinelo	only a translation table, on a new root: nothing says what it means
+*	narduso	only a translation table, on a new root: nothing says what it means
+*	narkoanalizo	only a translation table, on a new root: nothing says what it means
+*	narkolepsio	only a translation table, on a new root: nothing says what it means
+*	naŭatla lingvo	only a translation table, on a new root: nothing says what it means
+*	nekrofilio	only a translation table, on a new root: nothing says what it means
+*	nekrologio	only a translation table, on a new root: nothing says what it means
+*	neoplazio	only a translation table, on a new root: nothing says what it means
+*	neŭro-	only a translation table, on a new root: nothing says what it means
+*	neŭropatio	only a translation table, on a new root: nothing says what it means
+*	niplo	only a translation table, on a new root: nothing says what it means
+*	noetiko	only a translation table, on a new root: nothing says what it means
+*	nutacio	only a translation table, on a new root: nothing says what it means
+*	odalisko	only a translation table, on a new root: nothing says what it means
+*	okluzio	only a translation table, on a new root: nothing says what it means
+*	oktopodo	only a translation table, on a new root: nothing says what it means
+*	oleaco	only a translation table, on a new root: nothing says what it means
+*	olfakta	only a translation table, on a new root: nothing says what it means
+*	onanii	only a translation table, on a new root: nothing says what it means
+*	onanio	only a translation table, on a new root: nothing says what it means
+*	opto-	only a translation table, on a new root: nothing says what it means
+*	oreado	only a translation table, on a new root: nothing says what it means
+*	ormedalo	only a translation table, on a new root: nothing says what it means
+*	ortognata	only a translation table, on a new root: nothing says what it means
+*	ortognatio	only a translation table, on a new root: nothing says what it means
+*	osario	only a translation table, on a new root: nothing says what it means
+*	ostentativa	only a translation table, on a new root: nothing says what it means
+*	osteologio	only a translation table, on a new root: nothing says what it means
+*	osteopatio	only a translation table, on a new root: nothing says what it means
+*	ostopatio	only a translation table, on a new root: nothing says what it means
+*	otologio	only a translation table, on a new root: nothing says what it means
+*	otoskopo	only a translation table, on a new root: nothing says what it means
+*	ouzo	only a translation table, on a new root: nothing says what it means
+*	ovariektomio	only a translation table, on a new root: nothing says what it means
+*	parasimpato	only a translation table, on a new root: nothing says what it means
+*	parestezio	only a translation table, on a new root: nothing says what it means
+*	parfeo	only a translation table, on a new root: nothing says what it means
+*	parodontozo	only a translation table, on a new root: nothing says what it means
+*	paruliedoj	only a translation table, on a new root: nothing says what it means
+*	paternalismo	only a translation table, on a new root: nothing says what it means
+*	paternalista	only a translation table, on a new root: nothing says what it means
+*	paŭŝalo	only a translation table, on a new root: nothing says what it means
+*	pedometro	only a translation table, on a new root: nothing says what it means
+*	pentatlono	only a translation table, on a new root: nothing says what it means
+*	perestroiko	only a translation table, on a new root: nothing says what it means
+*	pernicioza	only a translation table, on a new root: nothing says what it means
+*	piafo	only a translation table, on a new root: nothing says what it means
+*	pikareska	only a translation table, on a new root: nothing says what it means
+*	pinaso	only a translation table, on a new root: nothing says what it means
+*	pingpongo	only a translation table, on a new root: nothing says what it means
+*	pipio	only a translation table, on a new root: nothing says what it means
+*	polaba	only a translation table, on a new root: nothing says what it means
+*	polaba lingvo	only a translation table, on a new root: nothing says what it means
+*	polonezo	only a translation table, on a new root: nothing says what it means
+*	pomologio	only a translation table, on a new root: nothing says what it means
+*	predispozicio	only a translation table, on a new root: nothing says what it means
+*	proklitiko	only a translation table, on a new root: nothing says what it means
+*	pronelo	only a translation table, on a new root: nothing says what it means
+*	proni	only a translation table, on a new root: nothing says what it means
+*	protea	only a translation table, on a new root: nothing says what it means
+*	proteo	only a translation table, on a new root: nothing says what it means
+*	psitakozo	only a translation table, on a new root: nothing says what it means
+*	ptomaino	only a translation table, on a new root: nothing says what it means
+*	puerpera	only a translation table, on a new root: nothing says what it means
+*	puŝtuo	only a translation table, on a new root: nothing says what it means
+*	radiala	only a translation table, on a new root: nothing says what it means
+*	rakio	only a translation table, on a new root: nothing says what it means
+*	rapunkolo	only a translation table, on a new root: nothing says what it means
+*	receso	only a translation table, on a new root: nothing says what it means
+*	regatto	only a translation table, on a new root: nothing says what it means
+*	renonci	only a translation table, on a new root: nothing says what it means
+*	restrikcio	only a translation table, on a new root: nothing says what it means
+*	rilativo	only a translation table, on a new root: nothing says what it means
+*	rodeo	only a translation table, on a new root: nothing says what it means
+*	rodli	only a translation table, on a new root: nothing says what it means
+*	rumsteko	only a translation table, on a new root: nothing says what it means
+*	runologio	only a translation table, on a new root: nothing says what it means
+*	rura	only a translation table, on a new root: nothing says what it means
+*	sadista	only a translation table, on a new root: nothing says what it means
+*	sahibo	only a translation table, on a new root: nothing says what it means
+*	salioj	only a translation table, on a new root: nothing says what it means
+*	satisfakcio	only a translation table, on a new root: nothing says what it means
+*	senpietata	only a translation table, on a new root: nothing says what it means
+*	sensitiva	only a translation table, on a new root: nothing says what it means
+*	sensualeco	only a translation table, on a new root: nothing says what it means
+*	simbiogenezo	only a translation table, on a new root: nothing says what it means
+*	simbionto	only a translation table, on a new root: nothing says what it means
+*	skviro	only a translation table, on a new root: nothing says what it means
+*	slovio	only a translation table, on a new root: nothing says what it means
+*	slupo	only a translation table, on a new root: nothing says what it means
+*	somato-	only a translation table, on a new root: nothing says what it means
+*	spinako	only a translation table, on a new root: nothing says what it means
+*	splenektomio	only a translation table, on a new root: nothing says what it means
+*	sporofito	only a translation table, on a new root: nothing says what it means
+*	sprinto	only a translation table, on a new root: nothing says what it means
+*	spurti	only a translation table, on a new root: nothing says what it means
+*	spurto	only a translation table, on a new root: nothing says what it means
+*	stampedo	only a translation table, on a new root: nothing says what it means
+*	stenozo	only a translation table, on a new root: nothing says what it means
+*	stigmatizado	only a translation table, on a new root: nothing says what it means
+*	stipulacio	only a translation table, on a new root: nothing says what it means
+*	stomatologio	only a translation table, on a new root: nothing says what it means
+*	stomatologo	only a translation table, on a new root: nothing says what it means
+*	stroboskopo	only a translation table, on a new root: nothing says what it means
+*	sufrageto	only a translation table, on a new root: nothing says what it means
+*	sulkio	only a translation table, on a new root: nothing says what it means
+*	taksiso	only a translation table, on a new root: nothing says what it means
+*	teleologio	only a translation table, on a new root: nothing says what it means
+*	teofagio	only a translation table, on a new root: nothing says what it means
+*	teofanio	only a translation table, on a new root: nothing says what it means
+*	terapeŭto	only a translation table, on a new root: nothing says what it means
+*	tercino	only a translation table, on a new root: nothing says what it means
+*	tetaso	only a translation table, on a new root: nothing says what it means
+*	tetragonala	only a translation table, on a new root: nothing says what it means
+*	tetrarkio	only a translation table, on a new root: nothing says what it means
+*	tokoa tukano	only a translation table, on a new root: nothing says what it means
+*	tonsilektomio	only a translation table, on a new root: nothing says what it means
+*	traŭtoniumo	only a translation table, on a new root: nothing says what it means
+*	tribologio	only a translation table, on a new root: nothing says what it means
+*	tricepso	only a translation table, on a new root: nothing says what it means
+*	trielo	only a translation table, on a new root: nothing says what it means
+*	triforio	only a translation table, on a new root: nothing says what it means
+*	triftongo	only a translation table, on a new root: nothing says what it means
+*	trockismo	only a translation table, on a new root: nothing says what it means
+*	undekano	only a translation table, on a new root: nothing says what it means
+*	undino	only a translation table, on a new root: nothing says what it means
+*	ununtrio	only a translation table, on a new root: nothing says what it means
+*	urologia	only a translation table, on a new root: nothing says what it means
+*	urologio	only a translation table, on a new root: nothing says what it means
+*	urologo	only a translation table, on a new root: nothing says what it means
+*	vagotomio	only a translation table, on a new root: nothing says what it means
+*	vaiŝjo	only a translation table, on a new root: nothing says what it means
+*	vajgelio	only a translation table, on a new root: nothing says what it means
+*	vaneso	only a translation table, on a new root: nothing says what it means
+*	vehementa	only a translation table, on a new root: nothing says what it means
+*	vehemento	only a translation table, on a new root: nothing says what it means
+*	vejro	only a translation table, on a new root: nothing says what it means
+*	venereologio	only a translation table, on a new root: nothing says what it means
+*	viktimologio	only a translation table, on a new root: nothing says what it means
+*	vizaĝlocio	only a translation table, on a new root: nothing says what it means
+*	vokablo	only a translation table, on a new root: nothing says what it means
+*	votivo	only a translation table, on a new root: nothing says what it means
+*	vrapo	only a translation table, on a new root: nothing says what it means
+*	zoolatrio	only a translation table, on a new root: nothing says what it means
+*	zoolito	only a translation table, on a new root: nothing says what it means
+*	zoonozo	only a translation table, on a new root: nothing says what it means
+*	zootomio	only a translation table, on a new root: nothing says what it means
+*	zooĥorio	only a translation table, on a new root: nothing says what it means
+*	ĉardaŝo	only a translation table, on a new root: nothing says what it means
+*	ĉaĉao	only a translation table, on a new root: nothing says what it means
+*	ĝimkano	only a translation table, on a new root: nothing says what it means
+*	ĵogi	only a translation table, on a new root: nothing says what it means
+*	ŝlarafo	only a translation table, on a new root: nothing says what it means
+*	ŝlarafolando	only a translation table, on a new root: nothing says what it means
+*	ŝnorkelo	only a translation table, on a new root: nothing says what it means
+# 2026-11-11, the rule after: a word on a root Reta Vortaro lacks shows only with an Esperanto definition
+# (eo.wiktionary.org), which every reader can read; a description in another language doesn't do (user).
+# Checked by VikivortaroRuleTest. Sent to Vortoj de la bona lingvo, which may advise against them.
+*	abdukcio	on a new root, without an Esperanto definition
+*	abrogacio	on a new root, without an Esperanto definition
+*	abulio	on a new root, without an Esperanto definition
+*	activeco	on a new root, without an Esperanto definition
+*	acurata	on a new root, without an Esperanto definition
+*	adhezio	on a new root, without an Esperanto definition
+*	akneo	on a new root, without an Esperanto definition
+*	akusativo	on a new root, without an Esperanto definition
+*	alambiko	on a new root, without an Esperanto definition
+*	albatrosedoj	on a new root, without an Esperanto definition
+*	algologio	on a new root, without an Esperanto definition
+*	alodo	on a new root, without an Esperanto definition
+*	amando	on a new root, without an Esperanto definition
+*	amaŭrozo	on a new root, without an Esperanto definition
+*	anakondo	on a new root, without an Esperanto definition
+*	anorgana	on a new root, without an Esperanto definition
+*	antaueniri	on a new root, without an Esperanto definition
+*	antika	on a new root, without an Esperanto definition
+*	antiko	on a new root, without an Esperanto definition
+*	aoristo	on a new root, without an Esperanto definition
+*	apterigedoj	on a new root, without an Esperanto definition
+*	arkaa	on a new root, without an Esperanto definition
+*	arĥaja	on a new root, without an Esperanto definition
+*	asira	on a new root, without an Esperanto definition
+*	asiro	on a new root, without an Esperanto definition
+*	aspiko	on a new root, without an Esperanto definition
+*	atamano	on a new root, without an Esperanto definition
+*	atraktiva	on a new root, without an Esperanto definition
+*	atrapo	on a new root, without an Esperanto definition
+*	avoceto	on a new root, without an Esperanto definition
+*	azuro	on a new root, without an Esperanto definition
+*	aŭro	on a new root, without an Esperanto definition
+*	aŭrokso	on a new root, without an Esperanto definition
+*	aŭtolizo	on a new root, without an Esperanto definition
+*	aŭtomatizi	on a new root, without an Esperanto definition
+*	baco	on a new root, without an Esperanto definition
+*	bagro	on a new root, without an Esperanto definition
+*	banĵo	on a new root, without an Esperanto definition
+*	binara	on a new root, without an Esperanto definition
+*	bobo	on a new root, without an Esperanto definition
+*	bombiciledoj	on a new root, without an Esperanto definition
+*	boŭlo	on a new root, without an Esperanto definition
+*	camarado	on a new root, without an Esperanto definition
+*	capreolo	on a new root, without an Esperanto definition
+*	cicisbeo	on a new root, without an Esperanto definition
+*	cinologio	on a new root, without an Esperanto definition
+*	codo	on a new root, without an Esperanto definition
+*	compano	on a new root, without an Esperanto definition
+*	concuri	on a new root, without an Esperanto definition
+*	conkurenci	on a new root, without an Esperanto definition
+*	dar al traste con	on a new root, without an Esperanto definition
+*	defitismo	on a new root, without an Esperanto definition
+*	depravacio	on a new root, without an Esperanto definition
+*	dinosaŭrio	on a new root, without an Esperanto definition
+*	diomedeedoj	on a new root, without an Esperanto definition
+*	dipsomanio	on a new root, without an Esperanto definition
+*	dodekaedro	on a new root, without an Esperanto definition
+*	dropso	on a new root, without an Esperanto definition
+*	easto	on a new root, without an Esperanto definition
+*	economia regreso	on a new root, without an Esperanto definition
+*	editi	on a new root, without an Esperanto definition
+*	eficienta	on a new root, without an Esperanto definition
+*	eltitaĵ-ripeto	on a new root, without an Esperanto definition
+*	emberizedoj	on a new root, without an Esperanto definition
+*	empirika	on a new root, without an Esperanto definition
+*	encafalito	on a new root, without an Esperanto definition
+*	enceklopedia vortaro	on a new root, without an Esperanto definition
+*	eosto	on a new root, without an Esperanto definition
+*	epididimo	on a new root, without an Esperanto definition
+*	epistakso	on a new root, without an Esperanto definition
+*	esceto	on a new root, without an Esperanto definition
+*	etnio	on a new root, without an Esperanto definition
+*	eŭfono	on a new root, without an Esperanto definition
+*	feldmarŝalo	on a new root, without an Esperanto definition
+*	feneko	on a new root, without an Esperanto definition
+*	fiziognomio	on a new root, without an Esperanto definition
+*	frakto	on a new root, without an Esperanto definition
+*	galgo	on a new root, without an Esperanto definition
+*	gaĝo	on a new root, without an Esperanto definition
+*	gaŭĝi	on a new root, without an Esperanto definition
+*	gelo	on a new root, without an Esperanto definition
+*	groco	on a new root, without an Esperanto definition
+*	groenlanda	on a new root, without an Esperanto definition
+*	gverilo	on a new root, without an Esperanto definition
+*	halsi	on a new root, without an Esperanto definition
+*	harmonizi	on a new root, without an Esperanto definition
+*	haĉeko	on a new root, without an Esperanto definition
+*	heksano	on a new root, without an Esperanto definition
+*	heptano	on a new root, without an Esperanto definition
+*	himantopo	on a new root, without an Esperanto definition
+*	hiper-	on a new root, without an Esperanto definition
+*	hipo-	on a new root, without an Esperanto definition
+*	hipolao	on a new root, without an Esperanto definition
+*	hiprokritado	on a new root, without an Esperanto definition
+*	hojo	on a new root, without an Esperanto definition
+*	homunkulo	on a new root, without an Esperanto definition
+*	horsto	on a new root, without an Esperanto definition
+*	humoresko	on a new root, without an Esperanto definition
+*	ikosaedro	on a new root, without an Esperanto definition
+*	iktiologio	on a new root, without an Esperanto definition
+*	imensa	on a new root, without an Esperanto definition
+*	indesklampo	on a new root, without an Esperanto definition
+*	induki	on a new root, without an Esperanto definition
+*	infikso	on a new root, without an Esperanto definition
+*	infra-	on a new root, without an Esperanto definition
+*	inicii	on a new root, without an Esperanto definition
+*	intravejna	on a new root, without an Esperanto definition
+*	inverti	on a new root, without an Esperanto definition
+*	irokezo	on a new root, without an Esperanto definition
+*	izobaro	on a new root, without an Esperanto definition
+*	iĥtiologio	on a new root, without an Esperanto definition
+*	jargono	on a new root, without an Esperanto definition
+*	jhaudo	on a new root, without an Esperanto definition
+*	jolo	on a new root, without an Esperanto definition
+*	kakatuedoj	on a new root, without an Esperanto definition
+*	kalendro	on a new root, without an Esperanto definition
+*	kanalizacio	on a new root, without an Esperanto definition
+*	katalisatoro	on a new root, without an Esperanto definition
+*	kirakesto	on a new root, without an Esperanto definition
+*	kirila	on a new root, without an Esperanto definition
+*	kiromancio	on a new root, without an Esperanto definition
+*	kirugia	on a new root, without an Esperanto definition
+*	kiviedoj	on a new root, without an Esperanto definition
+*	knanjo	on a new root, without an Esperanto definition
+*	knapo	on a new root, without an Esperanto definition
+*	kolokvio	on a new root, without an Esperanto definition
+*	komunikacio	on a new root, without an Esperanto definition
+*	koncepcio	on a new root, without an Esperanto definition
+*	kondromo	on a new root, without an Esperanto definition
+*	konstrukcio	on a new root, without an Esperanto definition
+*	kontemplacio	on a new root, without an Esperanto definition
+*	kontrahi	on a new root, without an Esperanto definition
+*	koordini	on a new root, without an Esperanto definition
+*	krita	on a new root, without an Esperanto definition
+*	kuskuto	on a new root, without an Esperanto definition
+*	laŭso	on a new root, without an Esperanto definition
+*	limnologo	on a new root, without an Esperanto definition
+*	lobotomio	on a new root, without an Esperanto definition
+*	logro	on a new root, without an Esperanto definition
+*	lumeno	on a new root, without an Esperanto definition
+*	luvi	on a new root, without an Esperanto definition
+*	madiala	on a new root, without an Esperanto definition
+*	magnetizi	on a new root, without an Esperanto definition
+*	makrelo	on a new root, without an Esperanto definition
+*	malci-diri	on a new root, without an Esperanto definition
+*	malediva	on a new root, without an Esperanto definition
+*	mega-	on a new root, without an Esperanto definition
+*	menado	on a new root, without an Esperanto definition
+*	menstruacio	on a new root, without an Esperanto definition
+*	mentaleco	on a new root, without an Esperanto definition
+*	migalo	on a new root, without an Esperanto definition
+*	mikro-	on a new root, without an Esperanto definition
+*	mimikro	on a new root, without an Esperanto definition
+*	miono	on a new root, without an Esperanto definition
+*	missgluti	on a new root, without an Esperanto definition
+*	misterio	on a new root, without an Esperanto definition
+*	mizogenio	on a new root, without an Esperanto definition
+*	mokao	on a new root, without an Esperanto definition
+*	molao	on a new root, without an Esperanto definition
+*	molusko	on a new root, without an Esperanto definition
+*	monstranco	on a new root, without an Esperanto definition
+*	motelo	on a new root, without an Esperanto definition
+*	munsono	on a new root, without an Esperanto definition
+*	nagario	on a new root, without an Esperanto definition
+*	narkozo	on a new root, without an Esperanto definition
+*	nekompetenco	on a new root, without an Esperanto definition
+*	neksta	on a new root, without an Esperanto definition
+*	neopreno	on a new root, without an Esperanto definition
+*	nuto	on a new root, without an Esperanto definition
+*	oceanografio	on a new root, without an Esperanto definition
+*	okso	on a new root, without an Esperanto definition
+*	olfakto	on a new root, without an Esperanto definition
+*	oposumo	on a new root, without an Esperanto definition
+*	optima	on a new root, without an Esperanto definition
+*	optimo	on a new root, without an Esperanto definition
+*	organisacio	on a new root, without an Esperanto definition
+*	ovolacio	on a new root, without an Esperanto definition
+*	ozonizi	on a new root, without an Esperanto definition
+*	paelo	on a new root, without an Esperanto definition
+*	pando	on a new root, without an Esperanto definition
+*	paroniĥio	on a new root, without an Esperanto definition
+*	pasao	on a new root, without an Esperanto definition
+*	pedagogiko	on a new root, without an Esperanto definition
+*	pederasto	on a new root, without an Esperanto definition
+*	pediatrio	on a new root, without an Esperanto definition
+*	periodizi	on a new root, without an Esperanto definition
+*	piero	on a new root, without an Esperanto definition
+*	pituitaria glando	on a new root, without an Esperanto definition
+*	piŝtolo	on a new root, without an Esperanto definition
+*	plakedo	on a new root, without an Esperanto definition
+*	pluvio	on a new root, without an Esperanto definition
+*	poka	on a new root, without an Esperanto definition
+*	pomarbro	on a new root, without an Esperanto definition
+*	ponio	on a new root, without an Esperanto definition
+*	pregi	on a new root, without an Esperanto definition
+*	prekondiĉo	on a new root, without an Esperanto definition
+*	preskaŭsenŝela greno	on a new root, without an Esperanto definition
+*	prolapso	on a new root, without an Esperanto definition
+*	prominenco	on a new root, without an Esperanto definition
+*	propaĵo	on a new root, without an Esperanto definition
+*	pumperniklo	on a new root, without an Esperanto definition
+*	pĝino	on a new root, without an Esperanto definition
+*	ranĉo	on a new root, without an Esperanto definition
+*	ranĝi	on a new root, without an Esperanto definition
+*	raviolo	on a new root, without an Esperanto definition
+*	reao	on a new root, without an Esperanto definition
+*	resolucio	on a new root, without an Esperanto definition
+*	restrikcia	on a new root, without an Esperanto definition
+*	ribosmo	on a new root, without an Esperanto definition
+*	ritualo	on a new root, without an Esperanto definition
+*	rompre	on a new root, without an Esperanto definition
+*	ruĝalgo	on a new root, without an Esperanto definition
+*	sadisto	on a new root, without an Esperanto definition
+*	satiriazo	on a new root, without an Esperanto definition
+*	siama	on a new root, without an Esperanto definition
+*	simenso	on a new root, without an Esperanto definition
+*	sionismo	on a new root, without an Esperanto definition
+*	siro	on a new root, without an Esperanto definition
+*	sitedoj	on a new root, without an Esperanto definition
+*	smogo	on a new root, without an Esperanto definition
+*	smokingo	on a new root, without an Esperanto definition
+*	stagnacio	on a new root, without an Esperanto definition
+*	steko	on a new root, without an Esperanto definition
+*	stif-	on a new root, without an Esperanto definition
+*	stiledo	on a new root, without an Esperanto definition
+*	stomatito	on a new root, without an Esperanto definition
+*	streĉ-ekfukciigi	on a new root, without an Esperanto definition
+*	tetanoso	on a new root, without an Esperanto definition
+*	tokologio	on a new root, without an Esperanto definition
+*	traceo	on a new root, without an Esperanto definition
+*	trenco	on a new root, without an Esperanto definition
+*	tricio	on a new root, without an Esperanto definition
+*	uedo	on a new root, without an Esperanto definition
+*	uncio	on a new root, without an Esperanto definition
+*	ununheksio	on a new root, without an Esperanto definition
+*	upupedoj	on a new root, without an Esperanto definition
+*	urinii	on a new root, without an Esperanto definition
+*	urlio	on a new root, without an Esperanto definition
+*	vibracio	on a new root, without an Esperanto definition
+*	visento	on a new root, without an Esperanto definition
+*	vuduo	on a new root, without an Esperanto definition
+*	zikurato	on a new root, without an Esperanto definition
+*	zoeto	on a new root, without an Esperanto definition
+*	ĉarela forkego	on a new root, without an Esperanto definition
+*	ĉarlatanĵo	on a new root, without an Esperanto definition
+*	ĉionsciulaĉo	on a new root, without an Esperanto definition
+*	ĉisekve	on a new root, without an Esperanto definition
+*	ĝigolo	on a new root, without an Esperanto definition
+*	ĥoto	on a new root, without an Esperanto definition
+*	ĥronologio	on a new root, without an Esperanto definition
+*	ĵunglo	on a new root, without an Esperanto definition
+*	ŝabato	on a new root, without an Esperanto definition
+*	ŝaŝliko	on a new root, without an Esperanto definition
+*	ŝiito	on a new root, without an Esperanto definition
+*	ŝimpanzo	on a new root, without an Esperanto definition
+*	ŝoĥti	on a new root, without an Esperanto definition
+*	ŝraubŝlosilo	on a new root, without an Esperanto definition
+*	ŝvabio	on a new root, without an Esperanto definition
+*	ŝvarcvaldo	on a new root, without an Esperanto definition
+*	ŝĉio	on a new root, without an Esperanto definition

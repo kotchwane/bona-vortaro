@@ -60,6 +60,9 @@ class VikiLanguage(
      * ("fondre → fundi"); in English, after a review of every pair, 6,400
      * good ones were hidden, "dreamcatcher → sonĝkaptilo" (2026-11-10) */
     val showsUndescribed: Boolean = false,
+    /** Whether its nouns keep their capital in a description's words: in
+     * German, "Hund" isn't "hund" */
+    val capitalNouns: Boolean = false,
 ) {
 
     companion object {
@@ -94,9 +97,25 @@ class VikiLanguage(
             showsUndescribed = true,
         )
 
+        val GERMAN = VikiLanguage(
+            code = "de",
+            leading = Regex("^(der |die |das |sich )"),
+            articles = Regex("^(der |die |das )"),
+            nameArticles = Regex("^(?i)(der |die |das )"),
+            /* The plural "s" only: "Rat" isn't "Rate", nor "Wage" "Wagen" */
+            formEndings = setOf("s", " an", " auf", " für", " mit", " von", " zu"),
+            glossSmallWords = setOf("der", "die", "das", "des", "dem", "den", "ein", "eine", "einer", "eines", "einem",
+                "einen", "von", "vom", "zu", "zum", "zur", "für", "mit", "in", "im", "an", "am", "auf", "aus", "bei",
+                "durch", "oder", "und", "als", "wie", "sich", "nicht"),
+            glossDescribing = setOf("abkürzung", "handlung", "vorgang", "zustand", "eigenschaft", "tätigkeit"),
+            capitalNouns = true,
+            /* Every pair reviewed (2026-11-10), 477 left out after test round 10 */
+            showsUndescribed = true,
+        )
+
         /** The languages whose Wiktionary Bona vortaro has, in the order
          * of their lines */
-        val ALL = listOf(FRENCH, ENGLISH)
+        val ALL = listOf(FRENCH, ENGLISH, GERMAN)
 
         fun of(code: String): VikiLanguage? = ALL.firstOrNull { it.code == code }
     }

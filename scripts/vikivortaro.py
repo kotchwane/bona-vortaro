@@ -1,26 +1,30 @@
 #!/usr/bin/env python3
-# Extracts from the French or English Wiktionary what Bona vortaro shows next
+# Extracts from the French, English or German Wiktionary what Bona vortaro shows next
 # to Reta Vortaro: the words of that language with their Esperanto
 # translations, and the short descriptions of Esperanto words in it.
 #
 # Usage, from the root of the repository:
 #   python3 scripts/vikivortaro.py https://kaikki.org/dictionary/downloads/fr/fr-extract.jsonl.gz
+#   python3 scripts/vikivortaro.py de https://kaikki.org/dictionary/downloads/de/de-extract.jsonl.gz
 #   python3 scripts/vikivortaro.py en \
 #       https://kaikki.org/dictionary/English/kaikki.org-dictionary-English.jsonl.gz \
 #       https://kaikki.org/dictionary/Esperanto/kaikki.org-dictionary-Esperanto.jsonl
 #   (or the paths of those files, downloaded)
 #
 # The source is Kaikki's extraction (wiktextract) of the French Wiktionary,
-# which has both the French words and the Esperanto ones; of the English
+# which has both the French words and the Esperanto ones, and the same of the
+# German Wiktionary; of the English
 # Wiktionary, Kaikki's files of its English words and of its Esperanto ones.
 # Its content is by the contributors of that Wiktionary, under the
 # licence CC BY-SA 4.0, and stays so in the files written here, which are
 # kept apart from Reta Vortaro's data (GPL-2.0). The files are committed:
 # Kaikki changes its extract every week, and the app is built the same
 # every time, as F-Droid requires.
-"""Writes, into app/src/main/assets/vikivortaro/ (here for French, "en" for English):
+"""Writes, into app/src/main/assets/vikivortaro/ (here for French, "en" for English, "de" for German):
   fr-eo.tsv   a French word, a tab, an Esperanto translation (one per line)
   eo-fr.tsv   an Esperanto word, a tab, its French description
+  fr-eo-senses.tsv  an Esperanto word, a French word, the sense of its table, for the
+              words nothing describes: what their page says they mean
 Lines starting with "#" are comments: the source, its date, the licence."""
 import email.utils
 import gzip
@@ -30,9 +34,11 @@ import re
 import sys
 import urllib.request
 
-LANGUAGE = sys.argv[1] if sys.argv[1] in ("fr", "en") else "fr"
-SOURCES = sys.argv[2:] if sys.argv[1] in ("fr", "en") else sys.argv[1:]
-NAME = {"fr": "French", "en": "English"}[LANGUAGE]
+LANGUAGE = sys.argv[1] if sys.argv[1] in ("fr", "en", "de") else "fr"
+SOURCES = sys.argv[2:] if sys.argv[1] in ("fr", "en", "de") else sys.argv[1:]
+NAME = {"fr": "French", "en": "English", "de": "German"}[LANGUAGE]
+# Where the forms of a word are tagged ("form-of"), not told by their text
+TAGGED_FORMS = LANGUAGE in ("en", "de")
 OUT = os.path.join(os.path.dirname(__file__), "..", "app", "src", "main", "assets", "vikivortaro")
 
 # The descriptions that only send to another word: "Pluriel de …", not
@@ -45,6 +51,11 @@ SENDS = re.compile(r"\b(volitif|pseudo-accusatif|synonyme de)\b", re.I)
 # word: "Synonym of …", "Alternative form of …"
 SENDS_EN = re.compile(r"\b(synonym of|alternative (form|spelling) of|obsolete (form|spelling) of|misspelling of|"
                       r"abbreviation of|initialism of|clipping of|short for)\b", re.I)
+# In German: "Nominativ Plural des Substantivs blato", when untagged;
+# "Variante von …", "Synonym zu …"
+SENDS_DE = re.compile(r"(^(Nominativ|Akkusativ|Indikativ|Imperativ|Konditional|Infinitiv|Partizip)\b.*\b(des|der) "
+                      r"(Substantivs|Verbs|Adjektivs|Pronomens)\b|\b(Variante|Nebenform|Schreibvariante|Synonym|"
+                      r"Abkürzung|Kurzform) (von|zu|für)\b)", re.I)
 
 # What the extract sometimes gives instead of a description: the source of the
 # page, its pronunciation, its placeholders ("Exemple d'utilisation manquant")
@@ -117,11 +128,15 @@ DATE_PATTERN = re.compile(r"^(AAAA|MM|JJ)(-?(AAAA|MM|JJ))+$")
 
 def clean_gloss(gloss):
     """A description as a reader reads it: without its label nor a note to the
-    editors, with a capital and a final stop, and once only: "ex.." """
+    editors, with a capital and a final stop, and once only: "ex.."; in
+    German without a capital, which would make "stehlen", ŝteli, a noun"""
     gloss = NOTE.sub("", LABEL.sub("", clean(gloss))).strip(" ;,")
+    if LANGUAGE == "de":
+        gloss = german_gloss(gloss)
     if not gloss:
         return gloss
-    gloss = gloss[0].upper() + gloss[1:]
+    if LANGUAGE != "de":
+        gloss = gloss[0].upper() + gloss[1:]
     if gloss.endswith("..") and not gloss.endswith("..."):
         gloss = gloss[:-1]
     elif gloss[-1].isalnum() or gloss[-1] in ")»":
@@ -129,9 +144,38 @@ def clean_gloss(gloss):
     return gloss
 
 
+# The German Wiktionary's marks of a sense of the word, "satt₅", "noch₍₅₎",
+# "ansetzen_([10a])", and stray spaces, "Kopf , Birne", "( machen)"
+SENSE_MARK = re.compile(r"_?\(\[[^\]]*\]\)|_\(\w{1,4}\)|[₀-₉₍₎]+")
+
+
+def german_gloss(gloss):
+    """A German description without its sense marks nor stray spaces, each
+    word once: "siegen, …, siegen" """
+    gloss = SENSE_MARK.sub("", gloss)
+    gloss = re.sub(r"\s+([,;)])", r"\1", gloss)
+    gloss = re.sub(r"\(\s+", "(", gloss)
+    gloss = re.sub(r";\s*:\s*", "; ", gloss)
+    parts = re.split(r"(\s*[,;]\s*)", gloss)
+    kept, seen = [], set()
+    for i in range(0, len(parts), 2):
+        item = parts[i].strip()
+        if item and item.rstrip(".") in seen:
+            continue
+        seen.add(item.rstrip("."))
+        if kept:
+            kept.append(parts[i - 1])
+        kept.append(parts[i])
+    return " ".join("".join(kept).split()).strip(" ;,")
+
+
 def usable(gloss):
     if LANGUAGE == "en":
         return gloss and not SENDS_EN.search(gloss) and not MARKUP.search(gloss)
+    if LANGUAGE == "de":
+        # Not a heading of the senses after it, "intransitiv:"
+        return gloss and not SENDS_DE.search(gloss) and not MARKUP.search(gloss) and not gloss.rstrip(".").endswith(":") \
+            and gloss.rstrip(".") not in ("transitiv", "intransitiv", "reflexiv")
     return gloss and not FORM.match(gloss) and not SENDS.search(gloss) and not MARKUP.search(gloss)
 
 
@@ -151,8 +195,9 @@ def entries():
 
 def eo_translations(entry):
     """The Esperanto translations of an entry: in the French Wiktionary, of
-    the entry; in the English one, of the entry and of each sense"""
-    found = [(t, likeliest_sense(t)) for t in entry.get("translations") or []]
+    the entry; in the English one, of the entry and of each sense; in the
+    German one, of the entry, with the number of their sense ("2", "1a")"""
+    found = [(t, numbered_sense(t) if LANGUAGE == "de" else likeliest_sense(t)) for t in entry.get("translations") or []]
     if LANGUAGE == "en":
         for index, sense in enumerate(entry.get("senses") or []):
             found += [(t, index) for t in sense.get("translations") or []]
@@ -205,6 +250,13 @@ def stem_of(part):
     return re.sub(r"(oj|aj|on|an|o|a|e|i|j)$", "", part.strip("-"))
 
 
+def numbered_sense(translation):
+    """The sense of a translation by its number, from 0: "1a", "1, 2" are
+    the first; none, after the others"""
+    number = re.match(r"\s*(\d+)", str(translation.get("sense_index") or ""))
+    return int(number.group(1)) - 1 if number else 10_000
+
+
 def likeliest_sense(translation):
     """The sense of a table that Kaikki didn't tie to one: the one its
     scores (_dis1) make likeliest, "slut"'s first for ĉiesulino, "hand"'s
@@ -216,7 +268,21 @@ def likeliest_sense(translation):
     return scores.index(max(scores)) if scores and max(scores) > 0 else 10_000
 
 
+def table_sense(entry, translation):
+    """The sense of the word that a translation is under, as the page
+    says it: in German, "Ostseeraum: Meerenge zwischen einer Insel und dem
+    gegenüberliegenden Festland" (Belt → belto); in English, the gloss of
+    the sense whose table it is in, else its heading"""
+    for sense in entry.get("senses") or []:
+        if any(t is translation for t in sense.get("translations") or []):
+            glosses = sense.get("glosses") or []
+            return clean(translation.get("sense") or (glosses[0] if glosses else ""))
+    return clean(translation.get("sense") or "")
+
+
 dates, source_lines = entries()
+# The sense of each pair's table, for the page of a word nothing describes
+senses = {}
 # Each pair with its group: the entry and the sense its table translates
 translations = {}
 # In English, the senses of an Esperanto word after its first, its
@@ -234,8 +300,8 @@ for line in source_lines:
     code = entry.get("lang_code")
     if code == LANGUAGE:
         french = clean(entry.get("word", ""))
-        # French only: its words have a gender, English ones don't
-        masculine = LANGUAGE == "fr" and "masculine" in (entry.get("tags") or []) and "feminine" not in (entry.get("tags") or [])
+        # French and German: their words have a gender, English ones don't
+        masculine = LANGUAGE in ("fr", "de") and "masculine" in (entry.get("tags") or []) and "feminine" not in (entry.get("tags") or [])
         entry_number += 1
         found = eo_translations(entry)
         words = {clean(t.get("word", "")) for t, _ in found}
@@ -262,6 +328,9 @@ for line in source_lines:
                     or (esperanto[:1].isupper() and not re.search(r"(oj?|a)$", esperanto))):
                 continue
             translations.setdefault((french, esperanto), (entry_number, group))
+            sense = table_sense(entry, t)
+            if sense and not MARKUP.search(sense):
+                senses.setdefault((french, esperanto), sense)
     elif code == "eo":
         esperanto = esperanto_spelling(clean(entry.get("word", ""))) or ""
         if LANGUAGE == "en" and esperanto and esperanto not in made:
@@ -269,8 +338,8 @@ for line in source_lines:
             if how:
                 made[esperanto] = how
         for sense in entry.get("senses") or []:
-            # In English, a form of a word, "plural of", "past of", is tagged
-            if LANGUAGE == "en" and {"form-of", "alt-of"} & set(sense.get("tags") or []):
+            # In English and German, a form of a word, "plural of", "past of", is tagged
+            if TAGGED_FORMS and {"form-of", "alt-of"} & set(sense.get("tags") or []):
                 continue
             for gloss in sense.get("glosses") or []:
                 if MARKUP.search(gloss):
@@ -419,6 +488,50 @@ if advised:
         f.write("# Translations whose sense Vortoj de la bona lingvo advises against, from data/vikivortaro-advised.tsv.\n")
         for foreign, esperanto in sorted(advised):
             f.write(f"{foreign}\t{esperanto}\n")
+REVO = os.path.join(os.path.dirname(__file__), "..", "extern", "revo-fonto", "revo")
+ENTITIES = {"jcirc": "ĵ", "gcirc": "ĝ", "ccirc": "ĉ", "scirc": "ŝ", "hcirc": "ĥ", "ubreve": "ŭ",
+            "Jcirc": "Ĵ", "Gcirc": "Ĝ", "Ccirc": "Ĉ", "Scirc": "Ŝ", "Hcirc": "Ĥ", "Ubreve": "Ŭ"}
+
+
+def revo_headwords():
+    """Reta Vortaro's headwords, in small letters, as scripts/frequency.py
+    reads them, with those of several words: the words that open an
+    article, not a page of Wiktionary"""
+    import html
+    def text(xml):
+        xml = re.sub(r"&(\w+);", lambda m: ENTITIES.get(m.group(1), m.group(0)), xml)
+        return html.unescape(re.sub(r"\s+", " ", re.sub(r"<[^>]+>", " ", xml))).strip()
+    words = set()
+    for name in sorted(os.listdir(REVO)):
+        if name.endswith(".xml"):
+            with open(os.path.join(REVO, name), encoding="utf-8") as f:
+                article = f.read()
+            root = re.search(r"<rad[^>]*>(.*?)</rad>", article, re.S)
+            root = text(root.group(1)) if root else ""
+            for head in re.findall(r"<kap>(.*?)</kap>", article, re.S):
+                head = re.sub(r"<fnt>.*?</fnt>|<ofc>.*?</ofc>", "", head, flags=re.S)
+                head = re.sub(r"<tld[^>]*/>", root, head)
+                words.update(w for w in (w.strip().lower() for w in re.split(r"[,/]", text(head))) if w)
+    return words
+
+
+# The senses of the pairs whose Esperanto word has nothing else to say
+# what it is: not Reta Vortaro's, no description in this language, no
+# Esperanto definition (user, 2026-11-11: "belto" alone didn't say it is
+# a strait)
+in_revo = revo_headwords()
+DEFINED = os.path.join(OUT, "eo-eo.tsv")
+defined = set()
+if os.path.exists(DEFINED):
+    with open(DEFINED, encoding="utf-8") as f:
+        defined = {row.split("\t", 1)[0] for row in f if not row.startswith("#")}
+with open(os.path.join(OUT, f"{LANGUAGE}-eo-senses.tsv"), "w", encoding="utf-8") as f:
+    f.write(header)
+    f.write("# An Esperanto word, a tab, a word translated by it, a tab, the sense of the table it is in.\n")
+    for (foreign, esperanto), sense in sorted(senses.items(), key=lambda item: (item[0][1], item[0][0])):
+        if ((foreign, esperanto) in translations and esperanto not in descriptions and esperanto not in defined
+                and esperanto.lower() not in in_revo):
+            f.write(f"{esperanto}\t{foreign}\t{sense}\n")
 if made:
     shown = {esperanto for _, esperanto in translations} | set(descriptions)
     with open(os.path.join(OUT, "eo-parts.tsv"), "w", encoding="utf-8") as f:

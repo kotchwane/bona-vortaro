@@ -40,6 +40,8 @@ import androidx.compose.ui.unit.dp
 private const val REVO_EDITORS_URL = "https://revuloj.github.io/temoj/redinfo"
 private const val VIKI_EO_HELP_URL = "https://eo.wiktionary.org/wiki/Helpo:Kiel_redakti_pa%C4%9Don"
 private const val VIKI_FR_HELP_URL = "https://fr.wiktionary.org/wiki/Aide:Accueil"
+private const val VIKI_EN_HELP_URL = "https://en.wiktionary.org/wiki/Help:Contents"
+private const val VIKI_DE_HELP_URL = "https://de.wiktionary.org/wiki/Wiktionary:Hilfe"
 private const val ISSUES_URL = "https://github.com/kotchwane/bona-vortaro/issues"
 
 /** How to improve the dictionary: at its sources, each with its own
@@ -70,7 +72,8 @@ private val CONTRIBUTE_PARTS = listOf(
     ContributePart(R.string.contribute_revo_title, R.string.contribute_revo, listOf(R.string.contribute_revo_link to REVO_EDITORS_URL)),
     ContributePart(
         R.string.contribute_viki_title, R.string.contribute_viki,
-        listOf(R.string.contribute_viki_link to VIKI_EO_HELP_URL, R.string.contribute_viki_fr_link to VIKI_FR_HELP_URL),
+        listOf(R.string.contribute_viki_link to VIKI_EO_HELP_URL, R.string.contribute_viki_fr_link to VIKI_FR_HELP_URL,
+            R.string.contribute_viki_en_link to VIKI_EN_HELP_URL, R.string.contribute_viki_de_link to VIKI_DE_HELP_URL),
     ),
     ContributePart(R.string.contribute_bl_title, R.string.contribute_bl, listOf(R.string.contribute_bl_link to BonaLingvo.SITE)),
     ContributePart(R.string.contribute_app_title, R.string.contribute_app, listOf(R.string.contribute_app_link to ISSUES_URL)),

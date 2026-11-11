@@ -374,4 +374,23 @@ class VikivortaroTest {
             "aŭtobushaltejo" to "Arrêt de bus.",
         )))
     }
+
+    @Test
+    fun aGermanNounKeepsItsCapital() {
+        val pairs = Vikivortaro.glossPairs(mapOf(
+            "cerbo" to "Gehirn, Hirn.",
+            "ŝteli" to "stehlen.",
+            "kverko" to "die Eiche.",
+        ), VikiLanguage.GERMAN)
+        assertEquals(listOf("Gehirn" to "cerbo", "Hirn" to "cerbo", "stehlen" to "ŝteli"), pairs)
+    }
+
+    @Test
+    fun aGermanWordIsAlsoKeyedWithoutUmlautsNorSharpS() {
+        assertEquals("mueller", Vikivortaro.spelledOut("Müller"))
+        assertEquals("strasse", Vikivortaro.spelledOut("Straße"))
+        assertEquals("weissrussland", Vikivortaro.spelledOut("Weißrussland"))
+        assertEquals("bauer", Vikivortaro.spelledOut("Bauer"))
+    }
 }
+

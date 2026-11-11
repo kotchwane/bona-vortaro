@@ -91,4 +91,28 @@ class TriePatternTest {
         assertEquals(listOf("arbo"), pattern("arbo").filter { it == "arbo" })
         assertTrue(pattern("arbo").all { it.lowercase() == "arbo" })
     }
+
+    @Test
+    fun germanIsFoundWithoutItsUmlautsNorSharpS() {
+        val file = File("src/main/assets/indices/index-de.bin")
+        assumeTrue("the dictionary isn't built", file.exists())
+        val trie = file.inputStream().use { Trie(it) }
+        fun results(typed: String): List<SearchResult> {
+            val results = arrayOfNulls<SearchResult>(64)
+            return results.take(trie.searchIgnoringAccents(typed, results, false)).filterNotNull()
+        }
+        fun found(typed: String) = results(typed).map { it.word }
+        assertTrue(found("Strasse").any { it.startsWith("Straße") })
+        /* As it is typed: "Stras" already "Straß" */
+        assertTrue(found("Stras").any { it.startsWith("Straße") })
+        assertTrue(found("Kuehlschrank").any { it.startsWith("Kühlschrank") })
+        /* A real "ss" or "ue" beside them */
+        assertTrue(found("Weissrussland").any { it.startsWith("Weißrussland") })
+        assertTrue(found("Bauer").any { it.startsWith("Bauer") })
+        assertTrue(found("Kuss").any { it.startsWith("Kuss") })
+        /* Each word once */
+        val mue = results("Mue").map { Triple(it.word, it.article, it.mark) }
+        assertEquals(mue.size, mue.distinct().size)
+    }
 }
+

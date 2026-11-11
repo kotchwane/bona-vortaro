@@ -91,9 +91,15 @@ object Vikivortaro {
         /* The Esperanto words with nothing said of them that are shown
          * all the same ([VikiLanguage.showsUndescribed]) */
         val undescribed: Collection<String> = emptyList(),
+        /* In German, the keys with umlauts and ß spelled out ("mueller",
+         * "strasse"), sorted, each with the index of its pair */
+        val spelledKeys: List<String> = emptyList(),
+        val spelledIndices: IntArray = IntArray(0),
     ) {
         /* The Esperanto words that Vikivortaro describes or defines, sorted
-         * by key; in English, all of its Esperanto words */
+         * by key; in English and German, all of their Esperanto words: the
+         * same dictionary in every tab, "belto" found in Esperanto as "Belt"
+         * finds it in German (user, 2026-11-11) */
         private val keyed = (descriptions.keys + definitions.keys + undescribed).distinct().map { key(it) to it }.sortedBy { it.first }
         val esperantoWords: List<String> = keyed.map { it.second }
         val esperantoKeys: List<String> = keyed.map { it.first }
@@ -174,10 +180,15 @@ object Vikivortaro {
         for ((foreign, esperanto) in pairs)
             /* By the word as written: "bruno" the colour isn't "Bruno" */
             foreignOf.getOrPut(esperanto) { mutableListOf() }.add(foreign)
+        val spelled = if (language == VikiLanguage.GERMAN)
+            pairs.indices.map { spelledOut(pairs[it].first) to it }.sortedBy { it.first }
+        else emptyList()
         return Data(
             keyed.map { it.first }, pairs, foreignOf, descriptions, definitions(context),
             advised = lines(context, "${language.code}-eo-advised.tsv", optional = true).toHashSet(),
             undescribed = if (language.showsUndescribed) foreignOf.keys else emptyList(),
+            spelledKeys = spelled.map { it.first },
+            spelledIndices = spelled.map { it.second }.toIntArray(),
         )
     }
 
@@ -209,8 +220,8 @@ object Vikivortaro {
                 .filter { ' ' !in it || it.substringBefore(' ').lowercase(Locale.ROOT) !in language.glossDescribing }
                 .map { item ->
                     /* Its capital only as the first word of the description,
-                     * unless a name ("États-Unien") */
-                    val foreign = if (!name && item.first().isUpperCase() && item.drop(1).none { it.isUpperCase() })
+                     * unless a name ("États-Unien"), or a German noun */
+                    val foreign = if (!name && !language.capitalNouns && item.first().isUpperCase() && item.drop(1).none { it.isUpperCase() })
                         item.replaceFirstChar { it.lowercase(Locale.ROOT) } else item
                     foreign to esperanto
                 }
@@ -281,6 +292,11 @@ object Vikivortaro {
         val typed = query.lowercase(Locale.ROOT).trim()
         var start = data.keys.binarySearch(prefix).let { if (it < 0) -it - 1 else it }
         while (start > 0 && data.keys[start - 1].startsWith(prefix)) start--
+        var end = start
+        while (end < data.keys.size && data.keys[end].startsWith(prefix)) end++
+        /* In German, typed without umlauts nor ß: "Strasse" Straße,
+         * "Weissrussland" Weißrussland, also with a real "ss" beside */
+        val spelled = germanSpelled(data, query, start until end)
 
         val (esperanto, foreign) = try {
             TrieCache.getTrie(context, "eo") to TrieCache.getTrie(context, language.code)
@@ -288,15 +304,19 @@ object Vikivortaro {
             return emptyList()
         }
         val results = mutableListOf<VikiResult>()
-        var i = start
+        /* In the order of the keys, the words spelled out among the others */
+        val indices = if (spelled.isEmpty()) (start until end).asSequence()
+            else ((start until end) + spelled).sorted().asSequence()
+        val iterator = indices.iterator()
         /* Not too many lookups in Reta Vortaro, when it has most of them;
          * the words that don't match what was typed cost nothing: "â" finds
          * "âcreté" among all of "a…" */
         var looked = 0
-        while (i < data.keys.size && data.keys[i].startsWith(prefix) && results.size < MAX_RESULTS && looked < MAX_LOOKED_AT &&
+        while (iterator.hasNext() && results.size < MAX_RESULTS && looked < MAX_LOOKED_AT &&
             (looked % 16 != 0 || !stopped())) {
-            val (word, esperantoWord) = data.pairs[i++]
-            if (!matches(typed, word))
+            val index = iterator.next()
+            val (word, esperantoWord) = data.pairs[index]
+            if (index in start until end && !matches(typed, word))
                 continue
             looked++
             /* Where Reta Vortaro has the word, Wiktionary's Esperanto too,
@@ -762,6 +782,30 @@ object Vikivortaro {
      * search does: a letter typed without accent matches any accent ("eleve"
      * finds "élève"), one typed with an accent only that one, so "lŭ" finds
      * nothing and not "lubie". */
+    /** A German word as typed without umlauts nor ß: "mueller" for
+     * Müller, "strasse" for Straße; the case and other accents aside */
+    internal fun spelledOut(word: String): String =
+        key(word.lowercase(Locale.ROOT).replace("ü", "ue").replace("ä", "ae").replace("ö", "oe").replace("ß", "ss"))
+
+    /* The indices of the German pairs that the query finds spelled out and
+     * not as it is: only when it has such a pair of letters, "ue", "ss" */
+    private fun germanSpelled(data: Data, query: String, found: IntRange): List<Int> {
+        if (data.spelledKeys.isEmpty() || !SPELLED_PAIRS.containsMatchIn(query.lowercase(Locale.ROOT)))
+            return emptyList()
+        val prefix = spelledOut(query)
+        var i = data.spelledKeys.binarySearch(prefix).let { if (it < 0) -it - 1 else it }
+        while (i > 0 && data.spelledKeys[i - 1].startsWith(prefix)) i--
+        val extra = mutableListOf<Int>()
+        while (i < data.spelledKeys.size && data.spelledKeys[i].startsWith(prefix) && extra.size < MAX_LOOKED_AT) {
+            val index = data.spelledIndices[i++]
+            if (index !in found)
+                extra.add(index)
+        }
+        return extra
+    }
+
+    private val SPELLED_PAIRS = Regex("ue|ae|oe|ss")
+
     internal fun matches(typed: String, word: String): Boolean {
         val typed = typed.replace("œ", "oe").replace("æ", "ae")
         val written = Normalizer.normalize(word.lowercase(Locale.ROOT).replace('’', '\''), Normalizer.Form.NFC)
@@ -865,6 +909,23 @@ object Vikivortaro {
      * Esperanto word */
     fun anyForeignOf(context: Context, word: String): Boolean =
         VikiLanguage.ALL.any { foreignOf(context, it, word).isNotEmpty() }
+
+    /** For an Esperanto word that nothing describes, the sense of the
+     * table each word of a language is translated in, in that language:
+     * "Belt", "Ostseeraum: Meerenge zwischen einer Insel und dem
+     * gegenüberliegenden Festland" for belto (user, 2026-11-11). Read from
+     * the file each time, for one page: not kept. Disk access: not on the
+     * main thread. */
+    fun senses(context: Context, language: VikiLanguage, word: String): Map<String, String> = try {
+        val start = word + "\t"
+        context.assets.open("vikivortaro/${language.code}-eo-senses.tsv").bufferedReader().useLines { lines ->
+            lines.filter { it.startsWith(start) }
+                .mapNotNull { line -> line.split('\t').takeIf { it.size == 3 }?.let { it[1] to it[2] } }
+                .toMap()
+        }
+    } catch (e: IOException) {
+        emptyMap()
+    }
 
     /** A Wiktionary's description of an Esperanto word, in its language, if
      * it says more than the words translated by it. Disk access: not on the

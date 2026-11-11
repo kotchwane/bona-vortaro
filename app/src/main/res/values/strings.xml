@@ -134,7 +134,7 @@
   <string name="guide_vikivortaro_title">Vikivortaro</string>
   <string name="guide_bl_title">Malrekomendataj vortoj</string>
   <string name="guide_bl">Iujn vortojn, ofte novajn kaj internaciajn, „Vortoj de la bona lingvo“ malrekomendas, kaj proponas diri alie, per vortoj faritaj el konataj radikoj: „eskalatoro“, prefere „rulŝtuparo“. En la artikoloj rimarko diras, kion diri anstataŭe; tiujn, kiujn Reta Vortaro ne havas, la serĉo montras kun la etikedo „malrekomendata“.</string>
-  <string name="guide_vikivortaro">La vortoj kaj tradukoj, kiujn Reta Vortaro ne havas, venas el Vikivortaro (CC\u00A0BY-SA\u00A04.0): punktite substrekitaj (en la serĉo, la tradukitaj vortoj), kaj ne grasaj, se Reta Vortaro ne havas ilin. Tuŝu tian vorton por scii, de kie ĝi venas. La esperantaj difinoj de kelkcent vortoj aperas por ĉiuj; la vortoj kaj tradukoj en alia lingvo (la franca, la angla) nur, se tiu lingvo estas inter la tradukoj en la agordoj.</string>
+  <string name="guide_vikivortaro">La vortoj kaj tradukoj, kiujn Reta Vortaro ne havas, venas el Vikivortaro (CC\u00A0BY-SA\u00A04.0): punktite substrekitaj (en la serĉo, la tradukitaj vortoj), kaj ne grasaj, se Reta Vortaro ne havas ilin. Tuŝu tian vorton por scii, de kie ĝi venas. La esperantaj difinoj de kelkcent vortoj aperas por ĉiuj; la vortoj kaj tradukoj en alia lingvo (la franca, la angla, la germana) nur, se tiu lingvo estas inter la tradukoj en la agordoj.</string>
   <string name="guide_official_title">Oficialeco</string>
   <string name="guide_official">La etikedoj „Fundamento“ kaj „9a Oficiala Aldono“ montras, ke radiko aŭ vorto estas oficiala, kaj ekde kiam. Tuŝu ilin por scii pli kaj vidi la listojn.</string>
   <string name="guide_neighbours_title">Legi plu</string>
@@ -198,6 +198,8 @@
   <string name="contribute_viki">La vortoj kaj tradukoj kun punktita substreko, kelkaj difinoj kaj la devenoj markitaj „Vikivortaro“ venas el Vikivortaro, la libera vortaro, kiun ĉiu povas redakti, kun aŭ sen konto. Ĉiu tia vorto ligas al sia paĝo, kie vi povas korekti aŭ kompletigi ĝin; la komunumo de Vikivortaro kontrolas la ŝanĝojn.</string>
   <string name="contribute_viki_link">Kiel redakti la esperantan Vikivortaron</string>
   <string name="contribute_viki_fr_link">Helpo de la franca Vikivortaro</string>
+  <string name="contribute_viki_en_link">Helpo de la angla Vikivortaro</string>
+  <string name="contribute_viki_de_link">Helpo de la germana Vikivortaro</string>
   <string name="contribute_bl_title">Malrekomendataj vortoj</string>
   <string name="contribute_bl">La malrekomendoj kaj la pli simplaj vortoj venas el „Vortoj de la bona lingvo“. En ĝia retejo, ĉiu vorto havas formularon por sendi proponon aŭ korekton al la laborgrupo.</string>
   <string name="contribute_bl_link">labonalingvo.org</string>
@@ -232,6 +234,7 @@
   <string name="viki_word_source">„%1$s“ venas el Vikivortaro (CC\u00A0BY-SA\u00A04.0).</string>
   <!-- "franca: épicier": the name of the language, then its words -->
   <string name="viki_in_language">%1$s: %2$s</string>
+  <string name="viki_only_translation">nur traduko de la %1$s %2$s</string>
   <!-- On the page of a word only Wiktionary has, the same word with the other case: "Smurfo" -->
   <string name="viki_other_case">Vidu ankaŭ „%1$s“ ›</string>
   <string name="not_in_revo">ne en Reta Vortaro</string>
@@ -271,6 +274,8 @@
   <!-- In "Fontoj": the dictionaries the headwords are in, "aboli — Plena Ilustrita Vortaro (1970); abolicii — …" -->
   <string name="sources_viki">la tradukoj kun punktita substreko, elektitaj kaj adaptitaj por Bona vortaro</string>
   <string name="sources_viki_word_only">la vorto „%1$s“</string>
+  <string name="sources_viki_found_page">; vidu la paĝon\u0020</string>
+  <string name="sources_viki_found_pages">; vidu la paĝojn\u0020</string>
   <!-- The Esperanto Wiktionary's definition of a word Reta Vortaro doesn't have -->
   <string name="sources_viki_eo">„%1$s“ kaj ĝia difino</string>
   <string name="sources_viki_eo_adapted">„%1$s“ kaj ĝia difino, adaptitaj por Bona vortaro</string>
@@ -286,7 +291,7 @@
   <string name="sources_viki_foreign_translations_adapted">la %1$sj tradukoj adaptitaj por Bona vortaro</string>
   <string name="sources_viki_word">„%1$s“ kaj ĝia priskribo, adaptitaj por Bona vortaro</string>
   <string name="about_viki_title">Vikivortaro</string>
-  <string name="about_viki">Kelkaj vortoj kaj tradukoj, kiujn la Reta Vortaro ne havas, venas el Vikivortaro: francaj tradukoj kaj priskriboj el fr.wiktionary.org, anglaj el en.wiktionary.org, kaj la difinoj de kelkcent esperantaj vortoj el eo.wiktionary.org, elektitaj unu post la alia. Ili havas punktitan substrekon (en la serĉo, la tradukitaj vortoj), kaj la vortoj, kiujn Reta Vortaro ne havas, ne estas grasaj. Vikivortaro estas verkita de ĝiaj kontribuantoj kaj publikigita laŭ la permesilo CC\u00A0BY-SA\u00A04.0. Tiuj tradukoj kaj difinoj estas elektitaj kaj adaptitaj por Bona vortaro, kaj restas apartaj de la Reta Vortaro.</string>
+  <string name="about_viki">Kelkaj vortoj kaj tradukoj, kiujn la Reta Vortaro ne havas, venas el Vikivortaro: francaj tradukoj kaj priskriboj el fr.wiktionary.org, anglaj el en.wiktionary.org, germanaj el de.wiktionary.org, kaj la difinoj de kelkcent esperantaj vortoj el eo.wiktionary.org, elektitaj unu post la alia. Ili havas punktitan substrekon (en la serĉo, la tradukitaj vortoj), kaj la vortoj, kiujn Reta Vortaro ne havas, ne estas grasaj. Vikivortaro estas verkita de ĝiaj kontribuantoj kaj publikigita laŭ la permesilo CC\u00A0BY-SA\u00A04.0. Tiuj tradukoj kaj difinoj estas elektitaj kaj adaptitaj por Bona vortaro, kaj restas apartaj de la Reta Vortaro.</string>
   <string name="about_viki_link">Vikivortaro</string>
   <string name="about_bl_title">Vortoj de la bona lingvo</string>
   <string name="about_bl">La vortoj „malrekomendataj“ kaj tio, kion diri anstataŭe, venas el „Vortoj de la bona lingvo“, publikigita laŭ la permesilo CC\u00A0BY-SA\u00A04.0. Atribuo: Renato Corsetti, Noam Mohr, kaj la laborgrupo de la Bona Lingvo, labonalingvo.org. La listo estas adaptita por Bona vortaro, kiu montras nur tion, kion la laborgrupo jam kontrolis.</string>
