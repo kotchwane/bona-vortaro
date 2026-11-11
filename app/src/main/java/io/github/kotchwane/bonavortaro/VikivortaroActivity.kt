@@ -329,7 +329,8 @@ private fun VikiPage(
     val foreign by produceState(emptyList<ForeignWords>(), word, vikiLanguages) {
         value = withContext(Dispatchers.IO) {
             fun wordsIn(languages: List<VikiLanguage>) =
-                languages.map { ForeignWords(it.code, Vikivortaro.foreignOf(context, it, word), Vikivortaro.description(context, it, word)) }
+                languages.map { ForeignWords(it.code, Vikivortaro.foreignOf(context, it, word), Vikivortaro.description(context, it, word),
+                    hasPage = Vikivortaro.hasPage(context, it, word)) }
                     .filter { it.words.isNotEmpty() || it.description != null }
             val all = wordsIn(Vikivortaro.readerOrder(context))
             if (all.any { it.description != null } || Vikivortaro.definition(context, word) != null)
@@ -554,7 +555,7 @@ private fun VikiPage(
                  * for "anakondo", whose page has only words */
                 vikiDescription = foreign.any { it.description != null },
                 /* Where a Wiktionary only translates by it, its words' pages */
-                vikiPages = foreign.filter { it.description == null && it.words.isNotEmpty() }.associate { it.language to it.words },
+                vikiPages = foreign.filter { !it.hasPage && it.words.isNotEmpty() }.associate { it.language to it.words },
                 vikiEsperanto = definition,
                 bonaLingvo = advice != null,
                 modifier = Modifier.padding(horizontal = 8.dp, vertical = 10.dp),
@@ -727,6 +728,8 @@ private data class ForeignWords(
     val description: String?,
     /** Where nothing describes the word, the sense of each word's table */
     val senses: Map<String, String> = emptyMap(),
+    /** Whether that Wiktionary has a page for the Esperanto word */
+    val hasPage: Boolean = description != null,
 )
 
 /** A sense of a definition, each word long pressed looked up, as in Reta

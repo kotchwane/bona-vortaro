@@ -441,10 +441,13 @@ object Vikivortaro {
     }
 
     /* The language whose Wiktionary says most of an Esperanto word for the
-     * reader: the first of theirs that gives its words or describes it,
-     * else the first of theirs (its Esperanto definition only) */
+     * reader: the first of theirs that describes it, else that gives its
+     * words, else the first of theirs (its Esperanto definition only). Not
+     * "nur traduko de la germana" where French describes it, as its page
+     * does (review, 2026-11-11) */
     private fun languageOf(languages: List<Pair<VikiLanguage, Data>>, word: String): Pair<VikiLanguage, Data> =
-        languages.firstOrNull { (_, data) -> word in data.foreignOf || word in data.descriptions } ?: languages.first()
+        languages.firstOrNull { (_, data) -> informative(data, word) != null }
+            ?: languages.firstOrNull { (_, data) -> word in data.foreignOf || word in data.descriptions } ?: languages.first()
 
     /** The same word with its first letter in the other case, when only
      * Wiktionary has both: "Smurfo" for "smurfo"; null otherwise. Disk
@@ -931,6 +934,11 @@ object Vikivortaro {
      * it says more than the words translated by it. Disk access: not on the
      * main thread. */
     fun description(context: Context, language: VikiLanguage, word: String): String? = informative(data(context, language), word)
+
+    /** Whether a Wiktionary has a page of its own for an Esperanto word: a
+     * description, even one only repeating its words ("spicisto",
+     * "Épicier."). Disk access: not on the main thread. */
+    fun hasPage(context: Context, language: VikiLanguage, word: String): Boolean = word in data(context, language).descriptions
 
     /* Two descriptions in three only repeat a word: "spicisto", "Épicier." */
     private fun informative(data: Data, word: String): String? {

@@ -43,8 +43,8 @@ Esperanto, kun ĝiaj tradukoj en pli ol 170 lingvojn. Ĉio estas en la telefono:
 ĝi funkcias sen interreto, kaj petas neniun permeson de la telefono. Ĝi naskiĝis
 el [PReVo](https://github.com/bpeel/prevo), la vortaro de Neil Roberts.
 
-Por la franca kaj la angla, ĝi aldonas la tradukojn, kiujn Reta Vortaro ne havas, el
-la franca kaj la angla Vikivortaro ([fr](https://fr.wiktionary.org/), [en](https://en.wiktionary.org/)). Ĝi montras ankaŭ la difinojn de kelkcent
+Por la franca, la angla kaj la germana, ĝi aldonas la tradukojn, kiujn Reta Vortaro ne
+havas, el ilia Vikivortaro ([fr](https://fr.wiktionary.org/), [en](https://en.wiktionary.org/), [de](https://de.wiktionary.org/)). Ĝi montras ankaŭ la difinojn de kelkcent
 vortoj el la esperanta [Vikivortaro](https://eo.wiktionary.org/), kaj la vortojn,
 kiujn [Vortoj de la bona lingvo](https://labonalingvo.org/) malrekomendas, kun tio,
 kion diri anstataŭe.
@@ -70,16 +70,18 @@ kion diri anstataŭe.
 - **Diveni vortojn, kiuj mankas** en la vortaro: la serĉo proponas, el kiuj
   radikoj kaj afiksoj ili eble konsistas (*malsanulejestrano*: malsanulej +
   estr + ano).
-- **Pli da francaj tradukoj** el Vikivortaro, kie Reta Vortaro ne havas ilin:
-  miloj da pliaj francaj vortoj troveblaj (*potiron* trovas *kukurbo*), kaj
-  miloj da tradukoj aldonitaj en la artikoloj, kun punktita substreko. Ili
-  aperas nur, se la franca estas inter viaj lingvoj.
+- **Pli da tradukoj en la franca, la angla kaj la germana** el Vikivortaro, kie
+  Reta Vortaro ne havas ilin: miloj da pliaj vortoj troveblaj (*potiron* trovas
+  *kukurbo*, *selfie* trovas *memfoto*), kaj miloj da tradukoj aldonitaj en la
+  artikoloj, kun punktita substreko. Ili aperas nur, se tiu lingvo estas inter
+  viaj lingvoj. Vorto, kies radikon Reta Vortaro ne havas, aperas nur kun esperanta
+  difino.
 - **Malrekomendataj vortoj** laŭ *Vortoj de la bona lingvo*, de Renato Corsetti, Noam
   Mohr kaj la laborgrupo de la Bona Lingvo: *eskalatoro*, prefere *rulŝtuparo*. Nur tio,
   kion la laborgrupo jam kontrolis.
-- **Difinoj el la esperanta Vikivortaro** por 683 vortoj, kiujn Reta Vortaro ne
+- **Difinoj el la esperanta Vikivortaro** por 960 vortoj, kiujn Reta Vortaro ne
   havas (*GLAT*, *pi*), elektitaj unu post la alia.
-- **La deveno de la vortoj**, se vi ŝaltas ĝin en la agordoj: el kiuj lingvoj ili
+- **La deveno de la vortoj**, kiun vi povas malŝalti en la agordoj: el kiuj lingvoj ili
   venas, laŭ la *Etimologia Vortaro de Esperanto* de András Rajki kaj laŭ la
   esperanta Vikivortaro (*akvo*: itala *acqua*, latina *aqua*).
 - **La fontoj de la ekzemploj** (Zamenhof, Monato…), kun ligilo al la verko,
@@ -101,8 +103,8 @@ volas esti same: simpla, klara, kaj agrabla por uzi.
 kies historio estas konservita en ĉi tiu deponejo. Ĝi havas novan interfacon
 (Jetpack Compose), novan aspekton kaj novajn funkciojn. La datumoj venas de la
 redaktoroj de [Reta Vortaro](https://github.com/revuloj/revo-fonto); la aldonaj
-francaj kaj anglaj tradukoj, de la kontribuantoj de la franca [Vikivortaro](https://fr.wiktionary.org/)
-kaj de la angla [Vikivortaro](https://en.wiktionary.org/), per la eltiroj de [Kaikki](https://kaikki.org/); la esperantaj difinoj, de la
+francaj, anglaj kaj germanaj tradukoj, de la kontribuantoj de la franca [Vikivortaro](https://fr.wiktionary.org/),
+de la angla [Vikivortaro](https://en.wiktionary.org/) kaj de la germana [Vikivortaro](https://de.wiktionary.org/), per la eltiroj de [Kaikki](https://kaikki.org/); la esperantaj difinoj, de la
 kontribuantoj de la esperanta [Vikivortaro](https://eo.wiktionary.org/); la
 malrekomendoj, de [La Bona Lingvo](https://labonalingvo.org/); la deveno de la vortoj,
 el la [*Etimologia Vortaro de Esperanto*](https://archive.org/details/EsperantoEtymologicalDictionary)
@@ -137,7 +139,7 @@ tutan vortaron.
 
 La datumoj de Vikivortaro, male, estas en la deponejo
 (`app/src/main/assets/vikivortaro/`), por ke ĉiu konstruado estu sama. Por
-renovigi ilin el la nunaj eltiroj de Kaikki (ĉirkaŭ 740 MB por la franca, 710 MB por la angla,
+renovigi ilin el la nunaj eltiroj de Kaikki (ĉirkaŭ 740 MB por la franca, 710 MB por la angla, 310 MB por la germana,
 legataj sen konservo):
 
 ```bash
@@ -145,6 +147,7 @@ python3 scripts/vikivortaro.py https://kaikki.org/dictionary/downloads/fr/fr-ext
 python3 scripts/vikivortaro.py en \
     https://kaikki.org/dictionary/English/kaikki.org-dictionary-English.jsonl.gz \
     https://kaikki.org/dictionary/Esperanto/kaikki.org-dictionary-Esperanto.jsonl
+python3 scripts/vikivortaro.py de https://kaikki.org/dictionary/downloads/de/de-extract.jsonl.gz
 ```
 
 Same la esperantaj difinoj, el la eltiro de la esperanta Vikivortaro (la vortoj
@@ -166,7 +169,7 @@ python3 scripts/frequency.py epo_mixed_2012_1M-words.txt
 | `app/` | la apo por Android (Kotlin kaj Compose, kun Java-kerno el PReVo) |
 | `prevodb/` | la konvertilo de la XML de ReVo al la dosieroj de la apo (C) |
 | `extern/revo-fonto`, `extern/voko-grundo` | la fontoj de Reta Vortaro (submoduloj) |
-| `app/src/main/assets/vikivortaro/` | la francaj kaj anglaj tradukoj kaj la esperantaj difinoj el Vikivortaro (CC BY-SA 4.0) |
+| `app/src/main/assets/vikivortaro/` | la francaj, anglaj kaj germanaj tradukoj kaj la esperantaj difinoj el Vikivortaro (CC BY-SA 4.0) |
 | `app/src/main/assets/bonalingvo/` | la listo de La Bona Lingvo (CC BY-SA 4.0) |
 | `app/src/main/assets/deveno/` | la deveno de la vortoj: de Rajki (CC0 1.0) kaj el Vikivortaro (CC BY-SA 4.0) |
 | `app/src/main/assets/frequency/` | la ofteco de la kapvortoj, el la Leipzig Corpora Collection (CC BY) |
@@ -208,8 +211,8 @@ Everything is on the phone: it works without Internet access, and asks
 for no permission at all. It grew out of [PReVo](https://github.com/bpeel/prevo),
 Neil Roberts' dictionary.
 
-For French and English, it adds the translations that Reta Vortaro lacks, from the
-French and English Wiktionary ("Vikivortaro": [fr](https://fr.wiktionary.org/), [en](https://en.wiktionary.org/)). It also shows the
+For French, English and German, it adds the translations that Reta Vortaro lacks,
+from their Wiktionary ("Vikivortaro": [fr](https://fr.wiktionary.org/), [en](https://en.wiktionary.org/), [de](https://de.wiktionary.org/)). It also shows the
 definitions of a few hundred words from the Esperanto
 [Wiktionary](https://eo.wiktionary.org/), and the words that
 [Vortoj de la bona lingvo](https://labonalingvo.org/) advises against, with what to
@@ -236,16 +239,18 @@ say instead.
 - **Guess missing words**: when a word isn't in the dictionary, the search
   suggests the roots and affixes it may be built from (*malsanulejestrano*:
   malsanulej + estr + ano).
-- **More French translations** from Wiktionary, where Reta Vortaro has none:
-  thousands more French words to search (*potiron* finds *kukurbo*), and
-  thousands of translations added in the articles, with a dotted underline.
-  They only show if French is among your languages.
+- **More translations in French, English and German** from Wiktionary, where
+  Reta Vortaro has none: thousands more words to search (*potiron* finds
+  *kukurbo*, *selfie* finds *memfoto*), and thousands of translations added in
+  the articles, with a dotted underline. They only show if that language is
+  among your languages. A word whose root Reta Vortaro lacks only shows with an
+  Esperanto definition.
 - **Words advised against** by *Vortoj de la bona lingvo*, by Renato Corsetti, Noam
   Mohr and the working group of La Bona Lingvo: *eskalatoro*, preferably *rulŝtuparo*.
   Only what the working group has checked.
-- **Definitions from the Esperanto Wiktionary** for 683 words Reta Vortaro lacks
+- **Definitions from the Esperanto Wiktionary** for 960 words Reta Vortaro lacks
   (*GLAT*, *pi*), chosen one by one.
-- **The origins of the words**, if you turn them on in the settings: which
+- **The origins of the words**, which you can turn off in the settings: which
   languages they come from, according to András Rajki's *Etimologia Vortaro de
   Esperanto* and the Esperanto Wiktionary (*akvo*: Italian *acqua*, Latin *aqua*).
 - **The sources of the examples** (Zamenhof, Monato…), with a link to the work,
@@ -269,8 +274,9 @@ building. *Bona vortaro* aims to be the same: simple, clear, and pleasant to use
 whose history is kept in this repository. It has a new interface (Jetpack
 Compose), a new look and new features. The data comes from the editors of
 [Reta Vortaro](https://github.com/revuloj/revo-fonto); the added
-French and English translations, from the contributors of the French
-[Wiktionary](https://fr.wiktionary.org/) and the English [Wiktionary](https://en.wiktionary.org/),
+French, English and German translations, from the contributors of the French
+[Wiktionary](https://fr.wiktionary.org/), the English [Wiktionary](https://en.wiktionary.org/)
+and the German [Wiktionary](https://de.wiktionary.org/),
 through [Kaikki](https://kaikki.org/)'s extracts; the Esperanto definitions, from the
 contributors of the Esperanto [Wiktionary](https://eo.wiktionary.org/); the advice,
 from [La Bona Lingvo](https://labonalingvo.org/); the origins of the words, from
@@ -306,7 +312,7 @@ dictionary.
 
 The Wiktionary data, on the other hand, is in the repository
 (`app/src/main/assets/vikivortaro/`), so that every build is the same. To refresh
-them from Kaikki's current extracts (about 740 MB for French, 710 MB for English,
+them from Kaikki's current extracts (about 740 MB for French, 710 MB for English, 310 MB for German,
 streamed, not kept):
 
 ```bash
@@ -314,6 +320,7 @@ python3 scripts/vikivortaro.py https://kaikki.org/dictionary/downloads/fr/fr-ext
 python3 scripts/vikivortaro.py en \
     https://kaikki.org/dictionary/English/kaikki.org-dictionary-English.jsonl.gz \
     https://kaikki.org/dictionary/Esperanto/kaikki.org-dictionary-Esperanto.jsonl
+python3 scripts/vikivortaro.py de https://kaikki.org/dictionary/downloads/de/de-extract.jsonl.gz
 ```
 
 The same for the Esperanto definitions, from the Esperanto Wiktionary's dump (the
@@ -335,7 +342,7 @@ python3 scripts/frequency.py epo_mixed_2012_1M-words.txt
 | `app/` | the Android app (Kotlin and Compose, with a Java core from PReVo) |
 | `prevodb/` | the converter from ReVo's XML to the app's files (C) |
 | `extern/revo-fonto`, `extern/voko-grundo` | the sources of Reta Vortaro (submodules) |
-| `app/src/main/assets/vikivortaro/` | the French and English translations and the Esperanto definitions from Wiktionary (CC BY-SA 4.0) |
+| `app/src/main/assets/vikivortaro/` | the French, English and German translations and the Esperanto definitions from Wiktionary (CC BY-SA 4.0) |
 | `app/src/main/assets/bonalingvo/` | La Bona Lingvo's list (CC BY-SA 4.0) |
 | `app/src/main/assets/deveno/` | the origins of the words: Rajki's (CC0 1.0) and from Wiktionary (CC BY-SA 4.0) |
 | `app/src/main/assets/frequency/` | how often the headwords are used, from the Leipzig Corpora Collection (CC BY) |

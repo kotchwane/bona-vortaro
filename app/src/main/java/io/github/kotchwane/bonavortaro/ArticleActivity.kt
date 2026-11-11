@@ -910,9 +910,11 @@ internal fun WordActions(
     }
     /* A word of another language that only its Wiktionary has, as the
      * search shows it: "einhergehen → iri" (test round 10) */
-    val wiktionary by produceState(emptyList<VikiResult>(), word, language) {
-        if (language != "eo")
-            value = withContext(Dispatchers.IO) { WordLookup.findInWiktionary(context, word, language) }
+    /* null while it is looked up: not "ne trovita" a moment before its
+     * rows (review, 2026-11-11) */
+    val wiktionary by produceState<List<VikiResult>?>(null, word, language) {
+        value = if (language == "eo") emptyList()
+        else withContext(Dispatchers.IO) { WordLookup.findInWiktionary(context, word, language) }
     }
     /* A word of Esperanto missing from the dictionary: how it may be built.
      * Not with a capital, most often a name ("Paris", "Seneca"), even if
@@ -937,8 +939,8 @@ internal fun WordActions(
                 modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
             )
             when {
-                entries == null -> {}
-                entries!!.isEmpty() && wiktionary.isNotEmpty() -> {}
+                entries == null || wiktionary == null -> {}
+                entries!!.isEmpty() && wiktionary!!.isNotEmpty() -> {}
                 entries!!.isEmpty() -> {
                     Text(
                         stringResource(R.string.word_not_found, word),
@@ -980,7 +982,7 @@ internal fun WordActions(
              * shows them so; opened as from the search, its article or
              * the page of the Esperanto word */
             if (entries != null)
-                for (result in wiktionary.take(maxOf(0, WordLookup.MAX_ENTRIES - entries!!.size)))
+                for (result in wiktionary.orEmpty().take(maxOf(0, WordLookup.MAX_ENTRIES - entries!!.size)))
                     VikiResultRow(result, onClick = {
                         onDismiss()
                         result.revo?.let(onOpen) ?: VikivortaroActivity.open(context, result.esperanto)
