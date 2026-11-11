@@ -88,17 +88,19 @@ object Vikivortaro {
         /* The pairs whose Esperanto word "Vortoj de la bona lingvo" advises
          * against in their sense, reviewed one by one (data/vikivortaro-advised.tsv) */
         val advised: Set<Pair<String, String>> = emptySet(),
+        /* The Esperanto words with nothing said of them that are shown
+         * all the same ([VikiLanguage.showsUndescribed]) */
+        val undescribed: Collection<String> = emptyList(),
         /* In German, the keys with umlauts and ß spelled out ("mueller",
          * "strasse"), sorted, each with the index of its pair */
         val spelledKeys: List<String> = emptyList(),
         val spelledIndices: IntArray = IntArray(0),
     ) {
         /* The Esperanto words that Vikivortaro describes or defines, sorted
-         * by key: the search in Esperanto finds those only. Not those that
-         * only a translation table gives, shown from their word ("Belt →
-         * belto"): one contributor's translation, which a quick search in
-         * Esperanto would take for a word of the language (user, 2026-11-11) */
-        private val keyed = (descriptions.keys + definitions.keys).distinct().map { key(it) to it }.sortedBy { it.first }
+         * by key; in English and German, all of their Esperanto words: the
+         * same dictionary in every tab, "belto" found in Esperanto as "Belt"
+         * finds it in German (user, 2026-11-11) */
+        private val keyed = (descriptions.keys + definitions.keys + undescribed).distinct().map { key(it) to it }.sortedBy { it.first }
         val esperantoWords: List<String> = keyed.map { it.second }
         val esperantoKeys: List<String> = keyed.map { it.first }
     }
@@ -184,6 +186,7 @@ object Vikivortaro {
         return Data(
             keyed.map { it.first }, pairs, foreignOf, descriptions, definitions(context),
             advised = lines(context, "${language.code}-eo-advised.tsv", optional = true).toHashSet(),
+            undescribed = if (language.showsUndescribed) foreignOf.keys else emptyList(),
             spelledKeys = spelled.map { it.first },
             spelledIndices = spelled.map { it.second }.toIntArray(),
         )
@@ -429,10 +432,6 @@ object Vikivortaro {
      * search finds it; null if Reta Vortaro has it, or it isn't there */
     fun onlyInWiktionary(context: Context, word: String): VikiResult? {
         val result = esperantoResult(context, word) ?: return null
-        /* As the search in Esperanto: described or defined, not only in a
-         * translation table ("belton" doesn't find belto) */
-        if (VikiLanguage.ALL.none { data(context, it).let { data -> word in data.descriptions || word in data.definitions } })
-            return null
         val esperanto = try {
             TrieCache.getTrie(context, "eo")
         } catch (e: IOException) {

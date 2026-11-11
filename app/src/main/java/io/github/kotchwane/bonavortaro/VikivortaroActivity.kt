@@ -200,6 +200,15 @@ fun VikiResultRow(
                 advice?.let { preferredLine(it) } ?: AnnotatedString(if (result.inEsperanto)
                     if (result.definition != null)
                         result.definition
+                    /* Only a translation table gives it: which, for every
+                     * reader, as its page says, its words being all there
+                     * is to it (user, 2026-11-11) */
+                    else if (result.description == null && result.foreignWords.isNotEmpty())
+                        stringResource(
+                            R.string.viki_only_translation,
+                            LanguageList.getDefault(context).getLanguageName(result.language),
+                            result.foreignWords.joinToString(", ") { "„$it“" },
+                        )
                     else if (inLanguage)
                         stringResource(
                             R.string.viki_in_language,
@@ -312,17 +321,20 @@ private fun VikiPage(
     }
     /* What each Wiktionary says of it, in its language: only for those
      * who chose to see the translations in that language, as in the
-     * articles; for the others, the page has nothing in their languages */
+     * articles; for the others, the page has nothing in their languages.
+     * But a word that only translation tables give, nothing describing
+     * it: those words for every reader, with the sense of their tables,
+     * all there is to it, the same for everyone (user, 2026-11-11: a Pole
+     * finds "belto" as a German does from "Belt") */
     val foreign by produceState(emptyList<ForeignWords>(), word, vikiLanguages) {
         value = withContext(Dispatchers.IO) {
-            vikiLanguages.map { ForeignWords(it.code, Vikivortaro.foreignOf(context, it, word), Vikivortaro.description(context, it, word)) }
-                .filter { it.words.isNotEmpty() || it.description != null }
-                .let { found ->
-                    /* Nothing says what the word is: what each word it
-                     * translates means, from its table */
-                    if (found.any { it.description != null } || Vikivortaro.definition(context, word) != null) found
-                    else found.map { it.copy(senses = Vikivortaro.senses(context, VikiLanguage.of(it.language)!!, word)) }
-                }
+            fun wordsIn(languages: List<VikiLanguage>) =
+                languages.map { ForeignWords(it.code, Vikivortaro.foreignOf(context, it, word), Vikivortaro.description(context, it, word)) }
+                    .filter { it.words.isNotEmpty() || it.description != null }
+            val all = wordsIn(Vikivortaro.readerOrder(context))
+            if (all.any { it.description != null } || Vikivortaro.definition(context, word) != null)
+                wordsIn(vikiLanguages)
+            else all.map { it.copy(senses = Vikivortaro.senses(context, VikiLanguage.of(it.language)!!, word)) }
         }
     }
     /* Its definition in the Esperanto Wiktionary, for every reader; what
