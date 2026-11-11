@@ -129,6 +129,8 @@ def clean_gloss(gloss):
     editors, with a capital and a final stop, and once only: "ex.."; in
     German without a capital, which would make "stehlen", ŝteli, a noun"""
     gloss = NOTE.sub("", LABEL.sub("", clean(gloss))).strip(" ;,")
+    if LANGUAGE == "de":
+        gloss = german_gloss(gloss)
     if not gloss:
         return gloss
     if LANGUAGE != "de":
@@ -140,11 +142,36 @@ def clean_gloss(gloss):
     return gloss
 
 
+# The German Wiktionary's marks of a sense of the word, "satt₅", "noch₍₅₎",
+# "ansetzen_([10a])", and stray spaces, "Kopf , Birne", "( machen)"
+SENSE_MARK = re.compile(r"_?\(\[[^\]]*\]\)|[₀-₉₍₎]+")
+
+
+def german_gloss(gloss):
+    """A German description without its sense marks nor stray spaces, each
+    word once: "siegen, …, siegen" """
+    gloss = SENSE_MARK.sub("", gloss)
+    gloss = re.sub(r"\s+([,;)])", r"\1", gloss)
+    gloss = re.sub(r"\(\s+", "(", gloss)
+    parts = re.split(r"(\s*[,;]\s*)", gloss)
+    kept, seen = [], set()
+    for i in range(0, len(parts), 2):
+        item = parts[i].strip()
+        if item and item.rstrip(".") in seen:
+            continue
+        seen.add(item.rstrip("."))
+        if kept:
+            kept.append(parts[i - 1])
+        kept.append(parts[i])
+    return " ".join("".join(kept).split()).strip(" ;,")
+
+
 def usable(gloss):
     if LANGUAGE == "en":
         return gloss and not SENDS_EN.search(gloss) and not MARKUP.search(gloss)
     if LANGUAGE == "de":
-        return gloss and not SENDS_DE.search(gloss) and not MARKUP.search(gloss)
+        # Not a heading of the senses after it, "intransitiv:"
+        return gloss and not SENDS_DE.search(gloss) and not MARKUP.search(gloss) and not gloss.rstrip(".").endswith(":")
     return gloss and not FORM.match(gloss) and not SENDS.search(gloss) and not MARKUP.search(gloss)
 
 

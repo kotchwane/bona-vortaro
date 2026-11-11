@@ -438,7 +438,6 @@ Altenglisch	Anglosaksa lingvo
 Alter	maljunulo
 Alter	homo
 Alter	samaĝulo
-Alter	ulo
 Alter	aĝo
 Alter schützt vor Torheit nicht	griza barbo saĝon ne atestas
 Alter schützt vor Torheit nicht	ne ĉiam per aĝo mezuriĝas la saĝo
@@ -606,7 +605,6 @@ Anlage	almetaĵo
 Anlage	alaĵo
 Anlage	maŝinaro
 Anlage	ejo
-Anlage	loko
 Anlage	scenejo
 Anlage	instalaĵo
 Anlage	soninstalaĵo
@@ -6486,7 +6484,6 @@ Kissenbezug	kusensako
 Kissenschlacht	kusenbatalo
 Kissenschlacht	kusenmilito
 Kiste	kesto
-Kiste	lito
 Kita	vartejo
 Kithara	citaro
 Kitsch	kiĉo
@@ -9598,7 +9595,6 @@ Pfirsichbaum	persikarbo
 Pflanze	planto
 Pflaster	pavimo
 Pflaster	vojo
-Pflaster	ejo
 Pflaster	plastro
 Pflasterstein	pavimo
 Pflaume	plumo
@@ -10998,7 +10994,6 @@ Schnapsglas	glaseto
 Schnapszahl	ripetanta nombro
 Schnapszahl	ripetnombro
 Schnecke	heliko
-Schnecke	knabino
 Schneckentempo	helika rapideco
 Schnee	neĝo
 Schneeammer	neĝemberizo
@@ -12741,7 +12736,6 @@ Umgang	interrilato
 Umgang	rilato
 Umgang	uzado
 Umgang	traktado
-Umgang	koridoro
 Umgang	ĉirkaŭiro
 Umlauf	kurumo
 Umleitung	ĉirkaŭkonduko
@@ -14188,7 +14182,6 @@ abgehen	forlasi lokon
 abgehen	deiĝi
 abgehen	forlasi
 abgehen	foriĝi de temo
-abgehen	okazi
 abgehen	disvolviĝi
 abgehen	okazaĵi
 abgehen	esti vigle
@@ -14265,7 +14258,6 @@ abkühlen	malvarmigi
 abladen	ellasi
 ablaufen	komenciĝi
 ablaufen	eki ekkuri
-ablaufen	okazi
 ablaufen	disvolviĝi
 ablaufen	procedi
 ablaufen	evolui
@@ -14786,8 +14778,6 @@ anknüpfen	daŭrigi
 anknüpfen	ekligi
 ankokeln	ekbruligi
 ankokeln	fajrigi
-ankommen	plaĉi
-ankommen	malplaĉi al
 ankommen	kontraŭstari
 ankommen	venki
 ankommen	temi
@@ -14795,6 +14785,7 @@ ankommen	esti grava
 ankommen	havi signifon
 ankommen	efiki sur
 ankommen	esti decidiga
+ankommen	malplaĉi al
 ankurbeln	kranki
 ankämpfen	kontraŭbatali
 ankämpfen	venkemi
@@ -15259,11 +15250,9 @@ aufmüpfig	obstina
 aufmüpfig	malsubiĝema
 aufnehmen	levi
 aufnehmen	ekpreni
-aufnehmen	kolekti
 aufnehmen	enpreni
 aufnehmen	alpreni
 aufnehmen	adopti
-aufnehmen	aldoni
 aufnehmen	inkluzivi
 aufnehmen	komenci
 aufnehmen	eki
@@ -16071,7 +16060,6 @@ bestehenbleiben	plui
 besteigen	grimpi
 besteigen	surĉevaliĝi
 bestellen	mendi
-bestellen	transdoni
 bestellen	komuniki
 bestellen	kulturi
 bestellen	prilabori
@@ -16137,7 +16125,6 @@ betreiben	antaŭenpuŝi
 betreiben	administri
 betreiben	ekzerci
 betreiben	praktiki
-betreiben	fari
 betreten	hontigita
 betreten	embarasita
 betreten	eniri
@@ -16493,9 +16480,8 @@ dazugeben	aldoni
 dazukommen	alveni
 dazukommen	aldoniĝi
 dazunehmen	aldoni
-dazwischenkommen	okazi
-dazwischenkommen	okazaĉi
 dazwischenkommen	interveni
+dazwischenkommen	okazaĉi
 debattieren	debati
 debil	debila
 debütieren	debuti
@@ -19700,7 +19686,6 @@ kommandieren	komandi
 kommen	veni
 kommen	alveni
 kommen	komenciĝi
-kommen	okazi
 kommentieren	komenti
 kommerziell	komerca
 kommun	komuna
@@ -20750,8 +20735,6 @@ nisten	nesti
 nivellieren	niveli
 nobel	nobela
 noch	ankoraŭ
-noch	tamen
-noch	eĉ
 nomadisch	nomada
 nominal	nominala
 nominell	nominala
@@ -21482,7 +21465,6 @@ satt	sata
 satt	supermezura
 satt	rimarkinde granda
 satt	pli ol kontentiga
-satt	abunda
 satt	en granda kvanto
 satt	sufiĉege
 saturiert	saturita
@@ -21513,13 +21495,12 @@ schalten	ŝalti
 schalten	ekkompreni
 schalten	publikigi anoncon
 scharf	akra
-scharf	altira
-scharf	alloga
-scharf	seksalloga
 scharf	mallarĝega
 scharf	fleksega
 scharf	direktŝanĝega
 scharf	klar-detala
+scharf	altira
+scharf	seksalloga
 schau	mojosa
 scheinen	lumi
 scheitern	malsukcesi

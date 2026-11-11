@@ -10,8 +10,10 @@ Acetanilid	acetanelido
 Adelheid	Adelajdo
 Adenom	adeno
 Allzweckwaffe	universala celilo
+Alter	ulo
 Andenken	memoro pri
 Android	homunkulo
+Anlage	loko
 Archivale	arkivajo
 Armada	armado
 Aufforstung	arbara flegado
@@ -128,6 +130,7 @@ Karree	karoo
 Kartoffeldruck	terpompresi
 Kattegat	kategato
 Kattowitz	Katowice
+Kiste	lito
 Klitikon	kunantaŭera fandiĝilo
 Knuddelbär	pluŝurset
 Konfidenz	konfidenco
@@ -165,6 +168,7 @@ Panniculitis	paniklito
 Para	mono
 Parther	parto
 Peinlichkeit	malfacilaĵo
+Pflaster	ejo
 Pool	aro da samposedaĵaj investoj
 Posen	Poznań
 Privatier	privatulo
@@ -173,6 +177,7 @@ Psychose	realo-liga perdo
 Racker	friponeto eta petolulo
 Sachbearbeiterin	repondeculino
 Schlaftablette	enuulo
+Schnecke	knabino
 Serviererin	servistino
 Solidus	solido
 Solvenz	solvento
@@ -194,6 +199,7 @@ Treck	promenego
 Trompe	trumpo
 Trottel	fi-erarulo
 Tschenstochau	Częstochowa
+Umgang	koridoro
 Unbehagen	mabonfartumo
 Unbehagen	malfacilaĵo
 Vendetta	vendetto
@@ -223,6 +229,8 @@ abbleiben	esti
 abfeiern	malkromlaborigi
 abfeiern	senlaborigi
 abgedreht	ekterrealeca
+abgehen	okazi
+ablaufen	okazi
 abs.	for
 absehen	mautilemi
 abwerben	ĉerpi
@@ -231,12 +239,15 @@ akkordieren	agordi
 alkoholfrei	alkohola
 alkoholhaltig	senalkohava
 anfahren	ekspluati
+ankommen	plaĉi
 anlehnen	esti inspirita en
 anlehnen	imiti
 anrichten	trudi
 anschwemmen	alnaĝi
 auf Zack sein	bonfari
 auffallen	bati
+aufnehmen	aldoni
+aufnehmen	kolekti
 aufschlitzen	dispremi
 aufschlitzen	frakasi
 aufschlitzen	krevigi
@@ -245,7 +256,9 @@ australisch	aŭstrala
 b-Moll	bemolo
 ballern	injekti drogojn
 begehrt	pridemandita
+bestellen	transdoni
 bestreben	misii
+betreiben	fari
 blank	blanka
 bockig	kaprovireca
 brodeln	okazonti
@@ -256,6 +269,7 @@ das crazy	nu
 das crazy	senvorte
 davonkommen	elsavi
 davonkommen	savi
+dazwischenkommen	okazi
 den Bach runtergehen	fali de la pato en la fajron
 den Bach runtergehen	fali de sitelo en barelon
 den Bach runtergehen	salti el la pato en la fajron
@@ -280,6 +294,7 @@ einleuchten	evidenta
 einleuchten	klara
 einrennen	sin ĵeti
 entgegennehmen	alpreni
+ergehen	okazi
 ergehen	situacii
 erhoffen	fidi
 erwärmen	ektaŭgi
@@ -327,6 +342,7 @@ jemandem jemanden auf den Hals hetzen	transdoni iun al iu
 kasuistisch	kazua
 klarkommen	sufiĉi pri io
 klarmachen	kvitigi
+kommen	okazi
 körnerfressend	grajno manĝanta
 laminar	lamenara
 langer Rede kurzer Sinn	longa rakonto mallonga
@@ -344,6 +360,8 @@ nachgucken	fulmoserĉi
 nachvollziehbar	postplenumebla
 nachvollziehen	postplenumi
 nebenher	senceremonie
+noch	eĉ
+noch	tamen
 ohnehin	ĉiam
 ohnehin	ĉiel
 opt-	opt-
@@ -365,9 +383,11 @@ renommieren	renomi
 respektiert	respekta
 royal	rojala
 runtergehen	desupri
+satt	abunda
 schalten	deloki
 schalten	formovi
 schalten	movi
+scharf	alloga
 schleimen	peratenti ies favoron
 schnelllebig	rapidema
 schwabbelig	ŝvela
@@ -398,6 +418,7 @@ voten	voĉi
 weiterwissen	plukoni
 werken	verki
 wiederfinden	surprize rimarki
+willfahren	okazi
 wohlwollend	favorkara
 zerfetzen	devori
 zerfetzen	vori
