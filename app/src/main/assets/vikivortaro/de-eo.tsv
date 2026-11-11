@@ -1398,8 +1398,6 @@ Bank	benko
 Bank	stratumo
 Bank	tavolo
 Bank	vendotablo
-Bank	akvuja deponaĵo
-Bank	marfundaj restaĵoj
 Bank	banko
 Bankautomat	elektronika bankskatolo
 Banker	bankisto
@@ -6841,12 +6839,10 @@ Koordinatensystem	koordinatsistemo
 Kopeke	kopeko
 Kopenhagen	Kopenhago
 Kopf	kapo
-Kopf	malpugo
 Kopf	estro
 Kopf	legoma plenkreskaĵo
 Kopf	najlkapo
 Kopf	ŝraŭbkapo
-Kopf	nadlokapo
 Kopfgeldjäger	premioĉasisto
 Kopfkissen	kapkuseno
 Kopfschmerz	kapdoloro
@@ -10928,7 +10924,6 @@ Schlittschuh	glitilo
 Schlittschuh	glitŝuo
 Schloss	seruro
 Schloss	palaco
-Schlosser	forgisto
 Schlot	kameno
 Schlucht	ravino
 Schlucht	interkrutaĵo
@@ -14258,7 +14253,6 @@ ablegen	forlasi
 ablegen	deponi
 ablegen	meti for
 ablegen	trapasi
-ablegen	provizi
 ablegen	fari
 ablegen	doni
 ablegen	plenumi
@@ -15346,7 +15340,6 @@ aufstellen	proponi
 aufstellen	disvolvi
 aufstellen	evoluigi
 aufstocken	pliigi
-aufsuchen	iri
 aufsuchen	viziti
 aufsässig	ribelema
 auftakeln	ŝiptaŭgigi
@@ -19965,7 +19958,6 @@ laufen	flui
 laufen	funkcii
 laufen	ne reteni iun
 laufen	iel okazi
-laufen	feste boni
 launenhaft	kapricema
 launig	sprita
 lauschen	aŭskulti
@@ -20077,7 +20069,6 @@ lindern	malpliigi
 linear	linia
 linear	lineara
 linguistisch	lingvistika
-links	lefta
 liquidieren	likvidi
 lispeln	lispi
 litauisch	litova
@@ -20170,7 +20161,6 @@ magnetisieren	magnetigi
 magnetisieren	magnetizi
 magyarisch	madjara
 mahlen	mueli
-mahlen	fari
 mahlen	muelfari
 majestätisch	majesta
 makaber	makabra
@@ -21667,7 +21657,6 @@ schummeln	fikopii
 schummeln	trompeti
 schunkeln	balanciĝi
 schuppig	skvama
-schusselig	distra
 schutzlos	senŝirma
 schutzlos	senprotekta
 schutzlos	sendefenda
@@ -21764,7 +21753,6 @@ seidig	silka
 sein	esti
 sein	troviĝi
 sein	ekzisti
-sein	ŝia
 sein	ŝiaj
 sein	ĝiaj
 sein Licht unter den Scheffel stellen	esti modesta

@@ -111,15 +111,21 @@ fun VikiResultRow(
     /* Read already, when the row comes back into view: as it was, at once */
     val known = remember(result) { result.revo?.let { SearchPreviews.peek(it) } }
     var severalSenses by remember(result) { mutableStateOf(known?.severalSenses == true) }
-    val definition by produceState(if (result.revo != null) known?.definition else result.definition, result) {
+    /* A word Reta Vortaro has in an example only: which, as its own rows
+     * say, not the definition of the word it is an example of ("Bahnhof →
+     * fervoja stacio": ekzemplo ĉe fervoja, test round 10) */
+    fun secondLine(preview: WordPreview) =
+        if (result.revo?.isExample == true) context.getString(R.string.example_of, preview.title.split(',').first().trim())
+        else preview.definition
+    val definition by produceState(if (result.revo != null) known?.let(::secondLine) else result.definition, result) {
         /* The row may have shown another word just before: its own text
          * at once, whatever follows */
-        value = if (result.revo != null) known?.definition else result.definition
+        value = if (result.revo != null) known?.let(::secondLine) else result.definition
         result.revo?.let { revo -> withContext(Dispatchers.IO) { SearchPreviews.get(context, revo) } }?.let {
             /* Not the first of several senses: Wiktionary doesn't say which
              * one its word is ("cafetière", not kafujo's tree) */
             severalSenses = it.severalSenses
-            value = it.definition
+            value = secondLine(it)
         }
     }
     val small = MaterialTheme.typography.bodyMedium

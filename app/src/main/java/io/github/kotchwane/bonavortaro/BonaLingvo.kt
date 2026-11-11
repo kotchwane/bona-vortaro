@@ -380,5 +380,6 @@ object BonaLingvo {
      * advises against the word in some senses only, if the translation is
      * of one of them ([VikiResult.advised]): "glitch → cimo" */
     fun discouraged(context: Context, result: VikiResult): BonaLingvoEntry? =
-        entry(context, result.esperanto)?.takeIf { it.discouragedEverywhere || (it.discouraged && result.advised) }
+        /* As written: "Haŭso", a Hausa, isn't haŭso, a boom (test round 10) */
+        entries(context)[result.esperanto]?.takeIf { it.discouragedEverywhere || (it.discouraged && result.advised) }
 }
