@@ -23,6 +23,8 @@
 """Writes, into app/src/main/assets/vikivortaro/ (here for French, "en" for English, "de" for German):
   fr-eo.tsv   a French word, a tab, an Esperanto translation (one per line)
   eo-fr.tsv   an Esperanto word, a tab, its French description
+  fr-eo-senses.tsv  an Esperanto word, a French word, the sense of its table, for the
+              words nothing describes: what their page says they mean
 Lines starting with "#" are comments: the source, its date, the licence."""
 import email.utils
 import gzip
@@ -266,7 +268,21 @@ def likeliest_sense(translation):
     return scores.index(max(scores)) if scores and max(scores) > 0 else 10_000
 
 
+def table_sense(entry, translation):
+    """The sense of the word that a translation is under, as the page
+    says it: in German, "Ostseeraum: Meerenge zwischen einer Insel und dem
+    gegenüberliegenden Festland" (Belt → belto); in English, the gloss of
+    the sense whose table it is in, else its heading"""
+    for sense in entry.get("senses") or []:
+        if any(t is translation for t in sense.get("translations") or []):
+            glosses = sense.get("glosses") or []
+            return clean(translation.get("sense") or (glosses[0] if glosses else ""))
+    return clean(translation.get("sense") or "")
+
+
 dates, source_lines = entries()
+# The sense of each pair's table, for the page of a word nothing describes
+senses = {}
 # Each pair with its group: the entry and the sense its table translates
 translations = {}
 # In English, the senses of an Esperanto word after its first, its
@@ -312,6 +328,9 @@ for line in source_lines:
                     or (esperanto[:1].isupper() and not re.search(r"(oj?|a)$", esperanto))):
                 continue
             translations.setdefault((french, esperanto), (entry_number, group))
+            sense = table_sense(entry, t)
+            if sense and not MARKUP.search(sense):
+                senses.setdefault((french, esperanto), sense)
     elif code == "eo":
         esperanto = esperanto_spelling(clean(entry.get("word", ""))) or ""
         if LANGUAGE == "en" and esperanto and esperanto not in made:
@@ -469,6 +488,50 @@ if advised:
         f.write("# Translations whose sense Vortoj de la bona lingvo advises against, from data/vikivortaro-advised.tsv.\n")
         for foreign, esperanto in sorted(advised):
             f.write(f"{foreign}\t{esperanto}\n")
+REVO = os.path.join(os.path.dirname(__file__), "..", "extern", "revo-fonto", "revo")
+ENTITIES = {"jcirc": "ĵ", "gcirc": "ĝ", "ccirc": "ĉ", "scirc": "ŝ", "hcirc": "ĥ", "ubreve": "ŭ",
+            "Jcirc": "Ĵ", "Gcirc": "Ĝ", "Ccirc": "Ĉ", "Scirc": "Ŝ", "Hcirc": "Ĥ", "Ubreve": "Ŭ"}
+
+
+def revo_headwords():
+    """Reta Vortaro's headwords, in small letters, as scripts/frequency.py
+    reads them, with those of several words: the words that open an
+    article, not a page of Wiktionary"""
+    import html
+    def text(xml):
+        xml = re.sub(r"&(\w+);", lambda m: ENTITIES.get(m.group(1), m.group(0)), xml)
+        return html.unescape(re.sub(r"\s+", " ", re.sub(r"<[^>]+>", " ", xml))).strip()
+    words = set()
+    for name in sorted(os.listdir(REVO)):
+        if name.endswith(".xml"):
+            with open(os.path.join(REVO, name), encoding="utf-8") as f:
+                article = f.read()
+            root = re.search(r"<rad[^>]*>(.*?)</rad>", article, re.S)
+            root = text(root.group(1)) if root else ""
+            for head in re.findall(r"<kap>(.*?)</kap>", article, re.S):
+                head = re.sub(r"<fnt>.*?</fnt>|<ofc>.*?</ofc>", "", head, flags=re.S)
+                head = re.sub(r"<tld[^>]*/>", root, head)
+                words.update(w for w in (w.strip().lower() for w in re.split(r"[,/]", text(head))) if w)
+    return words
+
+
+# The senses of the pairs whose Esperanto word has nothing else to say
+# what it is: not Reta Vortaro's, no description in this language, no
+# Esperanto definition (user, 2026-11-11: "belto" alone didn't say it is
+# a strait)
+in_revo = revo_headwords()
+DEFINED = os.path.join(OUT, "eo-eo.tsv")
+defined = set()
+if os.path.exists(DEFINED):
+    with open(DEFINED, encoding="utf-8") as f:
+        defined = {row.split("\t", 1)[0] for row in f if not row.startswith("#")}
+with open(os.path.join(OUT, f"{LANGUAGE}-eo-senses.tsv"), "w", encoding="utf-8") as f:
+    f.write(header)
+    f.write("# An Esperanto word, a tab, a word translated by it, a tab, the sense of the table it is in.\n")
+    for (foreign, esperanto), sense in sorted(senses.items(), key=lambda item: (item[0][1], item[0][0])):
+        if ((foreign, esperanto) in translations and esperanto not in descriptions and esperanto not in defined
+                and esperanto.lower() not in in_revo):
+            f.write(f"{esperanto}\t{foreign}\t{sense}\n")
 if made:
     shown = {esperanto for _, esperanto in translations} | set(descriptions)
     with open(os.path.join(OUT, "eo-parts.tsv"), "w", encoding="utf-8") as f:

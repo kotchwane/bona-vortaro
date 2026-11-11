@@ -317,6 +317,12 @@ private fun VikiPage(
         value = withContext(Dispatchers.IO) {
             vikiLanguages.map { ForeignWords(it.code, Vikivortaro.foreignOf(context, it, word), Vikivortaro.description(context, it, word)) }
                 .filter { it.words.isNotEmpty() || it.description != null }
+                .let { found ->
+                    /* Nothing says what the word is: what each word it
+                     * translates means, from its table */
+                    if (found.any { it.description != null } || Vikivortaro.definition(context, word) != null) found
+                    else found.map { it.copy(senses = Vikivortaro.senses(context, VikiLanguage.of(it.language)!!, word)) }
+                }
         }
     }
     /* Its definition in the Esperanto Wiktionary, for every reader; what
@@ -452,7 +458,7 @@ private fun VikiPage(
                             }
                         }
                     }
-                    for ((code, words, description) in foreign) {
+                    for ((code, words, description, senses) in foreign) {
                         /* Its words, then the description when it says
                          * more than them */
                         Row(Modifier.padding(top = 10.dp)) {
@@ -466,7 +472,24 @@ private fun VikiPage(
                                 modifier = Modifier.widthIn(min = 52.dp).padding(top = 2.dp, end = 12.dp),
                             )
                             Column {
-                                if (words.isNotEmpty())
+                                if (senses.isNotEmpty())
+                                    /* Each word, with the sense its table
+                                     * gives under it */
+                                    for ((index, foreignWord) in words.withIndex()) {
+                                        Text(
+                                            foreignWord,
+                                            style = MaterialTheme.typography.bodyLarge,
+                                            modifier = Modifier.padding(top = if (index > 0) 6.dp else 0.dp),
+                                        )
+                                        senses[foreignWord]?.let {
+                                            Text(
+                                                it,
+                                                style = MaterialTheme.typography.bodyMedium.copy(fontStyle = FontStyle.Italic),
+                                                color = muted,
+                                            )
+                                        }
+                                    }
+                                else if (words.isNotEmpty())
                                     Text(words.joinToString(", "), style = MaterialTheme.typography.bodyLarge)
                                 description?.let {
                                     Text(
@@ -686,7 +709,13 @@ private fun AdviceText(
 
 /** What the Wiktionary of [language] says of a word: its words for it, and
  * its description when it says more */
-private data class ForeignWords(val language: String, val words: List<String>, val description: String?)
+private data class ForeignWords(
+    val language: String,
+    val words: List<String>,
+    val description: String?,
+    /** Where nothing describes the word, the sense of each word's table */
+    val senses: Map<String, String> = emptyMap(),
+)
 
 /** A sense of a definition, each word long pressed looked up, as in Reta
  * Vortaro's articles */
