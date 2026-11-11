@@ -1,0 +1,7 @@
+• English and German from Wiktionary: thousands of words that Reta Vortaro lacks, with their senses.
+• Long-press a word of another language: its Wiktionary translations too.
+• A word on a new root only with an Esperanto definition, which every reader can read.
+• 960 definitions from the Esperanto Wiktionary (277 more).
+• The origins of the words shown, unless you turn them off.
+• German search without ß or umlauts: Strasse finds Straße.
+• Many small fixes.
