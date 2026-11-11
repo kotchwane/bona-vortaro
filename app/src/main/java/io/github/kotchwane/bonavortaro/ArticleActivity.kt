@@ -908,6 +908,12 @@ internal fun WordActions(
             WordLookup.find(context, word, language).map { it to SearchPreviews.get(context, it) }
         }
     }
+    /* A word of another language that only its Wiktionary has, as the
+     * search shows it: "einhergehen → iri" (test round 10) */
+    val wiktionary by produceState(emptyList<VikiResult>(), word, language) {
+        if (language != "eo")
+            value = withContext(Dispatchers.IO) { WordLookup.findInWiktionary(context, word, language) }
+    }
     /* A word of Esperanto missing from the dictionary: how it may be built.
      * Not with a capital, most often a name ("Paris", "Seneca"), even if
      * the first word of a sentence is left out with them */
@@ -932,6 +938,7 @@ internal fun WordActions(
             )
             when {
                 entries == null -> {}
+                entries!!.isEmpty() && wiktionary.isNotEmpty() -> {}
                 entries!!.isEmpty() -> {
                     Text(
                         stringResource(R.string.word_not_found, word),
@@ -969,6 +976,15 @@ internal fun WordActions(
                         modifier = Modifier.clickable { onDismiss(); onOpen(entry) },
                     )
             }
+            /* After Reta Vortaro's entries, the more since the search
+             * shows them so; opened as from the search, its article or
+             * the page of the Esperanto word */
+            if (entries != null)
+                for (result in wiktionary.take(maxOf(0, WordLookup.MAX_ENTRIES - entries!!.size)))
+                    VikiResultRow(result, onClick = {
+                        onDismiss()
+                        result.revo?.let(onOpen) ?: VikivortaroActivity.open(context, result.esperanto)
+                    })
             HorizontalDivider(Modifier.padding(horizontal = 16.dp, vertical = 4.dp), color = muted.copy(alpha = 0.25f))
             ListItem(
                 headlineContent = { Text(stringResource(R.string.copy_word)) },
