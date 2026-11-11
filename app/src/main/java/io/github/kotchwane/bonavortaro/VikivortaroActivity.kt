@@ -518,6 +518,8 @@ private fun VikiPage(
                 /* "and its description" only when one is shown: not
                  * for "anakondo", whose page has only words */
                 vikiDescription = foreign.any { it.description != null },
+                /* Where a Wiktionary only translates by it, its words' pages */
+                vikiPages = foreign.filter { it.description == null && it.words.isNotEmpty() }.associate { it.language to it.words },
                 vikiEsperanto = definition,
                 bonaLingvo = advice != null,
                 modifier = Modifier.padding(horizontal = 8.dp, vertical = 10.dp),

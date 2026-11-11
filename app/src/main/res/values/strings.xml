@@ -273,6 +273,8 @@
   <!-- In "Fontoj": the dictionaries the headwords are in, "aboli — Plena Ilustrita Vortaro (1970); abolicii — …" -->
   <string name="sources_viki">la tradukoj kun punktita substreko, elektitaj kaj adaptitaj por Bona vortaro</string>
   <string name="sources_viki_word_only">la vorto „%1$s“</string>
+  <string name="sources_viki_found_page">; vidu la paĝon\u0020</string>
+  <string name="sources_viki_found_pages">; vidu la paĝojn\u0020</string>
   <!-- The Esperanto Wiktionary's definition of a word Reta Vortaro doesn't have -->
   <string name="sources_viki_eo">„%1$s“ kaj ĝia difino</string>
   <string name="sources_viki_eo_adapted">„%1$s“ kaj ĝia difino, adaptitaj por Bona vortaro</string>

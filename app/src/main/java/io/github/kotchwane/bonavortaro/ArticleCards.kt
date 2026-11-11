@@ -1499,6 +1499,10 @@ fun SourcesLine(
     vikiWord: String? = null,
     /** Whether the page shows Vikivortaro's description of [vikiWord] */
     vikiDescription: Boolean = true,
+    /** For a Wiktionary that doesn't describe [vikiWord] but translates
+     * words of its language by it, those words: its pages are theirs,
+     * "Belt" for belto, which has none of its own (user, 2026-11-11) */
+    vikiPages: Map<String, List<String>> = emptyMap(),
     /** The definition of [vikiWord] from the Esperanto Wiktionary that the
      * page shows, if any */
     vikiEsperanto: EsperantoDefinition? = null,
@@ -1566,6 +1570,9 @@ fun SourcesLine(
                      * word's page */
                     if (vikiEsperanto != null && vikiWord != null) {
                         val page = "wiki/" + Uri.encode(vikiWord.replace(' ', '_'))
+                        /* The page of the word in a Wiktionary: its own, or
+                         * that of the first word translated by it */
+                        fun pageIn(code: String) = vikiPages[code]?.firstOrNull()?.let { vikiSite(code) + wikiPath(it) } ?: (vikiSite(code) + page)
                         val code = vikiLanguages.firstOrNull()
                         if (code != null) {
                             val name = languageNames.getLanguageName(code)
@@ -1584,7 +1591,8 @@ fun SourcesLine(
                                         R.string.sources_viki_eo_fr_as_is,
                                         stringResource(if (vikiDescription) R.string.sources_viki_foreign_description_adapted else R.string.sources_viki_foreign_translations_adapted, name),
                                     ),
-                                links = listOf("eo" to VIKI_EO_SITE + page, code to vikiSite(code) + page),
+                                links = listOf("eo" to VIKI_EO_SITE + page, code to pageIn(code)),
+                                pages = pagesOf(code, vikiPages),
                             )
                             /* Each other Wiktionary whose words the page
                              * shows, credited too (test round 7) */
@@ -1592,7 +1600,8 @@ fun SourcesLine(
                                 Source(
                                     stringResource(R.string.sources_viki_editions_one, vikiName, other),
                                     stringResource(R.string.sources_viki_word_only, vikiWord),
-                                    vikiSite(other) + page,
+                                    pageIn(other),
+                                    pages = pagesOf(other, vikiPages),
                                 )
                         }
                         else
@@ -1608,7 +1617,8 @@ fun SourcesLine(
                             if (vikiWord != null)
                                 stringResource(if (vikiDescription) R.string.sources_viki_word else R.string.sources_viki_word_only, vikiWord)
                             else stringResource(R.string.sources_viki),
-                            if (vikiWord != null) vikiSite(code) + "wiki/" + Uri.encode(vikiWord.replace(' ', '_')) else vikiSite(code),
+                            vikiSite(code) + (vikiPages[code]?.firstOrNull() ?: vikiWord)?.let(::wikiPath).orEmpty(),
+                            pages = pagesOf(code, vikiPages),
                         )
                     if (bonaLingvo)
                         Source(blName, stringResource(R.string.sources_bl), BonaLingvo.SITE)
@@ -1641,8 +1651,25 @@ private const val VIKI_EO_SITE = "https://eo.wiktionary.org/"
 /** A source, its name a link to read it there ([url]); or, with several
  * places to read it, its name plain and each text of [links] in the name
  * ("eo" in "Vikivortaro (eo · fr)") a link to its address */
+/* The path of a word's page on a Wiktionary */
+private fun wikiPath(word: String) = "wiki/" + Uri.encode(word.replace(' ', '_'))
+
+/* The pages of the words translated by the word, a few, each its link */
+private fun pagesOf(code: String, vikiPages: Map<String, List<String>>): List<Pair<String, String>> =
+    vikiPages[code].orEmpty().take(MAX_SOURCE_PAGES).map { it to vikiSite(code) + wikiPath(it) }
+
+private const val MAX_SOURCE_PAGES = 3
+
 @Composable
-private fun Source(name: String, what: String, url: String? = null, links: List<Pair<String, String>> = emptyList()) {
+private fun Source(
+    name: String,
+    what: String,
+    url: String? = null,
+    links: List<Pair<String, String>> = emptyList(),
+    /** The pages where it is said, after [what]: "trovita en la paĝo Belt" */
+    pages: List<Pair<String, String>> = emptyList(),
+) {
+    val pagesIntro = if (pages.isEmpty()) "" else stringResource(if (pages.size == 1) R.string.sources_viki_found_page else R.string.sources_viki_found_pages)
     val link = TextLinkStyles(
         SpanStyle(
             color = MaterialTheme.colorScheme.primary,
@@ -1666,6 +1693,14 @@ private fun Source(name: String, what: String, url: String? = null, links: List<
                 append("\u00A0$OUTSIDE_SIGN")
             append(" — ")
             append(what)
+            if (pages.isNotEmpty()) {
+                append(pagesIntro)
+                for ((index, page) in pages.withIndex()) {
+                    if (index > 0) append(", ")
+                    withLink(LinkAnnotation.Url(page.second, link)) { append(page.first) }
+                }
+                append("\u00A0$OUTSIDE_SIGN")
+            }
         },
         style = MaterialTheme.typography.bodyMedium,
     )
