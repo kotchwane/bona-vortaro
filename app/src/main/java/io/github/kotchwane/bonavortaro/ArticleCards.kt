@@ -1648,9 +1648,6 @@ private const val REVO_SITE = "https://reta-vortaro.de/"
 private fun vikiSite(code: String) = "https://$code.wiktionary.org/"
 private const val VIKI_EO_SITE = "https://eo.wiktionary.org/"
 
-/** A source, its name a link to read it there ([url]); or, with several
- * places to read it, its name plain and each text of [links] in the name
- * ("eo" in "Vikivortaro (eo · fr)") a link to its address */
 /* The path of a word's page on a Wiktionary */
 private fun wikiPath(word: String) = "wiki/" + Uri.encode(word.replace(' ', '_'))
 
@@ -1660,13 +1657,16 @@ private fun pagesOf(code: String, vikiPages: Map<String, List<String>>): List<Pa
 
 private const val MAX_SOURCE_PAGES = 3
 
+/** A source, its name a link to read it there ([url]); or, with several
+ * places to read it, its name plain and each text of [links] in the name
+ * ("eo" in "Vikivortaro (eo · fr)") a link to its address */
 @Composable
 private fun Source(
     name: String,
     what: String,
     url: String? = null,
     links: List<Pair<String, String>> = emptyList(),
-    /** The pages where it is said, after [what]: "trovita en la paĝo Belt" */
+    /** The pages where it is said, after [what]: "; vidu la paĝon Belt" */
     pages: List<Pair<String, String>> = emptyList(),
 ) {
     val pagesIntro = if (pages.isEmpty()) "" else stringResource(if (pages.size == 1) R.string.sources_viki_found_page else R.string.sources_viki_found_pages)
