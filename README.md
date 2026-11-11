@@ -74,8 +74,8 @@ kion diri anstataŭe.
   Reta Vortaro ne havas ilin: miloj da pliaj vortoj troveblaj (*potiron* trovas
   *kukurbo*, *selfie* trovas *memfoto*), kaj miloj da tradukoj aldonitaj en la
   artikoloj, kun punktita substreko. Ili aperas nur, se tiu lingvo estas inter
-  viaj lingvoj. Vorto sur radiko, kiun Reta Vortaro ne havas, aperas nur kun
-  esperanta difino.
+  viaj lingvoj. Vorto, kies radikon Reta Vortaro ne havas, aperas nur kun esperanta
+  difino.
 - **Malrekomendataj vortoj** laŭ *Vortoj de la bona lingvo*, de Renato Corsetti, Noam
   Mohr kaj la laborgrupo de la Bona Lingvo: *eskalatoro*, prefere *rulŝtuparo*. Nur tio,
   kion la laborgrupo jam kontrolis.
@@ -243,7 +243,7 @@ say instead.
   Reta Vortaro has none: thousands more words to search (*potiron* finds
   *kukurbo*, *selfie* finds *memfoto*), and thousands of translations added in
   the articles, with a dotted underline. They only show if that language is
-  among your languages. A word on a root Reta Vortaro lacks only shows with an
+  among your languages. A word whose root Reta Vortaro lacks only shows with an
   Esperanto definition.
 - **Words advised against** by *Vortoj de la bona lingvo*, by Renato Corsetti, Noam
   Mohr and the working group of La Bona Lingvo: *eskalatoro*, preferably *rulŝtuparo*.
