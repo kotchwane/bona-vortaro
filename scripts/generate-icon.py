@@ -4,6 +4,9 @@
 # Usage, from the root of the repository:
 #   python3 -m venv /tmp/icon-venv && /tmp/icon-venv/bin/pip install pillow
 #   /tmp/icon-venv/bin/python scripts/generate-icon.py app/src/main/res
+#   /tmp/icon-venv/bin/python scripts/generate-icon.py --store play-icon.png
+#   (the icon for Google Play: a full square, no transparency, 512 px; Play
+#   rounds its corners itself, and shows transparent ones white)
 """Generate the launcher icon of La bona vortaro: a magnifying glass with
 the green star of Esperanto in its lens, on cream paper, in the colours of
 the design of the app (see BonaTheme.kt).
@@ -24,7 +27,8 @@ import sys
 
 from PIL import Image, ImageDraw
 
-RES = sys.argv[1]
+STORE = sys.argv[2] if sys.argv[1] == "--store" else None
+RES = None if STORE else sys.argv[1]
 
 PAPER = "#F4EDDD"   # background
 GLASS = "#FFFAEF"   # the lens
@@ -110,6 +114,37 @@ def shapes(glass_color, rim_color, star_color):
     return body
 
 
+# --- Legacy icons: the same shapes on a round paper background, drawn large
+# and scaled down. They show the centred 72 of the canvas, like launchers.
+def legacy(size, square=False):
+    big = 1024
+    k = big / 72.0  # 72 icon units fill the image
+
+    def p(x, y):
+        return ((x - 18) * k, (y - 18) * k)
+
+    im = Image.new("RGBA", (big, big), PAPER if square else (0, 0, 0, 0))
+    d = ImageDraw.Draw(im)
+    if not square:
+        d.ellipse([0, 0, big - 1, big - 1], fill=PAPER)
+    w = HANDLE_W * k
+    d.line([p(hx0, hy0), p(hx1, hy1)], fill=INK, width=round(w))
+    for x, y in (p(hx0, hy0), p(hx1, hy1)):
+        d.ellipse([x - w / 2, y - w / 2, x + w / 2, y + w / 2], fill=INK)
+    cx, cy = p(LENS_X, LENS_Y)
+    r = LENS_R * k
+    d.ellipse([cx - r, cy - r, cx + r, cy + r], fill=INK)
+    r = (LENS_R - RIM) * k
+    d.ellipse([cx - r, cy - r, cx + r, cy + r], fill=GLASS)
+    d.polygon([p(x, y) for x, y in star_points(STAR_X, STAR_Y, STAR_R)], fill=STAR)
+    return im.resize((size, size), Image.LANCZOS)
+
+
+# The icon for Google Play: the same, on a full square of paper
+if STORE:
+    legacy(512, square=True).convert("RGB").save(STORE)
+    sys.exit(0)
+
 os.makedirs(f"{RES}/drawable", exist_ok=True)
 with open(f"{RES}/drawable/ic_launcher_foreground.xml", "w") as f:
     f.write(vector(shapes(GLASS, INK, STAR)))
@@ -134,31 +169,6 @@ with open(f"{RES}/values/ic_launcher_background.xml", "w") as f:
     <color name="ic_launcher_background">{PAPER}</color>
 </resources>
 """)
-
-
-# --- Legacy icons: the same shapes on a round paper background, drawn large
-# and scaled down. They show the centred 72 of the canvas, like launchers.
-def legacy(size):
-    big = 1024
-    k = big / 72.0  # 72 icon units fill the image
-
-    def p(x, y):
-        return ((x - 18) * k, (y - 18) * k)
-
-    im = Image.new("RGBA", (big, big), (0, 0, 0, 0))
-    d = ImageDraw.Draw(im)
-    d.ellipse([0, 0, big - 1, big - 1], fill=PAPER)
-    w = HANDLE_W * k
-    d.line([p(hx0, hy0), p(hx1, hy1)], fill=INK, width=round(w))
-    for x, y in (p(hx0, hy0), p(hx1, hy1)):
-        d.ellipse([x - w / 2, y - w / 2, x + w / 2, y + w / 2], fill=INK)
-    cx, cy = p(LENS_X, LENS_Y)
-    r = LENS_R * k
-    d.ellipse([cx - r, cy - r, cx + r, cy + r], fill=INK)
-    r = (LENS_R - RIM) * k
-    d.ellipse([cx - r, cy - r, cx + r, cy + r], fill=GLASS)
-    d.polygon([p(x, y) for x, y in star_points(STAR_X, STAR_Y, STAR_R)], fill=STAR)
-    return im.resize((size, size), Image.LANCZOS)
 
 
 for density, size in [("mdpi", 48), ("hdpi", 72), ("xhdpi", 96), ("xxhdpi", 144), ("xxxhdpi", 192)]:
