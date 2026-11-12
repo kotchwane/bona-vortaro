@@ -56,8 +56,7 @@ class VikiLanguage(
     val glossNotFor: (esperanto: String, item: String) -> Boolean = { _, _ -> false },
     /** Whether its pairs show when nothing is said of their Esperanto word
      * (no article in Reta Vortaro, no description, no definition): when
-     * they were all reviewed. In French, such words were too often doubtful
-     * ("fondre → fundi"); in English, after a review of every pair, 6,400
+     * they were all reviewed. In English, after a review of every pair, 6,400
      * good ones were hidden, "dreamcatcher → sonĝkaptilo" (2026-11-10) */
     val showsUndescribed: Boolean = false,
     /** Whether its nouns keep their capital in a description's words: in
@@ -81,6 +80,8 @@ class VikiLanguage(
             glossNotFor = { esperanto, item ->
                 esperanto.endsWith('a') && item.lowercase(java.util.Locale.ROOT).let { it.startsWith("d’") || it.startsWith("d'") }
             },
+            /* Every pair reviewed (2026-11-12), 452 left out */
+            showsUndescribed = true,
         )
 
         val ENGLISH = VikiLanguage(
