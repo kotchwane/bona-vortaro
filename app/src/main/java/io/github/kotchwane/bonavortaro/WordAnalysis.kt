@@ -391,13 +391,15 @@ class IndexEntries(
 
     /** The entry written exactly so, if the index has it; of two written
      * alike, the official one, the oldest: "koro" the heart (Fundamento),
-     * not the measure of volume */
+     * not the measure of volume; and the one written in the same case,
+     * "bovo" the animal before "Bovo" the constellation */
     fun result(form: String): SearchResult? {
         /* The index leaves out the hyphens of "-ej" and "mal-", and gives
          * the words of the node first */
         val count = trie.search(form.replace("-", ""), results)
+        val bare = form.replace("-", "")
         return results.take(count).filterNotNull().filter { it.word.lowercase(Locale.ROOT) == form }
-            .minByOrNull { articleLevel(it.article) ?: Int.MAX_VALUE }
+            .minWithOrNull(compareBy({ it.word.replace("-", "") != bare }, { articleLevel(it.article) ?: Int.MAX_VALUE }))
     }
 
     override fun invoke(form: String): String? = result(form)?.let { form }

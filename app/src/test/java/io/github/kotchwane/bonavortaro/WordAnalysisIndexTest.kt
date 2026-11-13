@@ -114,6 +114,16 @@ class WordAnalysisIndexTest {
     }
 
     @Test
+    fun aWordInSmallLettersIsNotTheNameWrittenAlike() {
+        assumeTrue("the dictionary isn't built", file.exists())
+        val index = IndexEntries(file.inputStream().use { Trie(it) })
+        /* bov·ardeo: "bovo" the animal, not "Bovo" the constellation, in
+         * the same article */
+        assertEquals("bovo", index.result("bovo")?.word)
+        assertEquals("bovo", index.result(WordAnalyser.analyse("bovardeo", index).first().pieces[0].entry!!)?.word)
+    }
+
+    @Test
     fun theListsPartsAreKeptAndExplained() {
         val officiality = File("src/main/assets/officiality.txt")
         assumeTrue("the dictionary isn't built", file.exists() && officiality.exists())
