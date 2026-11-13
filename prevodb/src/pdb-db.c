@@ -1031,6 +1031,7 @@ pdb_db_add_trd_index (PdbDb *db,
                                                "ofc",
                                                "klr",
                                                "baz",
+                                               "pr",
                                                NULL);
       pdb_trim_buf (whole);
       if (db->in_example)
@@ -1051,12 +1052,14 @@ pdb_db_add_trd_index (PdbDb *db,
     {
       GString *real_name = g_string_new (NULL);
 
-      /* We don't want <klr> tags in the index name */
+      /* We don't want <klr> tags in the index name, nor the reading,
+       * filed apart below: "犬", not "犬 いぬ" */
       pdb_doc_append_element_text_with_ignore (element,
                                                real_name,
                                                "ofc",
                                                "klr",
                                                "baz",
+                                               "pr",
                                                NULL);
       pdb_trim_buf (real_name);
       if (db->in_example)
@@ -1077,6 +1080,24 @@ pdb_db_add_trd_index (PdbDb *db,
                               display_name->str,
                               NULL,
                               reference);
+    }
+
+  /* The word also under its reading, as it is typed before choosing its
+   * characters: "いぬ" finds "犬（いぬ）", "chuangshangxue" "创伤学" */
+  PdbDocElementNode *pr = pdb_doc_get_child_element (&element->node, "pr");
+  if (pr)
+    {
+      GString *reading = g_string_new (NULL);
+
+      pdb_doc_append_element_text (pr, reading);
+      pdb_trim_buf (reading);
+      if (reading->len > 0)
+        pdb_db_add_index_entry (db,
+                                lang_code,
+                                reading->str,
+                                display_name->str,
+                                reference);
+      g_string_free (reading, TRUE);
     }
 
   g_string_free (display_name, TRUE);

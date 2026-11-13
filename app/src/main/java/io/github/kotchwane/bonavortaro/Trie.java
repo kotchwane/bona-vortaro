@@ -413,6 +413,25 @@ public class Trie
       .replace ("\u0153", "oe").replace ("\u00e6", "ae");
   }
 
+  /* A katakana letter as its hiragana, "イ" as "い"; any other letter as
+   * it is */
+  static String hiragana (String letter)
+  {
+    if (letter.length () != 1)
+      return letter;
+    char ch = letter.charAt (0);
+    return ch >= '\u30a1' && ch <= '\u30f6' ? String.valueOf ((char) (ch - 0x60)) : letter;
+  }
+
+  /* Whether two kana are the same in hiragana and katakana: "イヌ" typed
+   * finds "いぬ", the reading of 犬, and "いぬ" finds "イヌ", as the
+   * names of animals and plants are written */
+  static boolean sameKana (String a, String b)
+  {
+    String plainA = hiragana (a);
+    return !plainA.equals (a) ^ !hiragana (b).equals (b) && plainA.equals (hiragana (b));
+  }
+
   /* Finds the nodes whose path from the root matches the rest of the
    * prefix, from prefixOffset, ignoring the accents. Only the letters
    * typed without an accent match the accented ones: "e" matches "é",
@@ -471,9 +490,10 @@ public class Trie
       {
         String childLetter = getCharacter (child + 4);
 
-        if (plain ?
-            foldLetter (childLetter).equals (letter) :
-            childLetter.toLowerCase (Locale.ROOT).equals (typed))
+        if ((plain ?
+             foldLetter (childLetter).equals (letter) :
+             childLetter.toLowerCase (Locale.ROOT).equals (typed)) ||
+            sameKana (childLetter, typed))
           {
             int oldLength = path.length ();
             path.append (childLetter);

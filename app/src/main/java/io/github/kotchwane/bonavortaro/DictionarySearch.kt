@@ -105,6 +105,13 @@ internal fun <T> mixed(
  * the search lists them: "voyager en auto-stop" after "auto-stop". */
 internal fun orderKey(word: String, searched: String, esperanto: Boolean): String {
     val key = sortKey(word, esperanto)
+    /* A Japanese word found by its reading, by its reading: "いぬ" puts
+     * "犬（いぬ）" before "イヌイット" */
+    if (!esperanto && '（' in word && !key.startsWith(searched)) {
+        val reading = sortKey(word.substringAfter('（').substringBefore('）'), esperanto = false)
+        if (reading.startsWith(searched))
+            return reading
+    }
     return key.indices.firstOrNull { i ->
         (i == 0 || key[i - 1] in " -'") && key.startsWith(searched, i)
     }?.let { if (it == 0) key else key.substring(it) + "\u0001" } ?: key
@@ -117,7 +124,7 @@ internal fun sortKey(word: String, esperanto: Boolean): String {
     /* Without the reading of a Japanese or Chinese word, in full-width
      * brackets: "犬（いぬ）" before "犬の（いぬの）", as "犬" before "犬の" */
     if (!esperanto)
-        return Vikivortaro.key(word.substringBefore('（'))
+        return Vikivortaro.key(word.substringBefore('（')).map(::hiragana).joinToString("")
     return word.substringBefore(" (").lowercase(java.util.Locale.ROOT).replace('’', '\'')
         .replace('\u00a0', ' ').replace('\u202f', ' ').trim()
         .map { letter ->
@@ -126,6 +133,9 @@ internal fun sortKey(word: String, esperanto: Boolean): String {
         }
         .joinToString("")
 }
+
+/* A katakana letter as its hiragana, as the search compares them */
+private fun hiragana(letter: Char): Char = if (letter in '\u30a1'..'\u30f6') letter - 0x60 else letter
 
 /** Whether a word comes after the last of the results that a search kept,
  * as they stop at a limit: by the word an entry is filed under ("jouer la
@@ -236,9 +246,14 @@ object DictionarySearch {
         val isEmpty get() = results.isEmpty() && wiktionary.isEmpty() && lemmas.isEmpty() && bonaLingvo.isEmpty() && proposedInstead.isEmpty()
     }
 
-    private fun spellings(filter: String): List<String> =
-        if (isPattern(filter) || (' ' !in filter && '-' !in filter)) listOf(filter)
-        else listOf(filter, filter.replace(' ', '-'), filter.replace('-', ' '), filter.replace(" ", "").replace("-", "")).distinct()
+    private fun spellings(filter: String): List<String> = when {
+        /* A Japanese word with or without its final long vowel, as both
+         * are written: "コンピューター" finds "コンピュータ"; without it
+         * first, which finds the words with it too */
+        filter.length > 2 && filter.endsWith('ー') -> listOf(filter.dropLast(1), filter)
+        isPattern(filter) || (' ' !in filter && '-' !in filter) -> listOf(filter)
+        else -> listOf(filter, filter.replace(' ', '-'), filter.replace('-', ' '), filter.replace(" ", "").replace("-", "")).distinct()
+    }
 
     private fun searchAs(
         context: Context,
