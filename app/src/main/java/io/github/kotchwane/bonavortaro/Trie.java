@@ -109,6 +109,19 @@ public class Trie
       }
   }
 
+  /* The whole stream, after the bytes already read */
+  private static byte[] readRest (InputStream stream, byte[] start)
+    throws IOException
+  {
+    java.io.ByteArrayOutputStream out = new java.io.ByteArrayOutputStream ();
+    out.write (start);
+    byte[] buf = new byte[65536];
+    int got;
+    while ((got = stream.read (buf)) != -1)
+      out.write (buf, 0, got);
+    return out.toByteArray ();
+  }
+
   private static final int extractInt (byte[] data,
                                        int offset)
   {
@@ -126,6 +139,14 @@ public class Trie
 
     /* Read 4 bytes to get the length of the file */
     readAll (dataStream, lengthBytes, 0, lengthBytes.length);
+
+    /* The compact form the app ships: the trie made again from it */
+    if (CompactIndex.isCompact (lengthBytes))
+      {
+        data = CompactIndex.decode (readRest (dataStream, lengthBytes));
+        return;
+      }
+
     totalLength = extractInt (lengthBytes, 0) & 0x7fffffff;
 
     /* Create a byte array big enough to hold the entire file and copy

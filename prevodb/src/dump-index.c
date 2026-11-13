@@ -20,6 +20,8 @@
 #include <stdio.h>
 #include <glib.h>
 
+#include "pdb-compact.h"
+
 static gboolean
 dump_trie (const guint8 *trie_data,
            int trie_length,
@@ -170,6 +172,23 @@ main (int argc, char **argv)
           GString *buf;
 
           buf = g_string_new (NULL);
+
+          /* The compact form the app ships: its trie again */
+          if (pdb_compact_is_compact ((const guint8 *) trie_data, trie_length))
+            {
+              int length;
+              guint8 *trie = pdb_compact_decode ((const guint8 *) trie_data,
+                                                 trie_length, &length);
+              if (trie == NULL)
+                {
+                  fprintf (stderr, "%s: invalid compact index\n", filename);
+                  ret = 1;
+                  break;
+                }
+              g_free (trie_data);
+              trie_data = (char *) trie;
+              trie_length = length;
+            }
 
           dump_ret = dump_trie ((const guint8 *) trie_data, trie_length, buf);
 

@@ -27,6 +27,8 @@ prevodb_SOURCES = \
 	pdb-error.h \
 	pdb-file.c \
 	pdb-file.h \
+	pdb-compact.c \
+	pdb-compact.h \
 	pdb-lang.c \
 	pdb-lang.h \
 	pdb-list.c \
@@ -77,7 +79,9 @@ noinst_PROGRAMS = \
 	$(NULL)
 
 dump_index_SOURCES = \
-	dump-index.c
+	dump-index.c \
+	pdb-compact.c \
+	pdb-compact.h
 
 dump_index_LDADD = \
 	$(GLIB_LIBS) \

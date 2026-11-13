@@ -44,6 +44,11 @@ pdb_lang_get_name (PdbLang *lang,
 void
 pdb_lang_free (PdbLang *lang);
 
+/* Also writes each trie as it is into 'dir', besides its compact
+ * form in the assets: for the tests of the app */
+void
+pdb_lang_set_raw_indices_dir (const char *dir);
+
 gboolean
 pdb_lang_save (PdbLang *lang,
                const char *dir,

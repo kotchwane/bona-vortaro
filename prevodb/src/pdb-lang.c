@@ -24,6 +24,7 @@
 #include <errno.h>
 
 #include "pdb-lang.h"
+#include "pdb-compact.h"
 #include "pdb-error.h"
 #include "pdb-xml.h"
 #include "pdb-strcmp.h"
@@ -317,6 +318,15 @@ pdb_lang_save_language_list (PdbLang *lang,
   return ret;
 }
 
+/* Where the tries are also written as they are, if set: for the tests */
+static const char *pdb_lang_raw_indices_dir = NULL;
+
+void
+pdb_lang_set_raw_indices_dir (const char *dir)
+{
+  pdb_lang_raw_indices_dir = dir;
+}
+
 static gboolean
 pdb_lang_save_indices (PdbLang *lang,
                        const char *dir,
@@ -346,19 +356,51 @@ pdb_lang_save_indices (PdbLang *lang,
                                  &compressed_data,
                                  &compressed_len);
 
-              write_status = g_file_set_contents (full_name,
-                                                  (char *) compressed_data,
-                                                  compressed_len,
-                                                  error);
+              /* The app gets the compact form, which it makes into
+               * this trie again: checked here, byte for byte */
+              int compact_len, decoded_len;
+              guint8 *compact = pdb_compact_encode (compressed_data,
+                                                    compressed_len,
+                                                    &compact_len);
+              guint8 *decoded = pdb_compact_decode (compact, compact_len,
+                                                    &decoded_len);
 
+              if (decoded == NULL || decoded_len != compressed_len ||
+                  memcmp (decoded, compressed_data, compressed_len))
+                {
+                  g_set_error (error, PDB_ERROR, PDB_ERROR_BAD_FORMAT,
+                               "The compact index of %s doesn't give its "
+                               "trie back", entry->code);
+                  write_status = FALSE;
+                }
+              else
+                write_status = g_file_set_contents (full_name,
+                                                    (char *) compact,
+                                                    compact_len,
+                                                    error);
+
+              /* The trie as it is, for the tests of the app */
+              if (write_status && pdb_lang_raw_indices_dir)
+                {
+                  char *raw_name =
+                    g_build_filename (pdb_lang_raw_indices_dir, index_name, NULL);
+                  write_status = g_file_set_contents (raw_name,
+                                                      (char *) compressed_data,
+                                                      compressed_len,
+                                                      error);
+                  g_free (raw_name);
+                }
+
+              g_free (decoded);
+              g_free (compact);
               g_free (full_name);
               g_free (index_name);
               g_free (compressed_data);
 
               if (!write_status)
                 {
-                  break;
                   ret = FALSE;
+                  break;
                 }
             }
         }
