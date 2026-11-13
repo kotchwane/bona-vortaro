@@ -1,6 +1,7 @@
 /*
  * Bona vortaro - an Esperanto dictionary for Android, based on PReVo
  * Copyright (C) 2012  Neil Roberts
+ * Copyright (C) 2026  kotchwane
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,104 +18,95 @@
 
 package io.github.kotchwane.bonavortaro;
 
+import java.io.ByteArrayOutputStream;
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.text.Normalizer;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 import java.util.TreeMap;
 
-class TrieStack
-{
-  private int[] data;
-  private int size;
-
-  public TrieStack ()
-  {
-    this.data = new int[64];
-    this.size = 0;
-  }
-
-  public int getTopStart ()
-  {
-    return data[size - 3];
-  }
-
-  public int getTopEnd ()
-  {
-    return data[size - 2];
-  }
-
-  public int getTopStringLength ()
-  {
-    return data[size - 1];
-  }
-
-  public void pop ()
-  {
-    size -= 3;
-  }
-
-  public boolean isEmpty ()
-  {
-    return size <= 0;
-  }
-
-  public void push (int start,
-                    int end,
-                    int stringLength)
-  {
-    /* If there isn't enough space in the array then we'll double its
-     * size. The size of the array is initially chosen to be quite
-     * large so this should probably never happen */
-    if (size + 3 >= data.length)
-      {
-        int[] newData = new int[data.length * 2];
-        System.arraycopy (data, 0, newData, 0, data.length);
-        data = newData;
-      }
-
-    data[size++] = start;
-    data[size++] = end;
-    data[size++] = stringLength;
-  }
-}
-
+/* A search index, searched in the compact form the app ships
+ * (prevodb/src/pdb-compact.h): the words of the language in order, each
+ * written as the bytes it shares with the one before and the rest, with
+ * its articles.
+ *
+ * The searches still think in the tree of letters prevodb builds, the
+ * trie: a node is a start of words, "cha", and its children the letters
+ * that follow it, "chab…" to "chau…". In the list, a node is the run of
+ * words that begin with it, as the words are in the order of the tree:
+ * the words of "cha" follow each other, those of "chat" among them.
+ *
+ * The words are in the order of prevodb's letters (pdb-strcmp.c): by
+ * code point, each Esperanto letter with a hat right after the same
+ * without, "ĥ" between "h" and "i"; the keys are all in lower case. So
+ * the run of a start of words is found by a binary search. To search
+ * without reading the words from the first one, the key of every
+ * BLOCK-th word is kept whole when the index is loaded: a word is read
+ * from the key before it. */
 public class Trie
 {
-  private byte data[];
+  private static final byte[] MAGIC = { 'B', 'V', 'X', '1' };
 
-  private static void readAll (InputStream stream,
-                               byte[] data,
-                               int offset,
-                               int length)
-    throws IOException
+  /* A whole key kept every BLOCK words */
+  private static final int BLOCK = 16;
+
+  /* Beyond that many words, the end of a run is found by a binary search
+   * rather than read word by word */
+  private static final int SCAN = 24;
+
+  private final byte[] data;
+  private final int wordCount;
+
+  /* Where each display name of the table is in data: its length, then
+   * its UTF-8 */
+  private final int[] tableAt;
+
+  /* Where the record of the first word of each block is in data, and its
+   * whole key, in keys from keyAt[block] to keyAt[block + 1] */
+  private final int[] blockAt;
+  private final int[] keyAt;
+  private final byte[] keys;
+
+  /* The letters that begin the words, and the first word of each: in
+   * Chinese and Japanese, thousands, which every search would otherwise
+   * look for again */
+  private final int[] firstLetterAt;
+  private final int[] firstLetters;
+
+  /* A start of words: the words from lo to hi (excluded) begin with the
+   * first depth bytes of the word lo; letter is its last letter */
+  private static final class Node
   {
-    while (length > 0)
-      {
-        int got = stream.read (data, offset, length);
+    final int lo, hi, depth;
+    final String letter;
 
-        if (got == -1)
-          throw new IOException ("Unexpected end of file");
-        else
-          {
-            offset += got;
-            length -= got;
-          }
-      }
+    Node (int lo, int hi, int depth, String letter)
+    {
+      this.lo = lo;
+      this.hi = hi;
+      this.depth = depth;
+      this.letter = letter;
+    }
+
+    /* Whether the words of 'other' begin with this node: in the tree,
+     * whether it's this node or below it */
+    boolean contains (Node other)
+    {
+      return lo <= other.lo && other.hi <= hi && depth <= other.depth;
+    }
   }
 
-  /* The whole stream, after the bytes already read */
-  private static byte[] readRest (InputStream stream, byte[] start)
+  private static byte[] readAll (InputStream stream)
     throws IOException
   {
-    java.io.ByteArrayOutputStream out = new java.io.ByteArrayOutputStream ();
-    out.write (start);
+    ByteArrayOutputStream out = new ByteArrayOutputStream ();
     byte[] buf = new byte[65536];
     int got;
     while ((got = stream.read (buf)) != -1)
@@ -122,40 +114,142 @@ public class Trie
     return out.toByteArray ();
   }
 
-  private static final int extractInt (byte[] data,
-                                       int offset)
-  {
-    return (((data[offset + 0] & 0xff) << 0) |
-            ((data[offset + 1] & 0xff) << 8) |
-            ((data[offset + 2] & 0xff) << 16) |
-            ((data[offset + 3] & 0xff) << 24));
-  }
-
   public Trie (InputStream dataStream)
     throws IOException
   {
-    byte lengthBytes[] = new byte[4];
-    int totalLength;
+    data = readAll (dataStream);
 
-    /* Read 4 bytes to get the length of the file */
-    readAll (dataStream, lengthBytes, 0, lengthBytes.length);
+    if (data.length < 4)
+      throw new IOException ("Not a compact index");
+    for (int i = 0; i < 4; i++)
+      if (data[i] != MAGIC[i])
+        throw new IOException ("Not a compact index");
 
-    /* The compact form the app ships: the trie made again from it */
-    if (CompactIndex.isCompact (lengthBytes))
+    int[] at = { 4 };
+    /* The size of the trie the index was made from, and the root's
+     * letter: not needed to search */
+    varint (at);
+    int rootLength = count (at);
+    at[0] += rootLength;
+
+    int tableSize = count (at);
+    tableAt = new int[tableSize];
+    for (int i = 0; i < tableSize; i++)
       {
-        data = CompactIndex.decode (readRest (dataStream, lengthBytes));
-        return;
+        tableAt[i] = at[0];
+        int length = count (at);
+        at[0] += length;
+        if (at[0] > data.length)
+          throw new IOException ("Truncated compact index");
       }
 
-    totalLength = extractInt (lengthBytes, 0) & 0x7fffffff;
+    wordCount = count (at);
+    int blocks = (wordCount + BLOCK - 1) / BLOCK;
+    blockAt = new int[blocks];
+    keyAt = new int[blocks + 1];
+    ByteArrayOutputStream blockKeys = new ByteArrayOutputStream ();
 
-    /* Create a byte array big enough to hold the entire file and copy
-     * the length we just read into the beginning */
-    data = new byte[totalLength];
-    System.arraycopy (lengthBytes, 0, data, 0, 4);
+    /* Read all the words once, to keep the key of each block, and to
+     * check the index: the searches then trust it */
+    byte[] path = new byte[256];
+    int pathLength = 0;
+    int[] letterAt = new int[64];
+    int[] letters = new int[64];
+    int letterCount = 0;
+    for (int w = 0; w < wordCount; w++)
+      {
+        int record = at[0];
+        int shared = count (at);
+        int rest = count (at);
+        /* matchPattern keeps the length of a key in 16 bits */
+        if (shared > pathLength || at[0] + rest > data.length ||
+            shared + rest >= 0x10000)
+          throw new IOException ("Invalid word in compact index");
+        if (shared + rest > path.length)
+          path = java.util.Arrays.copyOf (path, Math.max (path.length * 2, shared + rest));
 
-    /* Read the rest of the data */
-    readAll (dataStream, data, 4, totalLength - 4);
+        /* The binary searches need the words in order: after the word
+         * before, at the first letter they don't share */
+        int letter = shared;
+        while (letter > 0 && letter < pathLength && (path[letter] & 0xc0) == 0x80)
+          letter--;
+        int before = letter < pathLength ? orderValue (codePoint (path, letter)) : -1;
+
+        System.arraycopy (data, at[0], path, shared, rest);
+        at[0] += rest;
+        pathLength = shared + rest;
+
+        if (w > 0 &&
+            (letter >= pathLength ||
+             before >= orderValue (codePoint (path, letter))))
+          throw new IOException ("The words of the compact index aren't in order");
+
+        if (pathLength > 0 && (letterCount == 0 || shared < getUtf8Length (path[0])))
+          {
+            if (letterCount == letters.length)
+              {
+                letterAt = java.util.Arrays.copyOf (letterAt, letterCount * 2);
+                letters = java.util.Arrays.copyOf (letters, letterCount * 2);
+              }
+            letterAt[letterCount] = w;
+            letters[letterCount++] = codePoint (path, 0);
+          }
+
+        if (w % BLOCK == 0)
+          {
+            blockAt[w / BLOCK] = record;
+            keyAt[w / BLOCK] = blockKeys.size ();
+            blockKeys.write (path, 0, pathLength);
+          }
+
+        int articles = count (at);
+        if (articles == 0)
+          throw new IOException ("A word without articles in compact index");
+        for (int j = 0; j < articles; j++)
+          {
+            varint (at);
+            if (at[0] >= data.length)
+              throw new IOException ("Truncated compact index");
+            at[0]++;
+            long code = varint (at);
+            if (code == 1)
+              varint (at);
+            else if (code >= 2 && code - 2 >= tableSize)
+              throw new IOException ("Invalid display name in compact index");
+          }
+      }
+    keyAt[blocks] = blockKeys.size ();
+    keys = blockKeys.toByteArray ();
+    firstLetterAt = java.util.Arrays.copyOf (letterAt, letterCount);
+    firstLetters = java.util.Arrays.copyOf (letters, letterCount);
+
+    if (at[0] != data.length)
+      throw new IOException ("Trailing data in compact index");
+  }
+
+  private long varint (int[] at)
+    throws IOException
+  {
+    long value = 0;
+    for (int shift = 0; shift < 64; shift += 7)
+      {
+        if (at[0] >= data.length)
+          throw new IOException ("Truncated compact index");
+        int b = data[at[0]++] & 0xff;
+        value |= (long) (b & 0x7f) << shift;
+        if ((b & 0x80) == 0)
+          return value;
+      }
+    throw new IOException ("Invalid number in compact index");
+  }
+
+  private int count (int[] at)
+    throws IOException
+  {
+    long value = varint (at);
+    if (value < 0 || value > data.length)
+      throw new IOException ("Invalid length in compact index");
+    return (int) value;
   }
 
   /* Gets the number of bytes needed for a UTF-8 sequence which begins
@@ -176,22 +270,316 @@ public class Trie
     return 6;
   }
 
-  private static boolean compareArray (byte[] a,
-                                       int aOffset,
-                                       byte[] b,
-                                       int bOffset,
-                                       int length)
+  /* The letter starting at 'at' */
+  private static int codePoint (byte[] bytes, int at)
   {
-    while (length-- > 0)
-      if (a[aOffset++] != b[bOffset++])
-        return false;
-
-    return true;
+    int b = bytes[at] & 0xff;
+    if (b < 0x80)
+      return b;
+    int length = getUtf8Length (bytes[at]);
+    int value = b & (0x7f >> length);
+    for (int i = 1; i < length; i++)
+      value = (value << 6) | (bytes[at + i] & 0x3f);
+    return value;
   }
 
-  private String getCharacter (int offset)
+  /* The place of a letter in the order of the index, as pdb_strcmp_ch:
+   * ĉ ĝ ĥ ĵ ŝ ŭ right after c g h j s u. The keys are in lower case, so
+   * prevodb's lower case changes nothing */
+  private static int orderValue (int letter)
   {
-    return new String (data, offset, getUtf8Length (data[offset]));
+    switch (letter)
+      {
+      case 0x109: return 'c' * 2 + 1;
+      case 0x11d: return 'g' * 2 + 1;
+      case 0x125: return 'h' * 2 + 1;
+      case 0x135: return 'j' * 2 + 1;
+      case 0x15d: return 's' * 2 + 1;
+      case 0x16d: return 'u' * 2 + 1;
+      default: return letter * 2;
+      }
+  }
+
+  /* Compares the key with the start of words: 0 if the key begins with
+   * it, else the order of the two */
+  private static int compareStart (byte[] key, int keyOffset, int keyLength,
+                                   byte[] start, int startLength)
+  {
+    int letter = 0;
+    for (int i = 0; i < startLength; i++)
+      {
+        if (i >= keyLength)
+          return -1;
+        byte k = key[keyOffset + i];
+        byte s = start[i];
+        if ((s & 0xc0) != 0x80)
+          letter = i;
+        if (k != s)
+          {
+            int kv = orderValue (codePoint (key, keyOffset + letter));
+            int sv = orderValue (codePoint (start, letter));
+            return kv < sv ? -1 : 1;
+          }
+      }
+    return 0;
+  }
+
+  /* Reads the words one after the other, from any of them */
+  private final class Cursor
+  {
+    /* The word read, -1 before the first */
+    int index = -1;
+    /* Its key, and the number of bytes it shares with the word before */
+    byte[] path = new byte[256];
+    int length;
+    int shared;
+    /* Its number of articles, where they start, and where the next word
+     * starts */
+    int articles;
+    int articlesAt;
+    int nextAt;
+
+    private int readCount (int[] at)
+    {
+      int value = 0;
+      for (int shift = 0; ; shift += 7)
+        {
+          int b = data[at[0]++] & 0xff;
+          value |= (b & 0x7f) << shift;
+          if ((b & 0x80) == 0)
+            return value;
+        }
+    }
+
+    private long readLong (int[] at)
+    {
+      long value = 0;
+      for (int shift = 0; ; shift += 7)
+        {
+          int b = data[at[0]++] & 0xff;
+          value |= (long) (b & 0x7f) << shift;
+          if ((b & 0x80) == 0)
+            return value;
+        }
+    }
+
+    /* Reads the word at 'record', the key before it in path */
+    private void read (int record)
+    {
+      int[] at = { record };
+      shared = readCount (at);
+      int rest = readCount (at);
+      if (shared + rest > path.length)
+        path = java.util.Arrays.copyOf (path, Math.max (path.length * 2, shared + rest));
+      System.arraycopy (data, at[0], path, shared, rest);
+      at[0] += rest;
+      length = shared + rest;
+      articles = readCount (at);
+      articlesAt = at[0];
+      for (int j = 0; j < articles; j++)
+        {
+          readCount (at);
+          at[0]++;
+          int code = readCount (at);
+          if (code == 1)
+            readLong (at);
+        }
+      nextAt = at[0];
+      index++;
+    }
+
+    void next ()
+    {
+      read (nextAt);
+    }
+
+    /* Goes to the word i */
+    void at (int i)
+    {
+      if (index < 0 || i < index || i - index > BLOCK)
+        {
+          int block = i / BLOCK;
+          int keyLength = keyAt[block + 1] - keyAt[block];
+          if (keyLength > path.length)
+            path = new byte[Math.max (path.length * 2, keyLength)];
+          /* The bytes the first word shares with the one before are
+           * already the start of its key */
+          System.arraycopy (keys, keyAt[block], path, 0, keyLength);
+          index = block * BLOCK - 1;
+          read (blockAt[block]);
+        }
+      while (index < i)
+        next ();
+    }
+
+    /* Whether the word is past the words that begin with 'start'
+     * (exclusive), or at or past their first one */
+    private boolean past (byte[] key, int offset, int keyLength,
+                          byte[] start, int startLength, boolean exclusive)
+    {
+      int order = compareStart (key, offset, keyLength, start, startLength);
+      return exclusive ? order > 0 : order >= 0;
+    }
+
+    /* The first word from lo to hi (or hi) that is past the words that
+     * begin with 'start', or at or past their first one */
+    int first (int lo, int hi, byte[] start, int startLength, boolean exclusive)
+    {
+      if (lo >= hi)
+        return hi;
+
+      /* The first block, among those that start after lo and before hi,
+       * whose first word is past */
+      int firstBlock = lo / BLOCK + 1;
+      int lastBlock = (hi - 1) / BLOCK;
+      int a = firstBlock, z = lastBlock + 1;
+      while (a < z)
+        {
+          int m = (a + z) >>> 1;
+          if (past (keys, keyAt[m], keyAt[m + 1] - keyAt[m],
+                    start, startLength, exclusive))
+            z = m;
+          else
+            a = m + 1;
+        }
+
+      /* The word is after the start of the block before, and at most
+       * the first of that block */
+      int from = a == firstBlock ? lo : (a - 1) * BLOCK;
+      int to = a <= lastBlock ? a * BLOCK : hi;
+      for (int i = from; i < to; i++)
+        {
+          at (i);
+          if (past (path, 0, length, start, startLength, exclusive))
+            return i;
+        }
+      return to;
+    }
+
+    /* The word after the run of those that begin as the word 'i' does in
+     * its first 'depth' bytes, before hi */
+    int endOfRun (int i, int hi, int depth)
+    {
+      at (i);
+      /* Most runs are short: read on while the words share the start,
+       * only the bytes they share and the length of the rest. The key
+       * of i stays in path: the first word past the run shares less
+       * than depth bytes with the word before, all of them in path */
+      int[] at = { nextAt };
+      for (int j = i + 1; j < hi && j <= i + SCAN; j++)
+        {
+          int record = at[0];
+          int s = readCount (at);
+          if (s < depth)
+            {
+              index = j - 1;
+              read (record);
+              return j;
+            }
+          int rest = readCount (at);
+          at[0] += rest;
+          int count = readCount (at);
+          for (int k = 0; k < count; k++)
+            {
+              readCount (at);
+              at[0]++;
+              if (readCount (at) == 1)
+                readLong (at);
+            }
+        }
+      if (i + SCAN >= hi - 1)
+        return hi;
+      byte[] start = java.util.Arrays.copyOf (path, depth);
+      return first (i, hi, start, depth, true);
+    }
+
+    /* The letters that follow a node, each the node of the words that
+     * begin with it, in the order of the index */
+    List<Node> children (Node node)
+    {
+      List<Node> children = new ArrayList<Node> ();
+      /* The root's, found when loading */
+      if (node.depth == 0)
+        {
+          for (int i = 0; i < firstLetterAt.length; i++)
+            {
+              String letter = new String (Character.toChars (firstLetters[i]));
+              children.add (new Node (firstLetterAt[i],
+                                      i + 1 < firstLetterAt.length ? firstLetterAt[i + 1] : wordCount,
+                                      letter.getBytes (StandardCharsets.UTF_8).length,
+                                      letter));
+            }
+          return children;
+        }
+      int i = node.lo;
+      at (i);
+      if (length == node.depth)
+        i++;
+      while (i < node.hi)
+        {
+          at (i);
+          int letterLength = getUtf8Length (path[node.depth]);
+          int depth = node.depth + letterLength;
+          String letter = new String (path, node.depth, letterLength, StandardCharsets.UTF_8);
+          int end = endOfRun (i, node.hi, depth);
+          children.add (new Node (i, end, depth, letter));
+          i = end;
+        }
+      return children;
+    }
+
+    /* The key of the word read, with the letters of the mask as capitals */
+    private String withCapitals (long mask)
+    {
+      String key = new String (path, 0, length, StandardCharsets.UTF_8);
+      StringBuilder name = new StringBuilder (key.length ());
+      int letter = 0;
+      for (int at = 0; at < key.length (); letter++)
+        {
+          int c = key.codePointAt (at);
+          at += Character.charCount (c);
+          if (letter < 64 && ((mask >>> letter) & 1) != 0)
+            c = Character.toUpperCase (c);
+          name.appendCodePoint (c);
+        }
+      return name.toString ();
+    }
+
+    /* Adds the articles of the word read, shown as 'word' when they have
+     * no display name of their own */
+    int addArticles (String word, SearchResult[] results, int numResults)
+    {
+      int[] at = { articlesAt };
+      for (int j = 0; j < articles && numResults < results.length; j++)
+        {
+          int article = readCount (at);
+          int mark = data[at[0]++] & 0xff;
+          int code = readCount (at);
+
+          String shown = word;
+          if (code == 1)
+            shown = withCapitals (readLong (at));
+          else if (code >= 2)
+            {
+              int[] name = { tableAt[code - 2] };
+              int length = readCount (name);
+              shown = new String (data, name[0], length, StandardCharsets.UTF_8);
+            }
+
+          results[numResults++] = SearchResult.fromIndex (shown, article, mark);
+        }
+      return numResults;
+    }
+
+    String key ()
+    {
+      return new String (path, 0, length, StandardCharsets.UTF_8);
+    }
+  }
+
+  private Node root ()
+  {
+    return new Node (0, wordCount, 0, "");
   }
 
   /* Searches the trie for words that begin with 'prefix'. The results
@@ -202,176 +590,20 @@ public class Trie
   public int search (String prefix,
                      SearchResult[] results)
   {
-    /* Convert the string to unicode to make it easier to compare with
-     * the unicode characters in the trie. 'getBytes' with no
-     * parameters converts the string to the default charset. This
-     * assumes the default charset is always UTF-8 which seems to be
-     * the case on Android */
-    byte[] prefixBytes = prefix.getBytes ();
+    byte[] start = prefix.getBytes (StandardCharsets.UTF_8);
+    Cursor cursor = new Cursor ();
 
-    int trieStart = 0;
-    int prefixOffset = 0;
+    /* The words that begin with it follow each other, in the order of
+     * the tree */
+    int lo = cursor.first (0, wordCount, start, start.length, false);
+    int hi = cursor.first (lo, wordCount, start, start.length, true);
 
-    while (prefixOffset < prefixBytes.length)
+    int numResults = 0;
+    for (int i = lo; i < hi && numResults < results.length; i++)
       {
-        int characterLen = getUtf8Length (prefixBytes[prefixOffset]);
-        int childStart;
-
-        /* Get the total length of this node */
-        int offset = extractInt (data, trieStart);
-
-        /* Skip the character for this node */
-        childStart = trieStart + 4;
-        childStart += getUtf8Length (data[childStart]);
-
-        /* If the high bit in the offset is set then it is followed by
-         * the matching articles which we want to skip */
-        if (offset < 0)
-          {
-            offset &= 0x7fffffff;
-
-            boolean hasNext;
-
-            do
-              {
-                hasNext = (data[childStart + 1] & 0x80) != 0;
-                boolean hasDisplayName = (data[childStart + 1] & 0x40) != 0;
-
-                childStart += 3;
-
-                if (hasDisplayName)
-                  childStart += (data[childStart] & 0xff) + 1;
-              } while (hasNext);
-          }
-
-        int trieEnd = trieStart + offset;
-
-        trieStart = childStart;
-
-        /* trieStart is now pointing into the children of the
-         * selected node. We'll scan over these until we either find a
-         * matching character for the next character of the prefix or
-         * we hit the end of the node */
-        while (true)
-          {
-            /* If we've reached the end of the node then we haven't
-             * found a matching character for the prefix so there are
-             * no results */
-            if (trieStart >= trieEnd)
-              return 0;
-
-            /* If we've found a matching character then start scanning
-             * into this node */
-            if (compareArray (prefixBytes, prefixOffset,
-                              data, trieStart + 4,
-                              characterLen))
-              break;
-            /* Otherwise skip past the node to the next sibling */
-            else
-              trieStart += extractInt (data, trieStart) & 0x7fffffff;
-          }
-
-        prefixOffset += characterLen;
+        cursor.at (i);
+        numResults = cursor.addArticles (cursor.key (), results, numResults);
       }
-
-    StringBuilder stringBuf = new StringBuilder (prefix);
-
-    return collect (trieStart, stringBuf, results, 0);
-  }
-
-  /* Adds to the results the words of the node at trieStart and of its
-   * children, in sorted order, after the results already found. The
-   * node is the last one of the string in stringBuf. Returns the new
-   * number of results. */
-  private int collect (int trieStart,
-                       StringBuilder stringBuf,
-                       SearchResult[] results,
-                       int numResults)
-  {
-    /* trieStart is now pointing at the last node with this string.
-     * Any children of that node are therefore extensions of the
-     * prefix. We can now depth-first search the tree to get them all
-     * in sorted order */
-
-    TrieStack stack = new TrieStack ();
-
-    stack.push (trieStart,
-                trieStart + extractInt (data, trieStart) & 0x7fffffff,
-                stringBuf.length ());
-
-    boolean firstChar = true;
-
-    while (numResults < results.length &&
-           !stack.isEmpty ())
-      {
-        int searchStart = stack.getTopStart ();
-        int searchEnd = stack.getTopEnd ();
-
-        stringBuf.setLength (stack.getTopStringLength ());
-
-        stack.pop ();
-
-        int offset = extractInt (data, searchStart);
-        int characterLen = getUtf8Length (data[searchStart + 4]);
-        int childrenStart = searchStart + 4 + characterLen;
-        int oldLength = stringBuf.length ();
-
-        if (firstChar)
-          firstChar = false;
-        else
-          stringBuf.append (new String (data,
-                                        searchStart + 4,
-                                        characterLen));
-
-        /* If this is a complete word then add it to the results */
-        if (offset < 0)
-          {
-            boolean hasNext = true;
-
-            while (hasNext && numResults < results.length)
-              {
-                int article = ((data[childrenStart] & 0xff) |
-                               ((data[childrenStart + 1] & 0xff) << 8));
-                int mark = data[childrenStart + 2] & 0xff;
-                hasNext = (article & 0x8000) != 0;
-                boolean hasDisplayName = (article & 0x4000) != 0;
-
-                childrenStart += 3;
-
-                article &= 0x3fff;
-
-                String word;
-                if (hasDisplayName)
-                  {
-                    int len = data[childrenStart] & 0xff;
-                    word = new String (data,
-                                       childrenStart + 1,
-                                       len);
-                    childrenStart += len + 1;
-                  }
-                else
-                  word = stringBuf.toString ();
-
-                results[numResults++] = SearchResult.fromIndex (word,
-                                                                article,
-                                                                mark);
-              }
-
-            offset &= 0x7fffffff;
-          }
-
-        /* If there is a sibling then make sure we continue from that
-         * after we've descended through the children of this node */
-        if (searchStart + offset < searchEnd)
-          stack.push (searchStart + offset, searchEnd, oldLength);
-
-        /* Push a search for the children of this node */
-        if (childrenStart < searchStart + offset)
-            stack.push (childrenStart,
-                        searchStart + offset,
-                        stringBuf.length ());
-      }
-
     return numResults;
   }
 
@@ -391,16 +623,16 @@ public class Trie
   /* A node reached twice, or inside another reached ("mue" reaches "mü"
    * as "ue", and "müe" as "u" then "e"): its words once, under the
    * outer one */
-  private void keepOutermost (List<Integer> nodes, List<String> paths)
+  private static void keepOutermost (List<Node> nodes, List<String> paths)
   {
     for (int i = nodes.size () - 1; i >= 0; i--)
       {
-        int node = nodes.get (i);
+        Node node = nodes.get (i);
         for (int j = 0; j < nodes.size (); j++)
           {
-            int outer = nodes.get (j);
-            int end = outer + (extractInt (data, outer) & 0x7fffffff);
-            if (j != i && outer <= node && node < end && (outer != node || j < i))
+            Node outer = nodes.get (j);
+            boolean same = outer.lo == node.lo && outer.depth == node.depth;
+            if (j != i && outer.contains (node) && (!same || j < i))
               {
                 nodes.remove (i);
                 paths.remove (i);
@@ -457,19 +689,19 @@ public class Trie
    * prefix, from prefixOffset, ignoring the accents. Only the letters
    * typed without an accent match the accented ones: "e" matches "é",
    * but "é" only matches "é", and "ĉ" (or "cx") doesn't match "c". Each
-   * node is added
-   * to the nodes with its path, the string with the accents of the
-   * index. */
-  private void findIgnoringAccents (int trieStart,
+   * node is added to the nodes with its path, the string with the
+   * accents of the index. */
+  private void findIgnoringAccents (Cursor cursor,
+                                    Node node,
                                     String prefix,
                                     int prefixOffset,
                                     StringBuilder path,
-                                    List<Integer> nodes,
+                                    List<Node> nodes,
                                     List<String> paths)
   {
     if (prefixOffset >= prefix.length ())
       {
-        nodes.add (trieStart);
+        nodes.add (node);
         paths.add (path.toString ());
         return;
       }
@@ -480,36 +712,9 @@ public class Trie
     String letter = foldLetter (typed);
     boolean plain = letter.equals (typed);
 
-    int offset = extractInt (data, trieStart);
-    int childStart = trieStart + 4;
-    childStart += getUtf8Length (data[childStart]);
-
-    /* Skip the words of the node, if it is the end of some */
-    if (offset < 0)
+    for (Node child : cursor.children (node))
       {
-        offset &= 0x7fffffff;
-
-        boolean hasNext;
-
-        do
-          {
-            hasNext = (data[childStart + 1] & 0x80) != 0;
-            boolean hasDisplayName = (data[childStart + 1] & 0x40) != 0;
-
-            childStart += 3;
-
-            if (hasDisplayName)
-              childStart += (data[childStart] & 0xff) + 1;
-          } while (hasNext);
-      }
-
-    int trieEnd = trieStart + offset;
-
-    for (int child = childStart;
-         child < trieEnd;
-         child += extractInt (data, child) & 0x7fffffff)
-      {
-        String childLetter = getCharacter (child + 4);
+        String childLetter = child.letter;
 
         if ((plain ?
              foldLetter (childLetter).equals (letter) :
@@ -518,7 +723,7 @@ public class Trie
           {
             int oldLength = path.length ();
             path.append (childLetter);
-            findIgnoringAccents (child, prefix, letterEnd, path, nodes, paths);
+            findIgnoringAccents (cursor, child, prefix, letterEnd, path, nodes, paths);
             path.setLength (oldLength);
           }
         /* "oe" typed also finds "œ", and "ae" "æ": "coeur" finds "cœur";
@@ -543,7 +748,7 @@ public class Trie
 
                 int oldLength = path.length ();
                 path.append (childLetter);
-                findIgnoringAccents (child, prefix, pairEnd, path, nodes, paths);
+                findIgnoringAccents (cursor, child, prefix, pairEnd, path, nodes, paths);
                 path.setLength (oldLength);
               }
           }
@@ -554,19 +759,20 @@ public class Trie
    * "élève", and "cevalo" "ĉevalo", but "ĉevalo" doesn't find "cevalo".
    * The words are in alphabetical order, accents and case aside, as in a
    * printed dictionary: "com" finds "comédie" between "combustible" and
-   * "comique", where the order of the bytes of the index put it after
-   * "comme", beyond the results kept. A word without accent comes before
-   * the same with ("cote", "coté", "côte", "côté"), so the words that match
-   * the prefix exactly come first. In Esperanto, ĉ ĝ ĥ ĵ ŝ ŭ are letters
-   * of their own, after c g h j s u. */
+   * "comique", where the order of the index put it after "comme", beyond
+   * the results kept. A word without accent comes before the same with
+   * ("cote", "coté", "côte", "côté"), so the words that match the prefix
+   * exactly come first. In Esperanto, ĉ ĝ ĥ ĵ ŝ ŭ are letters of their
+   * own, after c g h j s u. */
   public int searchIgnoringAccents (String prefix,
                                     SearchResult[] results,
                                     boolean esperanto)
   {
-    List<Integer> nodes = new ArrayList<Integer> ();
+    Cursor cursor = new Cursor ();
+    List<Node> nodes = new ArrayList<Node> ();
     List<String> paths = new ArrayList<String> ();
 
-    findIgnoringAccents (0, prefix, 0, new StringBuilder (), nodes, paths);
+    findIgnoringAccents (cursor, root (), prefix, 0, new StringBuilder (), nodes, paths);
     keepOutermost (nodes, paths);
 
     /* The nodes reached, in groups that are the same in the order, eg.
@@ -600,7 +806,8 @@ public class Trie
 
         for (int i = 0; i < group.nodes.size (); i++)
           if (group.pending.get (i).isEmpty ())
-            numResults = addWordsExactFirst (group.nodes.get (i),
+            numResults = addWordsExactFirst (cursor,
+                                             group.nodes.get (i),
                                              group.paths.get (i),
                                              results,
                                              numResults);
@@ -608,7 +815,7 @@ public class Trie
         TreeMap<String, Group> children = new TreeMap<String, Group> ();
         for (int i = 0; i < group.nodes.size (); i++)
           {
-            int node = group.nodes.get (i);
+            Node node = group.nodes.get (i);
             String pending = group.pending.get (i);
 
             /* A ligature's second letter, in the order: "œ" after "o"
@@ -620,13 +827,9 @@ public class Trie
                 continue;
               }
 
-            int end = node + (extractInt (data, node) & 0x7fffffff);
-
-            for (int child = childrenOf (node);
-                 child < end;
-                 child += extractInt (data, child) & 0x7fffffff)
+            for (Node child : cursor.children (node))
               {
-                String letter = getCharacter (child + 4);
+                String letter = child.letter;
                 String key = orderOf (letter, esperanto);
                 String rest = "";
                 if (!esperanto && key.length () > 1)
@@ -654,12 +857,12 @@ public class Trie
    * accents aside */
   private static final class Group
   {
-    final List<Integer> nodes = new ArrayList<Integer> ();
+    final List<Node> nodes = new ArrayList<Node> ();
     final List<String> paths = new ArrayList<String> ();
     /* The letters of the order a node is still ahead of: the "e" of "œ" */
     final List<String> pending = new ArrayList<String> ();
 
-    void add (int node, String path, String rest)
+    void add (Node node, String path, String rest)
     {
       nodes.add (node);
       paths.add (path);
@@ -714,44 +917,18 @@ public class Trie
     return folded;
   }
 
-  /* Test program */
-  /* The offset of the first child of a node, after the words that end
-   * on it, if any */
-  private int childrenOf (int node)
-  {
-    int child = node + 4;
-    child += getUtf8Length (data[child]);
-
-    if (extractInt (data, node) < 0)
-      {
-        boolean hasNext;
-
-        do
-          {
-            hasNext = (data[child + 1] & 0x80) != 0;
-            boolean hasDisplayName = (data[child + 1] & 0x40) != 0;
-
-            child += 3;
-
-            if (hasDisplayName)
-              child += (data[child] & 0xff) + 1;
-          } while (hasNext);
-      }
-
-    return child;
-  }
-
   /* Like addWordsOf, but the word itself before the expressions filed
    * under it: "Amérique" before "Amérique du Nord", "cadre" before "dans
    * le cadre de"; then the word with a clarification, "livre" before
    * "livre (monnaie)", before the expressions */
-  private int addWordsExactFirst (int node,
+  private int addWordsExactFirst (Cursor cursor,
+                                  Node node,
                                   String path,
                                   SearchResult[] results,
                                   int numResults)
   {
     SearchResult[] words = new SearchResult[results.length - numResults];
-    int count = addWordsOf (node, path, words, 0);
+    int count = addWordsOf (cursor, node, path, words, 0);
     String exact = path.toLowerCase (Locale.ROOT);
 
     for (int pass = 0; pass < 3; pass++)
@@ -766,82 +943,66 @@ public class Trie
     return numResults;
   }
 
-  /* Adds the words that end on a node, whose path is 'path' */
-  private int addWordsOf (int node,
+  /* Adds the words that end on a node, whose path is 'path': the first
+   * word of its run, if it is the node itself */
+  private int addWordsOf (Cursor cursor,
+                          Node node,
                           String path,
                           SearchResult[] results,
                           int numResults)
   {
-    if (extractInt (data, node) >= 0)
+    cursor.at (node.lo);
+    if (cursor.length != node.depth)
       return numResults;
-
-    int child = node + 4;
-    child += getUtf8Length (data[child]);
-
-    boolean hasNext = true;
-
-    while (hasNext && numResults < results.length)
-      {
-        int article = ((data[child] & 0xff) |
-                       ((data[child + 1] & 0xff) << 8));
-        int mark = data[child + 2] & 0xff;
-        hasNext = (article & 0x8000) != 0;
-        boolean hasDisplayName = (article & 0x4000) != 0;
-
-        child += 3;
-        article &= 0x3fff;
-
-        String word = path;
-        if (hasDisplayName)
-          {
-            int len = data[child] & 0xff;
-            word = new String (data, child + 1, len);
-            child += len + 1;
-          }
-
-        results[numResults++] = SearchResult.fromIndex (word, article, mark);
-      }
-
-    return numResults;
+    return cursor.addArticles (path, results, numResults);
   }
 
   /* Follows the pattern from patternOffset, the node being reached by
    * 'path'. A node is visited only once for each place in the pattern,
    * so that two stars don't find a word twice. */
-  private int matchPattern (int node,
+  private int matchPattern (Cursor cursor,
+                            Node node,
                             String pattern,
                             int patternOffset,
                             StringBuilder path,
                             Set<Long> visited,
+                            List<Node> children,
                             SearchResult[] results,
                             int numResults)
   {
-    if (numResults >= results.length ||
-        !visited.add (((long) node << 32) | patternOffset))
+    /* A node is its first word and its length; the length of a key
+     * and the place in the pattern are below 2^16. The first word in
+     * the high bits, for a hash that mixes it with the rest */
+    long place = ((long) node.lo << 32) | ((long) node.depth << 16) | patternOffset;
+    if (numResults >= results.length || !visited.add (place))
       return numResults;
 
     if (patternOffset >= pattern.length ())
-      return addWordsOf (node, path.toString (), results, numResults);
+      return addWordsOf (cursor, node, path.toString (), results, numResults);
 
     int nextOffset = pattern.offsetByCodePoints (patternOffset, 1);
     String typed =
       pattern.substring (patternOffset, nextOffset).toLowerCase (Locale.ROOT);
     boolean star = typed.equals ("*");
 
+    /* The letters that follow, once for both ways of a star */
+    if (children == null)
+      children = cursor.children (node);
+
     /* A star can also stand for nothing */
     if (star)
-      numResults = matchPattern (node, pattern, nextOffset, path,
-                                 visited, results, numResults);
+      numResults = matchPattern (cursor, node, pattern, nextOffset, path,
+                                 visited, children, results, numResults);
 
     String letter = foldLetter (typed);
     boolean plain = letter.equals (typed);
-    int nodeEnd = node + (extractInt (data, node) & 0x7fffffff);
 
-    for (int child = childrenOf (node);
-         child < nodeEnd && numResults < results.length;
-         child += extractInt (data, child) & 0x7fffffff)
+    for (Node child : children)
       {
-        String childLetter = getCharacter (child + 4);
+        if (numResults >= results.length)
+          break;
+
+        String childLetter = child.letter;
         boolean matches;
 
         if (star || typed.equals ("?"))
@@ -856,9 +1017,9 @@ public class Trie
             int oldLength = path.length ();
             path.append (childLetter);
             /* A star stays, to take more letters */
-            numResults = matchPattern (child, pattern,
+            numResults = matchPattern (cursor, child, pattern,
                                        star ? patternOffset : nextOffset,
-                                       path, visited, results, numResults);
+                                       path, visited, null, results, numResults);
             path.setLength (oldLength);
           }
       }
@@ -877,10 +1038,15 @@ public class Trie
     /* Several stars in a row are the same as one */
     pattern = pattern.replaceAll ("\\*+", "*");
 
-    return matchPattern (0, pattern, 0, new StringBuilder (),
-                         new HashSet<Long> (), results, 0);
+    /* The place in the pattern is kept in 16 bits */
+    if (pattern.length () >= 0x10000)
+      return 0;
+
+    return matchPattern (new Cursor (), root (), pattern, 0, new StringBuilder (),
+                         new HashSet<Long> (), null, results, 0);
   }
 
+  /* Test program */
   public static void main (String[] args)
     throws IOException
   {
