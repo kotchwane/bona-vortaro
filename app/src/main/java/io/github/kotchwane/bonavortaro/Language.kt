@@ -1,6 +1,7 @@
 /*
  * Bona vortaro - an Esperanto dictionary for Android, based on PReVo
  * Copyright (C) 2012  Neil Roberts
+ * Copyright (C) 2026  kotchwane
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,33 +16,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.github.kotchwane.bonavortaro;
+package io.github.kotchwane.bonavortaro
 
-public class Language
-{
-  private String name;
-  private String code;
-
-  public Language (String name,
-                   String code)
-  {
-    this.name = name;
-    this.code = code;
-  }
-
-  public String getName ()
-  {
-    return name;
-  }
-
-  public String getCode ()
-  {
-    return code;
-  }
-
-  @Override
-  public String toString ()
-  {
-    return name;
-  }
+class Language(val name: String, val code: String) {
+    override fun toString(): String = name
 }

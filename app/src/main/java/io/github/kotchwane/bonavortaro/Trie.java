@@ -1064,8 +1064,8 @@ public class Trie
     int numResults = trie.search (args[1], result);
 
     for (int i = 0; i < numResults; i++)
-      System.out.println (result[i].getWord () + ": " +
-                          result[i].getArticle () + "," +
-                          result[i].getMark ());
+      System.out.println (result[i].word + ": " +
+                          result[i].article + "," +
+                          result[i].mark);
   }
 }
