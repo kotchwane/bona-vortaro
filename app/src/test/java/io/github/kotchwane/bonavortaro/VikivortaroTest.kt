@@ -425,4 +425,10 @@ class VikivortaroTest {
         assertEquals("„X“ kaj „Y“", joinedWords(listOf("„X“", "„Y“"), and))
         assertEquals("„X“, „Y“ kaj „Z“", joinedWords(listOf("„X“", "„Y“", "„Z“"), and))
     }
+
+    @Test
+    fun aJapaneseWordComesBeforeLongerOnesWhateverItsReading() {
+        val words = listOf("犬の（いぬの）", "犬小屋（いぬごや）", "犬（いぬ）")
+        assertEquals("犬（いぬ）", words.minByOrNull { sortKey(it, esperanto = false) })
+    }
 }

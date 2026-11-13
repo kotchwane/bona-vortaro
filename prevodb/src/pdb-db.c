@@ -929,6 +929,66 @@ pdb_db_trim_final_mark (GString *buf)
     g_string_erase (buf, 0, 2);
 }
 
+/* Whether a language writes the reading of a word in full-width
+ * brackets, without a space: Japanese "犬（いぬ）", Chinese "创伤学
+ * （chuāngshāngxué）" */
+static gboolean
+pdb_db_has_full_width_brackets (const char *lang_code)
+{
+  return lang_code && (!strcmp (lang_code, "ja") || !strcmp (lang_code, "zh"));
+}
+
+/* The text of a translation, as pdb_doc_append_element_text_with_ignore
+ * gives it, but with its reading (<pr>) in brackets after the word, as
+ * dictionaries of that language write it: "犬（いぬ）", "आश्रम (āśram)",
+ * not "犬 いぬ" as if the reading were a second word. [ignore] is a
+ * NULL-terminated list of elements left out. */
+static void
+pdb_db_append_trd_text (PdbDocElementNode *element,
+                        GString *buf,
+                        const char *lang_code,
+                        const char *const *ignore)
+{
+  for (PdbDocNode *node = element->node.first_child; node; node = node->next)
+    {
+      if (node->type == PDB_DOC_NODE_TYPE_TEXT)
+        {
+          PdbDocTextNode *text = (PdbDocTextNode *) node;
+          g_string_append_len (buf, text->data, text->len);
+          continue;
+        }
+
+      PdbDocElementNode *child = (PdbDocElementNode *) node;
+      const char *const *skip;
+
+      for (skip = ignore; *skip && strcmp (child->name, *skip); skip++);
+      if (*skip)
+        continue;
+
+      if (strcmp (child->name, "pr"))
+        {
+          pdb_db_append_trd_text (child, buf, lang_code, ignore);
+          continue;
+        }
+
+      GString *reading = g_string_new (NULL);
+      pdb_doc_append_element_text (child, reading);
+      pdb_trim_buf (reading);
+      if (reading->len > 0)
+        {
+          gboolean full_width = pdb_db_has_full_width_brackets (lang_code);
+
+          /* The spaces before it, which separated it */
+          while (buf->len > 0 && g_ascii_isspace (buf->str[buf->len - 1]))
+            g_string_truncate (buf, buf->len - 1);
+          g_string_append (buf, full_width ? "（" : " (");
+          g_string_append_len (buf, reading->str, reading->len);
+          g_string_append (buf, full_width ? "）" : ")");
+        }
+      g_string_free (reading, TRUE);
+    }
+}
+
 static gboolean
 pdb_db_add_trd_index (PdbDb *db,
                       PdbDocElementNode *element,
@@ -941,11 +1001,8 @@ pdb_db_add_trd_index (PdbDb *db,
 
   display_name = g_string_new (NULL);
 
-  pdb_doc_append_element_text_with_ignore (element,
-                                           display_name,
-                                           "ofc",
-                                           "baz",
-                                           NULL);
+  static const char *const display_ignore[] = { "ofc", "baz", NULL };
+  pdb_db_append_trd_text (element, display_name, lang_code, display_ignore);
   pdb_trim_buf (display_name);
   if (db->in_example)
     pdb_db_trim_final_mark (display_name);
@@ -1145,7 +1202,8 @@ pdb_db_handle_translation (PdbDb *db,
   content = g_string_new (NULL);
   /* Without the base form of an Indonesian word, which is only for
    * its place in ReVo's index: "<baz>sayur</baz>sayuran" is "sayuran" */
-  pdb_doc_append_element_text_with_ignore (element, content, "baz", NULL);
+  static const char *const content_ignore[] = { "baz", NULL };
+  pdb_db_append_trd_text (element, content, lang_code, content_ignore);
   pdb_trim_buf (content);
   pdb_db_remove_space_before_punctuation (content);
   g_string_append_len (data->buf, content->str, content->len);
@@ -1252,7 +1310,8 @@ pdb_db_handle_example_translation (PdbDb *db,
   content = g_string_new (NULL);
   /* Without the base form of an Indonesian word, which is only for
    * its place in ReVo's index: "<baz>sayur</baz>sayuran" is "sayuran" */
-  pdb_doc_append_element_text_with_ignore (element, content, "baz", NULL);
+  static const char *const content_ignore[] = { "baz", NULL };
+  pdb_db_append_trd_text (element, content, lang_code, content_ignore);
   pdb_trim_buf (content);
   pdb_db_remove_space_before_punctuation (content);
   g_string_append_len (data->buf, content->str, content->len);

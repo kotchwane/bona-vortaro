@@ -114,8 +114,10 @@ internal fun orderKey(word: String, searched: String, esperanto: Boolean): Strin
  * accents and case aside; but in Esperanto, a letter with an accent right
  * after the one without, ĉ ĝ ĥ ĵ ŝ ŭ after c g h j s u */
 internal fun sortKey(word: String, esperanto: Boolean): String {
+    /* Without the reading of a Japanese or Chinese word, in full-width
+     * brackets: "犬（いぬ）" before "犬の（いぬの）", as "犬" before "犬の" */
     if (!esperanto)
-        return Vikivortaro.key(word)
+        return Vikivortaro.key(word.substringBefore('（'))
     return word.substringBefore(" (").lowercase(java.util.Locale.ROOT).replace('’', '\'')
         .replace('\u00a0', ' ').replace('\u202f', ' ').trim()
         .map { letter ->
