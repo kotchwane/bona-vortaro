@@ -3,7 +3,8 @@
 # to Reta Vortaro: the words of that language with their Esperanto
 # translations, and the short descriptions of Esperanto words in it.
 #
-# Usage, from the root of the repository:
+# Usage, from the root of the repository, with Reta Vortaro's sources
+# (the submodule extern/revo-fonto, to know which words it has):
 #   python3 scripts/vikivortaro.py https://kaikki.org/dictionary/downloads/fr/fr-extract.jsonl.gz
 #   python3 scripts/vikivortaro.py de https://kaikki.org/dictionary/downloads/de/de-extract.jsonl.gz
 #   python3 scripts/vikivortaro.py en \
@@ -37,6 +38,12 @@ import urllib.request
 LANGUAGE = sys.argv[1] if sys.argv[1] in ("fr", "en", "de") else "fr"
 SOURCES = sys.argv[2:] if sys.argv[1] in ("fr", "en", "de") else sys.argv[1:]
 NAME = {"fr": "French", "en": "English", "de": "German"}[LANGUAGE]
+# Reta Vortaro's sources, the submodule extern/revo-fonto: without them,
+# every Esperanto word would look missing from Reta Vortaro
+REVO = os.path.join(os.path.dirname(__file__), "..", "extern", "revo-fonto", "revo")
+if not os.path.isdir(REVO) or not any(name.endswith(".xml") for name in os.listdir(REVO)):
+    sys.exit(f"Reta Vortaro's sources are missing in {os.path.normpath(REVO)}: "
+             "git submodule update --init extern/revo-fonto")
 # Where the forms of a word are tagged ("form-of"), not told by their text
 TAGGED_FORMS = LANGUAGE in ("en", "de")
 OUT = os.path.join(os.path.dirname(__file__), "..", "app", "src", "main", "assets", "vikivortaro")
@@ -270,9 +277,10 @@ def likeliest_sense(translation):
 
 def table_sense(entry, translation):
     """The sense of the word that a translation is under, as the page
-    says it: in German, "Ostseeraum: Meerenge zwischen einer Insel und dem
-    gegenüberliegenden Festland" (Belt → belto); in English, the gloss of
-    the sense whose table it is in, else its heading"""
+    says it: the heading of its table if it has one ("Ostseeraum: Meerenge
+    zwischen einer Insel und dem gegenüberliegenden Festland" for Belt →
+    belto, in German), else the first gloss of the sense whose list holds
+    the translation; "" if neither says it"""
     for sense in entry.get("senses") or []:
         if any(t is translation for t in sense.get("translations") or []):
             glosses = sense.get("glosses") or []
@@ -488,7 +496,6 @@ if advised:
         f.write("# Translations whose sense Vortoj de la bona lingvo advises against, from data/vikivortaro-advised.tsv.\n")
         for foreign, esperanto in sorted(advised):
             f.write(f"{foreign}\t{esperanto}\n")
-REVO = os.path.join(os.path.dirname(__file__), "..", "extern", "revo-fonto", "revo")
 ENTITIES = {"jcirc": "ĵ", "gcirc": "ĝ", "ccirc": "ĉ", "scirc": "ŝ", "hcirc": "ĥ", "ubreve": "ŭ",
             "Jcirc": "Ĵ", "Gcirc": "Ĝ", "Ccirc": "Ĉ", "Scirc": "Ŝ", "Hcirc": "Ĥ", "Ubreve": "Ŭ"}
 

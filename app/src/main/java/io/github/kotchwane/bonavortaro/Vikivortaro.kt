@@ -50,6 +50,11 @@ class VikiResult(
 ) {
     /** The word as the search found it */
     val word: String get() = if (inEsperanto) esperanto else foreign
+
+    /** An Esperanto word that only translation tables give, nothing
+     * defining or describing it: "nur traduko de la germana „Kuhreiher“",
+     * for every reader, as its page says (user, 2026-11-11) */
+    val onlyTranslation: Boolean get() = inEsperanto && definition == null && description == null && foreignWords.isNotEmpty()
 }
 
 /** The definition of an Esperanto word in the Esperanto Wiktionary: its
@@ -106,6 +111,8 @@ object Vikivortaro {
     }
 
     private val data = java.util.concurrent.ConcurrentHashMap<String, Data>()
+    /* The senses of each language's words that nothing describes, by word */
+    private val senses = java.util.concurrent.ConcurrentHashMap<String, Map<String, Map<String, String>>>()
     /* A lock per language: a French search at start-up doesn't wait for
      * the English data, read meanwhile (test round 7) */
     private val locks = VikiLanguage.ALL.associate { it.code to Any() }
@@ -916,17 +923,26 @@ object Vikivortaro {
     /** For an Esperanto word that nothing describes, the sense of the
      * table each word of a language is translated in, in that language:
      * "Belt", "Ostseeraum: Meerenge zwischen einer Insel und dem
-     * gegenüberliegenden Festland" for belto (user, 2026-11-11). Read from
-     * the file each time, for one page: not kept. Disk access: not on the
-     * main thread. */
-    fun senses(context: Context, language: VikiLanguage, word: String): Map<String, String> = try {
-        val start = word + "\t"
-        context.assets.open("vikivortaro/${language.code}-eo-senses.tsv").bufferedReader().useLines { lines ->
-            lines.filter { it.startsWith(start) }
-                .mapNotNull { line -> line.split('\t').takeIf { it.size == 3 }?.let { it[1] to it[2] } }
-                .toMap()
-        }
+     * gegenüberliegenden Festland" for belto (user, 2026-11-11). Read once
+     * per language, the first time a page needs it (about 8,000 lines in
+     * English or German). Disk access: not on the main thread. */
+    fun senses(context: Context, language: VikiLanguage, word: String): Map<String, String> =
+        (senses[language.code] ?: synchronized(locks.getValue(language.code)) {
+            senses[language.code] ?: readSenses(context, language).also { senses[language.code] = it }
+        })[word].orEmpty()
+
+    /** The lines of a senses file, "belto", "Belt", its sense, by
+     * Esperanto word then word of the language */
+    internal fun parseSenses(lines: Sequence<String>): Map<String, Map<String, String>> =
+        lines.filter { !it.startsWith("#") }
+            .mapNotNull { line -> line.split('\t').takeIf { it.size == 3 } }
+            .groupBy({ it[0] }, { it[1] to it[2] })
+            .mapValues { (_, senses) -> senses.toMap() }
+
+    private fun readSenses(context: Context, language: VikiLanguage): Map<String, Map<String, String>> = try {
+        context.assets.open("vikivortaro/${language.code}-eo-senses.tsv").bufferedReader().useLines(::parseSenses)
     } catch (e: IOException) {
+        Log.w(TAG, "Failed to read the senses of ${language.code}")
         emptyMap()
     }
 
