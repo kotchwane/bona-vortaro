@@ -48,33 +48,16 @@ import java.io.IOException
 
 /** A root of the dictionary drawn at random, to discover words. */
 object RandomRoot {
-    /* The articles are in files of 16, the last one partly filled */
-    private const val ARTICLES_PER_FILE = 16
-
     @Volatile
     private var count: Int? = null
 
     /** The number of articles, counted once. Disk access. */
     private fun count(context: Context): Int =
         count ?: synchronized(this) {
-            count ?: run {
-                /* Only the articles: files.txt is there too */
-                val files = context.assets.list("articles")?.count { it.startsWith("article-") } ?: 0
-                if (files == 0) return@run 0
-                val last = String.format(java.util.Locale.US, "articles/article-%03xx.bin", files - 1)
-                var inLast = 0
-                context.assets.open(last).use { stream ->
-                    val input = BinaryReader(stream)
-                    try {
-                        while (inLast < ARTICLES_PER_FILE) {
-                            input.skip(input.readInt().toLong())
-                            inLast++
-                        }
-                    } catch (e: IOException) {
-                        /* The end of the last file */
-                    }
-                }
-                (files - 1) * ARTICLES_PER_FILE + inLast
+            count ?: try {
+                ArticleFiles.count(context)
+            } catch (e: IOException) {
+                0
             }.also { count = it }
         }
 

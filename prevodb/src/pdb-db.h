@@ -28,6 +28,11 @@ PdbDb *
 pdb_db_new (PdbRevo *revo,
             GError **error);
 
+/* Where pdb_db_save also writes the articles in the old format, 16 to a
+ * file, as the tests of the app read them; NULL for nowhere */
+void
+pdb_db_set_raw_articles_dir (const char *dir);
+
 gboolean
 pdb_db_save (PdbDb *db,
              const char *dir,

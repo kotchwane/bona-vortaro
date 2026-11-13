@@ -6,6 +6,12 @@ android {
 
     compileSdk = 37
 
+    /* The articles, compressed with xz when the dictionary is built:
+     * stored as they are, zip would only make them bigger */
+    androidResources {
+        noCompress += ['xz']
+    }
+
     defaultConfig {
         /* The ID of this modified version, so that it can be installed
          * next to the original PReVo of the Play Store. The code keeps
@@ -77,6 +83,9 @@ android {
 }
 
 dependencies {
+    /* Reads the articles, compressed with xz (0BSD); the same version
+     * compresses them, in the build script */
+    implementation 'org.tukaani:xz:1.10'
     implementation 'androidx.appcompat:appcompat:1.8.0'
     implementation 'androidx.activity:activity-compose:1.13.0'
 
@@ -107,6 +116,27 @@ def buildDictionary = tasks.register('buildDictionary', Exec) {
     outputs.file 'src/main/res/xml/languages.xml'
 
     commandLine rootProject.file('scripts/generate-dictionary.sh')
+
+    /* Then the articles, compressed: prevodb writes them 64 to a file,
+     * articles-XXX.bin, each made articles-XXX.xz. Settings of "xz -9e",
+     * with a dictionary of 1 MiB, more than a file: the phone needs no
+     * more memory to read one */
+    doLast {
+        def articles = file('src/main/assets/articles')
+        articles.listFiles().findAll { it.name ==~ /articles-[0-9a-f]+\.bin/ }.sort { it.name }.each { bin ->
+            def options = new org.tukaani.xz.LZMA2Options(9)
+            options.setDictSize(1 << 20)
+            options.setNiceLen(273)
+            options.setDepthLimit(512)
+            def xz = new File(articles, bin.name.replace('.bin', '.xz'))
+            xz.withOutputStream { out ->
+                def compressed = new org.tukaani.xz.XZOutputStream(out, options, org.tukaani.xz.XZ.CHECK_CRC32)
+                compressed.write(bin.bytes)
+                compressed.finish()
+            }
+            bin.delete()
+        }
+    }
 }
 
 tasks.named('preBuild') {
