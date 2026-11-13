@@ -392,5 +392,37 @@ class VikivortaroTest {
         assertEquals("weissrussland", Vikivortaro.spelledOut("Weißrussland"))
         assertEquals("bauer", Vikivortaro.spelledOut("Bauer"))
     }
-}
 
+    @Test
+    fun theSensesOfAWordNothingDescribesAreReadByWord() {
+        val file = File("src/main/assets/vikivortaro/de-eo-senses.tsv")
+        assumeTrue("no German senses", file.exists())
+        val senses = file.bufferedReader().useLines(Vikivortaro::parseSenses)
+        assertEquals(mapOf("Kuhreiher" to "weltweit verbreitete Reiherart"), senses["bovardeo"])
+        /* The comments aren't words */
+        assertTrue(senses.keys.none { it.startsWith("#") })
+        assertEquals(mapOf("A" to "a", "B" to "b"), Vikivortaro.parseSenses(sequenceOf("# x", "vorto\tA\ta", "vorto\tB\tb", "bad\tline"))["vorto"])
+    }
+
+    private fun esperanto(definition: String? = null, description: String? = null, foreignWords: List<String> = listOf("Kuhreiher")) =
+        VikiResult("de", "Kuhreiher", "bovardeo", revo = null, description = description, inEsperanto = true,
+            foreignWords = foreignWords, definition = definition)
+
+    @Test
+    fun onlyAWordNothingDefinesNorDescribesIsOnlyATranslation() {
+        assertTrue(esperanto().onlyTranslation)
+        assertFalse(esperanto(definition = "Birdo …").onlyTranslation)
+        assertFalse(esperanto(description = "Ardea ibis").onlyTranslation)
+        assertFalse(esperanto(foreignWords = emptyList()).onlyTranslation)
+        /* A word of the other language, found by itself */
+        assertFalse(VikiResult("de", "Kuhreiher", "bovardeo", revo = null, description = null, foreignWords = listOf("Kuhreiher")).onlyTranslation)
+    }
+
+    @Test
+    fun severalWordsAreJoinedTheLastTwoByAnd() {
+        val and = { first: String, last: String -> "$first kaj $last" }
+        assertEquals("„X“", joinedWords(listOf("„X“"), and))
+        assertEquals("„X“ kaj „Y“", joinedWords(listOf("„X“", "„Y“"), and))
+        assertEquals("„X“, „Y“ kaj „Z“", joinedWords(listOf("„X“", "„Y“", "„Z“"), and))
+    }
+}

@@ -103,10 +103,15 @@ object WordLookup {
      * main thread. */
     fun findInWiktionary(context: Context, word: String, language: String): List<VikiResult> {
         val viki = VikiLanguage.of(language) ?: return emptyList()
+        return sameWord(Vikivortaro.search(context, viki, word), word)
+    }
+
+    /** Of the results of a search, those of the word itself, case and
+     * accents aside, not the longer words it begins: "Einhergehen" finds
+     * "einhergehen", not "einhergehend" */
+    internal fun sameWord(results: List<VikiResult>, word: String): List<VikiResult> {
         val key = Vikivortaro.key(word)
-        return Vikivortaro.search(context, viki, word)
-            .filter { Vikivortaro.key(it.word) == key }
-            .take(MAX_ENTRIES)
+        return results.filter { Vikivortaro.key(it.word) == key }.take(MAX_ENTRIES)
     }
 
     /** The word around a place in a text, or null if the place isn't

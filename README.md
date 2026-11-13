@@ -140,7 +140,7 @@ tutan vortaron.
 La datumoj de Vikivortaro, male, estas en la deponejo
 (`app/src/main/assets/vikivortaro/`), por ke ĉiu konstruado estu sama. Por
 renovigi ilin el la nunaj eltiroj de Kaikki (ĉirkaŭ 740 MB por la franca, 710 MB por la angla, 310 MB por la germana,
-legataj sen konservo):
+legataj sen konservo), kun la fontoj de Reta Vortaro en `extern/revo-fonto` (por scii, kiujn vortojn ĝi havas):
 
 ```bash
 python3 scripts/vikivortaro.py https://kaikki.org/dictionary/downloads/fr/fr-extract.jsonl.gz
@@ -313,7 +313,7 @@ dictionary.
 The Wiktionary data, on the other hand, is in the repository
 (`app/src/main/assets/vikivortaro/`), so that every build is the same. To refresh
 them from Kaikki's current extracts (about 740 MB for French, 710 MB for English, 310 MB for German,
-streamed, not kept):
+streamed, not kept), with Reta Vortaro's sources in `extern/revo-fonto` (to know which words it has):
 
 ```bash
 python3 scripts/vikivortaro.py https://kaikki.org/dictionary/downloads/fr/fr-extract.jsonl.gz

@@ -203,11 +203,13 @@ fun VikiResultRow(
                     /* Only a translation table gives it: which, for every
                      * reader, as its page says, its words being all there
                      * is to it (user, 2026-11-11) */
-                    else if (result.description == null && result.foreignWords.isNotEmpty())
+                    else if (result.onlyTranslation)
                         stringResource(
-                            R.string.viki_only_translation,
+                            if (result.foreignWords.size > 1) R.string.viki_only_translation_several else R.string.viki_only_translation,
                             LanguageList.getDefault(context).getLanguageName(result.language),
-                            result.foreignWords.joinToString(", ") { "„$it“" },
+                            stringResource(R.string.words_and).let { and ->
+                                joinedWords(result.foreignWords.map { "„$it“" }) { first, last -> and.format(first, last) }
+                            },
                         )
                     else if (inLanguage)
                         stringResource(
@@ -244,6 +246,7 @@ class VikivortaroActivity : BonaActivity() {
     /* The settings, read again when coming back to the page: they may have
      * changed in between, eg. from its own settings button */
     private var vikiLanguages by mutableStateOf(emptyList<VikiLanguage>())
+    private var readerOrder by mutableStateOf(emptyList<VikiLanguage>())
     private var textSize by mutableIntStateOf(BonaSettings.DEFAULT_TEXT_SIZE)
     /* A root opened from this page: a second tap opens nothing more until
      * the reader is back */
@@ -257,6 +260,7 @@ class VikivortaroActivity : BonaActivity() {
     override fun onStart() {
         super.onStart()
         vikiLanguages = Vikivortaro.shownLanguages(this)
+        readerOrder = Vikivortaro.readerOrder(this)
         textSize = BonaSettings.getTextSize(this)
     }
 
@@ -269,6 +273,7 @@ class VikivortaroActivity : BonaActivity() {
                 VikiPage(
                     word,
                     vikiLanguages = vikiLanguages,
+                    readerOrder = readerOrder,
                     textSize = textSize,
                     onOpenEntry = { entry ->
                         startActivity(
@@ -293,6 +298,8 @@ class VikivortaroActivity : BonaActivity() {
 private fun VikiPage(
     word: String,
     vikiLanguages: List<VikiLanguage>,
+    /** Every Wiktionary in the reader's order, those not shown too */
+    readerOrder: List<VikiLanguage>,
     textSize: Int,
     onOpenEntry: (SearchResult) -> Unit,
     onOpenRoot: (Int) -> Unit,
@@ -326,13 +333,13 @@ private fun VikiPage(
      * it: those words for every reader, with the sense of their tables,
      * all there is to it, the same for everyone (user, 2026-11-11: a Pole
      * finds "belto" as a German does from "Belt") */
-    val foreign by produceState(emptyList<ForeignWords>(), word, vikiLanguages) {
+    val foreign by produceState(emptyList<ForeignWords>(), word, vikiLanguages, readerOrder) {
         value = withContext(Dispatchers.IO) {
             fun wordsIn(languages: List<VikiLanguage>) =
                 languages.map { ForeignWords(it.code, Vikivortaro.foreignOf(context, it, word), Vikivortaro.description(context, it, word),
                     hasPage = Vikivortaro.hasPage(context, it, word)) }
                     .filter { it.words.isNotEmpty() || it.description != null }
-            val all = wordsIn(Vikivortaro.readerOrder(context))
+            val all = wordsIn(readerOrder)
             if (all.any { it.description != null } || Vikivortaro.definition(context, word) != null)
                 wordsIn(vikiLanguages)
             else all.map { it.copy(senses = Vikivortaro.senses(context, VikiLanguage.of(it.language)!!, word)) }
@@ -744,3 +751,8 @@ private fun SenseLine(sense: String, modifier: Modifier = Modifier, onLongPress:
         modifier = modifier,
     )
 }
+
+/** Words one after the other, the last two joined by [and]: "„X“, „Y“
+ * kaj „Z“" */
+internal fun joinedWords(words: List<String>, and: (String, String) -> String): String =
+    if (words.size > 1) and(words.dropLast(1).joinToString(", "), words.last()) else words.joinToString()

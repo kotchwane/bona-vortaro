@@ -234,7 +234,12 @@
   <string name="viki_word_source">„%1$s“ venas el Vikivortaro (CC\u00A0BY-SA\u00A04.0).</string>
   <!-- "franca: épicier": the name of the language, then its words -->
   <string name="viki_in_language">%1$s: %2$s</string>
+  <!-- "nur traduko de la germana „Kuhreiher“"; with several words, the adjective in the plural:
+       "nur traduko de la germanaj „X“ kaj „Y“" (%1$s: "germana") -->
   <string name="viki_only_translation">nur traduko de la %1$s %2$s</string>
+  <string name="viki_only_translation_several">nur traduko de la %1$sj %2$s</string>
+  <!-- The last two of several words: "„X“, „Y“ kaj „Z“" -->
+  <string name="words_and">%1$s kaj %2$s</string>
   <!-- On the page of a word only Wiktionary has, the same word with the other case: "Smurfo" -->
   <string name="viki_other_case">Vidu ankaŭ „%1$s“ ›</string>
   <string name="not_in_revo">ne en Reta Vortaro</string>

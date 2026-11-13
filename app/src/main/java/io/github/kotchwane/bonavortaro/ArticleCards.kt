@@ -1570,9 +1570,11 @@ fun SourcesLine(
                      * word's page */
                     if (vikiEsperanto != null && vikiWord != null) {
                         val page = "wiki/" + Uri.encode(vikiWord.replace(' ', '_'))
-                        /* The page of the word in a Wiktionary: its own, or
-                         * that of the first word translated by it */
-                        fun pageIn(code: String) = vikiPages[code]?.firstOrNull()?.let { vikiSite(code) + wikiPath(it) } ?: (vikiSite(code) + page)
+                        /* The edition's link: the word's own page, or,
+                         * when "vidu la paĝon" links the pages of the words
+                         * translated by it, the Wiktionary itself, not the
+                         * same page twice */
+                        fun pageIn(code: String) = if (vikiPages[code].isNullOrEmpty()) vikiSite(code) + page else vikiSite(code)
                         val code = vikiLanguages.firstOrNull()
                         if (code != null) {
                             val name = languageNames.getLanguageName(code)
@@ -1617,7 +1619,9 @@ fun SourcesLine(
                             if (vikiWord != null)
                                 stringResource(if (vikiDescription) R.string.sources_viki_word else R.string.sources_viki_word_only, vikiWord)
                             else stringResource(R.string.sources_viki),
-                            vikiSite(code) + (vikiPages[code]?.firstOrNull() ?: vikiWord)?.let(::wikiPath).orEmpty(),
+                            /* The word's page, or the Wiktionary when
+                             * "vidu la paĝon" links the pages */
+                            vikiSite(code) + (if (vikiPages[code].isNullOrEmpty()) vikiWord?.let(::wikiPath).orEmpty() else ""),
                             pages = pagesOf(code, vikiPages),
                         )
                     if (bonaLingvo)

@@ -77,4 +77,16 @@ class WordLookupTest {
         assertNull(WordLookup.wordAt(text, 13))
         assertEquals("ĉevalo", WordLookup.wordAt("la ĉevalo", 3))
     }
+
+    private fun german(word: String) = VikiResult("de", word, "iri", revo = null, description = null)
+
+    @Test
+    fun aWordLongPressedFindsItselfInWiktionaryNotLongerWords() {
+        /* Case and accents aside, as the search finds them */
+        val results = listOf(german("einhergehen"), german("einhergehend"), german("Einhergehen"))
+        assertEquals(listOf("einhergehen", "Einhergehen"), WordLookup.sameWord(results, "Einhergehen").map { it.word })
+        assertEquals(listOf("Gemüse"), WordLookup.sameWord(listOf(german("Gemüse"), german("Gemüsegarten")), "gemuse").map { it.word })
+        /* No more than an article shows */
+        assertEquals(WordLookup.MAX_ENTRIES, WordLookup.sameWord(List(10) { german("iri") }, "iri").size)
+    }
 }
