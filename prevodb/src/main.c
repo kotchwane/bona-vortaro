@@ -23,12 +23,14 @@
 
 #include "pdb-revo.h"
 #include "pdb-db.h"
+#include "pdb-lang.h"
 
 static gboolean option_single = FALSE;
 static gboolean option_version = FALSE;
 static char **option_in_files = NULL;
 static const char *option_out_file = NULL;
 static const char *option_vikiref = NULL;
+static const char *option_raw_indices = NULL;
 
 static GOptionEntry
 options[] =
@@ -50,6 +52,11 @@ options[] =
       "vikiref", 0, 0, G_OPTION_ARG_STRING, &option_vikiref,
       N_("Reta Vortaro's list of the Vikipedio articles of its words "
          "(revo/inx/vikiref.json on its site), to link to them"), NULL
+    },
+    {
+      "raw-indices", 0, 0, G_OPTION_ARG_STRING, &option_raw_indices,
+      N_("Also write each search index as a trie, as the app makes it "
+         "again from its compact form, into this directory (for tests)"), NULL
     },
     {
       "version", 0, 0, G_OPTION_ARG_NONE, &option_version,
@@ -147,6 +154,8 @@ main (int argc, char **argv)
           else
             {
               gboolean save_ret;
+
+              pdb_lang_set_raw_indices_dir (option_raw_indices);
 
               if (option_single)
                 save_ret = pdb_db_save_single (db, option_out_file, &error);

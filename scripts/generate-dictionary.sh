@@ -15,4 +15,5 @@ make -j"$(nproc 2>/dev/null || sysctl -n hw.ncpu)"
     -i ../extern/revo-fonto \
     -i ../extern/voko-grundo \
     -o ../app/src/main \
-    --vikiref ../data/vikiref.json
+    --vikiref ../data/vikiref.json \
+    --raw-indices "$(mkdir -p raw-indices && echo raw-indices)"
