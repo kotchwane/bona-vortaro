@@ -1,0 +1,4 @@
+• Japanese search in hiragana and katakana: いぬ and イヌ find hundo. The readings of Japanese words in brackets: 犬（いぬ）.
+• A smaller app: 28 MB instead of 34, and it uses less memory.
+• Reta Vortaro of 13 November 2026: 15 new articles (pipeto, serino…).
+• Many small fixes.
