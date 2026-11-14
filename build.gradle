@@ -8,6 +8,10 @@ buildscript {
         classpath 'com.android.tools.build:gradle:9.4.1'
         classpath 'org.jetbrains.kotlin:kotlin-gradle-plugin:2.4.20'
         classpath 'org.jetbrains.kotlin:compose-compiler-gradle-plugin:2.4.20'
+        /* To compress the articles when the dictionary is built: the same
+         * version as the app's decoder, so that every machine, F-Droid's
+         * too, gives the same bytes */
+        classpath 'org.tukaani:xz:1.10'
     }
 }
 

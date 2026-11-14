@@ -29,6 +29,8 @@ prevodb_SOURCES = \
 	pdb-file.h \
 	pdb-compact.c \
 	pdb-compact.h \
+	pdb-articles.c \
+	pdb-articles.h \
 	pdb-lang.c \
 	pdb-lang.h \
 	pdb-list.c \

@@ -31,6 +31,7 @@ static char **option_in_files = NULL;
 static const char *option_out_file = NULL;
 static const char *option_vikiref = NULL;
 static const char *option_raw_indices = NULL;
+static const char *option_raw_articles = NULL;
 
 static GOptionEntry
 options[] =
@@ -57,6 +58,11 @@ options[] =
       "raw-indices", 0, 0, G_OPTION_ARG_STRING, &option_raw_indices,
       N_("Also write each search index as a trie, as the app makes it "
          "again from its compact form, into this directory (for tests)"), NULL
+    },
+    {
+      "raw-articles", 0, 0, G_OPTION_ARG_STRING, &option_raw_articles,
+      N_("Also write the articles in the format before their compact "
+         "form, 16 to a file, into this directory (for tests)"), NULL
     },
     {
       "version", 0, 0, G_OPTION_ARG_NONE, &option_version,
@@ -156,6 +162,7 @@ main (int argc, char **argv)
               gboolean save_ret;
 
               pdb_lang_set_raw_indices_dir (option_raw_indices);
+              pdb_db_set_raw_articles_dir (option_raw_articles);
 
               if (option_single)
                 save_ret = pdb_db_save_single (db, option_out_file, &error);

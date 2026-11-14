@@ -35,6 +35,7 @@
 #include "pdb-file.h"
 #include "pdb-span.h"
 #include "pdb-trim.h"
+#include "pdb-articles.h"
 
 /* An article file comprises of up to 16 articles. The articles are
  * bundled together to reduce the number of files because the package
@@ -5331,73 +5332,264 @@ pdb_db_save_lines (GPtrArray *lines,
   return ret;
 }
 
+static const char *pdb_db_raw_articles_dir = NULL;
+
+void
+pdb_db_set_raw_articles_dir (const char *dir)
+{
+  pdb_db_raw_articles_dir = dir;
+}
+
+/* Writes the articles in the old format, 16 to a file named
+ * article-XXXx.bin, into old_dir */
+static gboolean
+pdb_db_save_old_articles (PdbDb *db,
+                          const char *old_dir,
+                          GError **error)
+{
+  int max_group = (db->articles->len + 15) / 16;
+  int group_num;
+
+  for (group_num = 0; group_num < max_group; group_num++)
+    {
+      PdbFile out;
+      char *article_name = g_strdup_printf ("article-%03xx.bin", group_num);
+      char *full_name = g_build_filename (old_dir, article_name, NULL);
+      gboolean write_status = TRUE;
+
+      if (!pdb_file_open (&out, full_name, PDB_FILE_MODE_WRITE, error))
+        write_status = FALSE;
+      else
+        {
+          int page_num, max_page;
+
+          if ((db->articles->len & 0xf) && group_num + 1 >= max_group)
+            max_page = db->articles->len & 0xf;
+          else
+            max_page = 16;
+
+          for (page_num = 0; page_num < max_page; page_num++)
+            {
+              PdbDbArticle *article =
+                g_ptr_array_index (db->articles, group_num * 16 + page_num);
+
+              if (!pdb_db_save_article (db,
+                                        article,
+                                        FALSE, /* single */
+                                        &out,
+                                        error))
+                {
+                  write_status = FALSE;
+                  break;
+                }
+            }
+
+          if (!pdb_file_close (&out, write_status ? error : NULL))
+            write_status = FALSE;
+        }
+
+      g_free (full_name);
+      g_free (article_name);
+
+      if (!write_status)
+        return FALSE;
+    }
+
+  return TRUE;
+}
+
+static void
+pdb_db_append_varint (GByteArray *out,
+                      guint64 value)
+{
+  do
+    {
+      guint8 b = value & 0x7f;
+      value >>= 7;
+      if (value)
+        b |= 0x80;
+      g_byte_array_append (out, &b, 1);
+    }
+  while (value);
+}
+
+/* The files of the articles of an earlier build, which the app would
+ * otherwise get too: those of the old format, and the compact ones */
+static void
+pdb_db_remove_article_files (const char *articles_dir)
+{
+  GDir *dir = g_dir_open (articles_dir, 0, NULL);
+  const char *name;
+
+  if (dir == NULL)
+    return;
+
+  while ((name = g_dir_read_name (dir)))
+    if ((g_str_has_prefix (name, "article-") || g_str_has_prefix (name, "articles-")) &&
+        (g_str_has_suffix (name, ".bin") || g_str_has_suffix (name, ".xz")))
+      {
+        char *full_name = g_build_filename (articles_dir, name, NULL);
+        g_unlink (full_name);
+        g_free (full_name);
+      }
+
+  g_dir_close (dir);
+}
+
+/* Writes the articles of old_dir in the compact form, 64 to a file named
+ * articles-XXX.bin, into articles_dir; each one checked to give the old
+ * one back, byte for byte */
+static gboolean
+pdb_db_save_compact_articles (PdbDb *db,
+                              const char *old_dir,
+                              const char *articles_dir,
+                              GError **error)
+{
+  int max_old = (db->articles->len + 15) / 16;
+  GPtrArray *compact = g_ptr_array_new_with_free_func ((GDestroyNotify) g_byte_array_unref);
+  gboolean ret = TRUE;
+  int old_num, i;
+
+  for (old_num = 0; ret && old_num < max_old; old_num++)
+    {
+      char *old_name = g_strdup_printf ("article-%03xx.bin", old_num);
+      char *full_name = g_build_filename (old_dir, old_name, NULL);
+      gchar *old;
+      gsize old_length, pos = 0;
+
+      if (!g_file_get_contents (full_name, &old, &old_length, error))
+        ret = FALSE;
+      else
+        {
+          while (ret && pos < old_length)
+            {
+              guint32 length;
+              int encoded_length, decoded_length;
+              guint8 *encoded, *decoded;
+              const guint8 *article = (const guint8 *) old + pos;
+
+              if (pos + 4 > old_length)
+                goto bad;
+              length = article[0] | (article[1] << 8) | (article[2] << 16) |
+                ((guint32) article[3] << 24);
+              if (pos + 4 + length > old_length)
+                goto bad;
+
+              encoded = pdb_articles_encode (article, length + 4, &encoded_length);
+              decoded = encoded ? pdb_articles_decode (encoded, encoded_length,
+                                                       &decoded_length) : NULL;
+
+              if (decoded == NULL || decoded_length != (int) length + 4 ||
+                  memcmp (decoded, article, length + 4))
+                {
+                  g_free (encoded);
+                  g_free (decoded);
+                  goto bad;
+                }
+
+              GByteArray *entry = g_byte_array_new_take (encoded, encoded_length);
+              g_ptr_array_add (compact, entry);
+              g_free (decoded);
+              pos += 4 + length;
+              continue;
+
+            bad:
+              g_set_error (error, PDB_ERROR, PDB_ERROR_BAD_FORMAT,
+                           "Article %u doesn't give itself back from its "
+                           "compact form", compact->len);
+              ret = FALSE;
+            }
+
+          g_free (old);
+        }
+
+      g_free (full_name);
+      g_free (old_name);
+    }
+
+  if (ret && compact->len != db->articles->len)
+    {
+      g_set_error (error, PDB_ERROR, PDB_ERROR_BAD_FORMAT,
+                   "%u articles written for %u", compact->len, db->articles->len);
+      ret = FALSE;
+    }
+
+  for (i = 0; ret && i < (int) compact->len; i += PDB_ARTICLES_PER_FILE)
+    {
+      int count = MIN (PDB_ARTICLES_PER_FILE, (int) compact->len - i);
+      GByteArray *out = g_byte_array_new ();
+      char *name = g_strdup_printf ("articles-%03x.bin", i / PDB_ARTICLES_PER_FILE);
+      char *full_name = g_build_filename (articles_dir, name, NULL);
+      int j;
+
+      g_byte_array_append (out, (const guint8 *) PDB_ARTICLES_MAGIC, 4);
+      pdb_db_append_varint (out, count);
+      for (j = 0; j < count; j++)
+        pdb_db_append_varint (out, ((GByteArray *) g_ptr_array_index (compact, i + j))->len);
+      for (j = 0; j < count; j++)
+        {
+          GByteArray *article = g_ptr_array_index (compact, i + j);
+          g_byte_array_append (out, article->data, article->len);
+        }
+
+      if (!g_file_set_contents (full_name, (char *) out->data, out->len, error))
+        ret = FALSE;
+
+      g_free (full_name);
+      g_free (name);
+      g_byte_array_free (out, TRUE);
+    }
+
+  g_ptr_array_free (compact, TRUE);
+  return ret;
+}
+
 gboolean
 pdb_db_save (PdbDb *db,
              const char *dir,
              GError **error)
 {
   gboolean ret = TRUE;
-  int group_num;
 
   if (!pdb_lang_save (db->lang, dir, error))
     return FALSE;
 
   if (pdb_try_mkdir (error, dir, "assets", "articles", NULL))
     {
-      int max_group = (db->articles->len + 15) / 16;
+      char *articles_dir = g_build_filename (dir, "assets", "articles", NULL);
+      /* The old format, aside: for the tests, or for the time of the
+       * build */
+      char *old_dir = pdb_db_raw_articles_dir ?
+        g_strdup (pdb_db_raw_articles_dir) :
+        g_dir_make_tmp ("prevodb-articles-XXXXXX", error);
 
-      for (group_num = 0; group_num < max_group; group_num++)
+      pdb_db_remove_article_files (articles_dir);
+
+      if (old_dir == NULL ||
+          (pdb_db_raw_articles_dir && g_mkdir_with_parents (old_dir, 0777) != 0))
         {
-          PdbFile out;
-          char *article_name =
-            g_strdup_printf ("article-%03xx.bin", group_num);
-          gboolean write_status = TRUE;
-          char *full_name = g_build_filename (dir,
-                                              "assets",
-                                              "articles",
-                                              article_name,
-                                              NULL);
+          if (old_dir)
+            g_set_error (error, PDB_ERROR, PDB_ERROR_BAD_FORMAT,
+                         "Can't make the directory %s", old_dir);
+          ret = FALSE;
+        }
+      else
+        {
+          if (pdb_db_raw_articles_dir)
+            pdb_db_remove_article_files (old_dir);
 
-          if (!pdb_file_open (&out, full_name, PDB_FILE_MODE_WRITE, error))
-            write_status = FALSE;
-          else
+          ret = pdb_db_save_old_articles (db, old_dir, error) &&
+            pdb_db_save_compact_articles (db, old_dir, articles_dir, error);
+
+          if (!pdb_db_raw_articles_dir)
             {
-              int page_num, max_page;
-
-              if ((db->articles->len & 0xf) && group_num + 1 >= max_group)
-                max_page = db->articles->len & 0xf;
-              else
-                max_page = 16;
-
-              for (page_num = 0; page_num < max_page; page_num++)
-                {
-                  PdbDbArticle *article =
-                    g_ptr_array_index (db->articles, group_num * 16 + page_num);
-
-                  if (!pdb_db_save_article (db,
-                                            article,
-                                            FALSE, /* single */
-                                            &out,
-                                            error))
-                    {
-                      write_status = FALSE;
-                      break;
-                    }
-                }
-
-              if (!pdb_file_close (&out, write_status ? error : NULL))
-                write_status = FALSE;
-            }
-
-          g_free (full_name);
-          g_free (article_name);
-
-          if (!write_status)
-            {
-              ret = FALSE;
-              break;
+              pdb_db_remove_article_files (old_dir);
+              g_rmdir (old_dir);
             }
         }
+
+      g_free (old_dir);
+      g_free (articles_dir);
     }
   else
     ret = FALSE;
