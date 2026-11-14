@@ -285,7 +285,7 @@ class OldTrie @Throws(IOException::class) constructor(dataStream: InputStream) {
             var at = 0
             while (at < path.length) {
                 val next = path.offsetByCodePoints(at, 1)
-                key.append(orderOf(path.substring(at, next), esperanto))
+                key.append(orderOf(path.substring(at, next), esperanto, path.substring(0, at)))
                 at = next
             }
             if (!esperanto && key.length > typed)
@@ -321,7 +321,7 @@ class OldTrie @Throws(IOException::class) constructor(dataStream: InputStream) {
                 var child = childrenOf(node)
                 while (child < end) {
                     val letter = getCharacter(child + 4)
-                    var key = orderOf(letter, esperanto)
+                    var key = orderOf(letter, esperanto, group.paths[i])
                     var rest = ""
                     if (!esperanto && key.length > 1) {
                         rest = key.substring(1)
@@ -538,8 +538,22 @@ class OldTrie @Throws(IOException::class) constructor(dataStream: InputStream) {
 
         /* A katakana as its hiragana, a kana without its voicing mark, in
          * the order (0.9) */
-        fun orderOf(letter: String, esperanto: Boolean): String {
-            val plain = hiragana(letter)
+        /* The long vowel ー as the vowel it lengthens (0.9): its own copy */
+        fun prolonged(before: Char): Char? {
+            val kana = hiragana(before.toString())[0]
+            return when (kana) {
+                in "ぁあかがさざただなはばぱまゃやらゎわゕ" -> 'あ'
+                in "ぃいきぎしじちぢにひびぴみりゐ" -> 'い'
+                in "ぅうくぐすずっつづぬふぶぷむゅゆるゔ" -> 'う'
+                in "ぇえけげせぜてでねへべぺめれゑゖ" -> 'え'
+                in "ぉおこごそぞとどのほぼぽもょよろを" -> 'お'
+                else -> null
+            }
+        }
+
+        fun orderOf(letter: String, esperanto: Boolean, before: String = ""): String {
+            val vowel = if (letter == "ー" && before.isNotEmpty()) prolonged(before.last()) else null
+            val plain = vowel?.toString() ?: hiragana(letter)
             val folded = foldLetter(plain).filter { it.code != 0x3099 && it.code != 0x309a }
             if (esperanto && folded != plain.lowercase(Locale.ROOT))
                 return folded + '\uffff'

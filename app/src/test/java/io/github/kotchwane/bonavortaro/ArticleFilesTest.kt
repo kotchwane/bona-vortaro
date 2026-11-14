@@ -167,5 +167,15 @@ class ArticleFilesTest {
         assertThrows(IOException::class.java) { ArticleFiles.parseArticle(noSection, 0, noSection.size) }
         val trailing = byteArrayOf(0, 0, 0, 7)
         assertThrows(IOException::class.java) { ArticleFiles.parseArticle(trailing, 0, trailing.size) }
+        /* Counts of spans and of sections far beyond the article, or
+         * negative: refused, not allocated */
+        val huge = byteArrayOf(0xff.toByte(), 0xff.toByte(), 0xff.toByte(), 0xff.toByte(), 0x07)
+        val negative = byteArrayOf(0xff.toByte(), 0xff.toByte(), 0xff.toByte(), 0xff.toByte(), 0x0f)
+        for (count in listOf(huge, negative)) {
+            val spans = byteArrayOf(0) + count
+            assertThrows(IOException::class.java) { ArticleFiles.parseArticle(spans, 0, spans.size) }
+            val sections = byteArrayOf(0, 0) + count
+            assertThrows(IOException::class.java) { ArticleFiles.parseArticle(sections, 0, sections.size) }
+        }
     }
 }

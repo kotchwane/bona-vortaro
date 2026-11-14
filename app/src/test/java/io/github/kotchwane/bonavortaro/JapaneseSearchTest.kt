@@ -70,8 +70,14 @@ class JapaneseSearchTest {
             words.sortedBy { orderKey(it, searched, esperanto = false) })
     }
 
-    /** The reading of a word as shown, "餓鬼（がき）" → "がき" */
-    private fun reading(word: String) = word.substringAfter('（', word).substringBefore('）')
+    /** The reading of a word as shown, in hiragana: "餓鬼（がき）" and
+     * "ガキ" are "がき" */
+    private fun reading(word: String) =
+        word.substringAfter('（', word).substringBefore('）').map { Trie.hiragana(it.toString()) }.joinToString("")
+
+    /** The reading as the order has it: without the voicing marks */
+    private fun unvoiced(word: String) =
+        java.text.Normalizer.normalize(reading(word), java.text.Normalizer.Form.NFD).filter { it.code != 0x3099 && it.code != 0x309a }
 
     @Test
     fun theVoicingMarksAreNotAccents() {
@@ -85,8 +91,14 @@ class JapaneseSearchTest {
         /* Typed with its mark, the voiced word, in either script */
         assertTrue("がき" in found("がき"))
         assertTrue("がき" in found("ガキ"))
-        /* "は" ha: no "ば" ba nor "ぱ" pa */
-        assertTrue(found("は", 128).none { reading(it).startsWith("ば") || reading(it).startsWith("ぱ") })
+        /* "は" ha: no "ば" ba nor "ぱ" pa; "ハ" neither, in either script */
+        for (ha in listOf("は", "ハ")) {
+            val words = found(ha, 128)
+            assertTrue(words.isNotEmpty())
+            assertTrue(words.toString(), words.none { reading(it).startsWith("ば") || reading(it).startsWith("ぱ") })
+        }
+        /* "カ" doesn't find a katakana "ガ" word either */
+        assertTrue(found("カ", 128).none { reading(it).startsWith("が") })
     }
 
     @Test
@@ -97,6 +109,48 @@ class JapaneseSearchTest {
         assertEquals(128, i.size)
         assertTrue(i.toString(), i.any { w -> w.all { it in '\u30a0'..'\u30ff' } })
         assertEquals(i, found("イ", 128))
+    }
+
+    @Test
+    fun theResultsComeInTheOrderOfAJapaneseDictionary() {
+        /* Katakana among the hiragana, not before nor after them all */
+        val i = found("い", 2000).map { w -> w.all { it in '\u30a0'..'\u30ff' } }
+        assertFalse("the first word is a katakana one", i.first())
+        val firstKatakana = i.indexOf(true)
+        assertTrue(firstKatakana > 0 && i.drop(firstKatakana).contains(false))
+        /* A voiced kana right after the same without its mark, at the same
+         * place: "かぎ" before the longer "かき…", "かきあつめる" */
+        val ka = found("か", 2000).map(::reading)
+        val kagi = ka.indexOf("かぎ")
+        assertTrue(ka.toString(), kagi > 0)
+        assertTrue(ka.drop(kagi).any { it.startsWith("かき") && it.length > 2 })
+        /* The long vowel ー as the vowel it lengthens: "コーヒー" as
+         * "こおひい", before the "こん…" */
+        val ko = found("コ", 2000)
+        val coffee = ko.indexOfFirst { it.startsWith("コーヒー") }
+        val kon = ko.indexOfFirst { reading(it).startsWith("こん") }
+        assertTrue(ko.toString(), coffee in 0 until kon)
+        assertEquals("こおひい", sortKey("コーヒー", esperanto = false))
+        assertEquals('あ', Trie.prolonged('カ'))
+        assertEquals(null, Trie.prolonged('ん'))
+    }
+
+    @Test
+    fun aWordTypedWithItsLongVowelThatTheIndexHasWithoutIt() {
+        /* "コンピューター": the index has "コンピュータ", and longer words
+         * with the ー: these aren't the word typed, so without the ー */
+        assertTrue(DictionarySearch.lacksTypedWord("コンピューター", listOf("コンピューターサイエンス")))
+        assertFalse(DictionarySearch.lacksTypedWord("ショー", listOf("ショー", "ショーウインドー")))
+        /* With its reading, in either script */
+        assertFalse(DictionarySearch.lacksTypedWord("こーひー", listOf("コーヒー")))
+    }
+
+    @Test
+    fun halfWidthKatakanaIsTheKatakanaOfTheIndex() {
+        assertEquals("ガキ", searchFilter("ｶﾞｷ", "ja").uppercase())
+        assertEquals("コーヒー", searchFilter("ｺｰﾋｰ", "ja").uppercase())
+        /* Only in Japanese */
+        assertEquals("ｶ", searchFilter("ｶ", "eo"))
     }
 
     @Test
