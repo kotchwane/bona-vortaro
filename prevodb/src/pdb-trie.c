@@ -263,8 +263,25 @@ pdb_trie_compress_node (PdbTrie *trie,
   for (guint i = 0; i < unique->len; i++)
     {
       PdbTrieArticle *article = g_ptr_array_index (unique, i);
-      guint16 article_num = g_array_index (nums, int, i * 2);
-      guint8 mark_num = g_array_index (nums, int, i * 2 + 1);
+      int article_val = g_array_index (nums, int, i * 2);
+      int mark_val = g_array_index (nums, int, i * 2 + 1);
+
+      /* The limits of the trie's format: 14 bits for the article, a byte
+       * for the mark and for the length of the text shown. Stop rather
+       * than write an index that reads as something else */
+      if (article_val < 0 || article_val > 0x3fff)
+        g_error ("Article %d: an index can only point to articles up "
+                 "to 16383", article_val);
+      if (mark_val < 0 || mark_val > 0xff)
+        g_error ("Mark %d of article %d: an index can only point to "
+                 "marks up to 255", mark_val, article_val);
+      if (article->display_word && strlen (article->display_word) > 0xff)
+        g_error ("The text shown \"%s\" (article %d) is %d bytes long: an "
+                 "index can only hold 255", article->display_word,
+                 article_val, (int) strlen (article->display_word));
+
+      guint16 article_num = article_val;
+      guint8 mark_num = mark_val;
 
       if (i + 1 < unique->len)
         article_num |= 0x8000;

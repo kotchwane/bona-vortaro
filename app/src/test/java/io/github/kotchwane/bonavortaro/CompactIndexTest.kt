@@ -71,14 +71,15 @@ class CompactIndexTest {
             val esperanto = small.name == "index-eo.bin"
             val before = original.inputStream().use { OldTrie(it) }
             val after = small.inputStream().use { Trie(it) }
-            /* The letters the words of this language begin with */
-            val words = arrayOfNulls<SearchResult>(400)
-            val letters = before.searchIgnoringAccents("", words, esperanto).let { n ->
-                words.take(n).filterNotNull().map { it.word.lowercase() }
-            }
+            /* Words from the whole index, not only its first ones: their
+             * starts of 1 to 3 letters, a few whole, and patterns */
+            val all = arrayOfNulls<SearchResult>(200_000)
+            val words = before.search("", all).let { n -> all.take(n).filterNotNull().map { it.word.lowercase() } }
             val queries = (1..3).flatMap { length ->
-                List(20) { letters[random.nextInt(letters.size)].take(length) }
-            } + listOf("a", "e", "*o", "?a*", "", "zzzz", "A", "É")
+                List(20) { words[random.nextInt(words.size)].take(length) }
+            } + List(5) { words[random.nextInt(words.size)] } +
+                List(3) { words[random.nextInt(words.size)].let { w -> "${w.take(1)}*${w.takeLast(1)}" } } +
+                listOf("a", "e", "*o", "?a*", "", "zzzz", "A", "É")
             for (query in queries.distinct()) {
                 for ((old, new) in searches(query, esperanto)) {
                     for (size in listOf(1, 64)) {

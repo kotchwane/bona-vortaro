@@ -123,8 +123,13 @@ internal fun orderKey(word: String, searched: String, esperanto: Boolean): Strin
 internal fun sortKey(word: String, esperanto: Boolean): String {
     /* Without the reading of a Japanese or Chinese word, in full-width
      * brackets: "犬（いぬ）" before "犬の（いぬの）", as "犬" before "犬の" */
+    /* In hiragana, the long vowel ー as the vowel it lengthens: "コーヒー"
+     * as "こおひい", as Trie orders them */
     if (!esperanto)
-        return Vikivortaro.key(word.substringBefore('（')).map(::hiragana).joinToString("")
+        return buildString {
+            for (letter in Vikivortaro.key(word.substringBefore('（')).map(::hiragana))
+                append(if (letter == 'ー' && isNotEmpty()) Trie.prolonged(last()) ?: letter else letter)
+        }
     return word.substringBefore(" (").lowercase(java.util.Locale.ROOT).replace('’', '\'')
         .replace('\u00a0', ' ').replace('\u202f', ' ').trim()
         .map { letter ->
@@ -145,6 +150,39 @@ internal fun isBeyond(word: String, last: String, query: String, esperanto: Bool
     return orderKey(word, searched, esperanto) > orderKey(last, searched, esperanto)
 }
 
+/** Whether a word found is the word searched as a whole, alone or followed
+ * by other words, accents and case aside: "malva" keeps "malvo"'s "malva"
+ * but not "malvacoj"; "valet" keeps "valet d'écurie". A Japanese word by
+ * its reading too, in either script: "いぬ" keeps "犬（いぬ）" and "イヌ" */
+internal fun isWholeWord(word: String, filter: String): Boolean {
+    val key = Vikivortaro.key(filter).map(::hiragana).joinToString("")
+    return listOf(word, word.substringAfter('（', "").substringBefore('）')).any { w ->
+        Vikivortaro.key(w).map(::hiragana).joinToString("").let {
+            it.isNotEmpty() && it.startsWith(key) && (it.length == key.length || !it[key.length].isLetterOrDigit())
+        }
+    }
+}
+
+/** Half-width katakana, from some keyboards or pasted, as the index
+ * writes them, "ｶﾞｷ" as "ガキ"; nothing else: the index has full-width
+ * letters and digits, "３０分", "ｘ線写真" */
+internal fun withFullWidthKana(text: String): String {
+    val out = StringBuilder(text.length)
+    var i = 0
+    while (i < text.length) {
+        if (text[i].code in 0xff61..0xff9f) {
+            var end = i
+            while (end < text.length && text[end].code in 0xff61..0xff9f) end++
+            /* A run at once: "ｶﾞ" is one letter, "ガ" */
+            out.append(Normalizer.normalize(text.substring(i, end), Normalizer.Form.NFKC))
+            i = end
+        } else
+            out.append(text[i++])
+    }
+    /* A half-width mark after a full-width kana, pasted: "カﾞ" is "ガ" */
+    return Normalizer.normalize(out, Normalizer.Form.NFC)
+}
+
 /** Whether a query is a pattern, with "*" or "?" in it */
 fun isPattern(query: String): Boolean = '*' in query || '?' in query
 
@@ -161,7 +199,11 @@ fun searchFilter(query: String, language: String): String {
         /* Non-breaking spaces as spaces; "œ" as "oe", which finds both */
         .replace('\u00a0', ' ').replace('\u202f', ' ')
         .replace("œ", "oe").replace("æ", "ae")
-    return if (language == "fr") filter.replace('î', 'i').replace('û', 'u') else filter
+    return when (language) {
+        "fr" -> filter.replace('î', 'i').replace('û', 'u')
+        "ja" -> withFullWidthKana(filter)
+        else -> filter
+    }
 }
 
 /** Whether an entry of [form], another form of the word [typed], is its
@@ -223,12 +265,23 @@ object DictionarySearch {
             /* As typed; else with a hyphen for a space, or the other way
              * round, or without either: "petit dejeuner" is
              * "petit-déjeuner", "Porto-Riko" "Portoriko" */
-            for (typed in spellings(filter)) {
+            val tried = spellings(filter)
+            for ((n, typed) in tried.withIndex()) {
                 if (stopped())
                     return SearchOutcome(emptyList(), 0)
                 val outcome = searchAs(context, trie, typed, language, esperanto, whole, stopped)
-                if (!outcome.isEmpty)
-                    return SearchOutcome(outcome.results, index, outcome.wiktionary, typed, esperanto, language, outcome.lemmas, outcome.bonaLingvo, outcome.proposedInstead)
+                if (outcome.isEmpty)
+                    continue
+                /* A word typed with its final ー that the index only has
+                 * without it, beside longer words with it: "コンピューター",
+                 * where it has "コンピュータ" and "コンピューターサイエンス" */
+                if (n == 0 && tried.size == 2 && tried[1] == typed.dropLast(1) &&
+                    lacksTypedWord(typed, outcome.results.map { it.word })) {
+                    val shorter = searchAs(context, trie, tried[1], language, esperanto, whole, stopped)
+                    if (!shorter.isEmpty)
+                        return SearchOutcome(shorter.results, index, shorter.wiktionary, tried[1], esperanto, language, shorter.lemmas, shorter.bonaLingvo, shorter.proposedInstead)
+                }
+                return SearchOutcome(outcome.results, index, outcome.wiktionary, typed, esperanto, language, outcome.lemmas, outcome.bonaLingvo, outcome.proposedInstead)
             }
         }
 
@@ -246,12 +299,20 @@ object DictionarySearch {
         val isEmpty get() = results.isEmpty() && wiktionary.isEmpty() && lemmas.isEmpty() && bonaLingvo.isEmpty() && proposedInstead.isEmpty()
     }
 
-    private fun spellings(filter: String): List<String> = when {
-        /* A Japanese word with or without its final long vowel, as both
-         * are written: "コンピューター" finds "コンピュータ"; without it
-         * first, which finds the words with it too */
-        filter.length > 2 && filter.endsWith('ー') -> listOf(filter.dropLast(1), filter)
-        isPattern(filter) || (' ' !in filter && '-' !in filter) -> listOf(filter)
+    /** Whether none of the words found is the word typed itself, as the
+     * search orders words: "コンピューターサイエンス" for "コンピューター" */
+    internal fun lacksTypedWord(typed: String, words: List<String>): Boolean =
+        words.none { sortKey(it, esperanto = false) == sortKey(typed, esperanto = false) }
+
+    internal fun spellings(filter: String): List<String> = when {
+        /* A pattern is whole words, as typed: "*ター" isn't "*タ" */
+        isPattern(filter) -> listOf(filter)
+        /* A Japanese word with its final long vowel, as typed, then
+         * without it, as some are written: "コンピューター" finds
+         * "コンピュータ". As typed first, which the words without it
+         * would otherwise push past the results kept: "ショ" begins 400 */
+        filter.length > 2 && filter.endsWith('ー') -> listOf(filter, filter.dropLast(1))
+        ' ' !in filter && '-' !in filter -> listOf(filter)
         else -> listOf(filter, filter.replace(' ', '-'), filter.replace('-', ' '), filter.replace(" ", "").replace("-", "")).distinct()
     }
 
@@ -308,12 +369,7 @@ object DictionarySearch {
         /* The word as a whole, accents and case aside, alone or followed
          * by other words: "malva " leaves out "malvacoj"; "eleve " finds
          * "élève"; "valet " keeps "valet d'écurie" */
-        val key = Vikivortaro.key(filter)
-        val wanted = { word: String ->
-            !whole || isPattern(filter) || Vikivortaro.key(word).let {
-                it.startsWith(key) && (it.length == key.length || !it[key.length].isLetterOrDigit())
-            }
-        }
+        val wanted = { word: String -> !whole || isPattern(filter) || isWholeWord(word, filter) }
         val found = all.filter { wanted(it.word) }.let {
             if (esperanto || isPattern(filter)) it else lesserLast(context, it, language, stopped)
         }

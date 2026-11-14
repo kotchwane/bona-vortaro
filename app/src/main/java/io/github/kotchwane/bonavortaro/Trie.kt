@@ -571,7 +571,7 @@ class Trie @Throws(IOException::class) constructor(dataStream: InputStream) {
             var at = 0
             while (at < path.length) {
                 val next = path.offsetByCodePoints(at, 1)
-                key.append(orderOf(path.substring(at, next), esperanto))
+                key.append(orderOf(path.substring(at, next), esperanto, path.substring(0, at)))
                 at = next
             }
             /* "co" reaches "cœ", whose "e" is still to come in the order */
@@ -609,7 +609,7 @@ class Trie @Throws(IOException::class) constructor(dataStream: InputStream) {
 
                 for (child in cursor.children(node)) {
                     val letter = child.letter
-                    var key = orderOf(letter, esperanto)
+                    var key = orderOf(letter, esperanto, group.paths[i])
                     var rest = ""
                     if (!esperanto && key.length > 1) {
                         rest = key.substring(1)
@@ -894,8 +894,10 @@ class Trie @Throws(IOException::class) constructor(dataStream: InputStream) {
             val decomposed = Normalizer.normalize(letter, Normalizer.Form.NFD)
             val buf = StringBuilder()
 
+            /* The voicing marks of the kana aren't accents: they change the
+             * sound, "か" ka doesn't find "が" ga, nor "は" ha "ぱ" pa */
             for (ch in decomposed)
-                if (Character.getType(ch) != Character.NON_SPACING_MARK.toInt())
+                if (Character.getType(ch) != Character.NON_SPACING_MARK.toInt() || isVoicing(ch))
                     buf.append(ch)
 
             /* The curly apostrophe of some keyboards, and of a few entries,
@@ -903,7 +905,7 @@ class Trie @Throws(IOException::class) constructor(dataStream: InputStream) {
              * non-breaking spaces of some entries, "brr !", are spaces; the
              * ligatures, in the order, their two letters */
             return buf.toString().lowercase(Locale.ROOT).replace('’', '\'')
-                .replace(' ', ' ').replace(' ', ' ')
+                .replace('\u00a0', ' ').replace('\u202f', ' ')
                 .replace("œ", "oe").replace("æ", "ae")
         }
 
@@ -937,13 +939,46 @@ class Trie @Throws(IOException::class) constructor(dataStream: InputStream) {
                 stack.push(group)
         }
 
+        /* The kana by their vowel, for the long vowel ー */
+        private const val VOWEL_A = "ぁあかがさざただなはばぱまゃやらゎわゕ"
+        private const val VOWEL_I = "ぃいきぎしじちぢにひびぴみりゐ"
+        private const val VOWEL_U = "ぅうくぐすずっつづぬふぶぷむゅゆるゔ"
+        private const val VOWEL_E = "ぇえけげせぜてでねへべぺめれゑゖ"
+        private const val VOWEL_O = "ぉおこごそぞとどのほぼぽもょよろを"
+
+        /** The vowel a long vowel ー after this kana lengthens, as a
+         * Japanese dictionary orders it: "あ" after "カ", "コーヒー" read
+         * "こおひい"; null after another letter, "ん" or "ー" */
+        @JvmStatic
+        fun prolonged(before: Char): Char? {
+            val kana = hiragana(before.toString())[0]
+            return when (kana) {
+                in VOWEL_A -> 'あ'
+                in VOWEL_I -> 'い'
+                in VOWEL_U -> 'う'
+                in VOWEL_E -> 'え'
+                in VOWEL_O -> 'お'
+                else -> null
+            }
+        }
+
+        /** The voicing mark of a kana once decomposed: "が" is "か" and
+         * U+3099, "ぱ" "は" and U+309A */
+        private fun isVoicing(ch: Char) = ch.code == 0x3099 || ch.code == 0x309a
+
         /** The place of a letter in the order of the results: the letter
          * without its accents and case; in Esperanto, ĉ ĝ ĥ ĵ ŝ ŭ right
-         * after c g h j s u */
-        private fun orderOf(letter: String, esperanto: Boolean): String {
-            val folded = foldLetter(letter)
-            if (esperanto && folded != letter.lowercase(Locale.ROOT))
-                return folded + '￿'
+         * after c g h j s u. A katakana as its hiragana, and a kana without
+         * its voicing mark, as a Japanese dictionary orders them: "イヌ"
+         * among the "い", "がき" right after "かき" */
+        private fun orderOf(letter: String, esperanto: Boolean, before: String = ""): String {
+            /* The long vowel as the vowel it lengthens: "コー" as "こお",
+             * "コーヒー" among the "こお", not after the "こん" */
+            val vowel = if (letter == "ー" && before.isNotEmpty()) prolonged(before.last()) else null
+            val plain = vowel?.toString() ?: hiragana(letter)
+            val folded = foldLetter(plain).filterNot(::isVoicing)
+            if (esperanto && folded != plain.lowercase(Locale.ROOT))
+                return folded + '\uffff'
             return folded
         }
     }
