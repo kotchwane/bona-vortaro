@@ -151,6 +151,8 @@ class JapaneseSearchTest {
     fun halfWidthKatakanaIsTheKatakanaOfTheIndex() {
         assertEquals("ガキ", searchFilter("ｶﾞｷ", "ja").uppercase())
         assertEquals("コーヒー", searchFilter("ｺｰﾋｰ", "ja").uppercase())
+        /* A half-width mark after a full-width kana, pasted */
+        assertEquals("ガキ", searchFilter("カﾞキ", "ja"))
         /* Only in Japanese */
         assertEquals("ｶ", searchFilter("ｶ", "eo"))
         /* Only the half-width kana: the index writes some words with

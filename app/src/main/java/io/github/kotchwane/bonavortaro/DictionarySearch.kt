@@ -179,7 +179,8 @@ internal fun withFullWidthKana(text: String): String {
         } else
             out.append(text[i++])
     }
-    return out.toString()
+    /* A half-width mark after a full-width kana, pasted: "カﾞ" is "ガ" */
+    return Normalizer.normalize(out, Normalizer.Form.NFC)
 }
 
 /** Whether a query is a pattern, with "*" or "?" in it */
