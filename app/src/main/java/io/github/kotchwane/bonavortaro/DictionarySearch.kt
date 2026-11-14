@@ -246,12 +246,15 @@ object DictionarySearch {
         val isEmpty get() = results.isEmpty() && wiktionary.isEmpty() && lemmas.isEmpty() && bonaLingvo.isEmpty() && proposedInstead.isEmpty()
     }
 
-    private fun spellings(filter: String): List<String> = when {
-        /* A Japanese word with or without its final long vowel, as both
-         * are written: "コンピューター" finds "コンピュータ"; without it
-         * first, which finds the words with it too */
-        filter.length > 2 && filter.endsWith('ー') -> listOf(filter.dropLast(1), filter)
-        isPattern(filter) || (' ' !in filter && '-' !in filter) -> listOf(filter)
+    internal fun spellings(filter: String): List<String> = when {
+        /* A pattern is whole words, as typed: "*ター" isn't "*タ" */
+        isPattern(filter) -> listOf(filter)
+        /* A Japanese word with its final long vowel, as typed, then
+         * without it, as some are written: "コンピューター" finds
+         * "コンピュータ". As typed first, which the words without it
+         * would otherwise push past the results kept: "ショ" begins 400 */
+        filter.length > 2 && filter.endsWith('ー') -> listOf(filter, filter.dropLast(1))
+        ' ' !in filter && '-' !in filter -> listOf(filter)
         else -> listOf(filter, filter.replace(' ', '-'), filter.replace('-', ' '), filter.replace(" ", "").replace("-", "")).distinct()
     }
 

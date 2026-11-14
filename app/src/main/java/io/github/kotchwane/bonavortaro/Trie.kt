@@ -894,8 +894,10 @@ class Trie @Throws(IOException::class) constructor(dataStream: InputStream) {
             val decomposed = Normalizer.normalize(letter, Normalizer.Form.NFD)
             val buf = StringBuilder()
 
+            /* The voicing marks of the kana aren't accents: they change the
+             * sound, "か" ka doesn't find "が" ga, nor "は" ha "ぱ" pa */
             for (ch in decomposed)
-                if (Character.getType(ch) != Character.NON_SPACING_MARK.toInt())
+                if (Character.getType(ch) != Character.NON_SPACING_MARK.toInt() || isVoicing(ch))
                     buf.append(ch)
 
             /* The curly apostrophe of some keyboards, and of a few entries,
@@ -903,7 +905,7 @@ class Trie @Throws(IOException::class) constructor(dataStream: InputStream) {
              * non-breaking spaces of some entries, "brr !", are spaces; the
              * ligatures, in the order, their two letters */
             return buf.toString().lowercase(Locale.ROOT).replace('’', '\'')
-                .replace(' ', ' ').replace(' ', ' ')
+                .replace('\u00a0', ' ').replace('\u202f', ' ')
                 .replace("œ", "oe").replace("æ", "ae")
         }
 
@@ -937,13 +939,20 @@ class Trie @Throws(IOException::class) constructor(dataStream: InputStream) {
                 stack.push(group)
         }
 
+        /** The voicing mark of a kana once decomposed: "が" is "か" and
+         * U+3099, "ぱ" "は" and U+309A */
+        private fun isVoicing(ch: Char) = ch.code == 0x3099 || ch.code == 0x309a
+
         /** The place of a letter in the order of the results: the letter
          * without its accents and case; in Esperanto, ĉ ĝ ĥ ĵ ŝ ŭ right
-         * after c g h j s u */
+         * after c g h j s u. A katakana as its hiragana, and a kana without
+         * its voicing mark, as a Japanese dictionary orders them: "イヌ"
+         * among the "い", "がき" right after "かき" */
         private fun orderOf(letter: String, esperanto: Boolean): String {
-            val folded = foldLetter(letter)
-            if (esperanto && folded != letter.lowercase(Locale.ROOT))
-                return folded + '￿'
+            val plain = hiragana(letter)
+            val folded = foldLetter(plain).filterNot(::isVoicing)
+            if (esperanto && folded != plain.lowercase(Locale.ROOT))
+                return folded + '\uffff'
             return folded
         }
     }

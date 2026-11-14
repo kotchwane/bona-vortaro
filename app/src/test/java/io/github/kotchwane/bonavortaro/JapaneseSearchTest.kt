@@ -41,11 +41,11 @@ class JapaneseSearchTest {
         assertFalse(Trie.sameKana("a", "a"))
     }
 
-    private fun found(query: String): List<String> {
+    private fun found(query: String, limit: Int = 32): List<String> {
         val file = File("src/main/assets/indices/index-ja.bin")
         assumeTrue("The dictionary hasn't been built", file.exists())
         val trie = file.inputStream().use { Trie(it) }
-        val results = arrayOfNulls<SearchResult>(32)
+        val results = arrayOfNulls<SearchResult>(limit)
         val count = trie.searchIgnoringAccents(query, results)
         return results.take(count).filterNotNull().map { it.word }
     }
@@ -68,5 +68,44 @@ class JapaneseSearchTest {
          * before いぬの */
         assertEquals(listOf("犬（いぬ）", "イヌイット", "犬の（いぬの）", "イヌワシ"),
             words.sortedBy { orderKey(it, searched, esperanto = false) })
+    }
+
+    /** The reading of a word as shown, "餓鬼（がき）" → "がき" */
+    private fun reading(word: String) = word.substringAfter('（', word).substringBefore('）')
+
+    @Test
+    fun theVoicingMarksAreNotAccents() {
+        /* "かき" ka-ki: 火器, 下記…, not 餓鬼 ga-ki nor 鍵 ka-gi */
+        val kaki = found("かき", 128)
+        assertTrue(kaki.toString(), "火器（かき）" in kaki)
+        assertTrue(kaki.none { reading(it).startsWith("が") || reading(it).startsWith("かぎ") })
+        assertTrue(kaki.isNotEmpty())
+        /* The same in katakana */
+        assertEquals(kaki, found("カキ", 128))
+        /* Typed with its mark, the voiced word, in either script */
+        assertTrue("がき" in found("がき"))
+        assertTrue("がき" in found("ガキ"))
+        /* "は" ha: no "ば" ba nor "ぱ" pa */
+        assertTrue(found("は", 128).none { reading(it).startsWith("ば") || reading(it).startsWith("ぱ") })
+    }
+
+    @Test
+    fun oneKanaFindsTheKatakanaWordsInTheirPlace() {
+        /* "い": more words than are kept; the katakana words among them in
+         * the order of their reading, not after all the hiragana ones */
+        val i = found("い", 128)
+        assertEquals(128, i.size)
+        assertTrue(i.toString(), i.any { w -> w.all { it in '\u30a0'..'\u30ff' } })
+        assertEquals(i, found("イ", 128))
+    }
+
+    @Test
+    fun theFinalLongVowelIsTriedAsTypedThenWithout() {
+        assertEquals(listOf("コンピューター", "コンピュータ"), DictionarySearch.spellings("コンピューター"))
+        /* Too short to be a word with its long vowel */
+        assertEquals(listOf("ター"), DictionarySearch.spellings("ター"))
+        /* A pattern is whole words, as typed */
+        assertEquals(listOf("*ター"), DictionarySearch.spellings("*ター"))
+        assertEquals(listOf("コ?ー"), DictionarySearch.spellings("コ?ー"))
     }
 }

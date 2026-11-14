@@ -117,11 +117,13 @@ object ArticleFiles {
 
         fun text(): TextData {
             val length = count()
-            if (at + length > end)
+            if (length < 0 || length > end - at)
                 throw IOException("Truncated article")
             val text = String(data, at, length, Charsets.UTF_8)
             at += length
             val spanCount = count()
+            if (spanCount < 0 || spanCount > end - at)
+                throw IOException("Invalid number of spans")
             val spans = ArrayList<SpanData>(spanCount)
             var start = 0
             for (i in 0 until spanCount) {
@@ -146,10 +148,16 @@ object ArticleFiles {
             throw IOException("Not a file of articles")
         val reader = Reader(data, 4, data.size)
         val count = reader.count()
+        /* Each article takes at least a byte: a damaged count can't ask
+         * for more memory than the file has */
+        if (count < 0 || count > data.size)
+            throw IOException("Invalid number of articles")
         val lengths = IntArray(count) { reader.count() }
         val starts = IntArray(count)
         var at = reader.at
         for (i in 0 until count) {
+            if (lengths[i] < 0 || lengths[i] > data.size - at)
+                throw IOException("The articles don't fill their file")
             starts[i] = at
             at += lengths[i]
         }
@@ -166,6 +174,8 @@ object ArticleFiles {
         val reader = Reader(data, start, start + length)
         val title = reader.text()
         val sectionCount = reader.count()
+        if (sectionCount < 0 || sectionCount > length)
+            throw IOException("Invalid number of sections")
         val sections = ArrayList<SectionData>(sectionCount)
         for (i in 0 until sectionCount) {
             if (reader.at + 3 > reader.end)

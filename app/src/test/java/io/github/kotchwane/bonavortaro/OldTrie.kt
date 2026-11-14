@@ -506,11 +506,12 @@ class OldTrie @Throws(IOException::class) constructor(dataStream: InputStream) {
         fun foldLetter(letter: String): String {
             val decomposed = Normalizer.normalize(letter, Normalizer.Form.NFD)
             val buf = StringBuilder()
+            /* The voicing marks of the kana aren't accents (0.9) */
             for (ch in decomposed)
-                if (Character.getType(ch) != Character.NON_SPACING_MARK.toInt())
+                if (Character.getType(ch) != Character.NON_SPACING_MARK.toInt() || ch.code == 0x3099 || ch.code == 0x309a)
                     buf.append(ch)
             return buf.toString().lowercase(Locale.ROOT).replace('’', '\'')
-                .replace(' ', ' ').replace(' ', ' ')
+                .replace('\u00a0', ' ').replace('\u202f', ' ')
                 .replace("œ", "oe").replace("æ", "ae")
         }
 
@@ -535,10 +536,13 @@ class OldTrie @Throws(IOException::class) constructor(dataStream: InputStream) {
                 stack.push(group)
         }
 
+        /* A katakana as its hiragana, a kana without its voicing mark, in
+         * the order (0.9) */
         fun orderOf(letter: String, esperanto: Boolean): String {
-            val folded = foldLetter(letter)
-            if (esperanto && folded != letter.lowercase(Locale.ROOT))
-                return folded + '￿'
+            val plain = hiragana(letter)
+            val folded = foldLetter(plain).filter { it.code != 0x3099 && it.code != 0x309a }
+            if (esperanto && folded != plain.lowercase(Locale.ROOT))
+                return folded + '\uffff'
             return folded
         }
     }

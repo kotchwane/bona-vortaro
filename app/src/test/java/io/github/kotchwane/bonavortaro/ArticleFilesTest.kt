@@ -129,4 +129,43 @@ class ArticleFilesTest {
         /* Not a file of articles */
         assertThrows(IOException::class.java) { ArticleFiles.parseBlock("BVX1....".toByteArray()) }
     }
+
+    /** A file of articles from its parts: "BVA1", the count, the lengths */
+    private fun file(count: Int, lengths: List<Int>, body: ByteArray): ByteArray {
+        fun varint(n: Int): ByteArray {
+            val out = java.io.ByteArrayOutputStream()
+            var v = n
+            do {
+                var b = v and 0x7f
+                v = v ushr 7
+                if (v != 0) b = b or 0x80
+                out.write(b)
+            } while (v != 0)
+            return out.toByteArray()
+        }
+        return "BVA1".toByteArray() + varint(count) + lengths.fold(ByteArray(0)) { a, l -> a + varint(l) } + body
+    }
+
+    @Test
+    fun aDamagedArticleIsRefusedCleanly() {
+        /* An article: an empty title (no text, no span), no section */
+        val empty = byteArrayOf(0, 0, 0)
+        val block = ArticleFiles.parseBlock(file(1, listOf(3), empty))
+        assertEquals(ArticleData(TextData("", emptyList()), emptyList()), ArticleFiles.parseArticle(block.data, block.starts[0], block.lengths[0]))
+        /* Lengths past the end, or short of it */
+        assertThrows(IOException::class.java) { ArticleFiles.parseBlock(file(1, listOf(4), empty)) }
+        assertThrows(IOException::class.java) { ArticleFiles.parseBlock(file(1, listOf(2), empty)) }
+        /* A count far beyond the file, which mustn't ask for the memory */
+        assertThrows(IOException::class.java) { ArticleFiles.parseBlock(file(1_000_000_000, listOf(3), empty)) }
+        /* A number that never ends */
+        assertThrows(IOException::class.java) { ArticleFiles.parseBlock("BVA1".toByteArray() + ByteArray(8) { 0xff.toByte() }) }
+        /* An article cut short: a text of 5 bytes with 2 left, a missing
+         * section, data after the end */
+        val cut = byteArrayOf(5, 'a'.code.toByte(), 'b'.code.toByte())
+        assertThrows(IOException::class.java) { ArticleFiles.parseArticle(cut, 0, cut.size) }
+        val noSection = byteArrayOf(0, 0, 1)
+        assertThrows(IOException::class.java) { ArticleFiles.parseArticle(noSection, 0, noSection.size) }
+        val trailing = byteArrayOf(0, 0, 0, 7)
+        assertThrows(IOException::class.java) { ArticleFiles.parseArticle(trailing, 0, trailing.size) }
+    }
 }
