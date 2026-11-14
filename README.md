@@ -166,7 +166,7 @@ python3 scripts/frequency.py epo_mixed_2012_1M-words.txt
 
 | Dosierujo | Enhavo |
 |---|---|
-| `app/` | la apo por Android (Kotlin kaj Compose, kun Java-kerno el PReVo) |
+| `app/` | la apo por Android (Kotlin kaj Compose; ĝia kerno venas el PReVo) |
 | `prevodb/` | la konvertilo de la XML de ReVo al la dosieroj de la apo (C) |
 | `extern/revo-fonto`, `extern/voko-grundo` | la fontoj de Reta Vortaro (submoduloj) |
 | `app/src/main/assets/vikivortaro/` | la francaj, anglaj kaj germanaj tradukoj kaj la esperantaj difinoj el Vikivortaro (CC BY-SA 4.0) |
@@ -339,7 +339,7 @@ python3 scripts/frequency.py epo_mixed_2012_1M-words.txt
 
 | Folder | What it holds |
 |---|---|
-| `app/` | the Android app (Kotlin and Compose, with a Java core from PReVo) |
+| `app/` | the Android app (Kotlin and Compose; its core comes from PReVo) |
 | `prevodb/` | the converter from ReVo's XML to the app's files (C) |
 | `extern/revo-fonto`, `extern/voko-grundo` | the sources of Reta Vortaro (submodules) |
 | `app/src/main/assets/vikivortaro/` | the French, English and German translations and the Esperanto definitions from Wiktionary (CC BY-SA 4.0) |
