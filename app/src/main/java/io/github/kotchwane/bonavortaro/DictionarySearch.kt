@@ -150,6 +150,38 @@ internal fun isBeyond(word: String, last: String, query: String, esperanto: Bool
     return orderKey(word, searched, esperanto) > orderKey(last, searched, esperanto)
 }
 
+/** Whether a word found is the word searched as a whole, alone or followed
+ * by other words, accents and case aside: "malva" keeps "malvo"'s "malva"
+ * but not "malvacoj"; "valet" keeps "valet d'écurie". A Japanese word by
+ * its reading too, in either script: "いぬ" keeps "犬（いぬ）" and "イヌ" */
+internal fun isWholeWord(word: String, filter: String): Boolean {
+    val key = Vikivortaro.key(filter).map(::hiragana).joinToString("")
+    return listOf(word, word.substringAfter('（', "").substringBefore('）')).any { w ->
+        Vikivortaro.key(w).map(::hiragana).joinToString("").let {
+            it.isNotEmpty() && it.startsWith(key) && (it.length == key.length || !it[key.length].isLetterOrDigit())
+        }
+    }
+}
+
+/** Half-width katakana, from some keyboards or pasted, as the index
+ * writes them, "ｶﾞｷ" as "ガキ"; nothing else: the index has full-width
+ * letters and digits, "３０分", "ｘ線写真" */
+internal fun withFullWidthKana(text: String): String {
+    val out = StringBuilder(text.length)
+    var i = 0
+    while (i < text.length) {
+        if (text[i].code in 0xff61..0xff9f) {
+            var end = i
+            while (end < text.length && text[end].code in 0xff61..0xff9f) end++
+            /* A run at once: "ｶﾞ" is one letter, "ガ" */
+            out.append(Normalizer.normalize(text.substring(i, end), Normalizer.Form.NFKC))
+            i = end
+        } else
+            out.append(text[i++])
+    }
+    return out.toString()
+}
+
 /** Whether a query is a pattern, with "*" or "?" in it */
 fun isPattern(query: String): Boolean = '*' in query || '?' in query
 
@@ -168,9 +200,7 @@ fun searchFilter(query: String, language: String): String {
         .replace("œ", "oe").replace("æ", "ae")
     return when (language) {
         "fr" -> filter.replace('î', 'i').replace('û', 'u')
-        /* Half-width katakana, from some keyboards or pasted, as the
-         * index writes them: "ｶﾞｷ" is "ガキ" */
-        "ja" -> Normalizer.normalize(filter, Normalizer.Form.NFKC)
+        "ja" -> withFullWidthKana(filter)
         else -> filter
     }
 }
@@ -338,17 +368,7 @@ object DictionarySearch {
         /* The word as a whole, accents and case aside, alone or followed
          * by other words: "malva " leaves out "malvacoj"; "eleve " finds
          * "élève"; "valet " keeps "valet d'écurie" */
-        val key = Vikivortaro.key(filter)
-        /* A Japanese word by its reading too, in either script: "いぬ "
-         * keeps "犬（いぬ）" and "イヌ" */
-        val kanaKey = key.map(::hiragana).joinToString("")
-        val wanted = { word: String ->
-            !whole || isPattern(filter) || listOf(word, word.substringAfter('（', "").substringBefore('）')).any { w ->
-                Vikivortaro.key(w).map(::hiragana).joinToString("").let {
-                    it.isNotEmpty() && it.startsWith(kanaKey) && (it.length == kanaKey.length || !it[kanaKey.length].isLetterOrDigit())
-                }
-            }
-        }
+        val wanted = { word: String -> !whole || isPattern(filter) || isWholeWord(word, filter) }
         val found = all.filter { wanted(it.word) }.let {
             if (esperanto || isPattern(filter)) it else lesserLast(context, it, language, stopped)
         }

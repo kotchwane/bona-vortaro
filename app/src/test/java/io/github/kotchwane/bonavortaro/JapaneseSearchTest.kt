@@ -98,7 +98,9 @@ class JapaneseSearchTest {
             assertTrue(words.toString(), words.none { reading(it).startsWith("ば") || reading(it).startsWith("ぱ") })
         }
         /* "カ" doesn't find a katakana "ガ" word either */
-        assertTrue(found("カ", 128).none { reading(it).startsWith("が") })
+        val ka = found("カ", 128)
+        assertTrue(ka.isNotEmpty())
+        assertTrue(ka.none { reading(it).startsWith("が") })
     }
 
     @Test
@@ -151,6 +153,38 @@ class JapaneseSearchTest {
         assertEquals("コーヒー", searchFilter("ｺｰﾋｰ", "ja").uppercase())
         /* Only in Japanese */
         assertEquals("ｶ", searchFilter("ｶ", "eo"))
+        /* Only the half-width kana: the index writes some words with
+         * full-width letters and digits, found as typed */
+        for (word in listOf("３０分", "ｘ線", "第２")) {
+            assertEquals(word, searchFilter(word, "ja"))
+            assertTrue(word, found(word).isNotEmpty())
+        }
+    }
+
+    @Test
+    fun aWholeWordIsTheWordAloneOrFollowedByOthers() {
+        /* By its reading, in either script */
+        assertTrue(isWholeWord("犬（いぬ）", "いぬ"))
+        assertTrue(isWholeWord("イヌ", "いぬ"))
+        assertTrue(isWholeWord("犬（いぬ）", "イヌ"))
+        assertFalse(isWholeWord("犬の（いぬの）", "いぬ"))
+        assertFalse(isWholeWord("イヌイット", "いぬ"))
+        /* Other languages as before */
+        assertTrue(isWholeWord("valet d'écurie", "valet"))
+        assertFalse(isWholeWord("valetaille", "valet"))
+        assertTrue(isWholeWord("élève", "eleve"))
+        assertTrue(isWholeWord("malva", "malva"))
+        assertFalse(isWholeWord("malvacoj", "malva"))
+        /* A word without a reading isn't kept through an empty one */
+        assertFalse(isWholeWord("hundo", "xyz"))
+    }
+
+    @Test
+    fun theIndexHasTheShorterSpellingOfTheLongVowel() {
+        /* What the search loop relies on, on the index itself */
+        assertTrue(DictionarySearch.lacksTypedWord("コンピューター", found("コンピューター", 128)))
+        assertTrue(found("コンピュータ").any { it.startsWith("コンピュータ（") })
+        assertFalse(DictionarySearch.lacksTypedWord("コーヒー", found("コーヒー", 128)))
     }
 
     @Test
